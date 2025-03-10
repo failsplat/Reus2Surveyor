@@ -361,3 +361,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+/*.xlsx
+Glossaries/Biotica.xlsx
+Glossaries/NonBiotica.xlsx

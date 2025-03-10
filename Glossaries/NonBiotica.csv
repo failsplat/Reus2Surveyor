@@ -1,0 +1,81 @@
+Type,Name,Definition
+Biome,Forest,b864bd84e81591e4c8a0420b65cdb773
+Character,Botanist,598246b875444d74abf673c444d3ce72
+Character,Diplomat,e20394ec436ac8948bc077402a1f21b2
+Character,General,90f06d7f25f60fd44adad486b1f2cb13
+Character,Goddess,6724fbe065d022a47b309d423fe28949
+Character,Huntress,2698c352c9500f44d990d9564ca15dda
+Character,Inventor,cdfd7304a0032ce428833b7d1e1ae59f
+Character,Merchant,faa902c637381ce4aac9743b80d25f1e
+Character,Miner,b7e17c6046996e444a2f20f7ab7986ff
+Character,Painter,4fd12d9829eead044885c4628ec5007e
+Character,Pirate Queen,db4fc92f176bec241ad7dba81c1b69de
+Character,Poet,81b98b62dbb653e4cb0d50255d7b4a4d
+Character,Sage,432c0d2e00dd36143b820f81d2b98eb0
+Character,Villain,906bc8f46e50d7a4c85a840f7ba4af17
+Luxury,Fur Vest,5daac051b78f7c64ab97d7db71f8aad8
+Luxury,House Oil,19379a96848cb91488f752ea6ffca489
+Micro,Fairy Ring,c367a46c52eb47d469ac01b97c554364
+Micro,Sphagnum Moss,62412fc37137fac4d85d22245d8e0c1d
+Micro,Wooly Moth Caterpillar,
+Micro,Scarab,
+Micro,Mantis,
+Micro,Ghost Fungus,
+Micro,Wooly Moth Caterpillar (Ice Age),
+Micro,Assassin Bug,
+Micro,Bee,
+Micro,Black Truffle,
+Micro,Chanterelle,
+Micro,Dragonfly,
+Micro,Emperor Butterfly,
+Micro,Fruit Bat,
+Micro,Golden Stag Beetle,
+Micro,Ladybug,
+Micro,Monarch Butterfly,
+Micro,Octopus Stinkhorn,
+Micro,Orchid Mantis,
+Micro,Rainbow Stag,
+Micro,Tarantula,
+Micro,Termites,
+Micro,Walking Stick,
+Micro,Agaricus Bisporus,
+Micro,Centipede,
+Micro,Drone Beetle,
+Micro,Fly Agaric,
+Micro,Fly,
+Micro,Viceroy Butterfly,
+Micro,Worm,
+Micro,Jeweled Beetle,
+Micro,Antlion,
+Micro,Stag Beetle,
+Micro,Luna Moth,
+Micro,Krill,
+Micro,Poison Dart Frog,
+Micro,Bullfrog,
+Micro,Luna Moth (Ice Age),
+TurningPoint,Age of Discovery,
+TurningPoint,Age of Horror,
+TurningPoint,Age of Philosohpy,
+TurningPoint,Calm Era,a664adb4acb089e4e8f2fdb16587deb5
+TurningPoint,Calm Era II,154b440e764320241b6a294c7eb8e44a
+TurningPoint,Calm Era III,8b164482b7e328c46b69323dabb4e1db
+TurningPoint,Castles and Knights,
+TurningPoint,City of Dreams,
+TurningPoint,Damned Plague,
+TurningPoint,Enlightenment,d1cf7a981f93dc0448a0f570ca872d5c
+TurningPoint,Hunter Age,
+TurningPoint,Iron Age,
+TurningPoint,Merchant Age,
+TurningPoint,Monument Age,
+TurningPoint,Neolithic Revolution,21c848e3f9f662542909a92520f52c7b
+TurningPoint,Nuclear War,
+TurningPoint,Revolution!,
+TurningPoint,Sludge Corp,
+TurningPoint,Small World,
+TurningPoint,Solarpunk,
+TurningPoint,Space Race,e8ccd15f6e42a334093fb00da3725e98
+TurningPoint,Tropical Paradise,
+Yield,Gold,161daff6b2491eb448a91386aa8e0608
+Yield,Science,852fcd4695e1f7d4385ce12937820ff0
+Yield,Threat,4f49fe5df96428443a4ff3e6f0a91013
+Yield,Mystery,38275ba1abee85c48b377f030bb7b088
