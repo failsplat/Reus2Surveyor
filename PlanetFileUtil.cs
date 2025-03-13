@@ -66,7 +66,17 @@ namespace Reus2Surveyor
             Dictionary<string, object> resAsDict = PlanetFileUtil.ObjectToDictionary(resAsObj);
             List<object> refTokens = (List<object>)resAsDict["referenceTokens"];
             Planet newPlanet = new(refTokens);
+            newPlanet.name = PlanetNameFromFilePath(path);
             return (newPlanet, resAsDict);
+        }
+
+        public static string PlanetNameFromFilePath(string path)
+        {
+            List<string> pathParts = [.. path.Split(Path.DirectorySeparatorChar)];
+            pathParts.Reverse();
+            string planetFolder = pathParts[1];
+            List<string> planetNameParts = [..planetFolder.Split('_')];
+            return String.Join(' ',planetNameParts[1..]);
         }
     }
 }

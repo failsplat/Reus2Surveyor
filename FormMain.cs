@@ -189,6 +189,7 @@ namespace Reus2Surveyor
             {
                 string path = openFile.FileName;
                 (Planet testPlanet, Dictionary<string,object> resAsDict) = PlanetFileUtil.ReadPlanetFromFile(path);
+                
                 this.LastSpotCheckDir = Path.GetDirectoryName(path);
 
                 List<string> pathParts = [.. path.Split(Path.DirectorySeparatorChar)];
