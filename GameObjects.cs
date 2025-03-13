@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Runtime.InteropServices.ObjectiveC;
 using System.Runtime.InteropServices.Swift;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -14,93 +16,85 @@ namespace Reus2Surveyor
 {
     public class Planet
     {
-        public readonly string name;
-        private Dictionary<int, BioticumSlot> slotDictionary;
-        public Dictionary<int, BioticumSlot> SlotDictionary { get => slotDictionary; private set => slotDictionary = value; }
-        private Dictionary<int, Patch> patchDictionary;
-        public Dictionary<int, Patch> PatchDictionary { get => patchDictionary; private set => patchDictionary = value; }
-        private readonly int totalSize;
-        public int PatchCount { get => totalSize; }
-        private readonly int wildSize;
-        public int WildPatchCount { get => wildSize; }
-        private PatchMap<int?> patchIDMap;
-        public PatchMap<int?> PatchIDMap { get => patchIDMap; private set => patchIDMap = value; }
+        public string name;
+        public readonly Dictionary<int, BioticumSlot> slotDictionary = [];
+        public readonly Dictionary<int, Patch> patchDictionary = [];
+        public readonly Dictionary<int, Biome> biomeDictionary = [];
+        public readonly int totalSize;
+        public readonly int wildSize;
+        public readonly PatchMap<int?> patchIDMap;
 
         //public List<int?> patchCollection;
 
-        public static List<string> slotCheckKeys = [
+        public readonly static List<string> slotCheckKeys = [
             "bioticum", "futureSlot", "patch", "locationOnPatch", "slotLevel", "parent",
                 "isInvasiveSlot", "slotbonusDefinitions", "archivedBiotica", "name"
             ];
-        public static List<string> patchCheckKeys = [
+        public readonly static List<string> patchCheckKeys = [
             "foregroundSlot", "backgroundSlot", "mountainSlot",
                 "projectSlots", "_type", "planet", "biomeDefinition", "patchVariation",
                 "currentBackdropMode", "colorsAndParameters", "elevation", "windAndWater", "specialNaturalFeature", "mountainPart"
             ];
-        /*public static List<string> patchCollectionCheckKeys = [
-            "models", "name", "parent",
-            ];*/
-        public static List<string> planetCloneCheckKeys = [
+        /*public readonly static List<string> planetCloneCheckKeys = [
             "patches", "rivers", "biomeSaveData", "puzzle", "animalController", "allPropVisuals", "name"
+            ];*/
+        public readonly static List<string> patchCollectionCheckKeys = [
+            "models", "name", "parent"
+            ];
+        public readonly static List<string> biomeCheckKeys = [
+            "biomeBuffs", "anchorPatch", "visualName", "biomeType", "name",
             ];
 
         public Planet(List<object> referenceTokensList)
         {
-            this.slotDictionary = [];
-            this.patchDictionary = [];
+            int i = -1;
 
-            int i = 0;
+            // Primary Data (first pass getting data directly from the dictionary)
             foreach (Dictionary<string, object> refToken in referenceTokensList)
             {
+                i++;
                 List<string> rtKeys = [.. refToken.Keys];
                 if (slotCheckKeys.All(k => rtKeys.Contains(k)))
                 {
                     this.slotDictionary.Add(i, new BioticumSlot(refToken));
-                    i++;
                     continue;
                 }
                 if (patchCheckKeys.All(k => rtKeys.Contains(k)) && (string)refToken["_type"] == "Patch")
                 {
                     this.patchDictionary.Add(i, new Patch(refToken));
-                    i++;
                     continue;
                 }
-                if (planetCloneCheckKeys.All(k => rtKeys.Contains(k)))
+                if (patchCollectionCheckKeys.All(k => rtKeys.Contains(k)) && (string)refToken["name"] == "PatchCollection")
                 {
-                    this.patchIDMap = new PatchMap<int?>(DictionaryHelper.TryGetIntList(refToken, ["representedBackdrops", "itemData"], ["value", "Item1", "id"]));
-                }
-
-                /*if (patchCollectionCheckKeys.All(k => rtKeys.Contains(k)) && (string)refToken["name"] == "PatchCollection")
-                {
-                    this.patchCollection = DictionaryHelper.TryGetIntList(refToken, ["models", "itemData"], "id");
-                    i++;
+                    this.patchIDMap = new PatchMap<int?>(
+                        DictionaryHelper.TryGetIntList(refToken, ["models", "itemData"], "id"));
                     continue;
-                }*/
-
-                // Yay incrementer
-                i++;
+                }
+                if (biomeCheckKeys.All(k => rtKeys.Contains(k)))
+                {
+                    this.biomeDictionary.Add(i, new Biome(refToken));
+                    continue;
+                }                
             }
+
+            // Secondary Data (calculated when all game objects parsed)
             this.totalSize = this.patchDictionary.Count;
             this.wildSize =  this.patchDictionary.Where(kvp => kvp.Value.IsWildPatch()).Count();
+            foreach (Biome b in this.biomeDictionary.Values)
+            {
+                b.BuildPatchInfo(this.patchIDMap, this.patchDictionary);
+            }
         }
     }
 
     public class BioticumSlot
     {
-        private int? bioticum, patch, locationOnPatch, slotLevel, parent;
+        public readonly int? bioticum, patch, locationOnPatch, slotLevel, parent;
         public readonly int? futureSlot;
-        public int? BioticumRef { get => bioticum; private set => bioticum = value; }
-        public int? PatchRef { get => patch; private set => patch = value; }
-        public int? LocationOnPatch { get => locationOnPatch; private set => locationOnPatch = value; }
-        public int? SlotLevel { get => slotLevel; private set => slotLevel = value; }
-        public int? ParentRef { get => parent; private set => parent = value; }
 
-        private bool isInvasiveSlot;
-        public bool IsInvasiveSlot { get => isInvasiveSlot; private set => isInvasiveSlot = value; }
-        private List<string> slotbonusDefinitions;
-        public List<string> SlotBonusDefinitions { get => slotbonusDefinitions; private set => slotbonusDefinitions = value; }
-        private List<Dictionary<string, object>> archivedBiotica;
-        public List<Dictionary<string, object>> LegacyBiotica { get => archivedBiotica; private set => archivedBiotica = value; }
+        public readonly bool isInvasiveSlot;
+        public readonly List<string> slotbonusDefinitions;
+        public readonly List<Dictionary<string, object>> archivedBiotica;
         public readonly string name;
 
         public BioticumSlot(Dictionary<string, object> dict)
@@ -124,11 +118,8 @@ namespace Reus2Surveyor
 
     public class Patch
     {
-        private int? foregroundSlot, backgroundSlot, mountainSlot, mountainPart;
-        public int? ForegroundSlotRef { get => foregroundSlot; private set => foregroundSlot = value; }
-        public int? BackgroundSlotRef { get => backgroundSlot; private set => backgroundSlot = value; }
-        public int? MountainSlot { get => mountainSlot; private set => mountainSlot = value; }
-        private List<int?> projectSlots;
+        public readonly int? foregroundSlot, backgroundSlot, mountainSlot, mountainPart;
+        private readonly List<int?> projectSlots;
         public readonly string biomeDefinition, name;
         private readonly object ruinedCityMemory;
 
@@ -189,4 +180,71 @@ namespace Reus2Surveyor
 
     }
 
+    public class Biome
+    {
+        public readonly int? anchorPatch;
+        public readonly string visualName;
+        public readonly int? biomeTypeInt;
+        public readonly string biomeTypeName;
+
+        public string biomeTypeDef { get; private set; }
+        public List<int?> patchList { get; private set; }
+        public List<int?> wildPatchList { get; private set; }
+        public int totalSize { get; private set; }
+        public int wildSize { get; private set; }
+
+        public Biome(Dictionary<string, object> dict)
+        {
+            this.anchorPatch = DictionaryHelper.TryGetInt(dict, ["anchorPatch", "id"]);
+            this.visualName = DictionaryHelper.TryGetString(dict, ["visualName"]);
+            this.biomeTypeInt = DictionaryHelper.TryGetInt(dict, ["biomeType", "value"]);
+            if (this.biomeTypeInt is not null) this.biomeTypeName = Glossaries.BiomeNameByInt[(int)this.biomeTypeInt];
+        }
+
+        public void BuildPatchInfo(PatchMap<int?> patchMap, Dictionary<int, Patch> patchDict)
+        {
+            if (this.anchorPatch is null)
+            {
+                this.patchList = [];
+                this.wildPatchList = [];
+                this.totalSize = this.patchList.Count;
+                this.wildSize = this.wildPatchList.Count;
+                return;
+            }
+
+            int anchorMapPosition = patchMap.IndexOf(this.anchorPatch);
+            Patch anchorPatchObj = patchDict[(int)this.anchorPatch];
+            this.biomeTypeDef = anchorPatchObj.biomeDefinition;
+
+            List<int?> leftPatches = [];
+            List<int?> rightPatches = [];
+
+            for (int leftMapPosition = anchorMapPosition - 1; (patchMap.Count + (leftMapPosition % patchMap.Count)) % patchMap.Count != anchorMapPosition; leftMapPosition--)
+            {
+                int leftPatchIndex = (int)patchMap[(patchMap.Count + (leftMapPosition % patchMap.Count)) % patchMap.Count];
+                string leftPatchBiomeDef = patchDict[leftPatchIndex].biomeDefinition;
+                if (leftPatchBiomeDef == this.biomeTypeDef) leftPatches.Insert(0, leftPatchIndex);
+                else break;
+            }
+            for (int rightMapPosition = anchorMapPosition + 1; rightMapPosition % patchMap.Count != anchorMapPosition; rightMapPosition++)
+            {
+                int rightPatchIndex = (int)patchMap[rightMapPosition % patchMap.Count];
+                string rightPatchBiomeDef = patchDict[rightPatchIndex].biomeDefinition;
+                if (rightPatchBiomeDef == this.biomeTypeDef) rightPatches.Add(rightPatchIndex);
+                else break;
+            }
+
+            rightPatches.Insert(0, this.anchorPatch);
+            leftPatches.AddRange(rightPatches);
+            this.patchList = leftPatches;
+            this.wildPatchList = [..this.patchList.Where(x => patchDict[(int)x].IsWildPatch())];
+            this.totalSize = this.patchList.Count;
+            this.wildSize = this.wildPatchList.Count;
+        }
+    }
+
+    public class Bioticum
+    {
+
+    }
 }

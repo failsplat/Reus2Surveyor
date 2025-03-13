@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Reus2Surveyor
 {
-    class Glossaries
+    public class Glossaries
     {
         public readonly Dictionary<string, string> SpiritHashByName = [], SpiritNameByHash = [];
         public readonly Dictionary<string, string> BiomeHashByName = [], BiomeNameByHash = [];
@@ -98,13 +98,37 @@ namespace Reus2Surveyor
             }
         }
 
-        public Glossaries(string folderPath) 
-            : this(nbFile:Path.Combine(folderPath, "NonBiotica.csv"), bioFile:Path.Combine(folderPath, "Biotica.csv"))
+        public Glossaries(string folderPath)
+            : this(nbFile: Path.Combine(folderPath, "NonBiotica.csv"), bioFile: Path.Combine(folderPath, "Biotica.csv"))
         {
         }
-    }
 
-    class BioticumDefinition
+        public static readonly Dictionary<int,string> BiomeNameByInt = new()
+        {
+            {0, "Forest" },
+            {1, "Rainforest" },
+            {2, "Taiga" },
+            {4, "Savanna" },
+            {5, "Desert" },
+            {6, "Ocean" },
+            {8, "Ice Age" },
+        };
+        public static readonly Dictionary<string, int> BiomeIntByName = BiomeNameByInt.ToDictionary(x => x.Value, x => x.Key);
+
+        public string BiomeNameFromDef(string def)
+        {
+            if (BiomeNameByHash.ContainsKey(def))
+            {
+                return BiomeNameByHash[def];
+            }
+            else
+            {
+                return "(?)" + def;
+            }
+        }
+}
+
+    public class BioticumDefinition
     {
         public string Name { get; private set; }
         public string Type { get; private set; }
@@ -177,7 +201,7 @@ namespace Reus2Surveyor
                         }
                         break;
                 }
-                
+
             }
         }
     }

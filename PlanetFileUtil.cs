@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.IO.Compression;
 using System.IO;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace Reus2Surveyor
 {
@@ -56,6 +57,16 @@ namespace Reus2Surveyor
         public static Dictionary<string, object> ObjectToDictionary(object inputObject)
         {
             return (Dictionary<string, object>) ObjectToDictionaryInner(inputObject);
+        }
+
+        public static (Planet, Dictionary<string, object>) ReadPlanetFromFile(string path)
+        {
+            string res = PlanetFileUtil.DecompressEncodedFile(path);
+            var resAsObj = JsonConvert.DeserializeObject(res);
+            Dictionary<string, object> resAsDict = PlanetFileUtil.ObjectToDictionary(resAsObj);
+            List<object> refTokens = (List<object>)resAsDict["referenceTokens"];
+            Planet newPlanet = new(refTokens);
+            return (newPlanet, resAsDict);
         }
     }
 }
