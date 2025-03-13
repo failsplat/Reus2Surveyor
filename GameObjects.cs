@@ -20,6 +20,7 @@ namespace Reus2Surveyor
         public readonly Dictionary<int, BioticumSlot> slotDictionary = [];
         public readonly Dictionary<int, Patch> patchDictionary = [];
         public readonly Dictionary<int, Biome> biomeDictionary = [];
+        public readonly Dictionary<int, NatureBioticum> natureBioticumDictionary = [];
         public readonly int totalSize;
         public readonly int wildSize;
         public readonly PatchMap<int?> patchIDMap;
@@ -43,6 +44,11 @@ namespace Reus2Surveyor
             ];
         public readonly static List<string> biomeCheckKeys = [
             "biomeBuffs", "anchorPatch", "visualName", "biomeType", "name",
+            ];
+        public readonly static List<string> bioticumCheckKeys = [
+            "aspectSlots", "_type", "bioticumID", "definition", "receivedRiverBonus", 
+            "anomalyBonusActve", // [sic]
+            "name", "parent"
             ];
 
         public Planet(List<object> referenceTokensList)
@@ -74,7 +80,12 @@ namespace Reus2Surveyor
                 {
                     this.biomeDictionary.Add(i, new Biome(refToken));
                     continue;
-                }                
+                }
+                if (bioticumCheckKeys.All(k=> rtKeys.Contains(k)) && (string)refToken["name"] == "NatureBioticum")
+                {
+                    this.natureBioticumDictionary.Add(i, new NatureBioticum(refToken));
+                    continue;
+                }
             }
 
             // Secondary Data (calculated when all game objects parsed)
@@ -84,12 +95,23 @@ namespace Reus2Surveyor
             {
                 b.BuildPatchInfo(this.patchIDMap, this.patchDictionary);
             }
+            // Remove biotica with ID 0
+            List<int> inactiveBiotica = [];
+            foreach (KeyValuePair<int,NatureBioticum> kv in this.natureBioticumDictionary)
+            {
+                if (!kv.Value.IsActive()) inactiveBiotica.Add(kv.Key);
+            }
+            foreach(int removeIndex in inactiveBiotica)
+            {
+                this.natureBioticumDictionary.Remove(removeIndex);
+            }
         }
     }
 
     public class BioticumSlot
     {
-        public readonly int? bioticum, patch, locationOnPatch, slotLevel, parent;
+        // Primary Data
+        public readonly int? bioticum, patch, locationOnPatch, slotLevel, patchIndex;
         public readonly int? futureSlot;
 
         public readonly bool isInvasiveSlot;
@@ -102,22 +124,29 @@ namespace Reus2Surveyor
             this.bioticum = DictionaryHelper.TryGetInt(dict, ["bioticum", "id"]);
             this.futureSlot = DictionaryHelper.TryGetInt(dict, ["futureSlot", "id"]);
             this.patch = DictionaryHelper.TryGetInt(dict, ["patch", "id"]);
+
+            // 0 = Foreground
+            // 1 = Background
+            // 2 = Mountain 
             this.locationOnPatch = DictionaryHelper.TryGetInt(dict, ["locationOnPatch", "value"]);
 
             this.slotbonusDefinitions = DictionaryHelper.TryGetStringList(dict, ["slotbonusDefinitions", "itemData"], "itemData");
 
-            this.slotLevel = (int)(long)dict["slotLevel"];
+            this.slotLevel = DictionaryHelper.TryGetInt(dict,"slotLevel");
 
             this.archivedBiotica = DictionaryHelper.TryGetDictList(dict, ["archivedBiotica", "itemData"], "value");
             
             this.isInvasiveSlot = (bool)dict["isInvasiveSlot"];
-            this.name = (string)dict["name"];
-            this.parent = DictionaryHelper.TryGetInt(dict, ["parent", "id"]);
+
+            // "BioticumSlot (<patch> - <position>)
+            this.name = DictionaryHelper.TryGetString(dict, "name");
+            this.patchIndex = DictionaryHelper.TryGetInt(dict, ["parent", "id"]);
         }
     }
 
     public class Patch
     {
+        // Primary Data
         public readonly int? foregroundSlot, backgroundSlot, mountainSlot, mountainPart;
         private readonly List<int?> projectSlots;
         public readonly string biomeDefinition, name;
@@ -182,11 +211,13 @@ namespace Reus2Surveyor
 
     public class Biome
     {
+        // Primary Data
         public readonly int? anchorPatch;
         public readonly string visualName;
         public readonly int? biomeTypeInt;
         public readonly string biomeTypeName;
 
+        // Secondary Data
         public string biomeTypeDef { get; private set; }
         public List<int?> patchList { get; private set; }
         public List<int?> wildPatchList { get; private set; }
@@ -222,6 +253,7 @@ namespace Reus2Surveyor
             for (int leftMapPosition = anchorMapPosition - 1; (patchMap.Count + (leftMapPosition % patchMap.Count)) % patchMap.Count != anchorMapPosition; leftMapPosition--)
             {
                 int leftPatchIndex = (int)patchMap[(patchMap.Count + (leftMapPosition % patchMap.Count)) % patchMap.Count];
+                if (!patchDict.ContainsKey(leftPatchIndex)) break;
                 string leftPatchBiomeDef = patchDict[leftPatchIndex].biomeDefinition;
                 if (leftPatchBiomeDef == this.biomeTypeDef) leftPatches.Insert(0, leftPatchIndex);
                 else break;
@@ -229,6 +261,7 @@ namespace Reus2Surveyor
             for (int rightMapPosition = anchorMapPosition + 1; rightMapPosition % patchMap.Count != anchorMapPosition; rightMapPosition++)
             {
                 int rightPatchIndex = (int)patchMap[rightMapPosition % patchMap.Count];
+                if (!patchDict.ContainsKey(rightPatchIndex)) break;
                 string rightPatchBiomeDef = patchDict[rightPatchIndex].biomeDefinition;
                 if (rightPatchBiomeDef == this.biomeTypeDef) rightPatches.Add(rightPatchIndex);
                 else break;
@@ -243,8 +276,42 @@ namespace Reus2Surveyor
         }
     }
 
-    public class Bioticum
+    public class NatureBioticum
     {
+        // Active bioticum only!
+        // Legacy biotica are archived as part of the slots.
 
+        // Primary Data
+        public readonly List<int?> aspectSlots;
+        public readonly int? bioticumID;
+        public readonly string? definition;
+        public readonly bool receivedRiverBonus, anomalyBonusActive;
+        public readonly int? slotIndex;
+
+        // Secondary Data
+        public bool IsOnMountain { get; private set; }
+        public bool HasMicro { get; private set; }
+
+        public NatureBioticum(Dictionary<string,object> dict)
+        {
+            this.aspectSlots = DictionaryHelper.TryGetIntList(dict, ["aspectSlots", "itemData"], "id");
+            this.bioticumID = DictionaryHelper.TryGetInt(dict, "bioticumID");
+            this.definition = DictionaryHelper.TryGetString(dict, ["definition", "value"]);
+
+            this.receivedRiverBonus = (bool)dict["receivedRiverBonus"];
+            this.anomalyBonusActive = (bool)dict["anomalyBonusActve"]; // [sic]
+
+            this.slotIndex = DictionaryHelper.TryGetInt(dict, ["parent", "id"]);
+        }
+        
+        public void CheckSlotProperties(Dictionary<int, BioticumSlot> slotDict)
+        {
+            if (this.slotIndex is null || this.bioticumID is null) return;
+            BioticumSlot thisSlot = slotDict[(int)this.slotIndex];
+            this.IsOnMountain = thisSlot.locationOnPatch == 2;
+        }
+        // TODO: (Maybe) check that the aspect slot(s) have placed micros
+
+        public bool IsActive() { return this.bioticumID is null ? false : this.bioticumID > 0; }
     }
 }

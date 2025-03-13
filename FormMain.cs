@@ -28,14 +28,17 @@ namespace Reus2Surveyor
         public static readonly string outputDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Decoded");
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string ProfileDir { get; set; } = "";
+        public string ProfileDir { get; private set; } = "";
         public bool profileDirOK = false;
 
         private List<Planet> planetList = [];
-        public static readonly Glossaries GameGlossaries = new(Path.Combine(baseDir, "Defs"));
+        public static readonly Glossaries GameGlossaries = new(Path.Combine(baseDir, "Glossaries"));
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string LastSpotCheckDir { get; set; } = "";
+
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool SpotCheckWriteSetting { get; private set; } = true;
 
         public FormMain()
         {
@@ -92,6 +95,12 @@ namespace Reus2Surveyor
                 this.profileDirOK = false;
                 this.decodeReadyStatusLabel.Text = "Not Ready";
             }
+        }
+
+        public void SetSpotCheckWriteSetting(bool value)
+        {
+            this.SpotCheckWriteSetting = value;
+            this.spotCheckWriteCheckBox.Checked = value;
         }
 
         public void InitializePlanetGridView()
@@ -188,17 +197,35 @@ namespace Reus2Surveyor
             if (openFile.ShowDialog() == DialogResult.OK)
             {
                 string path = openFile.FileName;
-                (Planet testPlanet, Dictionary<string,object> resAsDict) = PlanetFileUtil.ReadPlanetFromFile(path);
-                
+                (Planet testPlanet, Dictionary<string, object> resAsDict) = PlanetFileUtil.ReadPlanetFromFile(path);
+
                 this.LastSpotCheckDir = Path.GetDirectoryName(path);
 
                 List<string> pathParts = [.. path.Split(Path.DirectorySeparatorChar)];
                 pathParts.Reverse();
 
-                string dst = Path.Combine(outputDir, pathParts[1] + "." + pathParts[0] + ".json");
-                string outputText = JsonConvert.SerializeObject(resAsDict, Formatting.Indented);
-                File.WriteAllText(dst, outputText);
+                if (this.SpotCheckWriteSetting) 
+                {
+                    string dst = Path.Combine(outputDir, pathParts[1] + "." + pathParts[0] + ".json");
+                    string outputText = JsonConvert.SerializeObject(resAsDict, Formatting.Indented);
+                    File.WriteAllText(dst, outputText);
+                }
+
+                // Counting biotica
+                // For getting definition strings for biotica
+                Dictionary<string, int> bioticaCounter = [];
+                foreach (NatureBioticum nb in testPlanet.natureBioticumDictionary.Values)
+                {
+                    string bioName = GameGlossaries.BioticumNameFromHash(nb.definition);
+                    if (bioticaCounter.ContainsKey(bioName)) bioticaCounter[bioName] += 1;
+                    else bioticaCounter[bioName] = 1;
+                }
             }
+        }
+
+        private void spotCheckWriteCheckBox_CheckStateChanged(object sender, EventArgs e)
+        {
+            this.SpotCheckWriteSetting = this.spotCheckWriteCheckBox.Checked;
         }
     }
 }

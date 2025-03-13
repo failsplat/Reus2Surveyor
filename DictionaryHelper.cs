@@ -59,6 +59,11 @@ namespace Reus2Surveyor
             return null;
         }
 
+        public static int? TryGetInt(Dictionary<string, object> dict, string key)
+        {
+            return TryGetInt(dict, [key]);
+        }
+
         public static string TryGetString(Dictionary<string, object> dict, List<string> keys)
         {
             try
@@ -75,6 +80,11 @@ namespace Reus2Surveyor
                 return null;
             }
             return null;
+        }
+
+        public static string TryGetString(Dictionary<string, object> dict, string key) 
+        {
+            return TryGetString(dict, [key]);
         }
 
         public static List<Dictionary<string, object>> TryGetDictList(Dictionary<string, object> dict, List<string> keysToList, string finalKey = null)

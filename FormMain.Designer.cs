@@ -42,6 +42,7 @@ namespace Reus2Surveyor
             exportStatsButton = new System.Windows.Forms.Button();
             exportReadyLabel = new System.Windows.Forms.Label();
             spotCheckButton = new System.Windows.Forms.Button();
+            spotCheckWriteCheckBox = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)planetGridView).BeginInit();
             SuspendLayout();
             // 
@@ -155,7 +156,7 @@ namespace Reus2Surveyor
             // spotCheckButton
             // 
             spotCheckButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
-            spotCheckButton.Location = new System.Drawing.Point(822, 489);
+            spotCheckButton.Location = new System.Drawing.Point(712, 490);
             spotCheckButton.Name = "spotCheckButton";
             spotCheckButton.Size = new System.Drawing.Size(75, 23);
             spotCheckButton.TabIndex = 10;
@@ -163,11 +164,25 @@ namespace Reus2Surveyor
             spotCheckButton.UseVisualStyleBackColor = true;
             spotCheckButton.Click += spotCheckButton_Click;
             // 
+            // spotCheckWriteCheckBox
+            // 
+            spotCheckWriteCheckBox.AutoSize = true;
+            spotCheckWriteCheckBox.Checked = true;
+            spotCheckWriteCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            spotCheckWriteCheckBox.Location = new System.Drawing.Point(793, 493);
+            spotCheckWriteCheckBox.Name = "spotCheckWriteCheckBox";
+            spotCheckWriteCheckBox.Size = new System.Drawing.Size(104, 19);
+            spotCheckWriteCheckBox.TabIndex = 11;
+            spotCheckWriteCheckBox.Text = "Write Decoded";
+            spotCheckWriteCheckBox.UseVisualStyleBackColor = true;
+            spotCheckWriteCheckBox.CheckStateChanged += spotCheckWriteCheckBox_CheckStateChanged;
+            // 
             // FormMain
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             ClientSize = new System.Drawing.Size(909, 519);
+            Controls.Add(spotCheckWriteCheckBox);
             Controls.Add(spotCheckButton);
             Controls.Add(exportReadyLabel);
             Controls.Add(exportStatsButton);
@@ -200,6 +215,7 @@ namespace Reus2Surveyor
         private System.Windows.Forms.DataGridViewCheckBoxColumn HasCompleteCol;
         private System.Windows.Forms.DataGridViewCheckBoxColumn ReadOKCol;
         private System.Windows.Forms.Button spotCheckButton;
+        private System.Windows.Forms.CheckBox spotCheckWriteCheckBox;
     }
 }
 

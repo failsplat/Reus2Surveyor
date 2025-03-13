@@ -1,5 +1,11 @@
-Type,Name,Definition
+Type,Name,Hash
 Biome,Forest,b864bd84e81591e4c8a0420b65cdb773
+Biome,Rainforest,
+Biome,Ocean,
+Biome,Savanna,
+Biome,Desert,
+Biome,Taiga,
+Biome,Ice Age,
 Character,Botanist,598246b875444d74abf673c444d3ce72
 Character,Diplomat,e20394ec436ac8948bc077402a1f21b2
 Character,General,90f06d7f25f60fd44adad486b1f2cb13

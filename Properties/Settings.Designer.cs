@@ -46,5 +46,17 @@ namespace Reus2Surveyor.Properties {
                 this["LastSpotCheckDir"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool SpotCheckWrite {
+            get {
+                return ((bool)(this["SpotCheckWrite"]));
+            }
+            set {
+                this["SpotCheckWrite"] = value;
+            }
+        }
     }
 }

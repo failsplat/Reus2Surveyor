@@ -1,5 +1,5 @@
-Name,Type,Tier,Apex,Desert,Forest,Ice Age,Ocean,Rainforest,Savanna,Taiga,Definition
-Sage Brush,Plant,1,,1,,,,,,,
+Name,Type,Tier,Apex,Desert,Forest,IceAge,Ocean,Rainforest,Savanna,Taiga,Hash
+Sage Brush,Plant,1,,1,,,,,,,10c6fcf4f4c941e4f9759cc075f3ddcc
 Agave,Plant,1,,1,,,,1,,,
 Barley,Plant,1,,1,,,,,1,,
 Fan Palm,Plant,1,,1,,,,,,,
@@ -37,7 +37,7 @@ Red Stone,Mineral,1,,1,,,,,1,,
 Carnelian,Mineral,1,,1,,1,,,1,,
 Enargite,Mineral,1,,1,,,,,,,
 Jasper,Mineral,1,,1,,,1,,,,
-Mudcrack,Mineral,1,,1,,,,,,,
+Mudcrack,Mineral,1,,1,,,,,,,9f16b24ee590ce14587fee48b64a5b47
 Topaz,Mineral,1,,1,,,,1,,,
 Lapis Lazuli,Mineral,1,1,1,,,,,,,
 Limestone,Mineral,1,1,1,,,,,,,

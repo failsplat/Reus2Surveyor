@@ -28,9 +28,11 @@ namespace Reus2Surveyor
             FormMain formMain = new();
             formMain.SetAndCheckProfilePath(Settings.Default.StartProfileDir);
             formMain.LastSpotCheckDir = Settings.Default.LastSpotCheckDir;
+            formMain.SetSpotCheckWriteSetting(Settings.Default.SpotCheckWrite);
             Application.Run(formMain);
             if (formMain.profileDirOK) Settings.Default.StartProfileDir = formMain.ProfileDir;
             Settings.Default.LastSpotCheckDir = formMain.LastSpotCheckDir;
+            Settings.Default.SpotCheckWrite = formMain.SpotCheckWriteSetting;
             Settings.Default.Save();
         }
 

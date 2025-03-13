@@ -34,42 +34,42 @@ namespace Reus2Surveyor
                     List<string> data = [.. currentLine.Split(",")];
                     string type = data[header.IndexOf("Type")];
                     string name = data[header.IndexOf("Name")];
-                    string def = data[header.IndexOf("Definition")];
+                    string hash = data[header.IndexOf("Hash")];
 
-                    if (def.Length != 32) continue;
+                    if (hash.Length != 32) continue;
                     else
                     {
                         switch (type)
                         {
                             case "Character":
                             case "Spirit":
-                                this.SpiritHashByName.Add(name, def);
-                                this.SpiritNameByHash.Add(def, name);
+                                this.SpiritHashByName.Add(name, hash);
+                                this.SpiritNameByHash.Add(hash, name);
                                 break;
                             case "Biome":
-                                this.BiomeHashByName.Add(name, def);
-                                this.BiomeNameByHash.Add(def, name);
+                                this.BiomeHashByName.Add(name, hash);
+                                this.BiomeNameByHash.Add(hash, name);
                                 break;
                             case "Luxury":
-                                this.LuxuryHashByName.Add(name, def);
-                                this.LuxuryNameByHash.Add(def, name);
+                                this.LuxuryHashByName.Add(name, hash);
+                                this.LuxuryNameByHash.Add(hash, name);
                                 break;
                             case "Micro":
                             case "Aspect":
                             case "Emblem":
-                                this.MicroHashByName.Add(name, def);
-                                this.MicroNameByHash.Add(def, name);
+                                this.MicroHashByName.Add(name, hash);
+                                this.MicroNameByHash.Add(hash, name);
                                 break;
                             case "Era":
                             case "TurningPoint":
                             case "Turning Point":
                             case "Age":
-                                this.TurningPointHashByName.Add(name, def);
-                                this.TurningPointNameByHash.Add(def, name);
+                                this.TurningPointHashByName.Add(name, hash);
+                                this.TurningPointNameByHash.Add(hash, name);
                                 break;
                             case "Yield":
-                                this.YieldHashByName.Add(name, def);
-                                this.YieldNameByHash.Add(def, name);
+                                this.YieldHashByName.Add(name, hash);
+                                this.YieldNameByHash.Add(hash, name);
                                 break;
                         }
                     }
@@ -123,8 +123,17 @@ namespace Reus2Surveyor
             }
             else
             {
-                return "(?)" + def;
+                return def;
             }
+        }
+
+        public string BioticumNameFromHash(string def)
+        {
+            if (BioticumDefinitionByHash.ContainsKey(def))
+            {
+                return BioticumDefinitionByHash[def].Name;
+            }
+            else return def;
         }
 }
 
