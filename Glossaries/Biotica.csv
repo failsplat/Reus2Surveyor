@@ -1,54 +1,54 @@
 Name,Type,Tier,Apex,Desert,Forest,IceAge,Ocean,Rainforest,Savanna,Taiga,Hash
 Sage Brush,Plant,1,,1,,,,,,,10c6fcf4f4c941e4f9759cc075f3ddcc
-Agave,Plant,1,,1,,,,1,,,
-Barley,Plant,1,,1,,,,,1,,
-Fan Palm,Plant,1,,1,,,,,,,
-Field Eryngo,Plant,1,,1,,,,,,,
-Cicer,Plant,2,,1,,,,,,,
-Olive Tree,Plant,2,,1,,,,,,,
-Date Palm,Plant,2,1,1,,,,,,,
-Saffron,Plant,2,1,1,,,,,,,
-Damask Rose,Plant,3,,1,,,,,,,
-Fig,Plant,3,,1,,,,,,,
-Cotton,Plant,3,1,1,,,,,,,
-Pomegranate,Plant,3,1,1,,,,,,,
-Dove,Animal,1,,1,1,,,,,1,
-Jerboa,Animal,1,,1,,,,,,,
-Sand Cat,Animal,1,,1,,,,,,,
-Bearded Dragon,Animal,1,,1,,,,,,,
-Gazelle,Animal,1,,1,,,,,1,,
-Rat,Animal,1,,1,1,,,,,1,
-Rattlesnake,Animal,1,,1,,,,,,,
-Sandgrouse,Animal,1,,1,,,,,,,
-Ostrich,Animal,1,1,1,,,,,,,
-Desert Tortoise,Animal,2,,1,,,,,,,
-Armadillo,Animal,2,,1,,,,,,,
-Fennec,Animal,2,1,1,,,,,,,
-Gila Monster,Animal,2,1,1,,,,,,,
-Ibex,Animal,2,1,1,,,,,,,
-Jackal,Animal,3,,1,,,,,,,
-Oryx,Animal,3,,1,,,,,1,,
-Cheetah,Animal,3,1,1,,,,,,,
-Dromedary Camel,Animal,3,1,1,,,,,,,
-Falcon,Animal,3,1,1,,,,,,,
-Iron,Mineral,1,,1,1,1,,1,1,1,
-Quartz,Mineral,1,,1,,1,,,,,
-Red Stone,Mineral,1,,1,,,,,1,,
-Carnelian,Mineral,1,,1,,1,,,1,,
-Enargite,Mineral,1,,1,,,,,,,
-Jasper,Mineral,1,,1,,,1,,,,
+Agave,Plant,1,,1,,,,1,,,baf88e88199b36742a2aa8093e3e6efe
+Barley,Plant,1,,1,,,,,1,,05eef46fd4af8694aac8d6bbf5d7d03e
+Fan Palm,Plant,1,,1,,,,,,,0c641f2166b29c549b7937851bdb6ef1
+Field Eryngo,Plant,1,,1,,,,,,,d43968a3211b0174297a0a2eb2459349
+Cicer,Plant,2,,1,,,,,,,b233ba5a5090b5c448347a10336fa4b9
+Olive Tree,Plant,2,,1,,,,,,,0ac468b7150e22c4d86aded8ef301a10
+Date Palm,Plant,2,1,1,,,,,,,3b1759b1fa40476459737be60273c43c
+Saffron,Plant,2,1,1,,,,,,,cc98dbe4a5ac06f46a333a30e294d34e
+Damask Rose,Plant,3,,1,,,,,,,031ca3c11aa0c8c49811a5df3b570e00
+Fig,Plant,3,,1,,,,,,,342cd165e08b8fa4481f33cd6481f4ea
+Cotton,Plant,3,1,1,,,,,,,04e8e4887cc621944ab9d34e42a3292d
+Pomegranate,Plant,3,1,1,,,,,,,1bfe34c93e6cb4d43a8a30d4d32a86e6
+Dove,Animal,1,,1,1,,,,,1,7935213f48c034c419e7739e5151058c
+Jerboa,Animal,1,,1,,,,,,,5f9777eb9b000d848a2d5446fe4da2e5
+Sand Cat,Animal,1,,1,,,,,,,48be6a528e1c14b438768c3c861b2d5d
+Bearded Dragon,Animal,1,,1,,,,,,,c9e72b3150e32174b9a5788c76140f82
+Gazelle,Animal,1,,1,,,,,1,,ec35b9cab83b1a646871acea13c8188e
+Rat,Animal,1,,1,1,,,,,1,6c742e8bdb984f849a11711d61b6ce70
+Rattlesnake,Animal,1,,1,,,,,,,c1d4148c425dc2848a4f94aa39516d93
+Sandgrouse,Animal,1,,1,,,,,,,0fef67ec746a4b74d90aa6b2520a1341
+Ostrich,Animal,1,1,1,,,,,,,8236a411e4fd65c40aeb2d2836a48836
+Desert Tortoise,Animal,2,,1,,,,,,,c8a17d7cb7c70aa4f9ec0e6bfb6c5070
+Armadillo,Animal,2,,1,,,,,,,f7df096a75d488545a7d809384b79703
+Fennec,Animal,2,1,1,,,,,,,d69bf8e216d656e4299b01cc99dd8edc
+Gila Monster,Animal,2,1,1,,,,,,,d7625d144f29d0b4cb43b485fb6fedfe
+Ibex,Animal,2,1,1,,,,,,,779ff2df727cec549923b87ab1295840
+Jackal,Animal,3,,1,,,,,,,70b24b08ee8d12345b214d6e9ad3bba5
+Oryx,Animal,3,,1,,,,,1,,c58d9052c6def2342ae9ca26d8f169bd
+Cheetah,Animal,3,1,1,,,,,,,a177de2f613c8144f9a1bfa91a75f499
+Dromedary Camel,Animal,3,1,1,,,,,,,073e37604ac30be4baed436a26bb99ff
+Falcon,Animal,3,1,1,,,,,,,d4f865ba5d9c77d4f8df57f19b6020e3
+Iron,Mineral,1,,1,1,1,,1,1,1,3787877816a117b48b4c25540d07116b
+Quartz,Mineral,1,,1,,1,,,,,e43a11b5d60e2364c9af200a02c4df60
+Red Stone,Mineral,1,,1,,,,,1,,eb5ed2f4cd99c6b469774d6bcd6959e1
+Carnelian,Mineral,1,,1,,1,,,1,,50fac5b132b8df44da57048f7fd7dea8
+Enargite,Mineral,1,,1,,,,,,,1dbd5712294dffb4daf31d05177f364d
+Jasper,Mineral,1,,1,,,1,,,,b977e77ba66deab49a11935ed83b1aba
 Mudcrack,Mineral,1,,1,,,,,,,9f16b24ee590ce14587fee48b64a5b47
-Topaz,Mineral,1,,1,,,,1,,,
-Lapis Lazuli,Mineral,1,1,1,,,,,,,
-Limestone,Mineral,1,1,1,,,,,,,
-Basalt,Mineral,2,,1,,1,,,,,
-Sun Stone,Mineral,2,,1,,,,,,1,
-Desert Salt,Mineral,2,1,1,,,,,,,
-Gold,Mineral,2,1,1,,,,,,,
-Index Fossil,Mineral,2,1,1,,,,,,,
-Methane,Mineral,3,,1,,,,,,,
-Turquoise,Mineral,3,,1,,1,,,,,
-Diamond,Mineral,3,1,1,,,,,,,
-Dysprosium,Mineral,3,1,1,,,,,,,
-Oil (Expanses),Mineral,3,1,1,,,,,,,
-Ruby,Mineral,3,1,1,,,,,,,
+Topaz,Mineral,1,,1,,,,1,,,266f01d814f93504eb98015722d20289
+Lapis Lazuli,Mineral,1,1,1,,,,,,,012dc1abf1f6a7041b1efb9b2fb866fb
+Limestone,Mineral,1,1,1,,,,,,,dde9cbcff5b4ca44ca545a3a3ebd3fa5
+Basalt,Mineral,2,,1,,1,,,,,3cff7aec37bb5d24db6f3e00fcf2d98e
+Sun Stone,Mineral,2,,1,,,,,,1,de827ebedb0771a4b8b6df6cfc1a995e
+Desert Salt,Mineral,2,1,1,,,,,,,4e5333d788401ab4c8d8cb7c1b1dffe4
+Gold,Mineral,2,1,1,,,,,,,ce308ad9da928554dbbabb4ebf07dc19
+Index Fossil,Mineral,2,1,1,,,,,,,506fb2a83f574a5488a63a915ebd5aa6
+Methane,Mineral,3,,1,,,,,,,cc7656253bd44ef4bb1c219d7b0d655e
+Turquoise,Mineral,3,,1,,1,,,,,5579d59adc9697a41a24ff6f2f39d30a
+Diamond,Mineral,3,1,1,,,,,,,1696c7a3a2217e746a5378eaa6023529
+Dysprosium,Mineral,3,1,1,,,,,,,815134120f7cdb84da33f6dea8cdaa11
+Oil (Expanses),Mineral,3,1,1,,,,,,,9bf4bb1f20e96b448ade41600269162e
+Ruby,Mineral,3,1,1,,,,,,,83b38f9f3c74838448262c8606fdca71
