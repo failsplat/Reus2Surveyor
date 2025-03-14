@@ -146,6 +146,7 @@ namespace Reus2Surveyor
             // 
             // exportReadyLabel
             // 
+            exportReadyLabel.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
             exportReadyLabel.AutoSize = true;
             exportReadyLabel.Location = new System.Drawing.Point(104, 493);
             exportReadyLabel.Name = "exportReadyLabel";
@@ -166,6 +167,7 @@ namespace Reus2Surveyor
             // 
             // spotCheckWriteCheckBox
             // 
+            spotCheckWriteCheckBox.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
             spotCheckWriteCheckBox.AutoSize = true;
             spotCheckWriteCheckBox.Checked = true;
             spotCheckWriteCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
