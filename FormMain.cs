@@ -220,7 +220,12 @@ namespace Reus2Surveyor
                     if (bioticaCounter.ContainsKey(bioName)) bioticaCounter[bioName] += 1;
                     else bioticaCounter[bioName] = 1;
                 }
-            }
+                List<string> singletonBiotica = [.. bioticaCounter.Where(kv => kv.Value == 1).Select(kv => kv.Key)];
+                List<string> dualBiotica = [.. bioticaCounter.Where(kv => kv.Value == 2).Select(kv => kv.Key)];
+                string bio1, bio2;
+                if (singletonBiotica.Count > 0) bio1 = singletonBiotica[0];
+                if (dualBiotica.Count > 0) bio2 = dualBiotica[0];
+             }
         }
 
         private void spotCheckWriteCheckBox_CheckStateChanged(object sender, EventArgs e)
