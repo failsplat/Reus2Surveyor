@@ -584,9 +584,12 @@ namespace Reus2Surveyor
             this.planetIsLost = DictHelper.TryGetBool(refDict, "planetIsLost");
 
             List<object> tpDicts = (List<object>)DictHelper.DigValueAtKeys(refDict, ["sessionSummary", "scoreCard", "turningPointPerformances", "itemData"]);
-            foreach(Dictionary<string, object> tpd in tpDicts)
+            if (tpDicts is not null) 
             {
-                this.turningPointPerformances.Add(new TurningPointPerformance(tpd));
+                foreach (Dictionary<string, object> tpd in tpDicts)
+                {
+                    this.turningPointPerformances.Add(new TurningPointPerformance(tpd));
+                }
             }
 
             // planetSummary

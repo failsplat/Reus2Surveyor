@@ -31,6 +31,10 @@ namespace Reus2Surveyor
                         string thiskey = keys[0];
                         if (dict.ContainsKey(thiskey))
                         {
+                            if (dict[thiskey] is null)
+                            {
+                                return null;
+                            }
                             if (dict[thiskey].GetType() == typeof(Dictionary<string, object>))
                             {
                                 return DigValueAtKeys((Dictionary<string, object>)dict[thiskey], keys[1..(keys.Count())]);
