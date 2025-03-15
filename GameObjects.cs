@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection.Metadata;
+using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices.ObjectiveC;
 using System.Runtime.InteropServices.Swift;
 using System.Security.Policy;
@@ -21,6 +22,7 @@ namespace Reus2Surveyor
         public readonly Dictionary<int, Patch> patchDictionary = [];
         public readonly Dictionary<int, Biome> biomeDictionary = [];
         public readonly Dictionary<int, NatureBioticum> natureBioticumDictionary = [];
+        public readonly Dictionary<int, City> cityDictionary = [];
         public readonly int totalSize;
         public readonly int wildSize;
         public readonly PatchMap<int?> patchIDMap;
@@ -49,6 +51,11 @@ namespace Reus2Surveyor
             "aspectSlots", "_type", "bioticumID", "definition", "receivedRiverBonus", 
             "anomalyBonusActve", // [sic]
             "name", "parent"
+            ];
+        public readonly static List<string> cityCheckKeys = [
+            "projectController", "resourceController", "luxuryController", "fancyName", "cityIndex", 
+            "leftNeighbour", "rightNeighbour", // British Spelling
+            "biomeOrigin", "initiatedTurningPoints", "nomadHeritage", "currentVisualStage", "citySlot", "projectSlots",
             ];
 
         public Planet(List<object> referenceTokensList)
@@ -86,6 +93,11 @@ namespace Reus2Surveyor
                     this.natureBioticumDictionary.Add(i, new NatureBioticum(refToken));
                     continue;
                 }
+                if (cityCheckKeys.All(k => rtKeys.Contains(k)))
+                {
+                    this.cityDictionary.Add(i, new City(refToken, referenceTokensList));
+                    continue;
+                }
             }
 
             // Secondary Data (calculated when all game objects parsed)
@@ -104,6 +116,12 @@ namespace Reus2Surveyor
             foreach(int removeIndex in inactiveBiotica)
             {
                 this.natureBioticumDictionary.Remove(removeIndex);
+            }
+
+            foreach(City city in this.cityDictionary.Values)
+            {
+                city.BuildTerritoryInfo(this.patchIDMap, this.patchDictionary);
+                city.CountTerritoryBiotica(this.slotDictionary, this.natureBioticumDictionary);
             }
         }
     }
@@ -173,6 +191,15 @@ namespace Reus2Surveyor
         {
             return (this.projectSlots.Count == 0);
         }
+
+        public List<int> GetActiveSlotIndices()
+        {
+            List<int> output = [];
+            if (this.foregroundSlot is not null) output.Add((int)this.foregroundSlot);
+            if (this.backgroundSlot is not null) output.Add((int)this.backgroundSlot);
+            if (this.mountainSlot is not null && this.mountainPart > 0) output.Add((int)this.mountainSlot);
+            return output;
+        }
     }
 
     public class PatchMap<T> : List<T>
@@ -185,7 +212,7 @@ namespace Reus2Surveyor
         public PatchMap(IEnumerable<T> values) : base(values)
         { }
 
-        public List<T> PatchIndexSlice(int leftIndex, int rightIndex)
+        public List<T> IndexSlice(int leftIndex, int rightIndex)
         {
             if (leftIndex <= rightIndex)
             {
@@ -199,12 +226,12 @@ namespace Reus2Surveyor
             }
         }
 
-        public List<T> PatchIDSlice(T leftID, T rightID)
+        public List<T> PatchIndexSlice(T leftID, T rightID)
         {
             int leftIndex = this.IndexOf(leftID);
             int rightIndex = this.IndexOf(rightID);
             if (leftIndex == -1 || rightIndex == -1) return [];
-            else return PatchIndexSlice(leftIndex, rightIndex);
+            else return IndexSlice(leftIndex, rightIndex);
         }
 
     }
@@ -313,5 +340,182 @@ namespace Reus2Surveyor
         // TODO: (Maybe) check that the aspect slot(s) have placed micros
 
         public bool IsActive() { return this.bioticumID is null ? false : this.bioticumID > 0; }
+    }
+
+    public class City
+    {
+        // Internally Constructed
+        // These are generated with the city, instead of as an external object
+        public readonly int? projectControllerIndex, resourceControllerIndex, luxuryControllerIndex, borderControllerIndex;
+        public ProjectController CityProjectController {get; private set;}
+        public ResourceController CityResourceController {get; private set;}
+        public LuxuryController CityLuxuryController {get; private set;}
+        public BorderController CityBorderController {get; private set;}
+
+        // Primary Data
+        public readonly string fancyName;
+        public readonly int? cityIndex;
+        public readonly int? leftNeighbour, rightNeighbour;
+        public readonly string settledBiome;
+        public readonly string founderCharacter;
+        public readonly int? patchIndex;
+        public readonly int? currentVisualStage;
+        public readonly List<string?> initiatedTurningPoints = [];
+
+        // Secondary Data
+        public List<int> PatchIndicesInTerritory { get; private set; } = [];
+        public List<Patch> PatchesInTerritory { get; private set; } = [];
+        public List<NatureBioticum> BioticaInTerritory { get; private set; } = [];
+        public string currentBiome { get; private set; }
+
+        public City(Dictionary<string, object> refToken, List<object> referenceTokensList)
+        {
+            this.projectControllerIndex = DictionaryHelper.TryGetInt(refToken, ["projectController", "id"]);
+            this.resourceControllerIndex = DictionaryHelper.TryGetInt(refToken, ["resourceController", "id"]);
+            this.luxuryControllerIndex = DictionaryHelper.TryGetInt(refToken, ["luxuryController", "id"]);
+            this.borderControllerIndex = DictionaryHelper.TryGetInt(refToken, ["borderController", "id"]);
+
+            if (this.projectControllerIndex is not null) 
+            {
+                this.CityProjectController = 
+                    new ProjectController((Dictionary<string, object>)(referenceTokensList[(int)this.projectControllerIndex]));
+            }
+            if (this.resourceControllerIndex is not null)
+            {
+                this.CityResourceController = 
+                    new ResourceController((Dictionary<string, object>)(referenceTokensList[(int)this.resourceControllerIndex]));
+            }
+            if (this.luxuryControllerIndex is not null)
+            {
+                this.CityLuxuryController =
+                    new LuxuryController((Dictionary<string, object>)(referenceTokensList[(int)this.luxuryControllerIndex]), referenceTokensList);
+            }
+            if (this.borderControllerIndex is not null)
+            {
+                this.CityBorderController =
+                    new BorderController((Dictionary<string, object>)(referenceTokensList[(int)this.borderControllerIndex]));
+            }
+
+            this.fancyName = DictionaryHelper.TryGetString(refToken, "fancyName");
+            this.cityIndex = DictionaryHelper.TryGetInt(refToken, "cityIndex");
+            this.leftNeighbour = DictionaryHelper.TryGetInt(refToken, ["leftNeighbour", "id"]);
+            this.rightNeighbour = DictionaryHelper.TryGetInt(refToken, ["rightNeighbour", "id"]);
+            this.initiatedTurningPoints = DictionaryHelper.TryGetStringList(refToken, ["initiatedTurningPoints", "itemData"], "value");
+            this.settledBiome = DictionaryHelper.TryGetString(refToken, ["nomadHeritage", "settledBiome", "value"]);
+            this.founderCharacter = DictionaryHelper.TryGetString(refToken, ["nomadHeritage", "character", "value"]);
+            this.currentVisualStage = DictionaryHelper.TryGetInt(refToken, "currentVisualStage");
+            this.patchIndex = DictionaryHelper.TryGetInt(refToken, ["position", "patch", "id"]);
+        }
+
+        public void BuildTerritoryInfo(PatchMap<int?> patchIDMap, Dictionary<int, Patch> patchDictionary)
+        {
+            this.PatchIndicesInTerritory = [..patchIDMap.PatchIndexSlice(this.CityBorderController.leftBorder, this.CityBorderController.rightBorder).Select(v => (int)v)];
+            this.PatchesInTerritory = [..patchDictionary.Where(kv => this.PatchIndicesInTerritory.Contains(kv.Key)).Select(kv => kv.Value)];
+            this.currentBiome = patchDictionary[(int)this.patchIndex].biomeDefinition;
+        }
+
+        public List<int> ListSlotIndicesInTerritory()
+        {
+            List<int> output = [];
+            foreach (Patch patch in this.PatchesInTerritory)
+            {
+                output.AddRange([..patch.GetActiveSlotIndices()]);
+            }
+            return output;
+        }
+
+        public void CountTerritoryBiotica(Dictionary<int, BioticumSlot> slotDictionary, Dictionary<int, NatureBioticum> bioticaDictionary)
+        {
+            List<int> slotIndices = this.ListSlotIndicesInTerritory();
+            List<BioticumSlot> slots = [..slotIndices.Select(s => slotDictionary[s])];
+            List<int> biotIndices = [.. slots.Where(s => s.bioticum is not null && s.bioticum > 0).Select(s => (int)s.bioticum)];
+            this.BioticaInTerritory = [.. biotIndices.Select(s => bioticaDictionary[s])];
+        }
+
+        // Classes for internal use
+        public class ProjectController
+        {
+            public readonly List<int?> projects;
+            public readonly int? projectsInspired;
+
+            public ProjectController(Dictionary<string, object> refToken)
+            {
+                this.projects = DictionaryHelper.TryGetIntList(refToken, ["projects", "itemData"], "id");
+                this.projectsInspired = DictionaryHelper.TryGetInt(refToken, "projectsInspired");
+            }
+
+        }
+        public class ResourceController
+        {
+            // Primary Data
+            public float? highestProsperityReached;
+
+            public ResourceController(Dictionary<string, object> refToken)
+            {
+                this.highestProsperityReached = DictionaryHelper.TryGetFloat(refToken, "highestProsperityReached");
+            }
+        }
+        public class LuxuryController
+        {
+            // Internally Constructed
+            public readonly List<LuxurySlot> luxurySlots = [];
+            
+            public LuxuryController(Dictionary<string, object> refToken, List<object> referenceTokensList)
+            {
+                List<object> luxurySlotSubdictList = (List<object>)DictionaryHelper.DigValueAtKeys(refToken, ["luxurySlots", "itemData"]);
+                foreach (Dictionary<string,object> subdict in luxurySlotSubdictList)
+                {
+                    this.luxurySlots.Add(new LuxurySlot((Dictionary<string, object>)subdict["value"], referenceTokensList));
+                }
+            }
+
+            // Classes for internal use
+            public class LuxurySlot
+            {
+                public readonly int? tradePartner;
+                public readonly int? luxuryGoodIndex;
+                public readonly bool? isActive, isFree, isStolen;
+
+                public readonly LuxuryGood luxuryGood;
+                public LuxurySlot(Dictionary<string, object> subDict, List<object> referenceTokensList)
+                {
+                    this.tradePartner = DictionaryHelper.TryGetInt(subDict, ["tradePartner","id"]);
+                    this.luxuryGoodIndex = DictionaryHelper.TryGetInt(subDict, ["luxuryGood","id"]);
+                    if (this.luxuryGoodIndex is not null) 
+                    {
+                        this.luxuryGood = new LuxuryGood((Dictionary<string, object>)(referenceTokensList[(int)this.luxuryGoodIndex]));
+                    }
+                    this.isActive = DictionaryHelper.TryGetBool(subDict, "isActive");
+                    this.isFree = DictionaryHelper.TryGetBool(subDict, "isFree");
+                    this.isStolen = DictionaryHelper.TryGetBool(subDict, "isStolen");
+                }
+            }
+            public class LuxuryGood
+            {
+                public readonly int? originCity;
+                public readonly string definition;
+                public readonly string originalBioticum;
+
+                public LuxuryGood(Dictionary<string, object> refToken)
+                {
+                    this.originCity = DictionaryHelper.TryGetInt(refToken, ["originCity", "id"]);
+                    this.definition = DictionaryHelper.TryGetString(refToken, ["definition", "value"]);
+                    this.originalBioticum = DictionaryHelper.TryGetString(refToken, ["originalBioticum", "value"]);
+                }
+            }
+        }
+        public class BorderController
+        {
+            public readonly int? leftBorder, rightBorder;
+            public readonly int? leftBorderBiomeType, rightBorderBiomeType;
+
+            public BorderController(Dictionary<string, object> refToken)
+            {
+                this.leftBorder = DictionaryHelper.TryGetInt(refToken, ["leftBorder", "id"]);
+                this.rightBorder = DictionaryHelper.TryGetInt(refToken, ["rightBorder", "id"]);
+                this.leftBorderBiomeType = DictionaryHelper.TryGetInt(refToken, ["leftBorderBiomeType", "value"]);
+                this.rightBorderBiomeType = DictionaryHelper.TryGetInt(refToken, ["rightBorderBiomeType", "value"]);
+            }
+        }
     }
 }

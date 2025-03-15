@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Reus2Surveyor
 {
@@ -64,6 +65,29 @@ namespace Reus2Surveyor
             return TryGetInt(dict, [key]);
         }
 
+        public static float? TryGetFloat(Dictionary<string, object> dict, List<string> keys)
+        {
+            try
+            {
+                object result = DictionaryHelper.DigValueAtKeys(dict, keys);
+                if (result is null)
+                {
+                    return (float?)null;
+                }
+                return Convert.ToSingle(DictionaryHelper.DigValueAtKeys(dict, keys));
+            }
+            catch (KeyNotFoundException e)
+            {
+                return null;
+            }
+            return null;
+        }
+
+        public static float? TryGetFloat(Dictionary<string, object> dict, string key)
+        {
+            return TryGetFloat(dict, [key]);
+        }
+
         public static string TryGetString(Dictionary<string, object> dict, List<string> keys)
         {
             try
@@ -85,6 +109,29 @@ namespace Reus2Surveyor
         public static string TryGetString(Dictionary<string, object> dict, string key) 
         {
             return TryGetString(dict, [key]);
+        }
+
+        public static bool? TryGetBool(Dictionary<string, object> dict, List<string> keys)
+        {
+            try
+            {
+                object result = DictionaryHelper.DigValueAtKeys(dict, keys);
+                if (result is null)
+                {
+                    return null;
+                }
+                return (bool)DictionaryHelper.DigValueAtKeys(dict, keys);
+            }
+            catch (KeyNotFoundException e)
+            {
+                return null;
+            }
+            return null;
+        }
+
+        public static bool? TryGetBool(Dictionary<string, object> dict, string key)
+        {
+            return TryGetBool(dict, [key]);
         }
 
         public static List<Dictionary<string, object>> TryGetDictList(Dictionary<string, object> dict, List<string> keysToList, string finalKey = null)
@@ -198,6 +245,52 @@ namespace Reus2Surveyor
                 try
                 {
                     output.Add(TryGetInt(r, finalKeys));
+                }
+                catch (KeyNotFoundException e)
+                {
+                    output.Add(null);
+                }
+            }
+            return output;
+        }
+
+        public static List<float?> TryGetFloatList(Dictionary<string, object> dict, List<string> keysToList, string finalKey)
+        {
+            List<float?> output = [];
+            List<object> result = (List<object>)DictionaryHelper.DigValueAtKeys(dict, keysToList);
+
+            if (result is null)
+            {
+                return [];
+            }
+            foreach (Dictionary<string, object> r in result.Cast<Dictionary<string, object>>())
+            {
+                if (r.ContainsKey(finalKey))
+                {
+                    output.Add(r[finalKey] is null ? null : (float)r[finalKey]);
+                }
+                else
+                {
+                    output.Add(null);
+                }
+            }
+            return output;
+        }
+
+        public static List<float?> TryGetFloatList(Dictionary<string, object> dict, List<string> keysToList, List<string> finalKeys)
+        {
+            List<float?> output = [];
+            List<object> result = (List<object>)DictionaryHelper.DigValueAtKeys(dict, keysToList);
+
+            if (result is null)
+            {
+                return [];
+            }
+            foreach (Dictionary<string, object> r in result.Cast<Dictionary<string, object>>())
+            {
+                try
+                {
+                    output.Add(TryGetFloat(r, finalKeys));
                 }
                 catch (KeyNotFoundException e)
                 {
