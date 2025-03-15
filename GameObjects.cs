@@ -105,7 +105,7 @@ namespace Reus2Surveyor
                 if (patchCollectionCheckKeys.All(k => rtKeys.Contains(k)) && (string)refToken["name"] == "PatchCollection")
                 {
                     this.patchIdMap = new PatchMap<int?>(
-                        DictionaryHelper.TryGetIntList(refToken, ["models", "itemData"], "id"));
+                        DictHelper.TryGetIntList(refToken, ["models", "itemData"], "id"));
                     continue;
                 }
             }
@@ -155,25 +155,25 @@ namespace Reus2Surveyor
 
         public BioticumSlot(Dictionary<string, object> refDict)
         {
-            this.bioticumId = DictionaryHelper.TryGetInt(refDict, ["bioticum", "id"]);
-            this.futureSlotId = DictionaryHelper.TryGetInt(refDict, ["futureSlot", "id"]);
-            this.patchId = DictionaryHelper.TryGetInt(refDict, ["patch", "id"]);
+            this.bioticumId = DictHelper.TryGetInt(refDict, ["bioticum", "id"]);
+            this.futureSlotId = DictHelper.TryGetInt(refDict, ["futureSlot", "id"]);
+            this.patchId = DictHelper.TryGetInt(refDict, ["patch", "id"]);
 
             // 0 = Foreground
             // 1 = Background
             // 2 = Mountain 
-            this.locationOnPatch = DictionaryHelper.TryGetInt(refDict, ["locationOnPatch", "value"]);
+            this.locationOnPatch = DictHelper.TryGetInt(refDict, ["locationOnPatch", "value"]);
 
-            this.slotbonusDefinitions = DictionaryHelper.TryGetStringList(refDict, ["slotbonusDefinitions", "itemData"], "itemData");
+            this.slotbonusDefinitions = DictHelper.TryGetStringList(refDict, ["slotbonusDefinitions", "itemData"], "itemData");
 
-            this.slotLevel = DictionaryHelper.TryGetInt(refDict,"slotLevel");
+            this.slotLevel = DictHelper.TryGetInt(refDict,"slotLevel");
 
-            this.archivedBiotica = DictionaryHelper.TryGetDictList(refDict, ["archivedBiotica", "itemData"], "value");
+            this.archivedBiotica = DictHelper.TryGetDictList(refDict, ["archivedBiotica", "itemData"], "value");
             
             this.isInvasiveSlot = (bool)refDict["isInvasiveSlot"];
 
             // "BioticumSlot (<patch> - <position>)
-            this.name = DictionaryHelper.TryGetString(refDict, "name");
+            this.name = DictHelper.TryGetString(refDict, "name");
         }
     }
 
@@ -187,17 +187,17 @@ namespace Reus2Surveyor
 
         public Patch(Dictionary<string, object> refDict)
         {
-            this.foregroundSlotId = DictionaryHelper.TryGetInt(refDict, ["foregroundSlot", "id"]);
-            this.backgroundSlotId = DictionaryHelper.TryGetInt(refDict, ["backgroundSlot", "id"]);
-            this.mountainSlotId = DictionaryHelper.TryGetInt(refDict, ["mountainSlot", "id"]);
+            this.foregroundSlotId = DictHelper.TryGetInt(refDict, ["foregroundSlot", "id"]);
+            this.backgroundSlotId = DictHelper.TryGetInt(refDict, ["backgroundSlot", "id"]);
+            this.mountainSlotId = DictHelper.TryGetInt(refDict, ["mountainSlot", "id"]);
 
             this.projectSlotsIds = [];
-            List<object> projectSlotDicts = (List<object>)DictionaryHelper.DigValueAtKeys(refDict, ["projectSlots", "itemData"]);
+            List<object> projectSlotDicts = (List<object>)DictHelper.DigValueAtKeys(refDict, ["projectSlots", "itemData"]);
 
-            this.projectSlotsIds = DictionaryHelper.TryGetIntList(refDict, ["projectSlots", "itemData"], "id");
-            this.biomeDefinition = DictionaryHelper.TryGetString(refDict, ["biomeDefinition", "value"]);
+            this.projectSlotsIds = DictHelper.TryGetIntList(refDict, ["projectSlots", "itemData"], "id");
+            this.biomeDefinition = DictHelper.TryGetString(refDict, ["biomeDefinition", "value"]);
 
-            this.mountainPart = DictionaryHelper.TryGetInt(refDict, ["mountainPart", "value"]);
+            this.mountainPart = DictHelper.TryGetInt(refDict, ["mountainPart", "value"]);
             this.ruinedCityMemory = refDict["ruinedCityMemory"];
             this.name = (string)refDict["name"];
         }
@@ -268,9 +268,9 @@ namespace Reus2Surveyor
 
         public Biome(Dictionary<string, object> refDict)
         {
-            this.anchorPatchId = DictionaryHelper.TryGetInt(refDict, ["anchorPatch", "id"]);
-            this.visualName = DictionaryHelper.TryGetString(refDict, ["visualName"]);
-            this.biomeTypeInt = DictionaryHelper.TryGetInt(refDict, ["biomeType", "value"]);
+            this.anchorPatchId = DictHelper.TryGetInt(refDict, ["anchorPatch", "id"]);
+            this.visualName = DictHelper.TryGetString(refDict, ["visualName"]);
+            this.biomeTypeInt = DictHelper.TryGetInt(refDict, ["biomeType", "value"]);
             if (this.biomeTypeInt is not null) this.biomeTypeName = Glossaries.BiomeNameByInt[(int)this.biomeTypeInt];
         }
 
@@ -336,14 +336,14 @@ namespace Reus2Surveyor
 
         public NatureBioticum(Dictionary<string,object> refDict)
         {
-            this.aspectSlotsIds = DictionaryHelper.TryGetIntList(refDict, ["aspectSlots", "itemData"], "id");
-            this.bioticumId = DictionaryHelper.TryGetInt(refDict, "bioticumID");
-            this.definition = DictionaryHelper.TryGetString(refDict, ["definition", "value"]);
+            this.aspectSlotsIds = DictHelper.TryGetIntList(refDict, ["aspectSlots", "itemData"], "id");
+            this.bioticumId = DictHelper.TryGetInt(refDict, "bioticumID");
+            this.definition = DictHelper.TryGetString(refDict, ["definition", "value"]);
 
             this.receivedRiverBonus = (bool)refDict["receivedRiverBonus"];
             this.anomalyBonusActive = (bool)refDict["anomalyBonusActve"]; // [sic]
 
-            this.slotId = DictionaryHelper.TryGetInt(refDict, ["parent", "id"]);
+            this.slotId = DictHelper.TryGetInt(refDict, ["parent", "id"]);
         }
         
         public void CheckSlotProperties(Dictionary<int, BioticumSlot> slotDict)
@@ -386,10 +386,10 @@ namespace Reus2Surveyor
 
         public City(Dictionary<string, object> refDict, List<object> referenceTokensList)
         {
-            this.projectControllerId = DictionaryHelper.TryGetInt(refDict, ["projectController", "id"]);
-            this.resourceControllerId = DictionaryHelper.TryGetInt(refDict, ["resourceController", "id"]);
-            this.luxuryControllerId = DictionaryHelper.TryGetInt(refDict, ["luxuryController", "id"]);
-            this.borderControllerId = DictionaryHelper.TryGetInt(refDict, ["borderController", "id"]);
+            this.projectControllerId = DictHelper.TryGetInt(refDict, ["projectController", "id"]);
+            this.resourceControllerId = DictHelper.TryGetInt(refDict, ["resourceController", "id"]);
+            this.luxuryControllerId = DictHelper.TryGetInt(refDict, ["luxuryController", "id"]);
+            this.borderControllerId = DictHelper.TryGetInt(refDict, ["borderController", "id"]);
 
             if (this.projectControllerId is not null) 
             {
@@ -412,15 +412,15 @@ namespace Reus2Surveyor
                     new BorderController((Dictionary<string, object>)(referenceTokensList[(int)this.borderControllerId]));
             }
 
-            this.fancyName = DictionaryHelper.TryGetString(refDict, "fancyName");
-            this.cityIndex = DictionaryHelper.TryGetInt(refDict, "cityIndex");
-            this.leftNeighbourId = DictionaryHelper.TryGetInt(refDict, ["leftNeighbour", "id"]);
-            this.rightNeighbourId = DictionaryHelper.TryGetInt(refDict, ["rightNeighbour", "id"]);
-            this.initiatedTurningPointsDefs = DictionaryHelper.TryGetStringList(refDict, ["initiatedTurningPoints", "itemData"], "value");
-            this.settledBiomeDef = DictionaryHelper.TryGetString(refDict, ["nomadHeritage", "settledBiome", "value"]);
-            this.founderCharacterDef = DictionaryHelper.TryGetString(refDict, ["nomadHeritage", "character", "value"]);
-            this.currentVisualStage = DictionaryHelper.TryGetInt(refDict, "currentVisualStage");
-            this.patchId = DictionaryHelper.TryGetInt(refDict, ["position", "patch", "id"]);
+            this.fancyName = DictHelper.TryGetString(refDict, "fancyName");
+            this.cityIndex = DictHelper.TryGetInt(refDict, "cityIndex");
+            this.leftNeighbourId = DictHelper.TryGetInt(refDict, ["leftNeighbour", "id"]);
+            this.rightNeighbourId = DictHelper.TryGetInt(refDict, ["rightNeighbour", "id"]);
+            this.initiatedTurningPointsDefs = DictHelper.TryGetStringList(refDict, ["initiatedTurningPoints", "itemData"], "value");
+            this.settledBiomeDef = DictHelper.TryGetString(refDict, ["nomadHeritage", "settledBiome", "value"]);
+            this.founderCharacterDef = DictHelper.TryGetString(refDict, ["nomadHeritage", "character", "value"]);
+            this.currentVisualStage = DictHelper.TryGetInt(refDict, "currentVisualStage");
+            this.patchId = DictHelper.TryGetInt(refDict, ["position", "patch", "id"]);
         }
 
         public void BuildTerritoryInfo(PatchMap<int?> patchIDMap, Dictionary<int, Patch> patchDictionary)
@@ -461,8 +461,8 @@ namespace Reus2Surveyor
 
             public ProjectController(Dictionary<string, object> refDict)
             {
-                this.projectsIds = DictionaryHelper.TryGetIntList(refDict, ["projects", "itemData"], "id");
-                this.projectsInspiredCount = DictionaryHelper.TryGetInt(refDict, "projectsInspired");
+                this.projectsIds = DictHelper.TryGetIntList(refDict, ["projects", "itemData"], "id");
+                this.projectsInspiredCount = DictHelper.TryGetInt(refDict, "projectsInspired");
             }
 
         }
@@ -473,7 +473,7 @@ namespace Reus2Surveyor
 
             public ResourceController(Dictionary<string, object> refDict)
             {
-                this.highestProsperityReached = DictionaryHelper.TryGetFloat(refDict, "highestProsperityReached");
+                this.highestProsperityReached = DictHelper.TryGetFloat(refDict, "highestProsperityReached");
             }
         }
         public class LuxuryController
@@ -483,7 +483,7 @@ namespace Reus2Surveyor
             
             public LuxuryController(Dictionary<string, object> refDict, List<object> referenceTokensList)
             {
-                List<object> luxurySlotSubdictList = (List<object>)DictionaryHelper.DigValueAtKeys(refDict, ["luxurySlots", "itemData"]);
+                List<object> luxurySlotSubdictList = (List<object>)DictHelper.DigValueAtKeys(refDict, ["luxurySlots", "itemData"]);
                 foreach (Dictionary<string,object> subdict in luxurySlotSubdictList)
                 {
                     this.luxurySlots.Add(new LuxurySlot((Dictionary<string, object>)subdict["value"], referenceTokensList));
@@ -500,15 +500,15 @@ namespace Reus2Surveyor
                 public readonly LuxuryGood luxuryGood;
                 public LuxurySlot(Dictionary<string, object> subDict, List<object> referenceTokensList)
                 {
-                    this.tradePartnerId = DictionaryHelper.TryGetInt(subDict, ["tradePartner","id"]);
-                    this.luxuryGoodId = DictionaryHelper.TryGetInt(subDict, ["luxuryGood","id"]);
+                    this.tradePartnerId = DictHelper.TryGetInt(subDict, ["tradePartner","id"]);
+                    this.luxuryGoodId = DictHelper.TryGetInt(subDict, ["luxuryGood","id"]);
                     if (this.luxuryGoodId is not null) 
                     {
                         this.luxuryGood = new LuxuryGood((Dictionary<string, object>)(referenceTokensList[(int)this.luxuryGoodId]));
                     }
-                    this.isActive = DictionaryHelper.TryGetBool(subDict, "isActive");
-                    this.isFree = DictionaryHelper.TryGetBool(subDict, "isFree");
-                    this.isStolen = DictionaryHelper.TryGetBool(subDict, "isStolen");
+                    this.isActive = DictHelper.TryGetBool(subDict, "isActive");
+                    this.isFree = DictHelper.TryGetBool(subDict, "isFree");
+                    this.isStolen = DictHelper.TryGetBool(subDict, "isStolen");
                 }
             }
             public class LuxuryGood
@@ -519,9 +519,9 @@ namespace Reus2Surveyor
 
                 public LuxuryGood(Dictionary<string, object> refDict)
                 {
-                    this.originCityId = DictionaryHelper.TryGetInt(refDict, ["originCity", "id"]);
-                    this.definition = DictionaryHelper.TryGetString(refDict, ["definition", "value"]);
-                    this.originalBioticumDef = DictionaryHelper.TryGetString(refDict, ["originalBioticum", "value"]);
+                    this.originCityId = DictHelper.TryGetInt(refDict, ["originCity", "id"]);
+                    this.definition = DictHelper.TryGetString(refDict, ["definition", "value"]);
+                    this.originalBioticumDef = DictHelper.TryGetString(refDict, ["originalBioticum", "value"]);
                 }
             }
         }
@@ -532,10 +532,10 @@ namespace Reus2Surveyor
 
             public BorderController(Dictionary<string, object> refDict)
             {
-                this.leftBorderPatchId = DictionaryHelper.TryGetInt(refDict, ["leftBorder", "id"]);
-                this.rightBorderPatchId = DictionaryHelper.TryGetInt(refDict, ["rightBorder", "id"]);
-                this.leftBorderBiomeType = DictionaryHelper.TryGetInt(refDict, ["leftBorderBiomeType", "value"]);
-                this.rightBorderBiomeType = DictionaryHelper.TryGetInt(refDict, ["rightBorderBiomeType", "value"]);
+                this.leftBorderPatchId = DictHelper.TryGetInt(refDict, ["leftBorder", "id"]);
+                this.rightBorderPatchId = DictHelper.TryGetInt(refDict, ["rightBorder", "id"]);
+                this.leftBorderBiomeType = DictHelper.TryGetInt(refDict, ["leftBorderBiomeType", "value"]);
+                this.rightBorderBiomeType = DictHelper.TryGetInt(refDict, ["rightBorderBiomeType", "value"]);
             }
         }
     }
@@ -564,40 +564,40 @@ namespace Reus2Surveyor
         public GameSession(Dictionary<string, object> refDict)
         {
             // sessionSummary
-            this.giantRosterDefs = DictionaryHelper.TryGetStringList(refDict, 
+            this.giantRosterDefs = DictHelper.TryGetStringList(refDict, 
                 ["sessionSummary", "startParameters", "giantRoster", "itemData"], 
                 ["value", "Item2", "value"]);
-            this.scenarioDefinition = DictionaryHelper.TryGetString(refDict, ["sessionSummary", "startParameters", "scenarioDefinition", "value"]);
-            this.selectedCharacterDef = DictionaryHelper.TryGetString(refDict, ["sessionSummary", "startParameters", "selectedCharacter", "value"]);
-            this.finalEra = DictionaryHelper.TryGetInt(refDict, ["sessionSummary", "startParameters", "finalEra", "value"]);
+            this.scenarioDefinition = DictHelper.TryGetString(refDict, ["sessionSummary", "startParameters", "scenarioDefinition", "value"]);
+            this.selectedCharacterDef = DictHelper.TryGetString(refDict, ["sessionSummary", "startParameters", "selectedCharacter", "value"]);
+            this.finalEra = DictHelper.TryGetInt(refDict, ["sessionSummary", "startParameters", "finalEra", "value"]);
 
-            this.isTimeBasedChallenge = DictionaryHelper.TryGetBool(refDict, ["sessionSummary", "startParameters", "isTimeBasedChallenge"]);
-            this.giantsRandomized = DictionaryHelper.TryGetBool(refDict, ["sessionSummary", "startParameters", "giantsRandomized"]);
-            this.startingSpiritsRandomized = DictionaryHelper.TryGetBool(refDict, ["sessionSummary", "startParameters", "startingSpiritsRandomized"]);
-            this.draftMode = DictionaryHelper.TryGetInt(refDict, ["sessionSummary", "startParameters", "draftMode", "value"]);
-            this.rerollsPerEra = DictionaryHelper.TryGetInt(refDict, ["sessionSummary", "startParameters", "draftMode", "value"]);
-            this.eventIntensity = DictionaryHelper.TryGetInt(refDict, ["sessionSummary", "startParameters", "draftMode", "value"]);
-            this.challengeIndex = DictionaryHelper.TryGetInt(refDict, ["sessionSummary", "startParameters", "challengeID", "challengeIndex"]);
-            this.timedChallengeType = DictionaryHelper.TryGetInt(refDict, ["sessionSummary", "startParameters", "challengeID", "timedChallengeType", "value"]);
-            this.pacifismMode = DictionaryHelper.TryGetBool(refDict, ["sessionSummary", "startParameters", "pacifismMode"]);
-            this.sessionDifficulty = DictionaryHelper.TryGetInt(refDict, ["sessionSummary", "startParameters", "sessionDifficulty", "value"]);
-            this.planetIsLost = DictionaryHelper.TryGetBool(refDict, "planetIsLost");
+            this.isTimeBasedChallenge = DictHelper.TryGetBool(refDict, ["sessionSummary", "startParameters", "isTimeBasedChallenge"]);
+            this.giantsRandomized = DictHelper.TryGetBool(refDict, ["sessionSummary", "startParameters", "giantsRandomized"]);
+            this.startingSpiritsRandomized = DictHelper.TryGetBool(refDict, ["sessionSummary", "startParameters", "startingSpiritsRandomized"]);
+            this.draftMode = DictHelper.TryGetInt(refDict, ["sessionSummary", "startParameters", "draftMode", "value"]);
+            this.rerollsPerEra = DictHelper.TryGetInt(refDict, ["sessionSummary", "startParameters", "draftMode", "value"]);
+            this.eventIntensity = DictHelper.TryGetInt(refDict, ["sessionSummary", "startParameters", "draftMode", "value"]);
+            this.challengeIndex = DictHelper.TryGetInt(refDict, ["sessionSummary", "startParameters", "challengeID", "challengeIndex"]);
+            this.timedChallengeType = DictHelper.TryGetInt(refDict, ["sessionSummary", "startParameters", "challengeID", "timedChallengeType", "value"]);
+            this.pacifismMode = DictHelper.TryGetBool(refDict, ["sessionSummary", "startParameters", "pacifismMode"]);
+            this.sessionDifficulty = DictHelper.TryGetInt(refDict, ["sessionSummary", "startParameters", "sessionDifficulty", "value"]);
+            this.planetIsLost = DictHelper.TryGetBool(refDict, "planetIsLost");
 
-            List<object> tpDicts = (List<object>)DictionaryHelper.DigValueAtKeys(refDict, ["sessionSummary", "scoreCard", "turningPointPerformances", "itemData"]);
+            List<object> tpDicts = (List<object>)DictHelper.DigValueAtKeys(refDict, ["sessionSummary", "scoreCard", "turningPointPerformances", "itemData"]);
             foreach(Dictionary<string, object> tpd in tpDicts)
             {
                 this.turningPointPerformances.Add(new TurningPointPerformance(tpd));
             }
 
             // planetSummary
-            List<object> sectorDicts = (List<object>) DictionaryHelper.DigValueAtKeys(refDict, ["sessionSummary", "planetSummary2", "biomeSectors", "itemData"]);
+            List<object> sectorDicts = (List<object>) DictHelper.DigValueAtKeys(refDict, ["sessionSummary", "planetSummary2", "biomeSectors", "itemData"]);
             foreach (Dictionary<string,object> sd in sectorDicts)
             {
                 this.biomeSectors.Add(new BiomeSector(sd));
             }
-            this.terribleFate = DictionaryHelper.TryGetInt(refDict, ["sessionSummary", "planetSummary2", "terribleFate", "value"]);
+            this.terribleFate = DictHelper.TryGetInt(refDict, ["sessionSummary", "planetSummary2", "terribleFate", "value"]);
 
-            List<object> civDicts = (List<object>) DictionaryHelper.DigValueAtKeys(refDict, ["sessionSummary", "humanitySummary2", "civs", "itemData"]);
+            List<object> civDicts = (List<object>) DictHelper.DigValueAtKeys(refDict, ["sessionSummary", "humanitySummary2", "civs", "itemData"]);
             foreach(Dictionary<string, object> cd in civDicts)
             {
                 this.civSummaries.Add(new CivSummary(cd));
@@ -612,10 +612,10 @@ namespace Reus2Surveyor
 
             public TurningPointPerformance(Dictionary<string, object> subDict)
             {
-                this.turningPointDef = DictionaryHelper.TryGetString(subDict, ["value", "turningPoint", "value"]);
-                this.requestingCharacterDef = DictionaryHelper.TryGetString(subDict, ["value", "requestingCharacter", "value"]);
-                this.starRating = DictionaryHelper.TryGetInt(subDict, ["value","starRating"]);
-                this.scoreTotal = DictionaryHelper.TryGetIntList(subDict, ["value", "scoreElements", "itemData"], ["value", "score"]).Sum();
+                this.turningPointDef = DictHelper.TryGetString(subDict, ["value", "turningPoint", "value"]);
+                this.requestingCharacterDef = DictHelper.TryGetString(subDict, ["value", "requestingCharacter", "value"]);
+                this.starRating = DictHelper.TryGetInt(subDict, ["value","starRating"]);
+                this.scoreTotal = DictHelper.TryGetIntList(subDict, ["value", "scoreElements", "itemData"], ["value", "score"]).Sum();
             }
         }
 
@@ -627,9 +627,9 @@ namespace Reus2Surveyor
 
             public BiomeSector(Dictionary<string, object> subDict)
             {
-                this.typeDef = DictionaryHelper.TryGetInt(subDict, ["value", "biomeType", "value"]);
-                this.len = DictionaryHelper.TryGetFloat(subDict, ["value", "sectorLength"]);
-                this.hasCity = DictionaryHelper.TryGetBool(subDict, ["value", "hasCity"]);
+                this.typeDef = DictHelper.TryGetInt(subDict, ["value", "biomeType", "value"]);
+                this.len = DictHelper.TryGetFloat(subDict, ["value", "sectorLength"]);
+                this.hasCity = DictHelper.TryGetBool(subDict, ["value", "hasCity"]);
             }
         }
 
@@ -642,17 +642,17 @@ namespace Reus2Surveyor
 
             public CivSummary(Dictionary<string, object> subDict)
             {
-                this.name = DictionaryHelper.TryGetString(subDict, ["value", "name"]);
+                this.name = DictHelper.TryGetString(subDict, ["value", "name"]);
 
-                this.prosperity = DictionaryHelper.TryGetInt(subDict, ["value", "prosperity"]);
-                this.population = DictionaryHelper.TryGetInt(subDict, ["value", "population"]);
-                this.wealth = DictionaryHelper.TryGetInt(subDict, ["value", "wealth"]);
-                this.innovation = DictionaryHelper.TryGetInt(subDict, ["value", "innovation"]);
+                this.prosperity = DictHelper.TryGetInt(subDict, ["value", "prosperity"]);
+                this.population = DictHelper.TryGetInt(subDict, ["value", "population"]);
+                this.wealth = DictHelper.TryGetInt(subDict, ["value", "wealth"]);
+                this.innovation = DictHelper.TryGetInt(subDict, ["value", "innovation"]);
 
-                this.characterDef = DictionaryHelper.TryGetString(subDict, ["value", "character", "value"]);
-                this.homeBiomeDef = DictionaryHelper.TryGetString(subDict, ["value", "homeBiome", "value"]);
+                this.characterDef = DictHelper.TryGetString(subDict, ["value", "character", "value"]);
+                this.homeBiomeDef = DictHelper.TryGetString(subDict, ["value", "homeBiome", "value"]);
 
-                this.projectDefs = DictionaryHelper.TryGetStringList(subDict, 
+                this.projectDefs = DictHelper.TryGetStringList(subDict, 
                     ["value", "projects", "itemData"], 
                     ["value", "projectDefinition", "value"]);
             }

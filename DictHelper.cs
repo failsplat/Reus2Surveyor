@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace Reus2Surveyor
 {
-    class DictionaryHelper
+    class DictHelper
     {
         public static object DigValueAtKeys(Dictionary<string, object> dict, List<string> keys)
         {
@@ -46,12 +46,12 @@ namespace Reus2Surveyor
         {
             try
             {
-                object result = DictionaryHelper.DigValueAtKeys(dict, keys);
+                object result = DictHelper.DigValueAtKeys(dict, keys);
                 if (result is null)
                 {
                     return (int?)null;
                 }
-                return (int)(long)DictionaryHelper.DigValueAtKeys(dict, keys);
+                return (int)(long)DictHelper.DigValueAtKeys(dict, keys);
             }
             catch (KeyNotFoundException e)
             {
@@ -69,12 +69,12 @@ namespace Reus2Surveyor
         {
             try
             {
-                object result = DictionaryHelper.DigValueAtKeys(dict, keys);
+                object result = DictHelper.DigValueAtKeys(dict, keys);
                 if (result is null)
                 {
                     return (float?)null;
                 }
-                return Convert.ToSingle(DictionaryHelper.DigValueAtKeys(dict, keys));
+                return Convert.ToSingle(DictHelper.DigValueAtKeys(dict, keys));
             }
             catch (KeyNotFoundException e)
             {
@@ -92,12 +92,12 @@ namespace Reus2Surveyor
         {
             try
             {
-                object result = DictionaryHelper.DigValueAtKeys(dict, keys);
+                object result = DictHelper.DigValueAtKeys(dict, keys);
                 if (result is null)
                 {
                     return null;
                 }
-                return (string)DictionaryHelper.DigValueAtKeys(dict, keys);
+                return (string)DictHelper.DigValueAtKeys(dict, keys);
             }
             catch (KeyNotFoundException e)
             {
@@ -115,12 +115,12 @@ namespace Reus2Surveyor
         {
             try
             {
-                object result = DictionaryHelper.DigValueAtKeys(dict, keys);
+                object result = DictHelper.DigValueAtKeys(dict, keys);
                 if (result is null)
                 {
                     return null;
                 }
-                return (bool)DictionaryHelper.DigValueAtKeys(dict, keys);
+                return (bool)DictHelper.DigValueAtKeys(dict, keys);
             }
             catch (KeyNotFoundException e)
             {
@@ -137,7 +137,7 @@ namespace Reus2Surveyor
         public static List<Dictionary<string, object>> TryGetDictList(Dictionary<string, object> dict, List<string> keysToList, string finalKey = null)
         {
             List<Dictionary<string, object>> output = [];
-            List<object> result = (List<object>)DictionaryHelper.DigValueAtKeys(dict, keysToList);
+            List<object> result = (List<object>)DictHelper.DigValueAtKeys(dict, keysToList);
 
             if (result is null)
             {
@@ -165,7 +165,7 @@ namespace Reus2Surveyor
         public static List<string> TryGetStringList(Dictionary<string, object> dict, List<string> keysToList, string finalKey)
         {
             List<string> output = [];
-            List<object> result = (List<object>)DictionaryHelper.DigValueAtKeys(dict, keysToList);
+            List<object> result = (List<object>)DictHelper.DigValueAtKeys(dict, keysToList);
 
             if (result is null)
             {
@@ -188,7 +188,7 @@ namespace Reus2Surveyor
         public static List<string> TryGetStringList(Dictionary<string, object> dict, List<string> keysToList, List<string> finalKeys)
         {
             List<string> output = [];
-            List<object> result = (List<object>)DictionaryHelper.DigValueAtKeys(dict, keysToList);
+            List<object> result = (List<object>)DictHelper.DigValueAtKeys(dict, keysToList);
 
             if (result is null)
             {
@@ -211,7 +211,7 @@ namespace Reus2Surveyor
         public static List<int?> TryGetIntList(Dictionary<string, object> dict, List<string> keysToList, string finalKey)
         {
             List<int?> output = [];
-            List<object> result = (List<object>)DictionaryHelper.DigValueAtKeys(dict, keysToList);
+            List<object> result = (List<object>)DictHelper.DigValueAtKeys(dict, keysToList);
 
             if (result is null)
             {
@@ -234,7 +234,7 @@ namespace Reus2Surveyor
         public static List<int?> TryGetIntList(Dictionary<string, object> dict, List<string> keysToList, List<string> finalKeys)
         {
             List<int?> output = [];
-            List<object> result = (List<object>)DictionaryHelper.DigValueAtKeys(dict, keysToList);
+            List<object> result = (List<object>)DictHelper.DigValueAtKeys(dict, keysToList);
 
             if (result is null)
             {
@@ -257,7 +257,7 @@ namespace Reus2Surveyor
         public static List<float?> TryGetFloatList(Dictionary<string, object> dict, List<string> keysToList, string finalKey)
         {
             List<float?> output = [];
-            List<object> result = (List<object>)DictionaryHelper.DigValueAtKeys(dict, keysToList);
+            List<object> result = (List<object>)DictHelper.DigValueAtKeys(dict, keysToList);
 
             if (result is null)
             {
@@ -280,7 +280,7 @@ namespace Reus2Surveyor
         public static List<float?> TryGetFloatList(Dictionary<string, object> dict, List<string> keysToList, List<string> finalKeys)
         {
             List<float?> output = [];
-            List<object> result = (List<object>)DictionaryHelper.DigValueAtKeys(dict, keysToList);
+            List<object> result = (List<object>)DictHelper.DigValueAtKeys(dict, keysToList);
 
             if (result is null)
             {
