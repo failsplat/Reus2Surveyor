@@ -115,3 +115,58 @@ Sky Pillar,Mineral,3,,,1,,,,,,e0c6d20e4944628499c46b9496b6ed5e
 Coal,Mineral,3,1,,1,,,,,,619bb19ec2d0ed349a7cb86c2d112275
 Emerald,Mineral,3,1,,1,,,,,,14495b8cd3cc6e9468729ed857468cb8
 Phosphorus,Mineral,3,1,,1,,,,,,d408d06c5b44c5c4781bdc390ab743c4
+Sedge,Plant,1,,,,1,,,,,b6c075659ca8bbf4db20fda69c0f126d
+Alder,Plant,1,,,,1,,,,,1400cde16f626ee449017c3c9d4fb96d
+Dandelion,Plant,1,,,,1,,,,,cb854572d36790444a816ca5d479606c
+Fireweed,Plant,1,,,,1,,,,,dd2700ad4f8712149b41812063fee916
+Carrot,Plant,1,,,,1,,,,1,67defcd5fe748dd41b919dce9c02ac16
+Rosemary,Plant,2,,,,1,,,,,233f6a44c1490874c9e3fba1182cb936
+Wooly Willow,Plant,2,,,,1,,,,,4248297d34f7ba342a6e675fda3f6962
+Cloudberry,Plant,2,,,,1,,,,1,c5b6a9ba504649548a1bbc7a3e68ddc9
+Bog Orchid,Plant,2,1,,,1,,,,,8b85eac684dc81c4fa47ad3fcd576d44
+Juniper,Plant,2,1,,,1,,,,,4dde89c00063d1d45ac923ae9617fb35
+Onion,Plant,2,1,,,1,,,,,a5d2f1d5507e6f648ab5385312234ced
+Chokecherry,Plant,3,,,,1,,,,,cc3b94e30a914244aa786b495956c979
+Wollemi Pine,Plant,3,,,,1,,,,,d742bdd32fb61fa4eb9f07608a7518e4
+Siberian Pine,Plant,3,,,,1,,,,1,ea17b12229af15044bebc585c17d40aa
+Artichoke,Plant,3,1,,,1,,,,,9fd931ce63cf16b4e89c0e4f0c3d7833
+Stone Pine,Plant,3,1,,,1,,,,,3114b6f6b62d73148916e8de68ed8982
+Ground Squirrel,Animal,1,,,,1,,,,,16609cee378912746a32684ced00dd93
+Mink,Animal,1,,,,1,,,,,bab5ec8ee820e064e8e938fa4fbdbabd
+Casteroides,Animal,1,,,,1,,,,,117912070bbea82478c681b28f1cdae7
+Caribou,Animal,1,,,,1,,,,1,485abd007d35ff84583846695c2edcad
+Red-Backed Vole,Animal,1,,,,1,,,,1,691fdf3d4940b49459c2973aa1592136
+Arctic Fox,Animal,1,1,,,1,,,,,9c6d46017f8e90841b7583f8782d9f9e
+Steppe Bison,Animal,1,1,,,1,,,,,45038ca23f4bc1b409602725cc017570
+Hagerman Horse,Animal,2,,,,1,,,,,929486d5293e83940a2d38ad4e560a95
+Wolverine,Animal,2,,,,1,,,,,a6dca47a16834ce4d8672af23479696a
+Snowshoe Hare,Animal,2,,,,1,,,,1,99be9a02aa0f74e40b419e80bfa9970b
+Dire Wolf,Animal,2,1,,,1,,,,,f07abede38f23cf449141e10cba532bb
+Giant Sloth,Animal,2,1,,,1,,,,,3b588a105461bf04488b4d50973c336b
+Glyptodon,Animal,2,1,,,1,,,,,49339fb64240371498ac2d3650f88464
+Haast's Eagle,Animal,3,,,,1,,,,,e264f4020fd4b96449e1214f5ba6706d
+Saiga Antelope,Animal,3,,,,1,,,1,,f82e33e90faae1749af1a267c971ee18
+Black Bear,Animal,3,,,,1,,,,1,42bff7ae42b209842936791641929cf0
+Cave Bear,Animal,3,1,,,1,,,,,7eb38da39d609df4b8e7667f1a308010
+Mammoth,Animal,3,1,,,1,,,,,eb3e6102bb709064aaece71f37200a09
+Musk Ox,Animal,3,1,,,1,,,,,febcea625d3eda744a2a77ba523cbd2e
+Smilodon,Animal,3,1,,,1,,,,,eb3e52dd1c26f7d48b2ebf045580b0f7
+Woolly Rhino,Animal,3,1,,,1,,,,,d517c7ac8170cab4e8171d8e4753a629
+Slate,Mineral,1,,,,1,,,,,bb5af94e1304fc546bb18bff252673f4
+Bone,Mineral,1,,,,1,,,,,cd0b8648e59d7504381817c53d04adb3
+Jadeite,Mineral,1,,,,1,,,,,50be9a500650aee4a9f1977cda905d8c
+Mudpool,Mineral,1,,,,1,,,1,,719ce31427b970941b8078041345dff2
+Labradorite,Mineral,1,,,,1,,,,1,07b860d920d7ede4a8da0e8d3f8af17e
+Primal Flint,Mineral,1,1,,,1,,,,,1316fbdd92928114c8a49e0a69cc2b7b
+Arsenic,Mineral,2,,,,1,,,1,,2646248c961cfb6478f3d55d7c42cb4a
+Jet,Mineral,2,,,,1,,,1,,bc7e3c317625cf543bbe0345723acdc5
+Permafrost,Mineral,2,1,,,1,,,,,e48eccdf69fa87644acf64f01476b8b3
+Primal Hematite,Mineral,2,1,,,1,,,,,6205ad174ed33f34283493f7af15a54a
+Primal Obsidian,Mineral,2,1,,,1,,,,,c07413438aef3d84a902cb70d0eea6a9
+Sakhalin Amber,Mineral,2,1,,,1,,,,,8cdc745eff3c4054aaff70172ffbbc93
+Glacial Erratics,Mineral,3,,,,1,,,1,,3e04da0b04b59cf4287fe0676be3b57f
+Kettle Lake,Mineral,3,,,,1,,,1,,8e4ad93b90838c44399855a84d7d8d18
+Geyser,Mineral,3,1,,,1,,,,,2d68dc6a2e089734b825e82f5264ef4d
+Glacier,Mineral,3,1,,,1,,,,,f1d3f9143546e3a45b3694f16384ea2e
+Ochre,Mineral,3,1,,,1,,,,,1686997a76cc18c4f916683610585193
+Tar Pit,Mineral,3,1,,,1,,,,,e28694f6955848b4697165cdfd82d5b8
