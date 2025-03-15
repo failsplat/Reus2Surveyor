@@ -170,3 +170,55 @@ Geyser,Mineral,3,1,,,1,,,,,2d68dc6a2e089734b825e82f5264ef4d
 Glacier,Mineral,3,1,,,1,,,,,f1d3f9143546e3a45b3694f16384ea2e
 Ochre,Mineral,3,1,,,1,,,,,1686997a76cc18c4f916683610585193
 Tar Pit,Mineral,3,1,,,1,,,,,e28694f6955848b4697165cdfd82d5b8
+Kelp,Plant,1,,,,,1,,,,d07bdf4b2972af44e86b7bb0c7e197f1
+Sea Anemone,Plant,1,,,,,1,,,,c738fa0381993e74a82b64b5b022f73a
+Red Algae,Plant,1,,,,,1,,,,ba83d83ee83597a46a3a02fd16d55c4d
+Seagrass,Plant,1,,,,,1,,,,cdcbda3e5333a204c8de8ad3e997d1f0
+White-Plumed Anemone,Plant,1,1,,,,1,,,,4a1a1a5b907618743bc91e238343fb4e
+Sun Coral,Plant,2,,,,,1,,,,b9416630d5d6bed40bfb06f4e0cfd91d
+Turtlegrass,Plant,2,,,,,1,,,,5bd2d43bc8b90104b9fc1de1fb35a264
+Red Sea Whip,Plant,2,1,,,,1,,,,7c72d930309868b43bcaa442f5b354bb
+Sargrassum,Plant,2,1,,,,1,,,,258a124208d2f19448beeff953a0a73b
+Finger Coral,Plant,3,,,,,1,,,,261f7dbe0b20d7d4384039882989b909
+Open Brain Coral,Plant,3,,,,,1,,,,da8b076e43b30e94b961dca52e5734e0
+Christmas Tree Coral,Plant,3,1,,,,1,,,,9c144ba0dd6fc2e4da130abb95694461
+Staghorn Coral,Plant,3,1,,,,1,,,,c1d0fa1e924e5a84b8696a87a5fd1245
+Clownfish,Animal,1,,,,,1,,,,9aa0aae0278d3e240bbb186c394ccd54
+Herring,Animal,1,,,,,1,,,,f6b820dff5f4a8849860aade2dbe0da6
+Anchovy,Animal,1,,,,,1,,,,e0ccc8a1cdf235441b0eabaab03639ec
+Jellyfish,Animal,1,,,,,1,,,,d5a0111fdf96c184ab6a3f67a6a73e37
+Sea Krait,Animal,1,,,,,1,,,,d0e82c1b916dc4249856f68d4d4ac811
+Seabass,Animal,1,,,,,1,,,,a7775d9a8bc122c4e9701490085adbae
+Suckerfish,Animal,1,,,,,1,,,,e06a3036601d191448e317cc05b9d1dc
+Tuna,Animal,1,1,,,,1,,,,7cc02226c3825764a81b4001504747f8
+Barreleyes,Animal,2,,,,,1,,,,5b09a3f91ce9fa541acf89d7db376a22
+Parrotfish,Animal,2,,,,,1,,,,9d2f005ac302fac4c9e36fad381b892b
+Sunfish,Animal,2,,,,,1,,,,add17e6b5644647468b52e79e7ea3a7b
+Manta Ray,Animal,2,1,,,,1,,,,40a28e3358fb7074e9c849eedf3bcb66
+Marlin,Animal,2,1,,,,1,,,,65aa641d3171ac44ea750a752a222c34
+Octopus,Animal,2,1,,,,1,,,,377d3ba04378d0945a300d96640b6544
+Sea Turtle,Animal,2,1,,,,1,,,,c9117d0575d72a44bac9079eee71e7f8
+Anglerfish,Animal,3,,,,,1,,,,f9ac35b612a1c934a8dbb945912a8f29
+Clubhook Squid,Animal,3,,,,,1,,,,c2049ee06aebe1649a5b952bc608679b
+Mahi-Mahi,Animal,3,,,,,1,,,,7a0a5b3c5120172419d9de56bbaeed2a
+Blue Whale,Animal,3,1,,,,1,,,,a9d78d069059a554f900932fc539210a
+Bottlenose Dolphin,Animal,3,1,,,,1,,,,1bc37e19ba8522941b41934ad8a93d98
+Dugong,Animal,3,1,,,,1,,,,a05fbc53b1801054d9fe5c4ef0bbaf93
+Reef Shark,Animal,3,1,,,,1,,,,d8c7f8c7e7628a947934736d86476a55
+Surgeon Fish,Animal,3,1,,,,1,,,,3a2be48de37486646ba479a0a129d33b
+Great White Shark,Animal,3,1,,,,1,,,,0d6d984ae4580e047a3381000c4e9daf
+Bedrock,Mineral,1,,,,,1,,,,c57a7b85ab2110d4fac1fb656ea13fb1
+Chert,Mineral,1,,,,,1,,,,a956c578802acb644aa4a626057aa7e6
+Agate,Mineral,1,,,,,1,,,1,2ddf303a31cc8564db5e57abaa61e266
+Pearls,Mineral,1,1,,,,1,,,,5400f4d3073f80e4696d540df80a39b3
+Basalt (Aquatic),Mineral,2,,,,,1,,,,3d8044c724580ed45be8e4d81933d1db
+Hydrothermal Vents,Mineral,2,,,,,1,,,,576878d55aa5d5848817242fd6ad92bf
+Manganese,Mineral,2,,,,,1,,,,060326766c1c15642acec2d29725e562
+Mud Volcano,Mineral,2,1,,,,1,,,,433392e99c9b14f47b10e89757b87ea1
+Olivine,Mineral,2,1,,,,1,,,,8f56ad7f404d9dc47b9220a0d81bc1c8
+False Trumpet Grounds,Mineral,3,,,,,1,,,,98ca116d624b2154b9239955a07aa25f
+Seep Community,Mineral,3,,,,,1,,,,2e3be0de998c5174f8f9965211b6c5d4
+Crab Meeting Spot,Mineral,3,1,,,,1,,,,3a01d6d986680a94fba0f9400364723c
+Oil (Offshore),Mineral,3,1,,,,1,,,,7e5f4fbe81074dc468f5f6cf2f7eeb13
+Shipwreck,Mineral,3,1,,,,1,,,,56915a48dbd7d0b4bb23fb9061e5f8b0
+Titan Fall,Mineral,3,1,,,,1,,,,e2e16750d76e3a5408176216d61c302b
