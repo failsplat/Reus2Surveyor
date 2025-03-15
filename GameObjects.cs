@@ -8,6 +8,7 @@ using System.Reflection.Metadata;
 using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices.ObjectiveC;
 using System.Runtime.InteropServices.Swift;
+using System.Security.Cryptography;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,6 +27,7 @@ namespace Reus2Surveyor
         public readonly int totalSize;
         public readonly int wildSize;
         public readonly PatchMap<int?> patchIdMap;
+        public readonly GameSession gameSession;
 
         //public List<int?> patchCollection;
 
@@ -57,6 +59,9 @@ namespace Reus2Surveyor
             "leftNeighbour", "rightNeighbour", // British Spelling
             "biomeOrigin", "initiatedTurningPoints", "nomadHeritage", "currentVisualStage", "citySlot", "projectSlots",
             ];
+        public readonly static List<string> sessionCheckKeys = [
+            "gameplayController", "startParameters", "sessionID", "isFinished", "freePlay", "planetIsLost", "name"
+            ];
 
         public Planet(List<object> referenceTokensList)
         {
@@ -77,12 +82,6 @@ namespace Reus2Surveyor
                     this.patchDictionary.Add(i, new Patch(refToken));
                     continue;
                 }
-                if (patchCollectionCheckKeys.All(k => rtKeys.Contains(k)) && (string)refToken["name"] == "PatchCollection")
-                {
-                    this.patchIdMap = new PatchMap<int?>(
-                        DictionaryHelper.TryGetIntList(refToken, ["models", "itemData"], "id"));
-                    continue;
-                }
                 if (biomeCheckKeys.All(k => rtKeys.Contains(k)))
                 {
                     this.biomeDictionary.Add(i, new Biome(refToken));
@@ -96,6 +95,17 @@ namespace Reus2Surveyor
                 if (cityCheckKeys.All(k => rtKeys.Contains(k)))
                 {
                     this.cityDictionary.Add(i, new City(refToken, referenceTokensList));
+                    continue;
+                }
+                if (sessionCheckKeys.All(k => rtKeys.Contains(k)) && (string)refToken["name"] == "Session")
+                {
+                    this.gameSession = new GameSession(refToken);
+                    continue;
+                } 
+                if (patchCollectionCheckKeys.All(k => rtKeys.Contains(k)) && (string)refToken["name"] == "PatchCollection")
+                {
+                    this.patchIdMap = new PatchMap<int?>(
+                        DictionaryHelper.TryGetIntList(refToken, ["models", "itemData"], "id"));
                     continue;
                 }
             }
@@ -122,6 +132,12 @@ namespace Reus2Surveyor
             {
                 city.BuildTerritoryInfo(this.patchIdMap, this.patchDictionary);
                 city.CountTerritoryBiotica(this.slotDictionary, this.natureBioticumDictionary);
+            }
+
+            List<ValueTuple<City,GameSession.CivSummary>> CitySummaryPairs = [..this.cityDictionary.Values.Zip(this.gameSession.civSummaries).ToList()];
+            foreach (ValueTuple<City,GameSession.CivSummary> cc in CitySummaryPairs)
+            {
+                cc.Item1.AttachCivSummary(cc.Item2);
             }
         }
     }
@@ -366,6 +382,7 @@ namespace Reus2Surveyor
         public List<Patch> PatchesInTerritory { get; private set; } = [];
         public List<NatureBioticum> BioticaInTerritory { get; private set; } = [];
         public string currentBiomeDef { get; private set; }
+        public GameSession.CivSummary CivSummary { get; private set; }
 
         public City(Dictionary<string, object> refDict, List<object> referenceTokensList)
         {
@@ -429,6 +446,11 @@ namespace Reus2Surveyor
             List<BioticumSlot> slots = [..slotIndices.Select(s => slotDictionary[s])];
             List<int> biotIndices = [.. slots.Where(s => s.bioticumId is not null && s.bioticumId > 0).Select(s => (int)s.bioticumId)];
             this.BioticaInTerritory = [.. biotIndices.Select(s => bioticaDictionary[s])];
+        }
+
+        public void AttachCivSummary(GameSession.CivSummary value)
+        {
+            this.CivSummary = value;
         }
 
         // Classes for internal use
@@ -514,6 +536,125 @@ namespace Reus2Surveyor
                 this.rightBorderPatchId = DictionaryHelper.TryGetInt(refDict, ["rightBorder", "id"]);
                 this.leftBorderBiomeType = DictionaryHelper.TryGetInt(refDict, ["leftBorderBiomeType", "value"]);
                 this.rightBorderBiomeType = DictionaryHelper.TryGetInt(refDict, ["rightBorderBiomeType", "value"]);
+            }
+        }
+    }
+
+    public class GameSession
+    {
+        // Primary Data
+        // sessionSummary
+        public readonly List<TurningPointPerformance> turningPointPerformances = [];
+        public readonly List<string?> giantRosterDefs = [];
+        public readonly string? scenarioDefinition;
+        public readonly string? selectedCharacterDef;
+        public readonly int? finalEra;
+        public readonly bool? isTimeBasedChallenge, giantsRandomized, startingSpiritsRandomized;
+        public readonly int? draftMode, rerollsPerEra, eventIntensity;
+        public readonly int? challengeIndex, timedChallengeType, sessionDifficulty;
+        // sessionSummary:planetSummary2
+        // Biome sectors for planet preview bar
+        public readonly List<BiomeSector> biomeSectors = [];
+        public int? terribleFate;
+        // sessionSummary:humanitySummary2
+        public readonly List<CivSummary> civSummaries = [];
+
+        public readonly bool? pacifismMode, planetIsLost;
+        
+        public GameSession(Dictionary<string, object> refDict)
+        {
+            // sessionSummary
+            this.giantRosterDefs = DictionaryHelper.TryGetStringList(refDict, 
+                ["sessionSummary", "startParameters", "giantRoster", "itemData"], 
+                ["value", "Item2", "value"]);
+            this.scenarioDefinition = DictionaryHelper.TryGetString(refDict, ["sessionSummary", "startParameters", "scenarioDefinition", "value"]);
+            this.selectedCharacterDef = DictionaryHelper.TryGetString(refDict, ["sessionSummary", "startParameters", "selectedCharacter", "value"]);
+            this.finalEra = DictionaryHelper.TryGetInt(refDict, ["sessionSummary", "startParameters", "finalEra", "value"]);
+
+            this.isTimeBasedChallenge = DictionaryHelper.TryGetBool(refDict, ["sessionSummary", "startParameters", "isTimeBasedChallenge"]);
+            this.giantsRandomized = DictionaryHelper.TryGetBool(refDict, ["sessionSummary", "startParameters", "giantsRandomized"]);
+            this.startingSpiritsRandomized = DictionaryHelper.TryGetBool(refDict, ["sessionSummary", "startParameters", "startingSpiritsRandomized"]);
+            this.draftMode = DictionaryHelper.TryGetInt(refDict, ["sessionSummary", "startParameters", "draftMode", "value"]);
+            this.rerollsPerEra = DictionaryHelper.TryGetInt(refDict, ["sessionSummary", "startParameters", "draftMode", "value"]);
+            this.eventIntensity = DictionaryHelper.TryGetInt(refDict, ["sessionSummary", "startParameters", "draftMode", "value"]);
+            this.challengeIndex = DictionaryHelper.TryGetInt(refDict, ["sessionSummary", "startParameters", "challengeID", "challengeIndex"]);
+            this.timedChallengeType = DictionaryHelper.TryGetInt(refDict, ["sessionSummary", "startParameters", "challengeID", "timedChallengeType", "value"]);
+            this.pacifismMode = DictionaryHelper.TryGetBool(refDict, ["sessionSummary", "startParameters", "pacifismMode"]);
+            this.sessionDifficulty = DictionaryHelper.TryGetInt(refDict, ["sessionSummary", "startParameters", "sessionDifficulty", "value"]);
+            this.planetIsLost = DictionaryHelper.TryGetBool(refDict, "planetIsLost");
+
+            List<object> tpDicts = (List<object>)DictionaryHelper.DigValueAtKeys(refDict, ["sessionSummary", "scoreCard", "turningPointPerformances", "itemData"]);
+            foreach(Dictionary<string, object> tpd in tpDicts)
+            {
+                this.turningPointPerformances.Add(new TurningPointPerformance(tpd));
+            }
+
+            // planetSummary
+            List<object> sectorDicts = (List<object>) DictionaryHelper.DigValueAtKeys(refDict, ["sessionSummary", "planetSummary2", "biomeSectors", "itemData"]);
+            foreach (Dictionary<string,object> sd in sectorDicts)
+            {
+                this.biomeSectors.Add(new BiomeSector(sd));
+            }
+            this.terribleFate = DictionaryHelper.TryGetInt(refDict, ["sessionSummary", "planetSummary2", "terribleFate", "value"]);
+
+            List<object> civDicts = (List<object>) DictionaryHelper.DigValueAtKeys(refDict, ["sessionSummary", "humanitySummary2", "civs", "itemData"]);
+            foreach(Dictionary<string, object> cd in civDicts)
+            {
+                this.civSummaries.Add(new CivSummary(cd));
+            }
+
+        }
+
+        public class TurningPointPerformance
+        {
+            public readonly string? turningPointDef, requestingCharacterDef;
+            public readonly int? starRating, scoreTotal;
+
+            public TurningPointPerformance(Dictionary<string, object> subDict)
+            {
+                this.turningPointDef = DictionaryHelper.TryGetString(subDict, ["value", "turningPoint", "value"]);
+                this.requestingCharacterDef = DictionaryHelper.TryGetString(subDict, ["value", "requestingCharacter", "value"]);
+                this.starRating = DictionaryHelper.TryGetInt(subDict, ["value","starRating"]);
+                this.scoreTotal = DictionaryHelper.TryGetIntList(subDict, ["value", "scoreElements", "itemData"], ["value", "score"]).Sum();
+            }
+        }
+
+        public class BiomeSector
+        {
+            public readonly int? typeDef;
+            public readonly float? len;
+            public readonly bool? hasCity;
+
+            public BiomeSector(Dictionary<string, object> subDict)
+            {
+                this.typeDef = DictionaryHelper.TryGetInt(subDict, ["value", "biomeType", "value"]);
+                this.len = DictionaryHelper.TryGetFloat(subDict, ["value", "sectorLength"]);
+                this.hasCity = DictionaryHelper.TryGetBool(subDict, ["value", "hasCity"]);
+            }
+        }
+
+        public class CivSummary
+        {
+            public readonly string? name;
+            public readonly int? prosperity, population, wealth, innovation;
+            public readonly string? characterDef, homeBiomeDef;
+            public readonly List<string?> projectDefs;
+
+            public CivSummary(Dictionary<string, object> subDict)
+            {
+                this.name = DictionaryHelper.TryGetString(subDict, ["value", "name"]);
+
+                this.prosperity = DictionaryHelper.TryGetInt(subDict, ["value", "prosperity"]);
+                this.population = DictionaryHelper.TryGetInt(subDict, ["value", "population"]);
+                this.wealth = DictionaryHelper.TryGetInt(subDict, ["value", "wealth"]);
+                this.innovation = DictionaryHelper.TryGetInt(subDict, ["value", "innovation"]);
+
+                this.characterDef = DictionaryHelper.TryGetString(subDict, ["value", "character", "value"]);
+                this.homeBiomeDef = DictionaryHelper.TryGetString(subDict, ["value", "homeBiome", "value"]);
+
+                this.projectDefs = DictionaryHelper.TryGetStringList(subDict, 
+                    ["value", "projects", "itemData"], 
+                    ["value", "projectDefinition", "value"]);
             }
         }
     }
