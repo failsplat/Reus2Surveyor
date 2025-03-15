@@ -324,3 +324,31 @@ Vermiculite,Mineral,3,,,,,,,1,,b01e38fa5ef7e2541844eb8ad168e811
 Palladium,Mineral,3,1,,,,,,1,,c08203918bac0bb47b463a516bc23d3b
 Sapphire,Mineral,3,1,,,,,,1,,af9eeb833fd5b184c936213a92d8be42
 Titan Graveyard,Mineral,3,1,,,,,,1,,a47c84488fcfb4e4d8784eb5e9fed748
+Fir,Plant,1,,,,,,,,1,bd0fafcf5cc25c2408573ffae07f36e3
+Bluebead,Plant,1,,,,,,,,1,8f5cd097c0de1864aa88b6a4ab34a305
+Rowan,Plant,1,,,,,,,,1,acf22236f069b2745911e42ad9672751
+Potato,Plant,1,1,,,,,,,1,23a3960f442d5d84abcaa3da0754e110
+Cranberry,Plant,2,,,,,,,,1,d61076cbd88c9c44dad4ef6a29f2bf81
+Poplar,Plant,2,,,,,,,,1,394b73a901dc0c347910857c7143f433
+Larix,Plant,2,1,,,,,,,1,af562ab875b730c428a0dcfcb2c7cd26
+Sugar Beet,Plant,2,1,,,,,,,1,2c9a54a55c3e77e4a81ba38bdbe2bb81
+White Birch,Plant,2,1,,,,,,,1,f2a42927c22d1b34bb29c0c51e5007b8
+Honeysuckle,Plant,3,,,,,,,,1,74dc87e64a609094aadcf05a74a9b054
+Labrador Tea,Plant,3,,,,,,,,1,8c45d58c09f2ef14782571cca3f94e30
+Sequoia,Plant,3,1,,,,,,,1,33366d1f58272814d9c7d5e8f8876279
+Strawberry,Plant,3,1,,,,,,,1,e686feda642906a4cb423a8d6b3f389a
+Crossbill,Animal,1,,,,,,,,1,e57e1c029fa228947a89ca7163cc5ae8
+Skunk,Animal,1,,,,,,,,1,2af5e0cc59c804c4da64c530eef47c2d
+Fox,Animal,1,1,,,,,,,1,fb6c66ddb01d70e408bc1470750500bf
+Ptarmigan,Animal,2,,,,,,,,1,e7b0e817bd590b24abb417fd04355904
+Red Cardinal,Animal,2,,,,,,,,1,94a6dd25c6731594ebe97b8ee55ca42d
+Mouflon,Animal,2,1,,,,,,,1,2e97a48981378c540b767142ef8936b6
+Nightjar,Animal,2,1,,,,,,,1,8ac1542cc0dd4e94aa466972384b0fb0
+Arctic Wolf,Animal,2,1,,,,,,,1,221dfbbcee98c1a40b0048ffdfc16b3e
+Goose,Animal,3,,,,,,,,1,ac771d2df5e1f4e4e9abf1e406b3d387
+Steller's Sea Eagler,Animal,3,,,,,,,,1,babd3e262c3ed6e4f97755ef3271393a
+Amur Leopard,Animal,3,1,,,,,,,1,36ba57de70feb904d8716d87c05cf205
+Brown Bear,Animal,3,1,,,,,,,1,5269782cb3524b34a86026b0b78474c8
+Moose,Animal,3,1,,,,,,,1,b8875363e98cb164da858121b215bbe2
+Sable,Animal,3,1,,,,,,,1,0cab180f755c36e49a7e7098b3a48a86
+Siberian Tiger,Animal,3,1,,,,,,,1,b1f0a9aee583fb947980ce957d327ea8
