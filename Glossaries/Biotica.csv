@@ -52,3 +52,66 @@ Diamond,Mineral,3,1,1,,,,,,,1696c7a3a2217e746a5378eaa6023529
 Dysprosium,Mineral,3,1,1,,,,,,,815134120f7cdb84da33f6dea8cdaa11
 Oil (Expanses),Mineral,3,1,1,,,,,,,9bf4bb1f20e96b448ade41600269162e
 Ruby,Mineral,3,1,1,,,,,,,83b38f9f3c74838448262c8606fdca71
+Ash,Plant,1,,,1,,,,,,8be16cad5ffd4504da097a78e8620802
+Bamboo,Plant,1,,,1,,,1,,,0ea933c9c51fe554eb897261d548d989
+Blueberry,Plant,1,,,1,,,,,,2f8e3101dbb28d24eb643c71160119cb
+Pear Tree,Plant,1,,,1,,,,,,c437062da1c2e854ca370f2e2d6736a4
+White Willow,Plant,1,,,1,,,,,,15e1ac5ce6965c44cb1274ffcb214209
+Blackberry,Plant,1,,,1,,,,,1,19dc9571be232734780b3ecabbe4c320
+Apple Tree,Plant,1,1,,1,,,,,,7130026fddd810a4aa046008d37db1e9
+Camphor Tree,Plant,2,,,1,,,,,,752b722a6d398134fba8e2eda1cfe34b
+Grape Vine,Plant,2,,,1,,,,,,b8b0734c6481a2744906b8444806421c
+White Mulberry,Plant,2,,,1,,,,,,8386837e70a45ea48ae529f5840b7f20
+Marula,Plant,2,,,1,,,,1,,d4ffe501eff7fbc4394f67945c13aafc
+Cherry Tree,Plant,2,1,,1,,,,,,3ec2e6c24e8fab3448cd0c5d84598a13
+Lychee Tree,Plant,2,1,,1,,,,,,6cbfe9fcf516f1a4bbe08d833dc0203c
+Nightshade,Plant,2,1,,1,,,,,,c5ef7d8fe41e2a84cb98e9bf615b6577
+Paper Mulberry,Plant,2,1,,1,,,,,,df8f936f4063c2348bf85120bdecbf97
+Dove Tree,Plant,3,,,1,,,,,,8b0c9e42229bb8f4086e07c9bd5c19dd
+Ginkgo,Plant,3,,,1,,,,,,1fe2bac7acd80714c991ee0ae0a847c8
+Hazelnut Tree,Plant,3,,,1,1,,,,,8aef02933a647df458c95419b947a52b
+Sunflower,Plant,3,,,1,,,,,,b439bcb9dcccdff429b99bb19311d771
+Chinese Jujube,Plant,3,1,,1,,,,,,656127b64f891fb4e88a69c898bec7ac
+Foxglove,Plant,3,1,,1,,,,,,c8a156093df34e74dbc79fd8f1abf118
+Maple Tree,Plant,3,1,,1,,,,,,f5fb9760625d29540947f56dcf13911b
+Orange Tree,Plant,3,1,,1,,,,,,bda5dad3d2dc01347a8a91be66899f23
+Pallas Cat,Animal,1,,,1,,,,,1,17bee1dcaa34bcf40a05220df98d9d86
+Raccoon Dog,Animal,1,,,1,,,,,,4778fa7d05e530243bc4153b212fd8e0
+Red Deer,Animal,1,,,1,1,,,,,8548f63e1eb039b4e9c6089b97a2b5e9
+Squirrel,Animal,1,,,1,,,,,1,a8b011ac939f2aa4c8e798ea399d0a3c
+Badger,Animal,1,,,1,1,,,,,90a26a1c6c0e6dc43803e17bc81db77b
+Rabbit,Animal,1,,,1,,,,,1,cd45785c12073b14288b953e7a1ed9b5
+Stoat,Animal,1,,,1,,,,,1,0e2b1c836842957439e2e47731beaad8
+Pangolin,Animal,1,1,,1,,,,,,df03c48ee56f3bc49adb90752c7f004c
+Corsac,Animal,2,,,1,,,,,,19371b42509581a458fe9b89e3d9f4c7
+Musk Deer,Animal,2,,,1,,,,,,c8f24f22ad87cba42884ff24d253dfc8
+Pheasant,Animal,2,,,1,,,,,,75dc2af4ee77c4a498496fb38e2fc099
+Beaver,Animal,2,1,,1,,,,,,69d939a2265c09d40b7a7447a9b6d8ea
+Boar,Animal,2,1,,1,,,,,,f5c66410b2255834180531fafedadd36
+Grey Wolf,Animal,2,1,,1,,,,,,92b116e50755e01428a8d556cb2f8781
+Gaur,Animal,3,,,1,,,,,,587b5cc81c7d86141b44511f81030557
+Porcupine,Animal,3,,,1,,,,,,63f6635296bca71458839829dd7f853e
+Red Panda,Animal,3,,,1,,,,,,c9fc320ee642e9747a16b9d2c9d9c0f4
+Marmot,Animal,3,,,1,1,,,,,94fc6ede2b05bb44499814a1fac383d6
+Mandarin Duck,Animal,3,,,1,,,,,1,a1c4eea866404b84d8f816280ca014b9
+Panda Bear,Animal,3,1,,1,,,,,,5522293b5cbf25541a294351cfe8d232
+Rhesus Macaque,Animal,3,1,,1,,,,,,d4be38d3c46803842845956c345a80bc
+South China Tiger,Animal,3,1,,1,,,,,,54d56634a1df75c44bbf0c907606a7fb
+Moss Agate,Mineral,1,,,1,,,,,,e5ab68b9e5bb8924495bb4a9f40851cf
+Mossy Stone,Mineral,1,,,1,,,,,,3d43b2546e23d304fb9e0d75a76bd67c
+Sandstone,Mineral,1,,,1,,,,,,74537989755600d41a20d6697bfc9ac7
+Amber,Mineral,1,,,1,1,,,,,e7731e67d9e4b0c4da9956afa709d30a
+Tin,Mineral,1,,,1,,,,,1,6a0e57e0dd4af684c967615a71af9748
+Antimony,Mineral,1,1,,1,,,,,,4b4b5f65b1f3aa647879ff15d17286f1
+Feldspar,Mineral,2,,,1,,,,,,762c1d6daa06ab1498ac55fe14b69d73
+Kaolin,Mineral,2,,,1,,,,,,46b760a49f933d84c8cccb152ba758de
+Spinel,Mineral,2,,,1,,,,1,,6a4d0b067a59f5143995b9d3174d737e
+Jade (Imperial),Mineral,2,1,,1,,,,,,14152449eee9c054f82e3ca0abd65b21
+Spectrolite,Mineral,2,1,,1,,,,,,6bbff14740fed284c9bb48adbc7d6b3d
+Zinc,Mineral,2,1,,1,,,,,,b5349d0d40b40274ba496be045622e30
+Leaf Turquoise,Mineral,3,,,1,,,,,,5a73f51d840da7148afc679a16dc105c
+Onyx,Mineral,3,,,1,,,1,,,b21e79312cfd8804b8b0708abcaef4cd
+Sky Pillar,Mineral,3,,,1,,,,,,e0c6d20e4944628499c46b9496b6ed5e
+Coal,Mineral,3,1,,1,,,,,,619bb19ec2d0ed349a7cb86c2d112275
+Emerald,Mineral,3,1,,1,,,,,,14495b8cd3cc6e9468729ed857468cb8
+Phosphorus,Mineral,3,1,,1,,,,,,d408d06c5b44c5c4781bdc390ab743c4
