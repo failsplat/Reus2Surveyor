@@ -222,9 +222,11 @@ namespace Reus2Surveyor
                 }
                 List<string> singletonBiotica = [.. bioticaCounter.Where(kv => kv.Value == 1).Select(kv => kv.Key)];
                 List<string> dualBiotica = [.. bioticaCounter.Where(kv => kv.Value == 2).Select(kv => kv.Key)];
-                string bio1, bio2;
+                List<string> tripleBiotica = [.. bioticaCounter.Where(kv => kv.Value == 3).Select(kv => kv.Key)];
+                string bio1, bio2, bio3;
                 if (singletonBiotica.Count > 0) bio1 = singletonBiotica[0];
                 if (dualBiotica.Count > 0) bio2 = dualBiotica[0];
+                if (tripleBiotica.Count > 0) bio3 = tripleBiotica[0];
              }
         }
 
