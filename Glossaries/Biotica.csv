@@ -1,4 +1,4 @@
-Name,Type,Tier,Apex,Desert,Forest,IceAge,Ocean,Rainforest,Savanna,Taiga,Hash
+﻿Name,Type,Tier,Apex,Desert,Forest,IceAge,Ocean,Rainforest,Savanna,Taiga,Hash
 Sage Brush,Plant,1,,1,,,,,,,10c6fcf4f4c941e4f9759cc075f3ddcc
 Agave,Plant,1,,1,,,,1,,,baf88e88199b36742a2aa8093e3e6efe
 Barley,Plant,1,,1,,,,,1,,05eef46fd4af8694aac8d6bbf5d7d03e
@@ -222,3 +222,58 @@ Crab Meeting Spot,Mineral,3,1,,,,1,,,,3a01d6d986680a94fba0f9400364723c
 Oil (Offshore),Mineral,3,1,,,,1,,,,7e5f4fbe81074dc468f5f6cf2f7eeb13
 Shipwreck,Mineral,3,1,,,,1,,,,56915a48dbd7d0b4bb23fb9061e5f8b0
 Titan Fall,Mineral,3,1,,,,1,,,,e2e16750d76e3a5408176216d61c302b
+Papaya Tree,Plant,1,,,,,,1,,,d33899eff0cc0d248ae8cfd6a818e80d
+Ramón Tree,Plant,1,,,,,,1,,,d927891766bc2274087d1a2c0fe960f9
+Cinchona Tree,Plant,1,,,,,,1,,,b2e4572107af5c24f83674446ad72d1a
+Banana,Plant,1,1,,,,,1,,,ee343780b467df948bde99e77449aa64
+Gumbo-Limbo,Plant,1,1,,,,,1,,,5c6e9a72de843704ebd0da1214dee491
+Jabuticaba,Plant,2,,,,,,1,,,42ecd904fc3445342ba1827430be60ca
+Kentucky Coffeetree,Plant,2,,,,,,1,,1,f3d68f8ef5098654bb970598eaa48ee1
+Pitaya,Plant,2,,,,,,1,1,,40635a4bc94e6e34e96d6a79183f96c2
+Rubber Tree,Plant,2,,,,,,1,,,8697f19191e74724e919eea9da6b5bbd
+Brazilwood,Plant,2,1,,,,,1,,,2680753bb976d124da04c7dbe9fcdc87
+Cassava,Plant,2,1,,,,,1,,,75fe9449b492c5d47a24c1e26f593f54
+Hemp,Plant,2,1,,,,,1,,,3a8bc81a09d3c1448a7f7029266ae934
+Mango,Plant,2,1,,,,,1,,,77484f1a42da87f4abe7bd989f4b178c
+Kapok Tree,Plant,3,,,,,,1,,,51d95c61591f37646b6db783a579e990
+Passion Fruit,Plant,3,,,,,,1,,,9e248f6af6c391443a062bf054d2029f
+Rambutan,Plant,3,,,,,,1,,,7388de686bdcf8545aec118f21fdfc6d
+Cacao Tree,Plant,3,1,,,,,1,,,89274f0c12553d545b7141da84659e2f
+Coffea Robusta,Plant,3,1,,,,,1,,,69333ec919b970f4399f68b19f5131ca
+Guarana,Plant,3,1,,,,,1,,,5099099f75672984090b9aa316380ddf
+Heliconia,Plant,3,1,,,,,1,,,50dd906bb8cdb6241858cdebb43fb5af
+Guinea Pig,Animal,1,,,,,,1,,,e662ffdbff997524894db1a1bc9b7d5f
+Pit Viper,Animal,1,,,,,,1,,,b1c4bcff990e00c4bb697d400bd2843b
+Iguana,Animal,1,,,,,,1,,,3ea25475df80cd248a6a6342c41c94a0
+Jungle Fowl,Animal,1,,,,,,1,,,f04be77a8320d45428957b5d7dd02370
+Parakeet,Animal,1,,,,,,1,1,,63419f7152b380c4cab12be07f45368f
+Squirrel Monkey,Animal,1,,,,,,1,,,904d51b8c4f6e954d8058d8c898eec53
+Scarlet Macaw,Animal,1,1,,,,,1,,,2d999f263604f9342b50eeac1ca475b8
+Arrau Turtle,Animal,2,,,,,,1,,,d21ad4340519d5545bc98bed1455e792
+Spider Monkey,Animal,2,,,,,,1,,,24e0f74e74b8a66488527988107f5449
+Tinamou,Animal,2,,,,,,1,,,570d5e9c244f85c4dad74815761b2298
+Caiman,Animal,2,1,,,,,1,,,ff7037a07f1a84d4fa2a33b4cc04b054
+Capybara,Animal,2,1,,,,,1,,,da5c32591dc97d64189244b626aefb6b
+Golden Lion Tamarin,Animal,2,1,,,,,1,,,554f057b894c1d24a93429a0c18ef76e
+Cougar,Animal,3,,,,,,1,,1,fd978849267776348b3958ac7e8a47f2
+Red Howler,Animal,3,,,,,,1,,,a25addecb9581cf48ad521a556af1a49
+Toco Toucan,Animal,3,,,,,,1,,,76239f3b3085fb046ac012e7c98c1466
+Vinaceous Amazon,Animal,3,,,,,,1,,,0f57530b9cc8bea49a70fa23d99a39f6
+Harpy,Animal,3,1,,,,,1,,,5da624644ceb1554280f6992c2b71abf
+Jaguar,Animal,3,1,,,,,1,,,f9454ec9ad42e8c48b19e5f7e64a290f
+Ocelot,Animal,3,1,,,,,1,,,cd962197c25570e45a30d911b8032c7a
+Tapir,Animal,3,1,,,,,1,,,12896c783493aee41852e15163213dbd
+Stone,Mineral,1,,,,,,1,,1,bc38353aa0eca0d40b12f5227a056a07
+Amethyst,Mineral,1,,,,,,1,1,,148bc31802f7c2a4aad17c329736c0c7
+Cinnabar,Mineral,1,,,,,,1,,,2573cd2dafadfb345b966151dcf4435f
+Flint,Mineral,1,,,,,,1,,,b36f17a4a5e37964baf7e79031c8dfbb
+Aquamarine,Mineral,2,,,,,,1,,,0f42535ca7640444daa571904d1e7d18
+Mica,Mineral,2,,,,,,1,,,54dfc26d4966cf442b1d5a369f6eebce
+Fluorite,Mineral,2,,,,,,1,1,,84d76351b29b9ca429c53629ae578baf
+Hematite,Mineral,2,1,,,,,1,,,7b43c24d7c299b24f996bbdfe09a8ce0
+Jade (Ritual),Mineral,2,1,,,,,1,,,7bdfb822a68af9149a0f5423264a85e4
+Obsidian,Mineral,2,1,,,,,1,,,c335318914388794aa6a6e41a1d13a2c
+Bauxite,Mineral,3,,,,,,1,,,3adaf1821bb913a4685464ce3e1cc470
+Cobalt,Mineral,3,1,,,,,1,,,bd7397564dec9144689af372d193f6c3
+Gold (Legendary),Mineral,3,1,,,,,1,,,3cbc502b7d412c04fb189590c07692c7
+Helium,Mineral,3,1,,,,,1,,,b868a2b5f4fb7f5478159a8f45e48120
