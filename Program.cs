@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
 using Reus2Surveyor.Properties;
+using System.IO;
 
 namespace Reus2Surveyor
 {
@@ -27,10 +28,18 @@ namespace Reus2Surveyor
             Trace.AutoFlush = true;
             FormMain formMain = new();
             formMain.SetAndCheckProfilePath(Settings.Default.StartProfileDir);
+            if (!Path.Exists(Settings.Default.LastSpotCheckDir))
+            {
+                Settings.Default.LastSpotCheckDir = Settings.Default.StartProfileDir;
+            }
             formMain.LastSpotCheckDir = Settings.Default.LastSpotCheckDir;
             formMain.SetSpotCheckWriteSetting(Settings.Default.SpotCheckWrite);
             Application.Run(formMain);
             if (formMain.profileDirOK) Settings.Default.StartProfileDir = formMain.ProfileDir;
+            if (!Path.Exists(Settings.Default.LastSpotCheckDir))
+            {
+                Settings.Default.LastSpotCheckDir = Settings.Default.StartProfileDir;
+            }
             Settings.Default.LastSpotCheckDir = formMain.LastSpotCheckDir;
             Settings.Default.SpotCheckWrite = formMain.SpotCheckWriteSetting;
             Settings.Default.Save();
