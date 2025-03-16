@@ -458,7 +458,7 @@ namespace Reus2Surveyor
             if (this.projectControllerId is not null) 
             {
                 this.CityProjectController = 
-                    new ProjectController((Dictionary<string, object>)(referenceTokensList[(int)this.projectControllerId]));
+                    new ProjectController((Dictionary<string, object>)(referenceTokensList[(int)this.projectControllerId]), referenceTokensList);
             }
             if (this.resourceControllerId is not null)
             {
@@ -522,13 +522,29 @@ namespace Reus2Surveyor
         {
             public readonly List<int?> projectsIds;
             public readonly int? projectsInspiredCount;
+            public readonly List<CityProject> projects = [];
 
-            public ProjectController(Dictionary<string, object> refDict)
+            public ProjectController(Dictionary<string, object> refDict, List<object> referenceTokensList)
             {
                 this.projectsIds = DictHelper.TryGetIntList(refDict, ["projects", "itemData"], "id");
                 this.projectsInspiredCount = DictHelper.TryGetInt(refDict, "projectsInspired");
+                foreach (int pid in this.projectsIds)
+                {
+                    projects.Add(new CityProject((Dictionary<string, object>)(referenceTokensList[pid])));
+                }
             }
 
+            public class CityProject
+            {
+                public readonly string definition;
+                public readonly string name;
+
+                public CityProject(Dictionary<string, object> refDict)
+                {
+                    this.definition = DictHelper.TryGetString(refDict, ["definition", "value"]);
+                    this.name = DictHelper.TryGetString(refDict, "name");
+                }
+            }
         }
         public class ResourceController
         {
