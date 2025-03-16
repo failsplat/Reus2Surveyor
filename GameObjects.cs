@@ -29,6 +29,8 @@ namespace Reus2Surveyor
         public readonly PatchMap<int?> patchIdMap;
         public readonly GameSession gameSession;
 
+        private Glossaries glossaries;
+
         //public List<int?> patchCollection;
 
         public readonly static List<string> slotCheckKeys = [
@@ -121,7 +123,11 @@ namespace Reus2Surveyor
             List<int> inactiveBiotica = [];
             foreach (KeyValuePair<int,NatureBioticum> kv in this.natureBioticumDictionary)
             {
-                if (!kv.Value.IsActive()) inactiveBiotica.Add(kv.Key);
+                if (!kv.Value.IsActive())
+                {
+                    inactiveBiotica.Add(kv.Key);
+                    //if (this.glossaries is not null) kv.Value.CheckName(this.glossaries);
+                }
             }
             foreach(int removeIndex in inactiveBiotica)
             {
@@ -138,6 +144,15 @@ namespace Reus2Surveyor
             foreach (ValueTuple<City,GameSession.CivSummary> cc in CitySummaryPairs)
             {
                 cc.Item1.AttachCivSummary(cc.Item2);
+            }
+        }
+
+        public void SetGlossaryThenLookup(Glossaries g)
+        {
+            this.glossaries = g;
+            foreach (NatureBioticum b in this.natureBioticumDictionary.Values)
+            {
+                b.CheckName(this.glossaries);
             }
         }
     }
@@ -333,6 +348,7 @@ namespace Reus2Surveyor
         // Secondary Data
         public bool IsOnMountain { get; private set; }
         public bool HasMicro { get; private set; }
+        public string BioticumName { get; private set; }
 
         public NatureBioticum(Dictionary<string,object> refDict)
         {
@@ -353,6 +369,11 @@ namespace Reus2Surveyor
             this.IsOnMountain = thisSlot.locationOnPatch == 2;
         }
         // TODO: (Maybe) check that the aspect slot(s) have placed micros
+
+        public void CheckName(Glossaries g)
+        {
+            this.BioticumName = g.BioticumNameFromHash(this.definition);
+        }
 
         public bool IsActive() { return this.bioticumId is null ? false : this.bioticumId > 0; }
     }
@@ -549,7 +570,7 @@ namespace Reus2Surveyor
         public readonly string? scenarioDefinition;
         public readonly string? selectedCharacterDef;
         public readonly int? finalEra;
-        public readonly bool? isTimeBasedChallenge, giantsRandomized, startingSpiritsRandomized;
+        public readonly bool? isTimeBasedChallenge, giantsRandomized, startingSpiritRandomized;
         public readonly int? draftMode, rerollsPerEra, eventIntensity;
         public readonly int? challengeIndex, timedChallengeType, sessionDifficulty;
         // sessionSummary:planetSummary2
@@ -573,7 +594,7 @@ namespace Reus2Surveyor
 
             this.isTimeBasedChallenge = DictHelper.TryGetBool(refDict, ["sessionSummary", "startParameters", "isTimeBasedChallenge"]);
             this.giantsRandomized = DictHelper.TryGetBool(refDict, ["sessionSummary", "startParameters", "giantsRandomized"]);
-            this.startingSpiritsRandomized = DictHelper.TryGetBool(refDict, ["sessionSummary", "startParameters", "startingSpiritsRandomized"]);
+            this.startingSpiritRandomized = DictHelper.TryGetBool(refDict, ["sessionSummary", "startParameters", "startingSpiritRandomized"]);
             this.draftMode = DictHelper.TryGetInt(refDict, ["sessionSummary", "startParameters", "draftMode", "value"]);
             this.rerollsPerEra = DictHelper.TryGetInt(refDict, ["sessionSummary", "startParameters", "draftMode", "value"]);
             this.eventIntensity = DictHelper.TryGetInt(refDict, ["sessionSummary", "startParameters", "draftMode", "value"]);

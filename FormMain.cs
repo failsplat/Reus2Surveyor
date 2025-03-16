@@ -153,6 +153,7 @@ namespace Reus2Surveyor
                 else
                 {
                     readPlanetOK = true;
+                    newPlanet.SetGlossaryThenLookup(GameGlossaries);
                     this.planetList.Add(newPlanet);
                 }
 
@@ -198,6 +199,7 @@ namespace Reus2Surveyor
             {
                 string path = openFile.FileName;
                 (Planet testPlanet, Dictionary<string, object> resAsDict) = PlanetFileUtil.ReadPlanetFromFile(path);
+                testPlanet.SetGlossaryThenLookup(GameGlossaries);
 
                 this.LastSpotCheckDir = Path.GetDirectoryName(path);
 
