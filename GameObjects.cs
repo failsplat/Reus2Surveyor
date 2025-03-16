@@ -29,6 +29,10 @@ namespace Reus2Surveyor
         public readonly PatchMap<int?> patchIdMap;
         public readonly GameSession gameSession;
 
+        public readonly HashSet<int> futureSlotIndices = [];
+        public readonly HashSet<int> inactiveBioticumIndices = [];
+        public readonly Dictionary<int, NatureBioticum> inactiveBioticumDictionary = [];
+
         private Glossaries glossaries;
 
         //public List<int?> patchCollection;
@@ -39,8 +43,7 @@ namespace Reus2Surveyor
             ];
         public readonly static List<string> patchCheckKeys = [
             "foregroundSlot", "backgroundSlot", "mountainSlot",
-                "projectSlots", "_type", "planet", "biomeDefinition", "patchVariation",
-                "currentBackdropMode", "colorsAndParameters", "elevation", "windAndWater", "specialNaturalFeature", "mountainPart"
+                "projectSlots", "_type", "biomeDefinition", "mountainPart"
             ];
         /*public readonly static List<string> planetCloneCheckKeys = [
             "patches", "rivers", "biomeSaveData", "puzzle", "animalController", "allPropVisuals", "name"
@@ -52,17 +55,17 @@ namespace Reus2Surveyor
             "biomeBuffs", "anchorPatch", "visualName", "biomeType", "name",
             ];
         public readonly static List<string> bioticumCheckKeys = [
-            "aspectSlots", "_type", "bioticumID", "definition", "receivedRiverBonus", 
+            "aspectSlots", "_type", "definition", "receivedRiverBonus", 
             "anomalyBonusActve", // [sic]
             "name", "parent"
             ];
         public readonly static List<string> cityCheckKeys = [
-            "projectController", "resourceController", "luxuryController", "fancyName", "cityIndex", 
+            "projectController", "resourceController", "luxuryController", "fancyName", 
             "leftNeighbour", "rightNeighbour", // British Spelling
-            "biomeOrigin", "initiatedTurningPoints", "nomadHeritage", "currentVisualStage", "citySlot", "projectSlots",
+            "biomeOrigin", "initiatedTurningPoints", "nomadHeritage", "currentVisualStage", "projectSlots",
             ];
         public readonly static List<string> sessionCheckKeys = [
-            "gameplayController", "startParameters", "sessionID", "isFinished", "freePlay", "planetIsLost", "name"
+            "gameplayController", "startParameters", "sessionID", "isFinished", "freePlay", "name"
             ];
 
         public Planet(List<object> referenceTokensList)
@@ -119,8 +122,10 @@ namespace Reus2Surveyor
             {
                 b.BuildPatchInfo(this.patchIdMap, this.patchDictionary);
             }
+
+
             // Remove biotica with ID 0
-            List<int> inactiveBiotica = [];
+            /*List<int> inactiveBiotica = [];
             foreach (KeyValuePair<int,NatureBioticum> kv in this.natureBioticumDictionary)
             {
                 if (!kv.Value.IsActive())
@@ -132,6 +137,28 @@ namespace Reus2Surveyor
             foreach(int removeIndex in inactiveBiotica)
             {
                 this.natureBioticumDictionary.Remove(removeIndex);
+            }*/
+
+
+            // Remove any biotica on futureSlots
+            foreach (BioticumSlot bs in this.slotDictionary.Values)
+            {
+                if (bs.futureSlotId is not null) this.futureSlotIndices.Add((int)bs.futureSlotId);
+            }
+            foreach (KeyValuePair<int,NatureBioticum> kv in this.natureBioticumDictionary)
+            {
+                if (kv.Value.slotId is not null)
+                {
+                    if (this.futureSlotIndices.Contains((int)kv.Value.slotId))
+                    {
+                        this.inactiveBioticumIndices.Add(kv.Key);
+                    }
+                }
+            }
+            foreach (int ib in this.inactiveBioticumIndices)
+            {
+                this.inactiveBioticumDictionary.Add(ib, this.natureBioticumDictionary[ib]);
+                this.natureBioticumDictionary.Remove(ib);
             }
 
             foreach(City city in this.cityDictionary.Values)
@@ -213,7 +240,7 @@ namespace Reus2Surveyor
             this.biomeDefinition = DictHelper.TryGetString(refDict, ["biomeDefinition", "value"]);
 
             this.mountainPart = DictHelper.TryGetInt(refDict, ["mountainPart", "value"]);
-            this.ruinedCityMemory = refDict["ruinedCityMemory"];
+            if(refDict.ContainsKey("ruinedCityMemory")) this.ruinedCityMemory = refDict["ruinedCityMemory"];
             this.name = (string)refDict["name"];
         }
 
@@ -353,7 +380,17 @@ namespace Reus2Surveyor
         public NatureBioticum(Dictionary<string,object> refDict)
         {
             this.aspectSlotsIds = DictHelper.TryGetIntList(refDict, ["aspectSlots", "itemData"], "id");
-            this.bioticumId = DictHelper.TryGetInt(refDict, "bioticumID");
+
+            // Older saves don't have this, so it can't be used to tell if a bioticum is active
+            if (refDict.ContainsKey("bioticumId"))
+            {
+                this.bioticumId = DictHelper.TryGetInt(refDict, "bioticumID");
+            }
+            else
+            {
+
+            }
+
             this.definition = DictHelper.TryGetString(refDict, ["definition", "value"]);
 
             this.receivedRiverBonus = (bool)refDict["receivedRiverBonus"];
@@ -375,7 +412,7 @@ namespace Reus2Surveyor
             this.BioticumName = g.BioticumNameFromHash(this.definition);
         }
 
-        public bool IsActive() { return this.bioticumId is null ? false : this.bioticumId > 0; }
+        //public bool IsActive() { return this.bioticumId is null ? false : this.bioticumId > 0; }
     }
 
     public class City
@@ -466,7 +503,7 @@ namespace Reus2Surveyor
             List<int> slotIndices = this.ListSlotIndicesInTerritory();
             List<BioticumSlot> slots = [..slotIndices.Select(s => slotDictionary[s])];
             List<int> biotIndices = [.. slots.Where(s => s.bioticumId is not null && s.bioticumId > 0).Select(s => (int)s.bioticumId)];
-            this.BioticaInTerritory = [.. biotIndices.Select(s => bioticaDictionary[s])];
+            this.BioticaInTerritory = [.. biotIndices.Select(s => bioticaDictionary.ContainsKey(s) ? bioticaDictionary[s] : null)];
         }
 
         public void AttachCivSummary(GameSession.CivSummary value)

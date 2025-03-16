@@ -1,10 +1,12 @@
 ﻿
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Dynamic;
 using System.IO;
@@ -116,11 +118,15 @@ namespace Reus2Surveyor
                 //List<string> completedPlanetPaths = [.. allPlanetPaths.Where(path => Path.Exists(Path.Combine(path, "auto_complete.deux")))];
 
                 List<string> completedPlanetPaths = [.. allPlanetPaths.Select(x => Path.Exists(Path.Combine(x, "auto_complete.deux")) ? Path.Combine(x, "auto_complete.deux") : null)];
-                int completedPlanetCount = completedPlanetPaths.Where(x => x is not null).Count();
+                completedPlanetPaths = [.. completedPlanetPaths.Where(x => x is not null)];
+                int completedPlanetCount = completedPlanetPaths.Count();
+
+                List<string> incompletePlanetPaths = [.. allPlanetPaths.Select(x => Path.Exists(Path.Combine(x, "auto_complete.deux")) ? null : x)];
+                incompletePlanetPaths = [.. incompletePlanetPaths.Where(x => x is not null)];
 
                 int readPlanetCount = 0;
                 this.decodeProgressBar.Maximum = completedPlanetCount;
-                this.updateDecodeProgress(readPlanetCount, completedPlanetCount);
+                this.updateDecodeProgress(readPlanetCount, 0, completedPlanetCount);
 
                 this.LoopThroughPlanetSaves(completedPlanetPaths);
             }
@@ -135,52 +141,58 @@ namespace Reus2Surveyor
             this.planetList.Clear();
 
             int i = -1;
+            int ok = 0;
             foreach (string path in pathsToSaveFiles)
             {
-                i++;
                 if (path is null)
                 {
                     // TODO: Update the table for a skipped file
                     continue;
                 }
+                i++;
 
+                List<string> pathParts = [.. path.Split(Path.DirectorySeparatorChar)];
                 bool readPlanetOK = false;
                 (Planet newPlanet, Dictionary<string, object> resAsDict) = PlanetFileUtil.ReadPlanetFromFile(path);
                 if (newPlanet is not null)
                 {
                     this.planetList.Add(newPlanet);
+                    readPlanetOK = true;
+                    ok++;
+                    newPlanet.SetGlossaryThenLookup(GameGlossaries);
+
+                    // Write decoded file
+                    
+                    pathParts.Reverse();
+
+                    string dst = Path.Combine(outputDir, pathParts[1] + "." + pathParts[0] + ".json");
+                    string outputText = JsonConvert.SerializeObject(resAsDict, Formatting.Indented);
+                    File.WriteAllText(dst, outputText);
                 }
                 else
                 {
-                    readPlanetOK = true;
-                    newPlanet.SetGlossaryThenLookup(GameGlossaries);
                     this.planetList.Add(newPlanet);
                 }
 
-                // Write decoded file
-                List<string> pathParts = [.. path.Split(Path.DirectorySeparatorChar)];
-                pathParts.Reverse();
-
-                string dst = Path.Combine(outputDir, pathParts[1] + "." + pathParts[0] + ".json");
-                string outputText = JsonConvert.SerializeObject(resAsDict, Formatting.Indented);
-                File.WriteAllText(dst, outputText);
-
+                this.updateDecodeProgress(i+1, ok, pathsToSaveFiles.Count);
                 if (readPlanetOK)
                 {
-                    // TODO: Update the table for successful file
+                    
                 }
                 else
                 {
-                    // TODO: Update the table for a skipped file
+                    Trace.TraceError("Failed to read planet file: " + pathParts[1] + "/" + pathParts[0]);
                 }
 
             }
         }
 
-        private void updateDecodeProgress(int read, int total)
+        private void updateDecodeProgress(int tried, int ok, int total)
         {
-            this.decodeProgressLabel.Text = String.Format("Planets ({0}/{1})", read, total);
-            this.decodeProgressBar.Value = read;
+            this.decodeProgressLabel.Text = String.Format("Planets ({0}/{1}), {2} OK", tried, total, ok);
+            this.decodeProgressLabel.Refresh();
+
+            if (tried < total) this.decodeProgressBar.Value = tried; else this.decodeProgressBar.Value = this.decodeProgressBar.Maximum;
         }
 
         private void exportStatsButton_Click(object sender, EventArgs e)
