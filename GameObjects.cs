@@ -227,6 +227,10 @@ namespace Reus2Surveyor
         public readonly string biomeDefinition, name;
         private readonly object ruinedCityMemory;
 
+        // Patch-specific features
+        // 1 = Creek, 2 = Sanctuary, 3 = Anomaly
+        public readonly int? specialNaturalFeature;
+
         public Patch(Dictionary<string, object> refDict)
         {
             this.foregroundSlotId = DictHelper.TryGetInt(refDict, ["foregroundSlot", "id"]);
@@ -242,6 +246,8 @@ namespace Reus2Surveyor
             this.mountainPart = DictHelper.TryGetInt(refDict, ["mountainPart", "value"]);
             if(refDict.ContainsKey("ruinedCityMemory")) this.ruinedCityMemory = refDict["ruinedCityMemory"];
             this.name = (string)refDict["name"];
+
+            this.specialNaturalFeature = DictHelper.TryGetInt(refDict, ["specialNaturalFeature", "value"]);
         }
 
         public bool IsWildPatch()
