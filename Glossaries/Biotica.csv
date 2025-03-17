@@ -352,3 +352,21 @@ Brown Bear,Animal,3,1,,,,,,,1,5269782cb3524b34a86026b0b78474c8
 Moose,Animal,3,1,,,,,,,1,b8875363e98cb164da858121b215bbe2
 Sable,Animal,3,1,,,,,,,1,0cab180f755c36e49a7e7098b3a48a86
 Siberian Tiger,Animal,3,1,,,,,,,1,b1f0a9aee583fb947980ce957d327ea8
+Charoite,Mineral,1,,,,,,,,1,e62ca5e253b9ed143a9dcfe56fa9e825
+Peat,Mineral,1,,,,,,,,1,d7602b6a5b632f84f9826012faaa122d
+Potash,Mineral,1,,,,,,,,1,7f346099d8a79044ea6cbe74a0757814
+Copper,Mineral,1,1,,,,,,,1,833b8ea58fef8e741a86c954a53f628b
+Lignite,Mineral,2,,,,,,,,1,39f873584c30dc045a984eda89052076
+Nephrite,Mineral,2,,,,,,,,1,5a9406a0371c889499cc1b0572810df1
+Sulfur,Mineral,2,,,,,,,,1,82a1d310fc59f184293fcad5e15dce36
+Granite,Mineral,2,1,,,,,,,1,1ce921736bdcb9447a13ea18f9c0f85b
+Gypsum,Mineral,2,1,,,,,,,1,2a26883db3d1bb54998bd83323f8d479
+Silver,Mineral,2,1,,,,,,,1,8a167ee1fe4187f4ca614f6b311b29b9
+Tourmaline,Mineral,2,1,,,,,,,1,8082c4005ff18274f8ec189c7713f041
+Talc,Mineral,3,,,,,,,,1,3227e1380ea74f04f99a2743216eec79
+Tungsten,Mineral,3,,,,,,,,1,c4c2efe7294ed564bb28c090ba64eaad
+Yellow Diamond,Mineral,3,,,,,,,,1,3d61220d501b503429833c4949979ebc
+Natural Gas,Mineral,3,1,,,,,,,1,cb74a9b2a8e2dbd4883ad44abbad73b7
+Platinum (Taiga),Mineral,3,1,,,,,,,1,1072b961cd75e8e429ffa3cbf222a886
+Titanite,Mineral,3,1,,,,,,,1,920b32df26402544995d1818290dd600
+Uranium,Mineral,3,1,,,,,,,1,db1f929d88b982a4ca24aaee6ef46e22
