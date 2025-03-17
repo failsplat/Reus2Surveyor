@@ -202,6 +202,10 @@ namespace Reus2Surveyor
 
         private void spotCheckButton_Click(object sender, EventArgs e)
         {
+            if (!Path.Exists(this.LastSpotCheckDir)) 
+            {
+                this.LastSpotCheckDir = this.ProfileDir;
+            }
             OpenFileDialog openFile = new()
             {
                 InitialDirectory = this.LastSpotCheckDir,
