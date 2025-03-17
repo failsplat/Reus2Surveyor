@@ -33,6 +33,13 @@ namespace Reus2Surveyor
         public readonly HashSet<int> inactiveBioticumIndices = [];
         public readonly Dictionary<int, NatureBioticum> inactiveBioticumDictionary = [];
 
+        // These are for debugging and checking counts for planets
+        // Needs more information for the stats I want to track
+        public readonly Dictionary<string, int> BioticaCounterDefs = [];
+        public Dictionary<string, int> BioticaCounterNames { get; private set; } = [];
+        public readonly Dictionary<string, int> LegacyBioticaCounterDefs = [];
+        public Dictionary<string, int> LegacyBioticaCounterNames { get; private set; } = [];
+
         private Glossaries glossaries;
 
         //public List<int?> patchCollection;
@@ -161,6 +168,39 @@ namespace Reus2Surveyor
                 this.natureBioticumDictionary.Remove(ib);
             }
 
+            // Count active biotica
+            foreach (NatureBioticum nb in this.natureBioticumDictionary.Values)
+            {
+                if (nb.definition is null) continue;
+                if(this.BioticaCounterDefs.ContainsKey(nb.definition))
+                {
+                    this.BioticaCounterDefs[nb.definition] += 1;
+                }
+                else
+                {
+                    this.BioticaCounterDefs[nb.definition] = 1;
+                }
+            }
+
+            // Count legacy biotica
+            foreach (BioticumSlot slot in this.slotDictionary.Values)
+            {
+                foreach (Dictionary<string,object> abDict in slot.archivedBiotica)
+                {
+                    string? archivedBioticumDef = DictHelper.TryGetString(abDict, ["bioticum", "value"]);
+                    if (archivedBioticumDef is null) continue;
+                    if (this.LegacyBioticaCounterDefs.ContainsKey(archivedBioticumDef))
+                    {
+                        this.LegacyBioticaCounterDefs[archivedBioticumDef] += 1;
+                    }
+                    else
+                    {
+                        this.LegacyBioticaCounterDefs[archivedBioticumDef] = 1;
+                    }
+                }
+            }
+
+            // City information
             foreach(City city in this.cityDictionary.Values)
             {
                 city.BuildTerritoryInfo(this.patchIdMap, this.patchDictionary);
@@ -180,6 +220,15 @@ namespace Reus2Surveyor
             foreach (NatureBioticum b in this.natureBioticumDictionary.Values)
             {
                 b.CheckName(this.glossaries);
+            }
+
+            foreach (KeyValuePair<string, int> kv in this.LegacyBioticaCounterDefs)
+            {
+                this.LegacyBioticaCounterNames[this.glossaries.BioticumNameFromHash(kv.Key)] = kv.Value;
+            }
+            foreach (KeyValuePair<string, int> kv in this.BioticaCounterDefs)
+            {
+                this.BioticaCounterNames[this.glossaries.BioticumNameFromHash(kv.Key)] = kv.Value;
             }
         }
     }
