@@ -34,6 +34,7 @@ namespace Reus2Surveyor
             }
             formMain.LastSpotCheckDir = Settings.Default.LastSpotCheckDir;
             formMain.SetSpotCheckWriteSetting(Settings.Default.SpotCheckWrite);
+            formMain.SetCheckWriteDecodedSetting(Settings.Default.WriteDecoded);
             Application.Run(formMain);
             if (formMain.profileDirOK) Settings.Default.StartProfileDir = formMain.ProfileDir;
             if (!Path.Exists(Settings.Default.LastSpotCheckDir))
@@ -42,6 +43,7 @@ namespace Reus2Surveyor
             }
             Settings.Default.LastSpotCheckDir = formMain.LastSpotCheckDir;
             Settings.Default.SpotCheckWrite = formMain.SpotCheckWriteSetting;
+            Settings.Default.WriteDecoded = formMain.WriteDecodedSetting;
             Settings.Default.Save();
         }
 

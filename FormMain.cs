@@ -1,5 +1,6 @@
 ﻿
 using Newtonsoft.Json;
+using Newtonsoft.Json.Bson;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.CodeDom.Compiler;
@@ -38,6 +39,9 @@ namespace Reus2Surveyor
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string LastSpotCheckDir { get; set; } = "";
+
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool WriteDecodedSetting { get; private set; } = true;
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool SpotCheckWriteSetting { get; private set; } = true;
@@ -97,6 +101,12 @@ namespace Reus2Surveyor
                 this.profileDirOK = false;
                 this.decodeReadyStatusLabel.Text = "Not Ready";
             }
+        }
+
+        public void SetCheckWriteDecodedSetting(bool value)
+        {
+            this.WriteDecodedSetting = value;
+            this.writeDecodedCheckBox.Checked = value;
         }
 
         public void SetSpotCheckWriteSetting(bool value)
@@ -162,22 +172,23 @@ namespace Reus2Surveyor
                     newPlanet.SetGlossaryThenLookup(GameGlossaries);
 
                     // Write decoded file
-                    
-                    pathParts.Reverse();
-
-                    string dst = Path.Combine(outputDir, pathParts[1] + "." + pathParts[0] + ".json");
-                    string outputText = JsonConvert.SerializeObject(resAsDict, Formatting.Indented);
-                    File.WriteAllText(dst, outputText);
+                    if (this.WriteDecodedSetting)
+                    {
+                        pathParts.Reverse();
+                        string dst = Path.Combine(outputDir, pathParts[1] + "." + pathParts[0] + ".json");
+                        string outputText = JsonConvert.SerializeObject(resAsDict, Formatting.Indented);
+                        File.WriteAllText(dst, outputText);
+                    }  
                 }
                 else
                 {
                     this.planetList.Add(newPlanet);
                 }
 
-                this.updateDecodeProgress(i+1, ok, pathsToSaveFiles.Count);
+                this.updateDecodeProgress(i + 1, ok, pathsToSaveFiles.Count);
                 if (readPlanetOK)
                 {
-                    
+
                 }
                 else
                 {
@@ -202,7 +213,7 @@ namespace Reus2Surveyor
 
         private void spotCheckButton_Click(object sender, EventArgs e)
         {
-            if (!Path.Exists(this.LastSpotCheckDir)) 
+            if (!Path.Exists(this.LastSpotCheckDir))
             {
                 this.LastSpotCheckDir = this.ProfileDir;
             }
@@ -222,7 +233,7 @@ namespace Reus2Surveyor
                 List<string> pathParts = [.. path.Split(Path.DirectorySeparatorChar)];
                 pathParts.Reverse();
 
-                if (this.SpotCheckWriteSetting) 
+                if (this.SpotCheckWriteSetting)
                 {
                     string dst = Path.Combine(outputDir, pathParts[1] + "." + pathParts[0] + ".json");
                     string outputText = JsonConvert.SerializeObject(resAsDict, Formatting.Indented);
@@ -250,12 +261,22 @@ namespace Reus2Surveyor
                 {
                     bio123 = String.Join('\n', [bio1, bio2, bio3]);
                 }
-             }
+            }
         }
 
         private void spotCheckWriteCheckBox_CheckStateChanged(object sender, EventArgs e)
         {
             this.SpotCheckWriteSetting = this.spotCheckWriteCheckBox.Checked;
+        }
+
+        private void decodeProgressLabel_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void writeDecodedCheckBox_CheckStateChanged(object sender, EventArgs e)
+        {
+            this.WriteDecodedSetting = this.writeDecodedCheckBox.Checked;
         }
     }
 }

@@ -43,6 +43,7 @@ namespace Reus2Surveyor
             exportReadyLabel = new System.Windows.Forms.Label();
             spotCheckButton = new System.Windows.Forms.Button();
             spotCheckWriteCheckBox = new System.Windows.Forms.CheckBox();
+            writeDecodedCheckBox = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)planetGridView).BeginInit();
             SuspendLayout();
             // 
@@ -61,7 +62,7 @@ namespace Reus2Surveyor
             profileFolderTextBox.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
             profileFolderTextBox.Location = new System.Drawing.Point(93, 12);
             profileFolderTextBox.Name = "profileFolderTextBox";
-            profileFolderTextBox.Size = new System.Drawing.Size(804, 23);
+            profileFolderTextBox.Size = new System.Drawing.Size(629, 23);
             profileFolderTextBox.TabIndex = 2;
             // 
             // decodeReadyStatusLabel
@@ -86,19 +87,20 @@ namespace Reus2Surveyor
             // decodeProgressBar
             // 
             decodeProgressBar.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            decodeProgressBar.Location = new System.Drawing.Point(141, 67);
+            decodeProgressBar.Location = new System.Drawing.Point(251, 66);
             decodeProgressBar.Name = "decodeProgressBar";
-            decodeProgressBar.Size = new System.Drawing.Size(756, 23);
+            decodeProgressBar.Size = new System.Drawing.Size(471, 23);
             decodeProgressBar.TabIndex = 5;
             // 
             // decodeProgressLabel
             // 
             decodeProgressLabel.AutoSize = true;
-            decodeProgressLabel.Location = new System.Drawing.Point(141, 49);
+            decodeProgressLabel.Location = new System.Drawing.Point(251, 48);
             decodeProgressLabel.Name = "decodeProgressLabel";
             decodeProgressLabel.Size = new System.Drawing.Size(37, 15);
             decodeProgressLabel.TabIndex = 6;
             decodeProgressLabel.Text = "------";
+            decodeProgressLabel.Click += decodeProgressLabel_Click;
             // 
             // planetGridView
             // 
@@ -107,7 +109,7 @@ namespace Reus2Surveyor
             planetGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] { NameCol, HasCompleteCol, ReadOKCol });
             planetGridView.Location = new System.Drawing.Point(12, 111);
             planetGridView.Name = "planetGridView";
-            planetGridView.Size = new System.Drawing.Size(885, 372);
+            planetGridView.Size = new System.Drawing.Size(710, 314);
             planetGridView.TabIndex = 7;
             // 
             // NameCol
@@ -136,7 +138,7 @@ namespace Reus2Surveyor
             // exportStatsButton
             // 
             exportStatsButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
-            exportStatsButton.Location = new System.Drawing.Point(12, 489);
+            exportStatsButton.Location = new System.Drawing.Point(12, 431);
             exportStatsButton.Name = "exportStatsButton";
             exportStatsButton.Size = new System.Drawing.Size(86, 23);
             exportStatsButton.TabIndex = 8;
@@ -148,7 +150,7 @@ namespace Reus2Surveyor
             // 
             exportReadyLabel.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
             exportReadyLabel.AutoSize = true;
-            exportReadyLabel.Location = new System.Drawing.Point(104, 493);
+            exportReadyLabel.Location = new System.Drawing.Point(104, 435);
             exportReadyLabel.Name = "exportReadyLabel";
             exportReadyLabel.Size = new System.Drawing.Size(37, 15);
             exportReadyLabel.TabIndex = 9;
@@ -157,7 +159,7 @@ namespace Reus2Surveyor
             // spotCheckButton
             // 
             spotCheckButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
-            spotCheckButton.Location = new System.Drawing.Point(712, 490);
+            spotCheckButton.Location = new System.Drawing.Point(537, 432);
             spotCheckButton.Name = "spotCheckButton";
             spotCheckButton.Size = new System.Drawing.Size(75, 23);
             spotCheckButton.TabIndex = 10;
@@ -171,7 +173,7 @@ namespace Reus2Surveyor
             spotCheckWriteCheckBox.AutoSize = true;
             spotCheckWriteCheckBox.Checked = true;
             spotCheckWriteCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-            spotCheckWriteCheckBox.Location = new System.Drawing.Point(793, 493);
+            spotCheckWriteCheckBox.Location = new System.Drawing.Point(618, 435);
             spotCheckWriteCheckBox.Name = "spotCheckWriteCheckBox";
             spotCheckWriteCheckBox.Size = new System.Drawing.Size(104, 19);
             spotCheckWriteCheckBox.TabIndex = 11;
@@ -179,11 +181,23 @@ namespace Reus2Surveyor
             spotCheckWriteCheckBox.UseVisualStyleBackColor = true;
             spotCheckWriteCheckBox.CheckStateChanged += spotCheckWriteCheckBox_CheckStateChanged;
             // 
+            // writeDecodedCheckBox
+            // 
+            writeDecodedCheckBox.AutoSize = true;
+            writeDecodedCheckBox.Location = new System.Drawing.Point(141, 70);
+            writeDecodedCheckBox.Name = "writeDecodedCheckBox";
+            writeDecodedCheckBox.Size = new System.Drawing.Size(104, 19);
+            writeDecodedCheckBox.TabIndex = 12;
+            writeDecodedCheckBox.Text = "Write Decoded";
+            writeDecodedCheckBox.UseVisualStyleBackColor = true;
+            writeDecodedCheckBox.CheckStateChanged += writeDecodedCheckBox_CheckStateChanged;
+            // 
             // FormMain
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            ClientSize = new System.Drawing.Size(909, 519);
+            ClientSize = new System.Drawing.Size(734, 461);
+            Controls.Add(writeDecodedCheckBox);
             Controls.Add(spotCheckWriteCheckBox);
             Controls.Add(spotCheckButton);
             Controls.Add(exportReadyLabel);
@@ -218,6 +232,7 @@ namespace Reus2Surveyor
         private System.Windows.Forms.DataGridViewCheckBoxColumn ReadOKCol;
         private System.Windows.Forms.Button spotCheckButton;
         private System.Windows.Forms.CheckBox spotCheckWriteCheckBox;
+        private System.Windows.Forms.CheckBox writeDecodedCheckBox;
     }
 }
 
