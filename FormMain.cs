@@ -170,10 +170,25 @@ namespace Reus2Surveyor
                     continue;
                 }
                 i++;
-
+                
                 List<string> pathParts = [.. path.Split(Path.DirectorySeparatorChar)];
+                pathParts.Reverse();
                 bool readPlanetOK = false;
-                (Planet newPlanet, Dictionary<string, object> resAsDict) = PlanetFileUtil.ReadPlanetFromFile(path);
+                Planet newPlanet;
+                Dictionary<string, object> resAsDict;
+                try
+                {
+                    (newPlanet, resAsDict) = PlanetFileUtil.ReadPlanetFromFile(path);
+                }
+                catch (Exception e)
+                {
+                    newPlanet = null;
+                    resAsDict = null;
+                    Trace.TraceError(String.Format("Error while processing planet {0}", pathParts[1] + Path.DirectorySeparatorChar + pathParts[0]));
+                    Trace.TraceError(e.Message);
+                    Trace.TraceError(e.StackTrace);
+                }
+                
                 if (newPlanet is not null)
                 {
                     this.planetList.Add(newPlanet);
@@ -186,7 +201,6 @@ namespace Reus2Surveyor
                     // Write decoded file
                     if (this.WriteDecodedSetting)
                     {
-                        pathParts.Reverse();
                         string dst = Path.Combine(decodedDir, pathParts[1] + "." + pathParts[0] + ".json");
                         string outputText = JsonConvert.SerializeObject(resAsDict, Formatting.Indented);
                         File.WriteAllText(dst, outputText);
@@ -206,7 +220,6 @@ namespace Reus2Surveyor
                 {
                     Trace.TraceError("Failed to read planet file: " + pathParts[1] + "/" + pathParts[0]);
                 }
-
             }
         }
 
