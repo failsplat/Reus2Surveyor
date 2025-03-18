@@ -44,6 +44,8 @@ namespace Reus2Surveyor
             spotCheckButton = new System.Windows.Forms.Button();
             spotCheckWriteCheckBox = new System.Windows.Forms.CheckBox();
             writeDecodedCheckBox = new System.Windows.Forms.CheckBox();
+            label1 = new System.Windows.Forms.Label();
+            label2 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)planetGridView).BeginInit();
             SuspendLayout();
             // 
@@ -143,7 +145,7 @@ namespace Reus2Surveyor
             exportStatsButton.Name = "exportStatsButton";
             exportStatsButton.Size = new System.Drawing.Size(86, 23);
             exportStatsButton.TabIndex = 8;
-            exportStatsButton.Text = "Export Stats";
+            exportStatsButton.Text = "Export XLSX";
             exportStatsButton.UseVisualStyleBackColor = true;
             exportStatsButton.Click += exportStatsButton_Click;
             // 
@@ -193,11 +195,31 @@ namespace Reus2Surveyor
             writeDecodedCheckBox.UseVisualStyleBackColor = true;
             writeDecodedCheckBox.CheckStateChanged += writeDecodedCheckBox_CheckStateChanged;
             // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new System.Drawing.Point(28, 175);
+            label1.Name = "label1";
+            label1.Size = new System.Drawing.Size(368, 30);
+            label1.TabIndex = 13;
+            label1.Text = "This table is still WIP and doesn't do anything yet\r\nIt's going to display a preview of the planets as it runs through them.\r\n";
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new System.Drawing.Point(442, 436);
+            label2.Name = "label2";
+            label2.Size = new System.Drawing.Size(89, 15);
+            label2.TabIndex = 14;
+            label2.Text = "For Debugging:";
+            // 
             // FormMain
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             ClientSize = new System.Drawing.Size(734, 461);
+            Controls.Add(label2);
+            Controls.Add(label1);
             Controls.Add(writeDecodedCheckBox);
             Controls.Add(spotCheckWriteCheckBox);
             Controls.Add(spotCheckButton);
@@ -211,7 +233,7 @@ namespace Reus2Surveyor
             Controls.Add(profileFolderTextBox);
             Controls.Add(findProfileButton);
             Name = "FormMain";
-            Text = "Form1";
+            Text = "Reus 2 Planet Surveyor";
             Load += FormMain_Load;
             ((System.ComponentModel.ISupportInitialize)planetGridView).EndInit();
             ResumeLayout(false);
@@ -234,6 +256,8 @@ namespace Reus2Surveyor
         private System.Windows.Forms.Button spotCheckButton;
         private System.Windows.Forms.CheckBox spotCheckWriteCheckBox;
         private System.Windows.Forms.CheckBox writeDecodedCheckBox;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
     }
 }
 

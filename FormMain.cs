@@ -180,7 +180,7 @@ namespace Reus2Surveyor
                     ok++;
                     newPlanet.SetGlossaryThenLookup(GameGlossaries);
 
-                    
+
 
                     // Write decoded file
                     if (this.WriteDecodedSetting)
@@ -189,7 +189,7 @@ namespace Reus2Surveyor
                         string dst = Path.Combine(decodedDir, pathParts[1] + "." + pathParts[0] + ".json");
                         string outputText = JsonConvert.SerializeObject(resAsDict, Formatting.Indented);
                         File.WriteAllText(dst, outputText);
-                    }  
+                    }
                 }
                 else
                 {
