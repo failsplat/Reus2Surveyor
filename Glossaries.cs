@@ -135,6 +135,15 @@ namespace Reus2Surveyor
             }
             else return def;
         }
+
+        public BioticumDefinition BioticumDefFromHash(string def)
+        {
+            if (BioticumDefinitionByHash.ContainsKey(def))
+            {
+                return BioticumDefinitionByHash[def];
+            }
+            else return null;
+        }
 }
 
     public class BioticumDefinition
@@ -173,6 +182,7 @@ namespace Reus2Surveyor
                         this.Tier = Convert.ToInt32(d);
                         break;
                     case "Apex":
+
                     case "Desert":
                     case "Forest":
                     case "IceAge":

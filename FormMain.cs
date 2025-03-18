@@ -46,6 +46,8 @@ namespace Reus2Surveyor
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool SpotCheckWriteSetting { get; private set; } = true;
 
+        public StatCollector PlanetStatCollector;
+
         public FormMain()
         {
             InitializeComponent();
@@ -124,6 +126,8 @@ namespace Reus2Surveyor
         {
             if (this.profileDirOK)
             {
+                this.PlanetStatCollector = new(GameGlossaries);
+
                 List<string> allPlanetPaths = [.. Directory.GetDirectories(Path.Combine(this.ProfileDir, "sessions"))];
                 //List<string> completedPlanetPaths = [.. allPlanetPaths.Where(path => Path.Exists(Path.Combine(path, "auto_complete.deux")))];
 
@@ -171,6 +175,8 @@ namespace Reus2Surveyor
                     ok++;
                     newPlanet.SetGlossaryThenLookup(GameGlossaries);
 
+                    this.PlanetStatCollector.ConsumePlanet(newPlanet);
+
                     // Write decoded file
                     if (this.WriteDecodedSetting)
                     {
@@ -196,6 +202,8 @@ namespace Reus2Surveyor
                 }
 
             }
+
+            this.PlanetStatCollector.FinalizeStats();
         }
 
         private void updateDecodeProgress(int tried, int ok, int total)
@@ -261,6 +269,10 @@ namespace Reus2Surveyor
                 {
                     bio123 = String.Join('\n', [bio1, bio2, bio3]);
                 }
+
+                StatCollector sc = new(GameGlossaries);
+                sc.ConsumePlanet(testPlanet);
+                sc.FinalizeStats();
             }
         }
 
