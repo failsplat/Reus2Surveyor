@@ -40,6 +40,8 @@ namespace Reus2Surveyor
         public readonly Dictionary<string, int> LegacyBioticaCounterDefs = [];
         public Dictionary<string, int> LegacyBioticaCounterNames { get; private set; } = [];
 
+        public HashSet<string> MasteredBioticaDefSet { get; private set; } = [];
+
         private Glossaries glossaries;
 
         //public List<int?> patchCollection;
@@ -73,6 +75,9 @@ namespace Reus2Surveyor
             ];
         public readonly static List<string> sessionCheckKeys = [
             "gameplayController", "startParameters", "sessionID", "isFinished", "freePlay", "name"
+            ];
+        public readonly static List<string> gameplayControllerCheckKeys = [
+            "aspectController", "gameplayShop", "masteredBiotica", "name",
             ];
 
         public Planet(List<object> referenceTokensList)
@@ -119,6 +124,10 @@ namespace Reus2Surveyor
                     this.patchIdMap = new PatchMap<int?>(
                         DictHelper.TryGetIntList(refToken, ["models", "itemData"], "id"));
                     continue;
+                }
+                if (gameplayControllerCheckKeys.All(k => rtKeys.Contains(k)) && (string)refToken["name"] == "GameplayController")
+                {
+                    this.MasteredBioticaDefSet.UnionWith(DictHelper.TryGetStringList(refToken, ["masteredBiotica", "itemData"], "value"));
                 }
             }
 
