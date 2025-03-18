@@ -28,7 +28,8 @@ namespace Reus2Surveyor
     public partial class FormMain : Form
     {
         public static readonly string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-        public static readonly string outputDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Decoded");
+        public static readonly string decodedDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Decoded");
+        public static readonly string outputDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Output");
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string ProfileDir { get; private set; } = "";
@@ -55,6 +56,7 @@ namespace Reus2Surveyor
 
         private void FormMain_Load(object sender, EventArgs e)
         {
+            Directory.CreateDirectory(decodedDir);
             Directory.CreateDirectory(outputDir);
         }
 
@@ -143,6 +145,9 @@ namespace Reus2Surveyor
                 this.updateDecodeProgress(readPlanetCount, 0, completedPlanetCount);
 
                 this.LoopThroughPlanetSaves(completedPlanetPaths);
+
+                this.exportStatsButton.Enabled = true;
+                this.exportReadyLabel.Text = "Ready";
             }
             else
             {
@@ -175,13 +180,13 @@ namespace Reus2Surveyor
                     ok++;
                     newPlanet.SetGlossaryThenLookup(GameGlossaries);
 
-                    this.PlanetStatCollector.ConsumePlanet(newPlanet);
+                    
 
                     // Write decoded file
                     if (this.WriteDecodedSetting)
                     {
                         pathParts.Reverse();
-                        string dst = Path.Combine(outputDir, pathParts[1] + "." + pathParts[0] + ".json");
+                        string dst = Path.Combine(decodedDir, pathParts[1] + "." + pathParts[0] + ".json");
                         string outputText = JsonConvert.SerializeObject(resAsDict, Formatting.Indented);
                         File.WriteAllText(dst, outputText);
                     }  
@@ -202,8 +207,6 @@ namespace Reus2Surveyor
                 }
 
             }
-
-            this.PlanetStatCollector.FinalizeStats();
         }
 
         private void updateDecodeProgress(int tried, int ok, int total)
@@ -216,7 +219,17 @@ namespace Reus2Surveyor
 
         private void exportStatsButton_Click(object sender, EventArgs e)
         {
+            int i = -1;
+            this.PlanetStatCollector = new(GameGlossaries);
+            foreach (Planet planet in this.planetList)
+            {
+                i++;
+                this.PlanetStatCollector.ConsumePlanet(planet, i);
+            }
+            this.PlanetStatCollector.FinalizeStats();
 
+            string dst = Path.Combine(outputDir, DateTime.Now.ToString("yyyyMMdd HHmm") + ".xlsx");
+            this.PlanetStatCollector.WriteToExcel(dst);
         }
 
         private void spotCheckButton_Click(object sender, EventArgs e)
@@ -243,7 +256,7 @@ namespace Reus2Surveyor
 
                 if (this.SpotCheckWriteSetting)
                 {
-                    string dst = Path.Combine(outputDir, pathParts[1] + "." + pathParts[0] + ".json");
+                    string dst = Path.Combine(decodedDir, pathParts[1] + "." + pathParts[0] + ".json");
                     string outputText = JsonConvert.SerializeObject(resAsDict, Formatting.Indented);
                     File.WriteAllText(dst, outputText);
                 }
@@ -271,7 +284,7 @@ namespace Reus2Surveyor
                 }
 
                 StatCollector sc = new(GameGlossaries);
-                sc.ConsumePlanet(testPlanet);
+                sc.ConsumePlanet(testPlanet, 0);
                 sc.FinalizeStats();
             }
         }

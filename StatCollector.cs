@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Features;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace Reus2Surveyor
 {
@@ -14,13 +15,14 @@ namespace Reus2Surveyor
     {
         private Glossaries glossaryInstance;
         public Dictionary<string, BioticumStatEntry> BioticaStats { get; private set; } = [];
+        private int planetCount = 0;
 
         public StatCollector(Glossaries g)
         {
             this.glossaryInstance = g;
         }
 
-        public void ConsumePlanet(Planet planet)
+        public void ConsumePlanet(Planet planet, int index)
         {
             Dictionary<string, int> activeBioCounter = [];
             Dictionary<string, int> legacyBioCounter = [];
@@ -50,8 +52,8 @@ namespace Reus2Surveyor
             {
                 if (!BioticaStats.ContainsKey(draftDef))
                 {
-                    if (glossaryInstance.BioticumDefFromHash(draftDef) is null) BioticaStats[draftDef] = new BioticumStatEntry(draftDef);
-                    else BioticaStats[draftDef] = new BioticumStatEntry(this.glossaryInstance.BioticumDefFromHash(draftDef));
+                    if (glossaryInstance.BioticumDefFromHash(draftDef) is null) BioticaStats[draftDef] = new BioticumStatEntry(draftDef, planet.name);
+                    else BioticaStats[draftDef] = new BioticumStatEntry(this.glossaryInstance.BioticumDefFromHash(draftDef), planet.name);
                     
                 }
                 BioticaStats[draftDef].Draft += 1;
@@ -62,8 +64,8 @@ namespace Reus2Surveyor
             {
                 if (!BioticaStats.ContainsKey(activeDef))
                 {
-                    if (glossaryInstance.BioticumDefFromHash(activeDef) is null) BioticaStats[activeDef] = new BioticumStatEntry(activeDef);
-                    else BioticaStats[activeDef] = new BioticumStatEntry(this.glossaryInstance.BioticumDefFromHash(activeDef));
+                    if (glossaryInstance.BioticumDefFromHash(activeDef) is null) BioticaStats[activeDef] = new BioticumStatEntry(activeDef, planet.name);
+                    else BioticaStats[activeDef] = new BioticumStatEntry(this.glossaryInstance.BioticumDefFromHash(activeDef), planet.name);
 
                 }
                 BioticaStats[activeDef].Final += activeBioCounter[activeDef];
@@ -72,8 +74,8 @@ namespace Reus2Surveyor
             {
                 if (!BioticaStats.ContainsKey(legacyDef))
                 {
-                    if (glossaryInstance.BioticumDefFromHash(legacyDef) is null) BioticaStats[legacyDef] = new BioticumStatEntry(legacyDef);
-                    else BioticaStats[legacyDef] = new BioticumStatEntry(this.glossaryInstance.BioticumDefFromHash(legacyDef));
+                    if (glossaryInstance.BioticumDefFromHash(legacyDef) is null) BioticaStats[legacyDef] = new BioticumStatEntry(legacyDef, planet.name);
+                    else BioticaStats[legacyDef] = new BioticumStatEntry(this.glossaryInstance.BioticumDefFromHash(legacyDef), planet.name);
 
                 }
                 BioticaStats[legacyDef].Legacy += legacyBioCounter[legacyDef];
@@ -83,21 +85,23 @@ namespace Reus2Surveyor
             {
                 if (!BioticaStats.ContainsKey(cDef))
                 {
-                    if (glossaryInstance.BioticumDefFromHash(cDef) is null) BioticaStats[cDef] = new BioticumStatEntry(cDef);
-                    else BioticaStats[cDef] = new BioticumStatEntry(this.glossaryInstance.BioticumDefFromHash(cDef));
+                    if (glossaryInstance.BioticumDefFromHash(cDef) is null) BioticaStats[cDef] = new BioticumStatEntry(cDef, planet.name);
+                    else BioticaStats[cDef] = new BioticumStatEntry(this.glossaryInstance.BioticumDefFromHash(cDef), planet.name);
 
                 }
                 BioticaStats[cDef].Planets += 1;
                 BioticaStats[cDef].Total += completeBioCounter[cDef];
-                if (completeBioCounter[cDef] > 1) BioticaStats[cDef].MultiNumberList.Add(completeBioCounter[cDef]);
+                if (completeBioCounter[cDef] > 1) BioticaStats[cDef].AddMultiValue(completeBioCounter[cDef]);
             }
+
+            this.planetCount++;
         }
 
         public void FinalizeStats() 
         {
             foreach (BioticumStatEntry bse in this.BioticaStats.Values)
             {
-                bse.CalculateStats();
+                bse.CalculateStats(this.planetCount);
             }
         }
 
@@ -113,9 +117,21 @@ namespace Reus2Surveyor
             }
         }
 
+        public void WriteToExcel(string dstPath)
+        {
+            using (XLWorkbook wb = new())
+            {
+                var bioWs = wb.AddWorksheet("Biotica");
+                bioWs.Cell("A1").InsertTable(this.BioticaStats.Values, "Biotica");
+                wb.SaveAs(dstPath);
+            }
+
+                
+        }
+
         public class BioticumStatEntry
         {
-            [property:XLColumn(Ignore = true)] public readonly BioticumDefinition Definition;
+            private readonly BioticumDefinition Definition;
             public readonly string Name;
             public readonly string Type;
             public readonly int? Tier;
@@ -124,8 +140,9 @@ namespace Reus2Surveyor
             public readonly string Desert, Forest, IceAge, Ocean, Rainforest, Savanna, Taiga;
 
             public int Draft { get; set; } = 0;
+            public double? DraftP { get; set; } = null;
             public int Planets { get; set; } = 0;
-            public double? DraftP { get; private set; } = null;
+            public double? UsageP { get; private set; } = null;
 
             public int Total { get; set; } = 0;
             public int Legacy { get; set; } = 0;
@@ -133,11 +150,13 @@ namespace Reus2Surveyor
             public int Final { get; set; } = 0;
             public double? FinalP { get; private set; } = null;
 
-            public List<int> MultiNumberList { get; private set; } = [];
+            private List<int> MultiNumberList = [];
             public int? Multi { get; set; } = null;
             public double? MultiP { get; private set; } = null;
             public int? MultiMax { get; private set; } = null;
             public double? MultiAvg { get; private set; } = null;
+
+
 
             /*public int Creek { get; set; } = 0;
             public double? CreekPercent { get; private set; } = null;
@@ -151,11 +170,10 @@ namespace Reus2Surveyor
             public double? MountainPercent { get; private set; } = null;
             public int Micro { get; set; } = 0;
             public double? MicroPercent { get; private set; } = null;*/
-
-
+            public string P1 { get; set; }
             public readonly string Hash;
 
-            public BioticumStatEntry(BioticumDefinition bioDef)
+            public BioticumStatEntry(BioticumDefinition bioDef, string p1name)
             {
                 this.Definition = bioDef;
                 this.Name = bioDef.Name;
@@ -171,15 +189,17 @@ namespace Reus2Surveyor
                 this.Taiga = bioDef.Taiga ? "Y" : null;
 
                 this.Hash = bioDef.Hash;
+                this.P1 = p1name;
             }
 
-            public BioticumStatEntry(string hash)
+            public BioticumStatEntry(string hash, string p1name)
             {
                 this.Definition = null;
                 this.Name = "?";
                 this.Type = "?";
                 this.Tier = null;
                 this.Apex = "?";
+                this.Hash = hash;
 
                 this.Desert = null;
                 this.Forest = null;
@@ -187,6 +207,8 @@ namespace Reus2Surveyor
                 this.Ocean = null;
                 this.Savanna = null;
                 this.Taiga = null;
+
+                this.P1 = p1name;
             }
 
             public void IncrementField(string fieldName)
@@ -211,11 +233,17 @@ namespace Reus2Surveyor
                 }
             }
 
-            public void CalculateStats()
+            public void AddMultiValue(int value)
             {
-                this.DraftP = SafeDivide(this.Planets, this.Draft);
+                this.MultiNumberList.Add(value);
+            }
+
+            public void CalculateStats(int planetCount)
+            {
+                this.UsageP = SafeDivide(this.Planets, this.Draft);
                 this.LegacyP = SafeDivide(this.Legacy, this.Total);
                 this.FinalP = SafeDivide(this.Final, this.Total);
+                this.DraftP = SafeDivide(this.Draft, planetCount);
 
                 if (this.MultiNumberList.Count > 0)
                 {

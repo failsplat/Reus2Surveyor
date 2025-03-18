@@ -138,6 +138,7 @@ namespace Reus2Surveyor
             // exportStatsButton
             // 
             exportStatsButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+            exportStatsButton.Enabled = false;
             exportStatsButton.Location = new System.Drawing.Point(12, 431);
             exportStatsButton.Name = "exportStatsButton";
             exportStatsButton.Size = new System.Drawing.Size(86, 23);
