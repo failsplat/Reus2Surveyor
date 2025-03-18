@@ -52,6 +52,7 @@ namespace Reus2Surveyor
         public FormMain()
         {
             InitializeComponent();
+            this.Text = "Reus 2 Surveyor "+System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
         }
 
         private void FormMain_Load(object sender, EventArgs e)
