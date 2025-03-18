@@ -24,6 +24,7 @@ namespace Reus2Surveyor
 
         public void ConsumePlanet(Planet planet, int index)
         {
+            if (planet is null) return;
             Dictionary<string, int> activeBioCounter = [];
             Dictionary<string, int> legacyBioCounter = [];
             //Dictionary<(string,string), int> bioPropertyDict = [];
