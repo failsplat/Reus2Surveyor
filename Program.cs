@@ -47,26 +47,26 @@ namespace Reus2Surveyor
             Settings.Default.Save();
         }
 
-        public static void TracePlanetError(Exception e, string planetPath)
+        public static void TracePlanetException(Exception e, string planetPath)
         {
             Trace.TraceError(String.Format("Error while processing planet {0}", planetPath));
             StackTrace st = new StackTrace(e, true);
             //Get the first stack frame
             StackFrame frame = st.GetFrame(0);
 
-            //Get the file name
-            string fileName = Path.GetFileName(frame.GetFileName());
+            //Get the name
+            //string fileName = Path.GetFileName(frame.GetFileName());
+            string methodName = frame.GetMethod().Name;
 
             //Get the line number from the stack frame
             int line = frame.GetFileLineNumber();
 
             //Get the column number
             int col = frame.GetFileColumnNumber();
-            Trace.TraceError(String.Format("{0}:Line{1}:Col{2}", fileName, line, col));
+            Trace.TraceError(String.Format("{0}:Line{1}:Col{2}", methodName, line, col));
             Trace.TraceError("Message:"+e.Message);
             //Trace.TraceError(e.StackTrace);
         }
-
     }
 
     

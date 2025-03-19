@@ -174,17 +174,19 @@ namespace Reus2Surveyor
                 List<string> pathParts = [.. path.Split(Path.DirectorySeparatorChar)];
                 pathParts.Reverse();
                 bool readPlanetOK = false;
-                Planet newPlanet;
-                Dictionary<string, object> resAsDict;
+                Planet newPlanet = null;
+                string planetName = null;
+                Dictionary<string, object> resAsDict = null;
                 try
                 {
-                    (newPlanet, resAsDict) = PlanetFileUtil.ReadPlanetFromFile(path);
+                    resAsDict = PlanetFileUtil.ReadDictFromFile(path);
+                    planetName = PlanetFileUtil.PlanetNameFromFilePath(path);
+                    newPlanet = PlanetFileUtil.InterpretDictAsPlanet(resAsDict, path);
                 }
                 catch (Exception e)
                 {
                     newPlanet = null;
-                    resAsDict = null;
-                    Program.TracePlanetError(e, pathParts[1] + Path.DirectorySeparatorChar + pathParts[0]);
+                    Program.TracePlanetException(e, pathParts[1] + Path.DirectorySeparatorChar + pathParts[0]);
                 }
                 
                 if (newPlanet is not null)
@@ -253,12 +255,18 @@ namespace Reus2Surveyor
                 InitialDirectory = this.LastSpotCheckDir,
                 DefaultExt = ".deux"
             };
+
             if (openFile.ShowDialog() == DialogResult.OK)
             {
                 string path = openFile.FileName;
-                (Planet testPlanet, Dictionary<string, object> resAsDict) = PlanetFileUtil.ReadPlanetFromFile(path);
-                testPlanet.SetGlossaryThenLookup(GameGlossaries);
+                Planet testPlanet = null;
+                Dictionary<string, object> resAsDict = null;
+                bool planetOK = false;
+                string planetName = null;
 
+                resAsDict = PlanetFileUtil.ReadDictFromFile(path);
+                planetName = PlanetFileUtil.PlanetNameFromFilePath(path);
+                
                 this.LastSpotCheckDir = Path.GetDirectoryName(path);
 
                 List<string> pathParts = [.. path.Split(Path.DirectorySeparatorChar)];
@@ -271,31 +279,38 @@ namespace Reus2Surveyor
                     File.WriteAllText(dst, outputText);
                 }
 
-                // Counting biotica
-                // For getting definition strings for biotica
-                Dictionary<string, int> bioticaCounter = [];
-                foreach (NatureBioticum nb in testPlanet.natureBioticumDictionary.Values)
-                {
-                    string bioName = GameGlossaries.BioticumNameFromHash(nb.definition);
-                    if (bioticaCounter.ContainsKey(bioName)) bioticaCounter[bioName] += 1;
-                    else bioticaCounter[bioName] = 1;
-                }
-                List<string> singleBiotica = [.. bioticaCounter.Where(kv => kv.Value == 1).Select(kv => kv.Key)];
-                List<string> dualBiotica = [.. bioticaCounter.Where(kv => kv.Value == 2).Select(kv => kv.Key)];
-                List<string> tripleBiotica = [.. bioticaCounter.Where(kv => kv.Value == 3).Select(kv => kv.Key)];
-                string bio1, bio2, bio3;
-                bio1 = singleBiotica.Count > 0 ? singleBiotica[0] : null;
-                bio2 = dualBiotica.Count > 0 ? dualBiotica[0] : null;
-                bio3 = tripleBiotica.Count > 0 ? tripleBiotica[0] : null;
-                string bio123;
-                if (bio1 is not null && bio2 is not null && bio3 is not null)
-                {
-                    bio123 = String.Join('\n', [bio1, bio2, bio3]);
-                }
+                testPlanet = PlanetFileUtil.InterpretDictAsPlanet(resAsDict, path);
+                testPlanet.SetGlossaryThenLookup(GameGlossaries);
+                planetOK = true;
 
-                StatCollector sc = new(GameGlossaries);
-                sc.ConsumePlanet(testPlanet, 0);
-                sc.FinalizeStats();
+                if (planetOK)
+                {
+                    // Counting biotica
+                    // For getting definition strings for biotica
+                    Dictionary<string, int> bioticaCounter = [];
+                    foreach (NatureBioticum nb in testPlanet.natureBioticumDictionary.Values)
+                    {
+                        string bioName = GameGlossaries.BioticumNameFromHash(nb.definition);
+                        if (bioticaCounter.ContainsKey(bioName)) bioticaCounter[bioName] += 1;
+                        else bioticaCounter[bioName] = 1;
+                    }
+                    List<string> singleBiotica = [.. bioticaCounter.Where(kv => kv.Value == 1).Select(kv => kv.Key)];
+                    List<string> dualBiotica = [.. bioticaCounter.Where(kv => kv.Value == 2).Select(kv => kv.Key)];
+                    List<string> tripleBiotica = [.. bioticaCounter.Where(kv => kv.Value == 3).Select(kv => kv.Key)];
+                    string bio1, bio2, bio3;
+                    bio1 = singleBiotica.Count > 0 ? singleBiotica[0] : null;
+                    bio2 = dualBiotica.Count > 0 ? dualBiotica[0] : null;
+                    bio3 = tripleBiotica.Count > 0 ? tripleBiotica[0] : null;
+                    string bio123;
+                    if (bio1 is not null && bio2 is not null && bio3 is not null)
+                    {
+                        bio123 = String.Join('\n', [bio1, bio2, bio3]);
+                    }
+
+                    StatCollector sc = new(GameGlossaries);
+                    sc.ConsumePlanet(testPlanet, 0);
+                    sc.FinalizeStats();
+                }
             }
         }
 

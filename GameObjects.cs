@@ -3,6 +3,7 @@ using System.CodeDom;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Reflection.Metadata.Ecma335;
@@ -18,7 +19,9 @@ namespace Reus2Surveyor
 {
     public class Planet
     {
-        public string name;
+        public readonly string name;
+        public readonly string path;
+        public readonly string debugName;
         public readonly Dictionary<int, BioticumSlot> slotDictionary = [];
         public readonly Dictionary<int, Patch> patchDictionary = [];
         public readonly Dictionary<int, Biome> biomeDictionary = [];
@@ -46,6 +49,7 @@ namespace Reus2Surveyor
 
         //public List<int?> patchCollection;
 
+        // TODO: Find a better way to find objects other than checking dictionary keys
         public readonly static List<string> slotCheckKeys = [
             "bioticum", "futureSlot", "patch", "locationOnPatch", "slotLevel", "parent",
                 "isInvasiveSlot", "slotbonusDefinitions", "archivedBiotica", "name"
@@ -80,7 +84,7 @@ namespace Reus2Surveyor
             "aspectController", "gameplayShop", "masteredBiotica", "name",
             ];
 
-        public Planet(List<object> referenceTokensList)
+        public Planet(List<object> referenceTokensList, string planetPath)
         {
             int i = -1;
 
@@ -130,6 +134,20 @@ namespace Reus2Surveyor
                     this.MasteredBioticaDefSet.UnionWith(DictHelper.TryGetStringList(refToken, ["masteredBiotica", "itemData"], "value"));
                 }
             }
+
+            this.path = planetPath;
+            this.name = PlanetFileUtil.PlanetNameFromFilePath(planetPath);
+            List<string> pathParts = [.. this.path.Split(Path.DirectorySeparatorChar)];
+            pathParts.Reverse();
+            this.debugName = pathParts[1] + Path.DirectorySeparatorChar + pathParts[0];
+
+            // Trace out warnings if any of the core dictionaries are empty
+            if (slotDictionary.Count == 0) Trace.TraceWarning(String.Format("Empty slotDictionary in {0}", this.debugName));
+            if (patchDictionary.Count == 0) Trace.TraceWarning(String.Format("Empty patchDictionary in {0}", this.debugName));
+            if (natureBioticumDictionary.Count == 0) Trace.TraceWarning(String.Format("Empty natureBioticumDictionary in {0}", this.debugName));
+            if (cityDictionary.Count == 0) Trace.TraceWarning(String.Format("Empty cityDictionary in {0}", this.debugName));
+            if (biomeDictionary.Count == 0) Trace.TraceWarning(String.Format("Empty biomeDictionary in {0}", this.debugName));
+
 
             // Secondary Data (calculated when all game objects parsed)
             this.totalSize = this.patchDictionary.Count;
