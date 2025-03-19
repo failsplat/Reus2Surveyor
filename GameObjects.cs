@@ -52,7 +52,7 @@ namespace Reus2Surveyor
         // TODO: Find a better way to find objects other than checking dictionary keys
         public readonly static List<string> slotCheckKeys = [
             "bioticum", "futureSlot", "patch", "locationOnPatch", "slotLevel", "parent",
-                "isInvasiveSlot", "slotbonusDefinitions", "archivedBiotica", "name"
+                "slotbonusDefinitions", "archivedBiotica", "name"
             ];
         public readonly static List<string> patchCheckKeys = [
             "foregroundSlot", "backgroundSlot", "mountainSlot",
@@ -69,7 +69,6 @@ namespace Reus2Surveyor
             ];
         public readonly static List<string> bioticumCheckKeys = [
             "aspectSlots", "_type", "definition", "receivedRiverBonus", 
-            "anomalyBonusActve", // [sic]
             "name", "parent"
             ];
         public readonly static List<string> cityCheckKeys = [
@@ -266,7 +265,7 @@ namespace Reus2Surveyor
         public readonly int? bioticumId, patchId, locationOnPatch, slotLevel;
         public readonly int? futureSlotId;
 
-        public readonly bool isInvasiveSlot;
+        public readonly bool? isInvasiveSlot;
         public readonly List<string> slotbonusDefinitions;
         public readonly List<Dictionary<string, object>> archivedBiotica;
         public readonly string name;
@@ -288,7 +287,7 @@ namespace Reus2Surveyor
 
             this.archivedBiotica = DictHelper.TryGetDictList(refDict, ["archivedBiotica", "itemData"], "value");
             
-            this.isInvasiveSlot = (bool)refDict["isInvasiveSlot"];
+            this.isInvasiveSlot = DictHelper.TryGetBool(refDict, "isInvasiveSlot");
 
             // "BioticumSlot (<patch> - <position>)
             this.name = DictHelper.TryGetString(refDict, "name");
@@ -451,7 +450,7 @@ namespace Reus2Surveyor
         public readonly List<int?> aspectSlotsIds;
         public readonly int? bioticumId;
         public readonly string? definition;
-        public readonly bool receivedRiverBonus, anomalyBonusActive;
+        public readonly bool? receivedRiverBonus, anomalyBonusActive;
         public readonly int? slotId;
 
         // Secondary Data
@@ -475,8 +474,8 @@ namespace Reus2Surveyor
 
             this.definition = DictHelper.TryGetString(refDict, ["definition", "value"]);
 
-            this.receivedRiverBonus = (bool)refDict["receivedRiverBonus"];
-            this.anomalyBonusActive = (bool)refDict["anomalyBonusActve"]; // [sic]
+            this.receivedRiverBonus = DictHelper.TryGetBool(refDict, "receivedRiverBonus");
+            this.anomalyBonusActive = DictHelper.TryGetBool(refDict, "anomalyBonusActve"); // [sic]
 
             this.slotId = DictHelper.TryGetInt(refDict, ["parent", "id"]);
         }
@@ -583,6 +582,10 @@ namespace Reus2Surveyor
         public void CountTerritoryBiotica(Dictionary<int, BioticumSlot> slotDictionary, Dictionary<int, NatureBioticum> bioticaDictionary)
         {
             List<int> slotIndices = this.ListSlotIndicesInTerritory();
+            if (slotDictionary.Count == 0)
+            {
+                return;
+            }
             List<BioticumSlot> slots = [..slotIndices.Select(s => slotDictionary[s])];
             List<int> biotIndices = [.. slots.Where(s => s.bioticumId is not null && s.bioticumId > 0).Select(s => (int)s.bioticumId)];
             this.BioticaInTerritory = [.. biotIndices.Select(s => bioticaDictionary.ContainsKey(s) ? bioticaDictionary[s] : null)];
