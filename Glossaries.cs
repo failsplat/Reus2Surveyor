@@ -20,9 +20,12 @@ namespace Reus2Surveyor
         public readonly Dictionary<string, BioticumDefinition> BioticumDefinitionByHash = [];
         public readonly List<BioticumDefinition> BioticumDefinitionList = [];
 
-        public Glossaries(string nbFile, string bioFile)
+        public readonly Dictionary<string, GiantDefinition> GiantDefinitionByHash = [];
+        public readonly List<GiantDefinition> GiantDefinitionList = [];
+
+        public Glossaries(string nbFile, string bioFile, string giantFile)
         {
-            // The main constructor
+            // NonBiotica 
             using (StreamReader nbsr = new StreamReader(nbFile))
             {
                 string currentLine;
@@ -96,10 +99,32 @@ namespace Reus2Surveyor
                 if (bd.Hash is null || bd.Hash.Length == 0) continue;
                 else this.BioticumDefinitionByHash.Add(bd.Hash, bd);
             }
+
+            using (StreamReader gsr = new StreamReader(giantFile))
+            {
+                string currentLine;
+                string headerLine = gsr.ReadLine().Trim();
+                List<string> header = [.. headerLine.Split(",")];
+                while ((currentLine = gsr.ReadLine()) != null)
+                {
+                    currentLine = currentLine.Trim();
+                    List<string> data = [.. currentLine.Split(",")];
+                    GiantDefinitionList.Add(new(header, data));
+                }
+            }
+            foreach (GiantDefinition gd in this.GiantDefinitionList)
+            {
+                if (gd.Hash is null || gd.Hash.Length == 0) continue;
+                else this.GiantDefinitionByHash.Add(gd.Hash, gd);
+            }
         }
 
         public Glossaries(string folderPath)
-            : this(nbFile: Path.Combine(folderPath, "NonBiotica.csv"), bioFile: Path.Combine(folderPath, "Biotica.csv"))
+            : this(
+                  nbFile: Path.Combine(folderPath, "NonBiotica.csv"), 
+                  bioFile: Path.Combine(folderPath, "Biotica.csv"),
+                  giantFile: Path.Combine(folderPath, "Giants.csv")
+                  )
         {
         }
 
@@ -221,6 +246,25 @@ namespace Reus2Surveyor
                         break;
                 }
 
+            }
+        }
+    }
+
+    public class GiantDefinition
+    {
+        public string Name { get; private set; }
+        public string Biome1 { get; private set; }
+        public string Biome2 { get; private set; }
+        public string Hash { get; private set; }
+
+        public GiantDefinition(List<string> header, List<string> data)
+        {
+            int i = -1;
+            foreach (string d in data)
+            {
+                i++;
+                string thisCol = header[i];
+                this.GetType().GetProperty(thisCol).SetValue(this, d);
             }
         }
     }
