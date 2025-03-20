@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Features;
 using DocumentFormat.OpenXml.Spreadsheet;
@@ -15,6 +16,7 @@ namespace Reus2Surveyor
     {
         private Glossaries glossaryInstance;
         public Dictionary<string, BioticumStatEntry> BioticaStats { get; private set; } = [];
+        public Dictionary<string, PlanetSummaryEntry> PlanetSummaries { get; private set; } = [];
         private int planetCount = 0;
 
         public StatCollector(Glossaries g)
@@ -188,8 +190,8 @@ namespace Reus2Surveyor
             private List<int> MultiNumberList = [];
             public int? Multi { get; set; } = null;
             public double? MultiP { get; private set; } = null;
-            public int? MultiMax { get; private set; } = null;
-            public double? MultiAvg { get; private set; } = null;
+            public int? MultiMx { get; private set; } = null;
+            public double? MultiAv { get; private set; } = null;
 
 
 
@@ -284,8 +286,8 @@ namespace Reus2Surveyor
                 if (this.MultiNumberList.Count > 0)
                 {
                     this.Multi = this.MultiNumberList.Count;
-                    this.MultiAvg = this.MultiNumberList.Average();
-                    this.MultiMax = this.MultiNumberList.Max();
+                    this.MultiAv = this.MultiNumberList.Average();
+                    this.MultiMx = this.MultiNumberList.Max();
                     this.MultiP = SafePercent((int)this.Multi, this.Planets);
                 }
                 else
@@ -301,21 +303,50 @@ namespace Reus2Surveyor
                 this.MountainPercent = SafeDivide(this.Mountain, this.Total);
                 this.MicroPercent = SafeDivide(this.Micro, this.Total);*/
             }
+        }
+        private static double? SafePercent(int a0, int b0)
+        {
+            double? c = SafeDivide(a0, b0);
+            if (c is null) return null;
+            return Math.Max(Math.Min((double)c, 1.0), 0.0);
+        }
 
-            private static double? SafePercent(int a0, int b0)
-            {
-                double? c = SafeDivide(a0, b0);
-                if (c is null) return null;
-                return Math.Max(Math.Min((double)c, 1.0), 0.0);
-            }
+        public static double? SafeDivide(int a0, int b0)
+        {
+            if (b0 == 0) return null;
+            double a = (double)a0;
+            double b = (double)b0;
+            return a / b;
+        }
 
-            public static double? SafeDivide(int a0, int b0)
-            {
-                if (b0 == 0) return null;
-                double a = (double)a0;
-                double b = (double)b0;
-                return a / b;
-            }
+        public class PlanetSummaryEntry
+        {
+            public readonly int N;
+            public readonly string Name;
+
+            public int Pros { get; set; }
+            public string Giant1, Giant2, Giant3;
+            public string Spirit;
+            
+            public int City, Prjs;
+            public string? Era1, Era2, Era3;
+            public string? Char1, Char2, Char3, Char4, Char5, Char6;
+
+            public int SzT, SzWld;
+
+            public int ProsHi;
+            public double? ProsMdn, ProsAv;
+            public int Pop, Tech, Wel;
+            public double? PopP, TechP, WelP;
+            public int PopHi, TechHi, WelH;
+            public double? PopMdn, TechMdn, WelMdn, PopAv, TechAv, WelAv;
+
+            public int? Biomes, CBiomes;
+            public int Biotica, Plants, Animals, Minerals = 0;
+            public double? PlantP, AnimalP, MineralP;
+            public int Apex;
+            public double? ApexP, SlotLvAv; 
+
         }
     }
 }
