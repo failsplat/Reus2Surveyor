@@ -27,13 +27,20 @@ namespace Reus2Surveyor
         public void ConsumePlanet(Planet planet, int index)
         {
             if (planet is null) return;
+            this.UpdateBioticaStats(planet, index);
+            this.UpdateHumanityStats(planet, index);
+            this.planetCount++;
+        }
+
+        public void UpdateBioticaStats(Planet planet, int index)
+        {
+            if (planet is null) return;
 
             HashSet<Glossaries.BioticumDefinition> biomeMatchingBiotica = [];
             // Count all biotica that are available in available biomes
             foreach (string giantHash in planet.gameSession.giantRosterDefs)
             {
                 Glossaries.GiantDefinition gd = this.glossaryInstance.GiantDefinitionByHash[giantHash];
-                
 
                 foreach (Glossaries.BioticumDefinition bd in this.glossaryInstance.BioticumDefinitionList)
                 {
@@ -62,7 +69,7 @@ namespace Reus2Surveyor
             Dictionary<string, int> legacyBioCounter = [];
             //Dictionary<(string,string), int> bioPropertyDict = [];
 
-            foreach (KeyValuePair<string,int> legKv in planet.LegacyBioticaCounterDefs)
+            foreach (KeyValuePair<string, int> legKv in planet.LegacyBioticaCounterDefs)
             {
                 IncrementCounter(legacyBioCounter, legKv.Key, legKv.Value);
             }
@@ -72,11 +79,11 @@ namespace Reus2Surveyor
             }
 
             Dictionary<string, int> completeBioCounter = [];
-            foreach (KeyValuePair<string,int> kv in activeBioCounter)
+            foreach (KeyValuePair<string, int> kv in activeBioCounter)
             {
                 IncrementCounter(completeBioCounter, kv.Key, kv.Value);
             }
-            foreach (KeyValuePair<string,int> kv in legacyBioCounter)
+            foreach (KeyValuePair<string, int> kv in legacyBioCounter)
             {
                 IncrementCounter(completeBioCounter, kv.Key, kv.Value);
             }
@@ -88,7 +95,7 @@ namespace Reus2Surveyor
                 {
                     if (glossaryInstance.BioticumDefFromHash(draftDef) is null) BioticaStats[draftDef] = new BioticumStatEntry(draftDef, planet.name);
                     else BioticaStats[draftDef] = new BioticumStatEntry(this.glossaryInstance.BioticumDefFromHash(draftDef), planet.name);
-                    
+
                 }
                 BioticaStats[draftDef].Draft += 1;
             }
@@ -129,7 +136,12 @@ namespace Reus2Surveyor
                 if (completeBioCounter[cDef] > 1) BioticaStats[cDef].AddMultiValue(completeBioCounter[cDef]);
             }
 
-            this.planetCount++;
+
+        }
+
+        public void UpdateHumanityStats(Planet planet, int index)
+        {
+
         }
 
         public void FinalizeStats() 
@@ -346,6 +358,12 @@ namespace Reus2Surveyor
             public double? PlantP, AnimalP, MineralP;
             public int Apex;
             public double? ApexP, SlotLvAv; 
+
+            public PlanetSummaryEntry(int N, string Name)
+            {
+                this.N = N;
+                this.Name = Name;
+            }
 
         }
     }
