@@ -25,6 +25,9 @@ namespace Reus2Surveyor
         public void ConsumePlanet(Planet planet, int index)
         {
             if (planet is null) return;
+
+            // Count all biotica that are available in available biomes
+
             Dictionary<string, int> activeBioCounter = [];
             Dictionary<string, int> legacyBioCounter = [];
             //Dictionary<(string,string), int> bioPropertyDict = [];
@@ -241,17 +244,17 @@ namespace Reus2Surveyor
 
             public void CalculateStats(int planetCount)
             {
-                this.UsageP = SafeDivide(this.Planets, this.Draft);
-                this.LegacyP = SafeDivide(this.Legacy, this.Total);
-                this.FinalP = SafeDivide(this.Final, this.Total);
-                this.DraftP = SafeDivide(this.Draft, planetCount);
+                this.UsageP = SafePercent(this.Planets, this.Draft);
+                this.LegacyP = SafePercent(this.Legacy, this.Total);
+                this.FinalP = SafePercent(this.Final, this.Total);
+                this.DraftP = SafePercent(this.Draft, planetCount);
 
                 if (this.MultiNumberList.Count > 0)
                 {
                     this.Multi = this.MultiNumberList.Count;
                     this.MultiAvg = this.MultiNumberList.Average();
                     this.MultiMax = this.MultiNumberList.Max();
-                    this.MultiP = SafeDivide((int)this.Multi, this.Planets);
+                    this.MultiP = SafePercent((int)this.Multi, this.Planets);
                 }
                 else
                 {
@@ -267,7 +270,14 @@ namespace Reus2Surveyor
                 this.MicroPercent = SafeDivide(this.Micro, this.Total);*/
             }
 
-            private static double? SafeDivide(int a0, int b0)
+            private static double? SafePercent(int a0, int b0)
+            {
+                double? c = SafeDivide(a0, b0);
+                if (c is null) return null;
+                return Math.Max(Math.Min((double)c, 1.0), 0.0);
+            }
+
+            public static double? SafeDivide(int a0, int b0)
             {
                 if (b0 == 0) return null;
                 double a = (double)a0;

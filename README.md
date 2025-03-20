@@ -23,6 +23,7 @@ This desktop app reads the save files for completed Reus 2 planets and produces 
 * Option to read only a selection of planets
 * UI decoration
 * Biome-Draft% calculation to take into account whether the matching biome is available to a planet
+* Account for biotica unlocked with Evolve in usage stats
 ## Potential Features
 * Pre-read summary `.mgs` files.
 * Option to select which save point (complete, left, etc.) to reach from each planet
