@@ -121,14 +121,14 @@ namespace Reus2Surveyor
 
         public Glossaries(string folderPath)
             : this(
-                  nbFile: Path.Combine(folderPath, "NonBiotica.csv"), 
+                  nbFile: Path.Combine(folderPath, "NonBiotica.csv"),
                   bioFile: Path.Combine(folderPath, "Biotica.csv"),
                   giantFile: Path.Combine(folderPath, "Giants.csv")
                   )
         {
         }
 
-        public static readonly Dictionary<int,string> BiomeNameByInt = new()
+        public static readonly Dictionary<int, string> BiomeNameByInt = new()
         {
             {0, "Forest" },
             {1, "Rainforest" },
@@ -169,102 +169,102 @@ namespace Reus2Surveyor
             }
             else return null;
         }
-}
 
-    public class BioticumDefinition
-    {
-        public string Name { get; private set; }
-        public string Type { get; private set; }
-
-        public int Tier { get; private set; }
-        public bool Apex { get; private set; }
-
-        public bool Desert { get; private set; } = false;
-        public bool Forest { get; private set; } = false;
-        public bool IceAge { get; private set; } = false;
-        public bool Ocean { get; private set; } = false;
-        public bool Rainforest { get; private set; } = false;
-        public bool Savanna { get; private set; } = false;
-        public bool Taiga { get; private set; } = false;
-
-        public string Hash { get; private set; }
-
-        public BioticumDefinition(List<string> header, List<string> data)
+        public class BioticumDefinition
         {
-            int i = -1;
-            foreach (string d in data)
-            {
-                i++;
-                string thisCol = header[i];
-                switch (thisCol)
-                {
-                    case "Name":
-                    case "Type":
-                    case "Hash":
-                        this.GetType().GetProperty(thisCol).SetValue(this, d);
-                        break;
-                    case "Tier":
-                        this.Tier = Convert.ToInt32(d);
-                        break;
-                    case "Apex":
+            public string Name { get; private set; }
+            public string Type { get; private set; }
 
-                    case "Desert":
-                    case "Forest":
-                    case "IceAge":
-                    case "Ocean":
-                    case "Rainforest":
-                    case "Savanna":
-                    case "Taiga":
-                        bool res = false;
-                        if (d.Length == 0)
-                        {
-                            this.GetType().GetProperty(thisCol).SetValue(this, false);
+            public int Tier { get; private set; }
+            public bool Apex { get; private set; }
+
+            public bool Desert { get; private set; } = false;
+            public bool Forest { get; private set; } = false;
+            public bool IceAge { get; private set; } = false;
+            public bool Ocean { get; private set; } = false;
+            public bool Rainforest { get; private set; } = false;
+            public bool Savanna { get; private set; } = false;
+            public bool Taiga { get; private set; } = false;
+
+            public string Hash { get; private set; }
+
+            public BioticumDefinition(List<string> header, List<string> data)
+            {
+                int i = -1;
+                foreach (string d in data)
+                {
+                    i++;
+                    string thisCol = header[i];
+                    switch (thisCol)
+                    {
+                        case "Name":
+                        case "Type":
+                        case "Hash":
+                            this.GetType().GetProperty(thisCol).SetValue(this, d);
                             break;
-                        }
-                        switch (d)
-                        {
-                            case "1":
-                            case "y":
-                            case "Y":
-                            case "t":
-                            case "T":
-                            case "true":
-                            case "True":
-                                this.GetType().GetProperty(thisCol).SetValue(this, true);
-                                break;
-                            case "0":
-                            case "n":
-                            case "N":
-                            case "f":
-                            case "F":
-                            case "false":
-                            case "False":
-                            default:
+                        case "Tier":
+                            this.Tier = Convert.ToInt32(d);
+                            break;
+                        case "Apex":
+
+                        case "Desert":
+                        case "Forest":
+                        case "IceAge":
+                        case "Ocean":
+                        case "Rainforest":
+                        case "Savanna":
+                        case "Taiga":
+                            bool res = false;
+                            if (d.Length == 0)
+                            {
                                 this.GetType().GetProperty(thisCol).SetValue(this, false);
                                 break;
-                        }
-                        break;
-                }
+                            }
+                            switch (d)
+                            {
+                                case "1":
+                                case "y":
+                                case "Y":
+                                case "t":
+                                case "T":
+                                case "true":
+                                case "True":
+                                    this.GetType().GetProperty(thisCol).SetValue(this, true);
+                                    break;
+                                case "0":
+                                case "n":
+                                case "N":
+                                case "f":
+                                case "F":
+                                case "false":
+                                case "False":
+                                default:
+                                    this.GetType().GetProperty(thisCol).SetValue(this, false);
+                                    break;
+                            }
+                            break;
+                    }
 
+                }
             }
         }
-    }
 
-    public class GiantDefinition
-    {
-        public string Name { get; private set; }
-        public string Biome1 { get; private set; }
-        public string Biome2 { get; private set; }
-        public string Hash { get; private set; }
-
-        public GiantDefinition(List<string> header, List<string> data)
+        public class GiantDefinition
         {
-            int i = -1;
-            foreach (string d in data)
+            public string Name { get; private set; }
+            public string Biome1 { get; private set; }
+            public string Biome2 { get; private set; }
+            public string Hash { get; private set; }
+
+            public GiantDefinition(List<string> header, List<string> data)
             {
-                i++;
-                string thisCol = header[i];
-                this.GetType().GetProperty(thisCol).SetValue(this, d);
+                int i = -1;
+                foreach (string d in data)
+                {
+                    i++;
+                    string thisCol = header[i];
+                    this.GetType().GetProperty(thisCol).SetValue(this, d);
+                }
             }
         }
     }
