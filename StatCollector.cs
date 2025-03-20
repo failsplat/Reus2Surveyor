@@ -26,7 +26,35 @@ namespace Reus2Surveyor
         {
             if (planet is null) return;
 
+            HashSet<Glossaries.BioticumDefinition> biomeMatchingBiotica = [];
             // Count all biotica that are available in available biomes
+            foreach (string giantHash in planet.gameSession.giantRosterDefs)
+            {
+                Glossaries.GiantDefinition gd = this.glossaryInstance.GiantDefinitionByHash[giantHash];
+                
+
+                foreach (Glossaries.BioticumDefinition bd in this.glossaryInstance.BioticumDefinitionList)
+                {
+                    bool b1match = (bool)(bd.GetType().GetProperty(gd.Biome1).GetValue(bd));
+                    bool b2match = (bool)(bd.GetType().GetProperty(gd.Biome2).GetValue(bd));
+                    if (b1match || b2match)
+                    {
+                        biomeMatchingBiotica.Add(bd);
+                    }
+                }
+            }
+
+            foreach (Glossaries.BioticumDefinition availDef in biomeMatchingBiotica)
+            {
+                if (!BioticaStats.ContainsKey(availDef.Hash))
+                {
+                    // This hash should never be null, but just in case and to keep things consistent:
+                    if (glossaryInstance.BioticumDefFromHash(availDef.Hash) is null) BioticaStats[availDef.Hash] = new BioticumStatEntry(availDef.Hash, null);
+                    else BioticaStats[availDef.Hash] = new BioticumStatEntry(this.glossaryInstance.BioticumDefFromHash(availDef.Hash), null);
+
+                }
+                BioticaStats[availDef.Hash].Avail += 1;
+            }
 
             Dictionary<string, int> activeBioCounter = [];
             Dictionary<string, int> legacyBioCounter = [];
@@ -94,6 +122,7 @@ namespace Reus2Surveyor
 
                 }
                 BioticaStats[cDef].Planets += 1;
+                if (BioticaStats[cDef].P1 is null) BioticaStats[cDef].P1 = planet.name;
                 BioticaStats[cDef].Total += completeBioCounter[cDef];
                 if (completeBioCounter[cDef] > 1) BioticaStats[cDef].AddMultiValue(completeBioCounter[cDef]);
             }
@@ -135,7 +164,7 @@ namespace Reus2Surveyor
 
         public class BioticumStatEntry
         {
-            private readonly BioticumDefinition Definition;
+            private readonly Glossaries.BioticumDefinition Definition;
             public readonly string Name;
             public readonly string Type;
             public readonly int? Tier;
@@ -143,6 +172,8 @@ namespace Reus2Surveyor
 
             public readonly string Desert, Forest, IceAge, Ocean, Rainforest, Savanna, Taiga;
 
+            public int Avail { get; set; } = 0;
+            public double? AvailP { get; set; } = null;
             public int Draft { get; set; } = 0;
             public double? DraftP { get; set; } = null;
             public int Planets { get; set; } = 0;
@@ -177,7 +208,7 @@ namespace Reus2Surveyor
             public string P1 { get; set; }
             public readonly string Hash;
 
-            public BioticumStatEntry(BioticumDefinition bioDef, string p1name)
+            public BioticumStatEntry(Glossaries.BioticumDefinition bioDef, string p1name)
             {
                 this.Definition = bioDef;
                 this.Name = bioDef.Name;
@@ -244,10 +275,11 @@ namespace Reus2Surveyor
 
             public void CalculateStats(int planetCount)
             {
-                this.UsageP = SafePercent(this.Planets, this.Draft);
+                this.UsageP = SafePercent(this.Planets, this.Avail);
                 this.LegacyP = SafePercent(this.Legacy, this.Total);
                 this.FinalP = SafePercent(this.Final, this.Total);
-                this.DraftP = SafePercent(this.Draft, planetCount);
+                this.DraftP = SafePercent(this.Draft, this.Avail);
+                this.AvailP = SafePercent(this.Avail, planetCount);
 
                 if (this.MultiNumberList.Count > 0)
                 {
