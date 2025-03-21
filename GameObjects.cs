@@ -25,7 +25,7 @@ namespace Reus2Surveyor
         public readonly Dictionary<int, BioticumSlot> slotDictionary = [];
         public readonly Dictionary<int, Patch> patchDictionary = [];
         public readonly Dictionary<int, Biome> biomeDictionary = [];
-        public readonly Dictionary<int, NatureBioticum> natureBioticumDictionary = [];
+        public readonly Dictionary<int, NatureBioticum> natureBioticumDictionary = []; // By end, active biotica only!
         public readonly Dictionary<int, City> cityDictionary = [];
         public readonly int totalSize;
         public readonly int wildSize;
@@ -717,6 +717,7 @@ namespace Reus2Surveyor
         public int? terribleFate;
         // sessionSummary:humanitySummary2
         public readonly List<CivSummary> civSummaries = [];
+        public readonly int? coolBiomes;
 
         public readonly bool? pacifismMode, planetIsLost;
         
@@ -741,6 +742,7 @@ namespace Reus2Surveyor
             this.pacifismMode = DictHelper.TryGetBool(refDict, ["sessionSummary", "startParameters", "pacifismMode"]);
             this.sessionDifficulty = DictHelper.TryGetInt(refDict, ["sessionSummary", "startParameters", "sessionDifficulty", "value"]);
             this.planetIsLost = DictHelper.TryGetBool(refDict, "planetIsLost");
+            this.coolBiomes = DictHelper.TryGetInt(refDict, ["sessionSummary", "coolBiomes"]);
 
             List<object> tpDicts = (List<object>)DictHelper.DigValueAtKeys(refDict, ["sessionSummary", "scoreCard", "turningPointPerformances", "itemData"]);
             if (tpDicts is not null) 

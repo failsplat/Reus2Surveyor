@@ -311,7 +311,7 @@ namespace Reus2Surveyor
                     sc.ConsumePlanet(testPlanet, 0);
                     sc.FinalizeStats();
                 }
-            }
+            } // Breakpoint here
         }
 
         private void spotCheckWriteCheckBox_CheckStateChanged(object sender, EventArgs e)

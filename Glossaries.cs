@@ -3,6 +3,7 @@ using System.CodeDom;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,7 +15,7 @@ namespace Reus2Surveyor
         public readonly Dictionary<string, string> BiomeHashByName = [], BiomeNameByHash = [];
         public readonly Dictionary<string, string> LuxuryHashByName = [], LuxuryNameByHash = [];
         public readonly Dictionary<string, string> MicroHashByName = [], MicroNameByHash = [];
-        public readonly Dictionary<string, string> TurningPointHashByName = [], TurningPointNameByHash = [];
+        public readonly Dictionary<string, string> EraHashByName = [], EraNameByHash = [];
         public readonly Dictionary<string, string> YieldHashByName = [], YieldNameByHash = [];
 
         public readonly Dictionary<string, BioticumDefinition> BioticumDefinitionByHash = [];
@@ -23,10 +24,16 @@ namespace Reus2Surveyor
         public readonly Dictionary<string, GiantDefinition> GiantDefinitionByHash = [];
         public readonly List<GiantDefinition> GiantDefinitionList = [];
 
-        public Glossaries(string nbFile, string bioFile, string giantFile)
+        public Glossaries(
+            string nbFile, 
+            string bioFile, 
+            string giantFile, 
+            string spiritFile,
+            string eraFile
+            )
         {
             // NonBiotica 
-            using (StreamReader nbsr = new StreamReader(nbFile))
+            /*using (StreamReader nbsr = new StreamReader(nbFile))
             {
                 string currentLine;
                 string headerLine = nbsr.ReadLine().Trim();
@@ -76,11 +83,8 @@ namespace Reus2Surveyor
                                 break;
                         }
                     }
-
                 }
-
-
-            }
+            }*/
 
             using (StreamReader bsr = new StreamReader(bioFile))
             {
@@ -117,13 +121,57 @@ namespace Reus2Surveyor
                 if (gd.Hash is null || gd.Hash.Length == 0) continue;
                 else this.GiantDefinitionByHash.Add(gd.Hash, gd);
             }
+
+            using (StreamReader ssr = new StreamReader(spiritFile))
+            {
+                string currentLine;
+                string headerLine = ssr.ReadLine().Trim();
+                List<string> header = [.. headerLine.Split(",")];
+                while ((currentLine = ssr.ReadLine()) != null)
+                {
+                    currentLine = currentLine.Trim();
+                    List<string> data = [.. currentLine.Split(",")];
+                    string name = data[header.IndexOf("Name")];
+                    string hash = data[header.IndexOf("Hash")];
+                    if (hash is null || hash.Length == 0)
+                    {
+                        continue;
+                    }
+
+                    this.SpiritHashByName[name] = hash;
+                    this.SpiritNameByHash[hash] = name;
+                }
+            }
+
+            using (StreamReader esr = new StreamReader(eraFile))
+            {
+                string currentLine;
+                string headerLine = esr.ReadLine().Trim();
+                List<string> header = [.. headerLine.Split(",")];
+                while ((currentLine = esr.ReadLine()) != null)
+                {
+                    currentLine = currentLine.Trim();
+                    List<string> data = [.. currentLine.Split(",")];
+                    string name = data[header.IndexOf("Name")];
+                    string hash = data[header.IndexOf("Hash")];
+                    if (hash is null || hash.Length == 0)
+                    {
+                        continue;
+                    }
+
+                    this.EraHashByName[name] = hash;
+                    this.EraNameByHash[hash] = name;
+                }
+            }
         }
 
         public Glossaries(string folderPath)
             : this(
                   nbFile: Path.Combine(folderPath, "NonBiotica.csv"),
                   bioFile: Path.Combine(folderPath, "Biotica.csv"),
-                  giantFile: Path.Combine(folderPath, "Giants.csv")
+                  giantFile: Path.Combine(folderPath, "Giants.csv"),
+                  spiritFile: Path.Combine(folderPath, "Spirits.csv"),
+                  eraFile: Path.Combine(folderPath, "Eras.csv")
                   )
         {
         }
@@ -168,6 +216,30 @@ namespace Reus2Surveyor
                 return BioticumDefinitionByHash[def];
             }
             else return null;
+        }
+
+        public string SpiritNameFromHash(string hash)
+        {
+            if (this.SpiritNameByHash.ContainsKey(hash)) return this.SpiritNameByHash[hash];
+            else return hash;
+        }
+
+        public string EraNameFromHash(string hash)
+        {
+            if (this.EraNameByHash.ContainsKey(hash)) return this.EraNameByHash[hash];
+            else return hash;
+        }
+
+        public string GiantNameFromHash(string hash)
+        {
+            if (this.GiantDefinitionByHash.ContainsKey(hash)) return this.GiantDefinitionByHash[hash].Name;
+            else return hash;
+        }
+
+        public GiantDefinition TryGiantDefinitionFromhash(string hash)
+        {
+            if (this.GiantDefinitionByHash.ContainsKey(hash)) return this.GiantDefinitionByHash[hash];
+            else return new(hash);
         }
 
         public class BioticumDefinition
@@ -255,6 +327,7 @@ namespace Reus2Surveyor
             public string Biome1 { get; private set; }
             public string Biome2 { get; private set; }
             public string Hash { get; private set; }
+            public int Position { get; private set; }
 
             public GiantDefinition(List<string> header, List<string> data)
             {
@@ -263,8 +336,22 @@ namespace Reus2Surveyor
                 {
                     i++;
                     string thisCol = header[i];
+                    if (thisCol == "Position") 
+                    {
+                        this.Position = System.Convert.ToInt32(d);
+                        continue;
+                    }
                     this.GetType().GetProperty(thisCol).SetValue(this, d);
                 }
+            }
+
+            // Empty constructor
+            // Use only when making blanks in StatCollector
+            public GiantDefinition(string hash)
+            {
+                this.Hash = hash;
+                this.Name = hash;
+
             }
         }
     }
