@@ -298,6 +298,7 @@ namespace Reus2Surveyor
             {
                 var planetSummWs = wb.AddWorksheet("Planets");
                 var planetTable = planetSummWs.Cell("A1").InsertTable(this.PlanetSummaries, "Planets");
+                planetTable.Theme = XLTableTheme.TableStyleMedium4;
                 foreach (KeyValuePair<string, List<string>> kv in PlanetSummaryEntry.GetColumnFormats())
                 {
                     string format = kv.Key;
@@ -316,6 +317,7 @@ namespace Reus2Surveyor
 
                 var bioWs = wb.AddWorksheet("Biotica");
                 var bioticaTable = bioWs.Cell("A1").InsertTable(this.BioticaStats.Values, "Biotica");
+                bioticaTable.Theme = XLTableTheme.TableStyleMedium3;
                 foreach (KeyValuePair<string, List<string>> kv in BioticumStatEntry.GetColumnFormats())
                 {
                     string format = kv.Key;
