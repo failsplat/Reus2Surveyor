@@ -182,8 +182,9 @@ namespace Reus2Surveyor
             }
 
             planetEntry.Pros = cityProsList.Sum();
-            planetEntry.ProsMdn = Statistics.Median([..cityProsList]);
-            planetEntry.ProsAv = Statistics.Mean([..cityProsList]);
+            planetEntry.ProsMdn = Statistics.Median([.. cityProsList]);
+            planetEntry.ProsAv = Statistics.Mean([.. cityProsList]);
+            planetEntry.ProsHi = cityProsList.Max();
 
             planetEntry.Pop = cityPopList.Sum();
             planetEntry.Tech = cityTechList.Sum();
@@ -510,6 +511,7 @@ namespace Reus2Surveyor
                 this.AnimalP = SafeDivide(this.Animals, this.Biotica);
                 this.PlantP = SafeDivide(this.Plants, this.Biotica);
                 this.MineralP = SafeDivide(this.Minerals, this.Biotica);
+                this.ApexP = SafeDivide(this.Apex, this.Biotica);
             }
 
         }
