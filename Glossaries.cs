@@ -15,7 +15,7 @@ namespace Reus2Surveyor
         public readonly Dictionary<string, string> BiomeHashByName = [], BiomeNameByHash = [];
         public readonly Dictionary<string, string> LuxuryHashByName = [], LuxuryNameByHash = [];
         public readonly Dictionary<string, string> MicroHashByName = [], MicroNameByHash = [];
-        public readonly Dictionary<string, string> TurningPointHashByName = [], TurningPointNameByHash = [];
+        public readonly Dictionary<string, string> EraHashByName = [], EraNameByHash = [];
         public readonly Dictionary<string, string> YieldHashByName = [], YieldNameByHash = [];
 
         public readonly Dictionary<string, BioticumDefinition> BioticumDefinitionByHash = [];
@@ -24,7 +24,13 @@ namespace Reus2Surveyor
         public readonly Dictionary<string, GiantDefinition> GiantDefinitionByHash = [];
         public readonly List<GiantDefinition> GiantDefinitionList = [];
 
-        public Glossaries(string nbFile, string bioFile, string giantFile, string spiritFile)
+        public Glossaries(
+            string nbFile, 
+            string bioFile, 
+            string giantFile, 
+            string spiritFile,
+            string eraFile
+            )
         {
             // NonBiotica 
             /*using (StreamReader nbsr = new StreamReader(nbFile))
@@ -136,6 +142,27 @@ namespace Reus2Surveyor
                     this.SpiritNameByHash[hash] = name;
                 }
             }
+
+            using (StreamReader esr = new StreamReader(eraFile))
+            {
+                string currentLine;
+                string headerLine = esr.ReadLine().Trim();
+                List<string> header = [.. headerLine.Split(",")];
+                while ((currentLine = esr.ReadLine()) != null)
+                {
+                    currentLine = currentLine.Trim();
+                    List<string> data = [.. currentLine.Split(",")];
+                    string name = data[header.IndexOf("Name")];
+                    string hash = data[header.IndexOf("Hash")];
+                    if (hash is null || hash.Length == 0)
+                    {
+                        continue;
+                    }
+
+                    this.EraHashByName[name] = hash;
+                    this.EraNameByHash[hash] = name;
+                }
+            }
         }
 
         public Glossaries(string folderPath)
@@ -143,7 +170,8 @@ namespace Reus2Surveyor
                   nbFile: Path.Combine(folderPath, "NonBiotica.csv"),
                   bioFile: Path.Combine(folderPath, "Biotica.csv"),
                   giantFile: Path.Combine(folderPath, "Giants.csv"),
-                  spiritFile: Path.Combine(folderPath, "Spirits.csv")
+                  spiritFile: Path.Combine(folderPath, "Spirits.csv"),
+                  eraFile: Path.Combine(folderPath, "Eras.csv")
                   )
         {
         }
@@ -193,6 +221,12 @@ namespace Reus2Surveyor
         public string SpiritNameFromHash(string hash)
         {
             if (this.SpiritNameByHash.ContainsKey(hash)) return this.SpiritNameByHash[hash];
+            else return hash;
+        }
+
+        public string EraNameFromHash(string hash)
+        {
+            if (this.EraNameByHash.ContainsKey(hash)) return this.EraNameByHash[hash];
             else return hash;
         }
 
