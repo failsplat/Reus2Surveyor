@@ -489,24 +489,6 @@ namespace Reus2Surveyor
             }
             
         }
-        private static double? SafePercent(int a0, int b0)
-        {
-            double? c = SafeDivide(a0, b0);
-            if (c is null) return null;
-            return Math.Max(Math.Min((double)c, 1.0), 0.0);
-        }
-        public static double? SafeDivide(int a0, int b0)
-        {
-            if (b0 == 0) return null;
-            double a = (double)a0;
-            double b = (double)b0;
-            return a / b;
-        }
-        public static void FormatColumn(IXLTable table, string columnName, string numFormat = "0.00%")
-        {
-            var column = table.FindColumn(c => c.FirstCell().Value.ToString() == columnName);
-            column.Style.NumberFormat.Format = numFormat;
-        }
 
         public class PlanetSummaryEntry
         {
@@ -577,6 +559,24 @@ namespace Reus2Surveyor
                 return columnFormats;
             }
 
+        }
+        private static double? SafePercent(int a0, int b0)
+        {
+            double? c = SafeDivide(a0, b0);
+            if (c is null) return null;
+            return Math.Max(Math.Min((double)c, 1.0), 0.0);
+        }
+        public static double? SafeDivide(int a0, int b0)
+        {
+            if (b0 == 0) return null;
+            double a = (double)a0;
+            double b = (double)b0;
+            return a / b;
+        }
+        public static void FormatColumn(IXLTable table, string columnName, string numFormat = "0.00%")
+        {
+            var column = table.FindColumn(c => c.FirstCell().Value.ToString() == columnName);
+            column.Style.NumberFormat.Format = numFormat;
         }
     }
 }
