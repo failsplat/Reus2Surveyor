@@ -190,9 +190,14 @@ namespace Reus2Surveyor
             planetEntry.Tech = cityTechList.Sum();
             planetEntry.Weal = cityWealList.Sum();
 
-            planetEntry.PopP = SafeDivide(planetEntry.Pop, planetEntry.Pros);
-            planetEntry.TechP = SafeDivide(planetEntry.Tech, planetEntry.Pros);
-            planetEntry.WealP = SafeDivide(planetEntry.Weal, planetEntry.Pros);
+            // // % of total Prosperity (including bonus prosperity from luxuries, requests, etc.)
+            //planetEntry.PopP = SafeDivide(planetEntry.Pop, planetEntry.Pros);
+            //planetEntry.TechP = SafeDivide(planetEntry.Tech, planetEntry.Pros);
+            //planetEntry.WealP = SafeDivide(planetEntry.Weal, planetEntry.Pros);
+
+            planetEntry.PopP = SafeDivide(planetEntry.Pop, planetEntry.Pop+planetEntry.Tech+planetEntry.Weal);
+            planetEntry.TechP = SafeDivide(planetEntry.Tech, planetEntry.Pop + planetEntry.Tech + planetEntry.Weal);
+            planetEntry.WealP = SafeDivide(planetEntry.Weal, planetEntry.Pop + planetEntry.Tech + planetEntry.Weal);
 
             planetEntry.PopHi = cityPopList.Max();
             planetEntry.TechHi = cityTechList.Max();
