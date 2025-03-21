@@ -18,7 +18,9 @@ namespace Reus2Surveyor
     {
         private Glossaries glossaryInstance;
         public Dictionary<string, BioticumStatEntry> BioticaStats { get; private set; } = [];
+
         public List<PlanetSummaryEntry> PlanetSummaries { get; private set; } = [];
+
         private int planetCount = 0;
 
         public StatCollector(Glossaries g)
@@ -482,6 +484,13 @@ namespace Reus2Surveyor
                 this.MountainPercent = SafeDivide(this.Mountain, this.Total);
                 this.MicroPercent = SafeDivide(this.Micro, this.Total);*/
             }
+        }
+        private static double? SafePercent(int a0, int b0)
+        {
+            double? c = SafeDivide(a0, b0);
+            if (c is null) return null;
+            return Math.Max(Math.Min((double)c, 1.0), 0.0);
+        }
 
             public static Dictionary<string, List<string>> GetColumnFormats()
             {
@@ -495,6 +504,7 @@ namespace Reus2Surveyor
             if (c is null) return null;
             return Math.Max(Math.Min((double)c, 1.0), 0.0);
         }
+
         public static double? SafeDivide(int a0, int b0)
         {
             if (b0 == 0) return null;
@@ -502,11 +512,13 @@ namespace Reus2Surveyor
             double b = (double)b0;
             return a / b;
         }
+
         public static void FormatColumn(IXLTable table, string columnName, string numFormat = "0.00%")
         {
             var column = table.FindColumn(c => c.FirstCell().Value.ToString() == columnName);
             column.Style.NumberFormat.Format = numFormat;
         }
+
 
         public class PlanetSummaryEntry
         {
@@ -576,7 +588,6 @@ namespace Reus2Surveyor
             {
                 return columnFormats;
             }
-
         }
     }
 }
