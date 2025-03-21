@@ -236,6 +236,12 @@ namespace Reus2Surveyor
             else return hash;
         }
 
+        public GiantDefinition TryGiantDefinitionFromhash(string hash)
+        {
+            if (this.GiantDefinitionByHash.ContainsKey(hash)) return this.GiantDefinitionByHash[hash];
+            else return new(hash);
+        }
+
         public class BioticumDefinition
         {
             public string Name { get; private set; }
@@ -321,6 +327,7 @@ namespace Reus2Surveyor
             public string Biome1 { get; private set; }
             public string Biome2 { get; private set; }
             public string Hash { get; private set; }
+            public int Position { get; private set; }
 
             public GiantDefinition(List<string> header, List<string> data)
             {
@@ -329,8 +336,22 @@ namespace Reus2Surveyor
                 {
                     i++;
                     string thisCol = header[i];
+                    if (thisCol == "Position") 
+                    {
+                        this.Position = System.Convert.ToInt32(d);
+                        continue;
+                    }
                     this.GetType().GetProperty(thisCol).SetValue(this, d);
                 }
+            }
+
+            // Empty constructor
+            // Use only when making blanks in StatCollector
+            public GiantDefinition(string hash)
+            {
+                this.Hash = hash;
+                this.Name = hash;
+
             }
         }
     }

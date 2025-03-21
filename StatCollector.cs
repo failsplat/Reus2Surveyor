@@ -146,9 +146,13 @@ namespace Reus2Surveyor
             PlanetSummaryEntry planetEntry = new(index, planet.name);
             planetEntry.Score = (int)planet.gameSession.turningPointPerformances.Last().scoreTotal;
 
-            planetEntry.Giant1 = glossaryInstance.GiantNameFromHash(planet.gameSession.giantRosterDefs[0]);
-            planetEntry.Giant2 = glossaryInstance.GiantNameFromHash(planet.gameSession.giantRosterDefs[1]);
-            planetEntry.Giant3 = glossaryInstance.GiantNameFromHash(planet.gameSession.giantRosterDefs[2]);
+            List<GiantDefinition> giantDefs = [..planet.gameSession.giantRosterDefs.Select(v => glossaryInstance.TryGiantDefinitionFromhash(v))];
+            giantDefs.Sort((x,y) => x.Position - y.Position);
+            List<string> giantNames = [..giantDefs.Select(v => v.Name)];
+
+            planetEntry.Giant1 = giantNames[0];
+            planetEntry.Giant2 = giantNames[1];
+            planetEntry.Giant3 = giantNames[2];
 
             planetEntry.Spirit = glossaryInstance.SpiritNameFromHash(planet.gameSession.selectedCharacterDef);
             
