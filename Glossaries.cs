@@ -27,7 +27,7 @@ namespace Reus2Surveyor
         public Glossaries(string nbFile, string bioFile, string giantFile, string spiritFile)
         {
             // NonBiotica 
-            using (StreamReader nbsr = new StreamReader(nbFile))
+            /*using (StreamReader nbsr = new StreamReader(nbFile))
             {
                 string currentLine;
                 string headerLine = nbsr.ReadLine().Trim();
@@ -77,11 +77,8 @@ namespace Reus2Surveyor
                                 break;
                         }
                     }
-
                 }
-
-
-            }
+            }*/
 
             using (StreamReader bsr = new StreamReader(bioFile))
             {
@@ -130,6 +127,10 @@ namespace Reus2Surveyor
                     List<string> data = [.. currentLine.Split(",")];
                     string name = data[header.IndexOf("Name")];
                     string hash = data[header.IndexOf("Hash")];
+                    if (hash is null || hash.Length == 0)
+                    {
+                        continue;
+                    }
 
                     this.SpiritHashByName[name] = hash;
                     this.SpiritNameByHash[hash] = name;
