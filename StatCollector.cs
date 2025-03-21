@@ -292,10 +292,40 @@ namespace Reus2Surveyor
             using (XLWorkbook wb = new())
             {
                 var planetSummWs = wb.AddWorksheet("Planets");
-                planetSummWs.Cell("A1").InsertTable(this.PlanetSummaries, "Planets");
+                var planetTable = planetSummWs.Cell("A1").InsertTable(this.PlanetSummaries, "Planets");
+                foreach (KeyValuePair<string, List<string>> kv in PlanetSummaryEntry.GetColumnFormats())
+                {
+                    string format = kv.Key;
+                    List<string> columns = kv.Value;
+
+                    foreach (string colName in columns)
+                    {
+                        try
+                        {
+                            var col = planetTable.FindColumn(c => c.FirstCell().Value.ToString() == colName);
+                            col.Style.NumberFormat.Format = format;
+                        }
+                        catch { }
+                    }
+                }
 
                 var bioWs = wb.AddWorksheet("Biotica");
-                bioWs.Cell("A1").InsertTable(this.BioticaStats.Values, "Biotica");
+                var bioticaTable = bioWs.Cell("A1").InsertTable(this.BioticaStats.Values, "Biotica");
+                foreach (KeyValuePair<string, List<string>> kv in BioticumStatEntry.GetColumnFormats())
+                {
+                    string format = kv.Key;
+                    List<string> columns = kv.Value;
+
+                    foreach (string colName in columns)
+                    {
+                        try
+                        {
+                            var col = bioticaTable.FindColumn(c => c.FirstCell().Value.ToString() == colName);
+                            col.Style.NumberFormat.Format = format;
+                        }
+                        catch { }
+                    }
+                }
 
                 wb.SaveAs(dstPath);
             }
@@ -346,6 +376,11 @@ namespace Reus2Surveyor
             public double? MicroPercent { get; private set; } = null;*/
             public string P1 { get; set; }
             public readonly string Hash;
+
+            private static Dictionary<string, List<string>> columnFormats = new() {
+                {"0.00%", new List<string> { "AvailP", "DraftP", "UsageP", "LegacyP", "FinalP", "MultiP", } },
+                {"0.00", new List<string> { "MultiAv", } },
+                };
 
             public BioticumStatEntry(Glossaries.BioticumDefinition bioDef, string p1name)
             {
@@ -440,6 +475,12 @@ namespace Reus2Surveyor
                 this.MountainPercent = SafeDivide(this.Mountain, this.Total);
                 this.MicroPercent = SafeDivide(this.Micro, this.Total);*/
             }
+
+            public static Dictionary<string, List<string>> GetColumnFormats()
+            {
+                return columnFormats;
+            }
+            
         }
         private static double? SafePercent(int a0, int b0)
         {
@@ -453,6 +494,11 @@ namespace Reus2Surveyor
             double a = (double)a0;
             double b = (double)b0;
             return a / b;
+        }
+        public static void FormatColumn(IXLTable table, string columnName, string numFormat = "0.00%")
+        {
+            var column = table.FindColumn(c => c.FirstCell().Value.ToString() == columnName);
+            column.Style.NumberFormat.Format = numFormat;
         }
 
         public class PlanetSummaryEntry
@@ -492,7 +538,12 @@ namespace Reus2Surveyor
             public double? PlantP, AnimalP, MineralP;
             public int Apex;
             private int OccupiedSlotTotalLevel = 0;
-            public double? ApexP, SlotLvAv; 
+            public double? ApexP, SlotLvAv;
+
+            private static Dictionary<string, List<string>> columnFormats = new() {
+                {"0.00%", new List<string> { "PopP", "TechP", "WealP", "PlantP", "AnimalP", "MineralP", "ApexP" } },
+                {"0.00", new List<string> { "ProsAv", "PopAv", "TechAv", "WealAv", "SlotLvAv" } },
+                };
 
             public PlanetSummaryEntry(int N, string Name)
             {
@@ -512,6 +563,11 @@ namespace Reus2Surveyor
                 this.PlantP = SafeDivide(this.Plants, this.Biotica);
                 this.MineralP = SafeDivide(this.Minerals, this.Biotica);
                 this.ApexP = SafeDivide(this.Apex, this.Biotica);
+            }
+
+            public static Dictionary<string, List<string>> GetColumnFormats()
+            {
+                return columnFormats;
             }
 
         }
