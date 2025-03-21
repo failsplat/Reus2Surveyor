@@ -10,7 +10,6 @@ This desktop app reads the save files for completed Reus 2 planets and produces 
 ## To Do/WIP Features
 * Biotica Stat Table: Account for biotica unlocked with Evolve
 * Planet Summary Table: Scenario and difficulty information
-* Planet Summary Table: Put the giants in the correct order
 * Summary tables for Cities
 * Stat table for Spirits
   * Table for spirits v. buildings, eras

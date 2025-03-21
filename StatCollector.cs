@@ -146,12 +146,16 @@ namespace Reus2Surveyor
             PlanetSummaryEntry planetEntry = new(index, planet.name);
             planetEntry.Score = (int)planet.gameSession.turningPointPerformances.Last().scoreTotal;
 
-            planetEntry.Giant1 = glossaryInstance.GiantNameFromHash(planet.gameSession.giantRosterDefs[0]);
-            planetEntry.Giant2 = glossaryInstance.GiantNameFromHash(planet.gameSession.giantRosterDefs[1]);
-            planetEntry.Giant3 = glossaryInstance.GiantNameFromHash(planet.gameSession.giantRosterDefs[2]);
+            List<GiantDefinition> giantDefs = [.. planet.gameSession.giantRosterDefs.Select(v => glossaryInstance.TryGiantDefinitionFromhash(v))];
+            giantDefs.Sort((x, y) => x.Position - y.Position);
+            List<string> giantNames = [.. giantDefs.Select(v => v.Name)];
+
+            planetEntry.Giant1 = giantNames[0];
+            planetEntry.Giant2 = giantNames[1];
+            planetEntry.Giant3 = giantNames[2];
 
             planetEntry.Spirit = glossaryInstance.SpiritNameFromHash(planet.gameSession.selectedCharacterDef);
-            
+
             List<int> cityProsList = [];
             List<int> cityPopList = [];
             List<int> cityTechList = [];
@@ -166,7 +170,7 @@ namespace Reus2Surveyor
                 cityIndex += 1;
 
                 planetEntry.Prjs += city.CityProjectController.projects.Count;
-                
+
 
                 cityProsList.Add((int)city.CivSummary.prosperity);
                 cityPopList.Add((int)city.CivSummary.population);
@@ -224,11 +228,11 @@ namespace Reus2Surveyor
             planetEntry.SzT = planet.totalSize;
             planetEntry.SzWld = planet.wildSize;
 
-            List<Biome> activeBiomes = [..planet.biomeDictionary.Values.ToList().Where(b => b.anchorPatchId is not null)];
+            List<Biome> activeBiomes = [.. planet.biomeDictionary.Values.ToList().Where(b => b.anchorPatchId is not null)];
             planetEntry.Biomes = activeBiomes.Count;
             planetEntry.CBiomes = planet.gameSession.coolBiomes;
 
-            List<string> bioticaHashList = [..planet.natureBioticumDictionary.Values.ToList().Select(v => v.definition)];
+            List<string> bioticaHashList = [.. planet.natureBioticumDictionary.Values.ToList().Select(v => v.definition)];
             List<BioticumDefinition> bioticaDefList = [..bioticaHashList
                 .Select(v => glossaryInstance.BioticumDefFromHash(v))
                 .Where(v => v is not null)];
@@ -258,7 +262,7 @@ namespace Reus2Surveyor
             this.PlanetSummaries.Add(planetEntry);
         }
 
-        public void FinalizeStats() 
+        public void FinalizeStats()
         {
             foreach (BioticumStatEntry bse in this.BioticaStats.Values)
             {
@@ -295,7 +299,7 @@ namespace Reus2Surveyor
                 wb.SaveAs(dstPath);
             }
 
-                
+
         }
 
         public class BioticumStatEntry
@@ -385,11 +389,11 @@ namespace Reus2Surveyor
                 Type thisType = typeof(BioticumStatEntry);
 
                 FieldInfo field = thisType.GetField(fieldName);
-                if (field is not null) 
+                if (field is not null)
                 {
                     if (field.GetType() == typeof(int))
                     {
-                        field.SetValue(this, (int)(field.GetValue(this))+ 1);
+                        field.SetValue(this, (int)(field.GetValue(this)) + 1);
                     }
                     else
                     {
@@ -426,7 +430,7 @@ namespace Reus2Surveyor
                 {
                     this.Multi = this.MultiNumberList.Count;
                 }
-                
+
 
                 /*this.CreekPercent = SafeDivide(this.Creek, this.Total);
                 this.InvasivePercent = SafeDivide(this.Invasive, this.Total);
@@ -442,7 +446,6 @@ namespace Reus2Surveyor
             if (c is null) return null;
             return Math.Max(Math.Min((double)c, 1.0), 0.0);
         }
-
         public static double? SafeDivide(int a0, int b0)
         {
             if (b0 == 0) return null;
@@ -460,7 +463,7 @@ namespace Reus2Surveyor
             public int Pros;
             public string Giant1, Giant2, Giant3;
             public string Spirit;
-            
+
             public int Cities, Prjs;
 
             public string Era1Name;
