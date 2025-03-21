@@ -3,6 +3,7 @@ using System.CodeDom;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,7 +24,7 @@ namespace Reus2Surveyor
         public readonly Dictionary<string, GiantDefinition> GiantDefinitionByHash = [];
         public readonly List<GiantDefinition> GiantDefinitionList = [];
 
-        public Glossaries(string nbFile, string bioFile, string giantFile)
+        public Glossaries(string nbFile, string bioFile, string giantFile, string spiritFile)
         {
             // NonBiotica 
             using (StreamReader nbsr = new StreamReader(nbFile))
@@ -117,13 +118,31 @@ namespace Reus2Surveyor
                 if (gd.Hash is null || gd.Hash.Length == 0) continue;
                 else this.GiantDefinitionByHash.Add(gd.Hash, gd);
             }
+
+            using (StreamReader ssr = new StreamReader(spiritFile))
+            {
+                string currentLine;
+                string headerLine = ssr.ReadLine().Trim();
+                List<string> header = [.. headerLine.Split(",")];
+                while ((currentLine = ssr.ReadLine()) != null)
+                {
+                    currentLine = currentLine.Trim();
+                    List<string> data = [.. currentLine.Split(",")];
+                    string name = data[header.IndexOf("Name")];
+                    string hash = data[header.IndexOf("Hash")];
+
+                    this.SpiritHashByName[name] = hash;
+                    this.SpiritNameByHash[hash] = name;
+                }
+            }
         }
 
         public Glossaries(string folderPath)
             : this(
                   nbFile: Path.Combine(folderPath, "NonBiotica.csv"),
                   bioFile: Path.Combine(folderPath, "Biotica.csv"),
-                  giantFile: Path.Combine(folderPath, "Giants.csv")
+                  giantFile: Path.Combine(folderPath, "Giants.csv"),
+                  spiritFile: Path.Combine(folderPath, "Spirits.csv")
                   )
         {
         }
@@ -168,6 +187,12 @@ namespace Reus2Surveyor
                 return BioticumDefinitionByHash[def];
             }
             else return null;
+        }
+
+        public string SpiritNameFromHash(string hash)
+        {
+            if (this.SpiritNameByHash.ContainsKey(hash)) return this.SpiritNameByHash[hash];
+            else return hash;
         }
 
         public class BioticumDefinition
