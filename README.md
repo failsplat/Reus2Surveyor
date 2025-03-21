@@ -8,11 +8,14 @@ This desktop app reads the save files for completed Reus 2 planets and produces 
 2. Click **\[Decode Planets\]** to read the planet files. If the **Write Decoded** box is checked, the program will also write the decoded save files into `/Decoded`. (TODO: The Table will also update to show basic information on each read planet.)
 3. Once the planets have been read, the **\[Export XLSX\]** button will become ready. Clicking it will produce an Excel workbook (XLSX) file in `/Output`.
 ## To Do/WIP Features
-* Summary tables for Planets
+* Biotica Stat Table: Account for biotica unlocked with Evolve
+* Planet Summary Table: Scenario and difficulty information
+* Planet Summary Table: Put the giants in the correct order
 * Summary tables for Cities
 * Stat table for Spirits
   * Table for spirits v. buildings, eras
 * Stat table for Luxuries
+* Stat table for Eras
 * Misc. stat table
  * Biotica as pets
  * Biotica used as inspiration for original characters
@@ -22,8 +25,6 @@ This desktop app reads the save files for completed Reus 2 planets and produces 
 * Table UI for planet information
 * Option to read only a selection of planets
 * UI decoration
-* Biome-Draft% calculation to take into account whether the matching biome is available to a planet
-* Account for biotica unlocked with Evolve in usage stats
 ## Potential Features
 * Pre-read summary `.mgs` files.
 * Option to select which save point (complete, left, etc.) to reach from each planet

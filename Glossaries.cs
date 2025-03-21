@@ -230,6 +230,12 @@ namespace Reus2Surveyor
             else return hash;
         }
 
+        public string GiantNameFromHash(string hash)
+        {
+            if (this.GiantDefinitionByHash.ContainsKey(hash)) return this.GiantDefinitionByHash[hash].Name;
+            else return hash;
+        }
+
         public class BioticumDefinition
         {
             public string Name { get; private set; }

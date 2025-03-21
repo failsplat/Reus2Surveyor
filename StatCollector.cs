@@ -9,6 +9,8 @@ using System.Transactions;
 using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Features;
 using DocumentFormat.OpenXml.Spreadsheet;
+using static Reus2Surveyor.Glossaries;
+using MathNet.Numerics.Statistics;
 
 namespace Reus2Surveyor
 {
@@ -16,7 +18,7 @@ namespace Reus2Surveyor
     {
         private Glossaries glossaryInstance;
         public Dictionary<string, BioticumStatEntry> BioticaStats { get; private set; } = [];
-        public Dictionary<string, PlanetSummaryEntry> PlanetSummaries { get; private set; } = [];
+        public List<PlanetSummaryEntry> PlanetSummaries { get; private set; } = [];
         private int planetCount = 0;
 
         public StatCollector(Glossaries g)
@@ -141,7 +143,119 @@ namespace Reus2Surveyor
 
         public void UpdateHumanityStats(Planet planet, int index)
         {
+            PlanetSummaryEntry planetEntry = new(index, planet.name);
+            planetEntry.Score = (int)planet.gameSession.turningPointPerformances.Last().scoreTotal;
 
+            planetEntry.Giant1 = glossaryInstance.GiantNameFromHash(planet.gameSession.giantRosterDefs[0]);
+            planetEntry.Giant2 = glossaryInstance.GiantNameFromHash(planet.gameSession.giantRosterDefs[1]);
+            planetEntry.Giant3 = glossaryInstance.GiantNameFromHash(planet.gameSession.giantRosterDefs[2]);
+
+            planetEntry.Spirit = glossaryInstance.SpiritNameFromHash(planet.gameSession.selectedCharacterDef);
+            
+            List<int> cityProsList = [];
+            List<int> cityPopList = [];
+            List<int> cityTechList = [];
+            List<int> cityWealList = [];
+
+            planetEntry.Cities = planet.cityDictionary.Count;
+            planetEntry.Prjs = 0;
+
+            int cityIndex = 0; // Starts at 1, increments at beginning of loop
+            foreach (City city in planet.cityDictionary.Values)
+            {
+                cityIndex += 1;
+
+                planetEntry.Prjs += city.CityProjectController.projects.Count;
+                
+
+                cityProsList.Add((int)city.CivSummary.prosperity);
+                cityPopList.Add((int)city.CivSummary.population);
+                cityTechList.Add((int)city.CivSummary.innovation);
+                cityWealList.Add((int)city.CivSummary.wealth);
+
+                string founderName = glossaryInstance.SpiritNameFromHash(city.founderCharacterDef);
+                typeof(PlanetSummaryEntry).GetField("Char" + cityIndex.ToString()).SetValue(planetEntry, founderName);
+            }
+
+            planetEntry.Pros = cityProsList.Sum();
+            planetEntry.ProsMdn = Statistics.Median([..cityProsList]);
+            planetEntry.ProsAv = Statistics.Mean([..cityProsList]);
+
+            planetEntry.Pop = cityPopList.Sum();
+            planetEntry.Tech = cityTechList.Sum();
+            planetEntry.Weal = cityWealList.Sum();
+
+            planetEntry.PopP = SafeDivide(planetEntry.Pop, planetEntry.Pros);
+            planetEntry.TechP = SafeDivide(planetEntry.Tech, planetEntry.Pros);
+            planetEntry.WealP = SafeDivide(planetEntry.Weal, planetEntry.Pros);
+
+            planetEntry.PopHi = cityPopList.Max();
+            planetEntry.TechHi = cityTechList.Max();
+            planetEntry.WealHi = cityWealList.Max();
+
+            planetEntry.PopMdn = Statistics.Median([.. cityPopList]);
+            planetEntry.PopAv = Statistics.Mean([.. cityPopList]);
+            planetEntry.TechMdn = Statistics.Median([.. cityTechList]);
+            planetEntry.TechAv = Statistics.Mean([.. cityTechList]);
+            planetEntry.WealMdn = Statistics.Median([.. cityWealList]);
+            planetEntry.WealAv = Statistics.Mean([.. cityWealList]);
+
+            if (planet.gameSession.turningPointPerformances.Count >= 1)
+            {
+                planetEntry.Era1Name = glossaryInstance.EraNameFromHash(planet.gameSession.turningPointPerformances[0].turningPointDef);
+                planetEntry.Era1Score = planet.gameSession.turningPointPerformances[0].scoreTotal;
+                planetEntry.Era1Star = planet.gameSession.turningPointPerformances[0].starRating;
+            }
+
+            if (planet.gameSession.turningPointPerformances.Count >= 2)
+            {
+                planetEntry.Era2Name = glossaryInstance.EraNameFromHash(planet.gameSession.turningPointPerformances[1].turningPointDef);
+                planetEntry.Era2Score = planet.gameSession.turningPointPerformances[1].scoreTotal;
+                planetEntry.Era2Star = planet.gameSession.turningPointPerformances[1].starRating;
+            }
+
+            if (planet.gameSession.turningPointPerformances.Count >= 3)
+            {
+                planetEntry.Era3Name = glossaryInstance.EraNameFromHash(planet.gameSession.turningPointPerformances[2].turningPointDef);
+                planetEntry.Era3Score = planet.gameSession.turningPointPerformances[2].scoreTotal;
+                planetEntry.Era3Star = planet.gameSession.turningPointPerformances[2].starRating;
+            }
+
+            planetEntry.SzT = planet.totalSize;
+            planetEntry.SzWld = planet.wildSize;
+
+            List<Biome> activeBiomes = [..planet.biomeDictionary.Values.ToList().Where(b => b.anchorPatchId is not null)];
+            planetEntry.Biomes = activeBiomes.Count;
+            planetEntry.CBiomes = planet.gameSession.coolBiomes;
+
+            List<string> bioticaHashList = [..planet.natureBioticumDictionary.Values.ToList().Select(v => v.definition)];
+            List<BioticumDefinition> bioticaDefList = [..bioticaHashList
+                .Select(v => glossaryInstance.BioticumDefFromHash(v))
+                .Where(v => v is not null)];
+
+            HashSet<BioticumDefinition> uniqueBioticaDefs = bioticaDefList.ToHashSet();
+
+            planetEntry.Biotica = bioticaHashList.Count;
+            planetEntry.UqBiotica = uniqueBioticaDefs.Count;
+            planetEntry.Plants = bioticaDefList.Where(v => v.Type == "Plant").Count();
+            planetEntry.UqPlants = uniqueBioticaDefs.Where(v => v.Type == "Planet").Count();
+            planetEntry.Animals = bioticaDefList.Where(v => v.Type == "Animal").Count();
+            planetEntry.UqAnimals = uniqueBioticaDefs.Where(v => v.Type == "Animal").Count();
+            planetEntry.Minerals = bioticaDefList.Where(v => v.Type == "Mineral").Count();
+            planetEntry.UqMinerals = uniqueBioticaDefs.Where(v => v.Type == "Mineral").Count();
+
+            planetEntry.Apex = bioticaDefList.Where(v => v.Apex).Count();
+            foreach (BioticumSlot slot in planet.slotDictionary.Values)
+            {
+                if (slot.bioticumId is null) continue;
+                if (planet.natureBioticumDictionary.ContainsKey((int)slot.bioticumId))
+                {
+                    planetEntry.FilledSlots += 1;
+                    if (slot.slotLevel is not null) planetEntry.IncrementSlotTotalLevel((int)slot.slotLevel);
+                }
+            }
+
+            this.PlanetSummaries.Add(planetEntry);
         }
 
         public void FinalizeStats() 
@@ -149,6 +263,10 @@ namespace Reus2Surveyor
             foreach (BioticumStatEntry bse in this.BioticaStats.Values)
             {
                 bse.CalculateStats(this.planetCount);
+            }
+            foreach (PlanetSummaryEntry pse in this.PlanetSummaries)
+            {
+                pse.CalculateStats();
             }
         }
 
@@ -168,8 +286,12 @@ namespace Reus2Surveyor
         {
             using (XLWorkbook wb = new())
             {
+                var planetSummWs = wb.AddWorksheet("Planets");
+                planetSummWs.Cell("A1").InsertTable(this.PlanetSummaries, "Planets");
+
                 var bioWs = wb.AddWorksheet("Biotica");
                 bioWs.Cell("A1").InsertTable(this.BioticaStats.Values, "Biotica");
+
                 wb.SaveAs(dstPath);
             }
 
@@ -204,8 +326,6 @@ namespace Reus2Surveyor
             public double? MultiP { get; private set; } = null;
             public int? MultiMx { get; private set; } = null;
             public double? MultiAv { get; private set; } = null;
-
-
 
             /*public int Creek { get; set; } = 0;
             public double? CreekPercent { get; private set; } = null;
@@ -336,33 +456,57 @@ namespace Reus2Surveyor
             public readonly int N;
             public readonly string Name;
 
-            public int Pros { get; set; }
+            public int Score;
+            public int Pros;
             public string Giant1, Giant2, Giant3;
             public string Spirit;
             
-            public int City, Prjs;
-            public string? Era1, Era2, Era3;
-            public string? Char1, Char2, Char3, Char4, Char5, Char6;
+            public int Cities, Prjs;
+
+            public string Era1Name;
+            public int? Era1Star, Era1Score;
+            public string Era2Name;
+            public int? Era2Star, Era2Score;
+            public string Era3Name;
+            public int? Era3Star, Era3Score;
+
+            public string Char1, Char2, Char3, Char4, Char5, Char6;
 
             public int SzT, SzWld;
+            public int FilledSlots = 0;
 
             public int ProsHi;
             public double? ProsMdn, ProsAv;
-            public int Pop, Tech, Wel;
-            public double? PopP, TechP, WelP;
-            public int PopHi, TechHi, WelH;
-            public double? PopMdn, TechMdn, WelMdn, PopAv, TechAv, WelAv;
+            public int Pop, Tech, Weal;
+            public double? PopP, TechP, WealP;
+            public int PopHi, TechHi, WealHi;
+            public double? PopMdn, TechMdn, WealMdn, PopAv, TechAv, WealAv;
 
             public int? Biomes, CBiomes;
             public int Biotica, Plants, Animals, Minerals = 0;
+            public int UqBiotica, UqPlants, UqAnimals, UqMinerals;
             public double? PlantP, AnimalP, MineralP;
             public int Apex;
+            private int OccupiedSlotTotalLevel = 0;
             public double? ApexP, SlotLvAv; 
 
             public PlanetSummaryEntry(int N, string Name)
             {
                 this.N = N;
                 this.Name = Name;
+            }
+
+            public void IncrementSlotTotalLevel(int value)
+            {
+                this.OccupiedSlotTotalLevel += value;
+            }
+
+            public void CalculateStats()
+            {
+                this.SlotLvAv = SafeDivide(this.OccupiedSlotTotalLevel, this.FilledSlots);
+                this.AnimalP = SafeDivide(this.Animals, this.Biotica);
+                this.PlantP = SafeDivide(this.Plants, this.Biotica);
+                this.MineralP = SafeDivide(this.Minerals, this.Biotica);
             }
 
         }
