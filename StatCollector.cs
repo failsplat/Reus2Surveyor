@@ -248,7 +248,7 @@ namespace Reus2Surveyor
             planetEntry.Biotica = bioticaHashList.Count;
             planetEntry.UqBiotica = uniqueBioticaDefs.Count;
             planetEntry.Plants = bioticaDefList.Where(v => v.Type == "Plant").Count();
-            planetEntry.UqPlants = uniqueBioticaDefs.Where(v => v.Type == "Planet").Count();
+            planetEntry.UqPlants = uniqueBioticaDefs.Where(v => v.Type == "Plant").Count();
             planetEntry.Animals = bioticaDefList.Where(v => v.Type == "Animal").Count();
             planetEntry.UqAnimals = uniqueBioticaDefs.Where(v => v.Type == "Animal").Count();
             planetEntry.Minerals = bioticaDefList.Where(v => v.Type == "Mineral").Count();
