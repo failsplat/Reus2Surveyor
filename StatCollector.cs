@@ -46,8 +46,8 @@ namespace Reus2Surveyor
 
                 foreach (Glossaries.BioticumDefinition bd in this.glossaryInstance.BioticumDefinitionList)
                 {
-                    bool b1match = (bool)(bd.GetType().GetProperty(gd.Biome1).GetValue(bd));
-                    bool b2match = (bool)(bd.GetType().GetProperty(gd.Biome2).GetValue(bd));
+                    bool b1match = bd.BiomesAllowed[gd.Biome1];
+                    bool b2match = bd.BiomesAllowed[gd.Biome2];
                     if (b1match || b2match)
                     {
                         biomeMatchingBiotica.Add(bd);
@@ -398,12 +398,13 @@ namespace Reus2Surveyor
                 this.Tier = bioDef.Tier;
                 this.Apex = bioDef.Apex ? "☆" : null;
 
-                this.Desert = bioDef.Desert ? "Y" : null;
-                this.Forest = bioDef.Forest ? "Y" : null;
-                this.IceAge = bioDef.IceAge ? "Y" : null;
-                this.Ocean = bioDef.Ocean ? "Y" : null;
-                this.Savanna = bioDef.Savanna ? "Y" : null;
-                this.Taiga = bioDef.Taiga ? "Y" : null;
+                this.Desert = bioDef.BiomesAllowed["Desert"] ? "Y" : null;
+                this.Forest = bioDef.BiomesAllowed["Forest"] ? "Y" : null;
+                this.IceAge = bioDef.BiomesAllowed["IceAge"] ? "Y" : null;
+                this.Ocean = bioDef.BiomesAllowed["Ocean"] ? "Y" : null;
+                this.Rainforest = bioDef.BiomesAllowed["Rainforest"] ? "Y" : null;
+                this.Savanna = bioDef.BiomesAllowed["Savanna"] ? "Y" : null;
+                this.Taiga = bioDef.BiomesAllowed["Taiga"] ? "Y" : null;
 
                 this.Hash = bioDef.Hash;
                 this.P1 = p1name;
@@ -422,32 +423,11 @@ namespace Reus2Surveyor
                 this.Forest = null;
                 this.IceAge = null;
                 this.Ocean = null;
+                this.Rainforest = null;
                 this.Savanna = null;
                 this.Taiga = null;
 
                 this.P1 = p1name;
-            }
-
-            public void IncrementField(string fieldName)
-            {
-                Type thisType = typeof(BioticumStatEntry);
-
-                FieldInfo field = thisType.GetField(fieldName);
-                if (field is not null)
-                {
-                    if (field.GetType() == typeof(int))
-                    {
-                        field.SetValue(this, (int)(field.GetValue(this)) + 1);
-                    }
-                    else
-                    {
-                        throw new ArgumentException(String.Format("{0} is not an int field of {1}", fieldName, thisType.Name), thisType.Name);
-                    }
-                }
-                else
-                {
-                    throw new ArgumentException(String.Format("{0} is not a valid field of {1}", fieldName, thisType.Name), thisType.Name);
-                }
             }
 
             public void AddMultiValue(int value)

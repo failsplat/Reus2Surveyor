@@ -242,6 +242,15 @@ namespace Reus2Surveyor
             else return new(hash);
         }
 
+        public static bool InterpretEntryBool(string d)
+        {
+            return d switch
+            {
+                "1" or "y" or "Y" or "t" or "T" or "true" or "True" => true,
+                _ => false,
+            };
+        }
+
         public class BioticumDefinition
         {
             public string Name { get; private set; }
@@ -250,13 +259,7 @@ namespace Reus2Surveyor
             public int Tier { get; private set; }
             public bool Apex { get; private set; }
 
-            public bool Desert { get; private set; } = false;
-            public bool Forest { get; private set; } = false;
-            public bool IceAge { get; private set; } = false;
-            public bool Ocean { get; private set; } = false;
-            public bool Rainforest { get; private set; } = false;
-            public bool Savanna { get; private set; } = false;
-            public bool Taiga { get; private set; } = false;
+            public Dictionary<string, bool> BiomesAllowed { get; private set; } = [];
 
             public string Hash { get; private set; }
 
@@ -278,42 +281,11 @@ namespace Reus2Surveyor
                             this.Tier = Convert.ToInt32(d);
                             break;
                         case "Apex":
-
-                        case "Desert":
-                        case "Forest":
-                        case "IceAge":
-                        case "Ocean":
-                        case "Rainforest":
-                        case "Savanna":
-                        case "Taiga":
-                            bool res = false;
-                            if (d.Length == 0)
-                            {
-                                this.GetType().GetProperty(thisCol).SetValue(this, false);
-                                break;
-                            }
-                            switch (d)
-                            {
-                                case "1":
-                                case "y":
-                                case "Y":
-                                case "t":
-                                case "T":
-                                case "true":
-                                case "True":
-                                    this.GetType().GetProperty(thisCol).SetValue(this, true);
-                                    break;
-                                case "0":
-                                case "n":
-                                case "N":
-                                case "f":
-                                case "F":
-                                case "false":
-                                case "False":
-                                default:
-                                    this.GetType().GetProperty(thisCol).SetValue(this, false);
-                                    break;
-                            }
+                            this.Apex = InterpretEntryBool(d);
+                            break;
+                        case string s when s.StartsWith("Biome:"):
+                            string biomeName = s.Split(":").Last();
+                            this.BiomesAllowed[biomeName] = InterpretEntryBool(d);
                             break;
                     }
 
