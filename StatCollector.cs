@@ -184,6 +184,7 @@ namespace Reus2Surveyor
             planetEntry.Pros = cityProsList.Sum();
             planetEntry.ProsMdn = Statistics.Median([.. cityProsList]);
             planetEntry.ProsAv = Statistics.Mean([.. cityProsList]);
+            planetEntry.Gini = GiniCoeff(cityProsList);
             planetEntry.ProsHi = cityProsList.Max();
 
             planetEntry.Pop = cityPopList.Sum();
@@ -515,7 +516,7 @@ namespace Reus2Surveyor
             public int FilledSlots = 0;
 
             public int ProsHi;
-            public double? ProsMdn, ProsAv;
+            public double? ProsMdn, ProsAv, Gini;
             public int Pop, Tech, Weal;
             public double? PopP, TechP, WealP;
             public int PopHi, TechHi, WealHi;
@@ -531,7 +532,7 @@ namespace Reus2Surveyor
 
             private static Dictionary<string, List<string>> columnFormats = new() {
                 {"0.00%", new List<string> { "PopP", "TechP", "WealP", "PlantP", "AnimalP", "MineralP", "ApexP" } },
-                {"0.00", new List<string> { "ProsAv", "PopAv", "TechAv", "WealAv", "SlotLvAv" } },
+                {"0.00", new List<string> { "ProsAv", "Gini", "PopAv", "TechAv", "WealAv", "SlotLvAv" } },
                 };
 
             public PlanetSummaryEntry(int N, string Name)
@@ -578,5 +579,51 @@ namespace Reus2Surveyor
             var column = table.FindColumn(c => c.FirstCell().Value.ToString() == columnName);
             column.Style.NumberFormat.Format = numFormat;
         }
+
+        public static double? GiniCoeff(List<double> values)
+        {
+            int n = values.Count;
+            if (n == 0) return null;
+            
+            List<double> v2 = [.. values.Select(v => v/values.Sum())];
+            v2.Sort();
+
+            double a = 0;
+            for (int i = 0; i < v2.Count; i++)
+            {
+                double vi = v2[i];
+                a += i * vi;
+            }
+
+            double g = a;
+            g *= 2;
+            g /= v2.Sum();
+            g /= n;
+            g -= (n + 1) / n;
+            return g;
+        }
+        public static double? GiniCoeff(List<int> values)
+        {
+            int n = values.Count;
+            if (n == 0) return null;
+
+            List<double> v2 = [.. values.Select(v => ((double)v) / values.Sum())];
+            v2.Sort();
+
+            double a = 0;
+            for (int i = 0; i < v2.Count; i++)
+            {
+                double vi = v2[i];
+                a += (i+1) * vi;
+            }
+
+            double g = a;
+            g *= 2;
+            g /= v2.Sum();
+            g /= n;
+            g -= (n + 1) / n;
+            return g;
+        }
+
     }
 }
