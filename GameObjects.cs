@@ -1,19 +1,8 @@
 ﻿using System;
-using System.CodeDom;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection.Metadata;
-using System.Reflection.Metadata.Ecma335;
-using System.Runtime.InteropServices.ObjectiveC;
-using System.Runtime.InteropServices.Swift;
-using System.Security.Cryptography;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
 
 namespace Reus2Surveyor
 {
@@ -639,7 +628,8 @@ namespace Reus2Surveyor
         {
             // Internally Constructed
             public readonly List<LuxurySlot> luxurySlots = [];
-            
+            public readonly List<LuxurySlot> tradeSlots = [];
+            public readonly List<int?> importAgreementIds = []; 
             public LuxuryController(Dictionary<string, object> refDict, List<object> referenceTokensList)
             {
                 List<object> luxurySlotSubdictList = (List<object>)DictHelper.DigValueAtKeys(refDict, ["luxurySlots", "itemData"]);
@@ -647,6 +637,14 @@ namespace Reus2Surveyor
                 {
                     this.luxurySlots.Add(new LuxurySlot((Dictionary<string, object>)subdict["value"], referenceTokensList));
                 }
+
+                List<object> tradeSlotSubdictList = (List<object>)DictHelper.DigValueAtKeys(refDict, ["tradeSlots", "itemData"]);
+                foreach (Dictionary<string, object> subdict in tradeSlotSubdictList)
+                {
+                    this.tradeSlots.Add(new LuxurySlot((Dictionary<string, object>)subdict["value"], referenceTokensList));
+                }
+
+                this.importAgreementIds = DictHelper.TryGetIntList(refDict, ["importAgreements", "itemData"], "id");
             }
 
             // Classes for internal use

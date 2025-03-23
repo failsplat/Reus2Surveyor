@@ -1,4 +1,4 @@
-﻿Name,Type,Tier,Apex,Desert,Forest,IceAge,Ocean,Rainforest,Savanna,Taiga,Hash
+﻿Name,Type,Tier,Apex,Biome:Desert,Biome:Forest,Biome:IceAge,Biome:Ocean,Biome:Rainforest,Biome:Savanna,Biome:Taiga,Hash
 Sage Brush,Plant,1,,1,,,,,,,10c6fcf4f4c941e4f9759cc075f3ddcc
 Agave,Plant,1,,1,,,,1,,,baf88e88199b36742a2aa8093e3e6efe
 Barley,Plant,1,,1,,,,,1,,05eef46fd4af8694aac8d6bbf5d7d03e

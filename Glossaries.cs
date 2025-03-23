@@ -1,11 +1,7 @@
 ﻿using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Reus2Surveyor
 {
@@ -13,9 +9,9 @@ namespace Reus2Surveyor
     {
         public readonly Dictionary<string, string> SpiritHashByName = [], SpiritNameByHash = [];
         public readonly Dictionary<string, string> BiomeHashByName = [], BiomeNameByHash = [];
-        public readonly Dictionary<string, string> LuxuryHashByName = [], LuxuryNameByHash = [];
-        public readonly Dictionary<string, string> MicroHashByName = [], MicroNameByHash = [];
-        public readonly Dictionary<string, string> EraHashByName = [], EraNameByHash = [];
+        //public readonly Dictionary<string, string> LuxuryHashByName = [], LuxuryNameByHash = [];
+        //public readonly Dictionary<string, string> MicroHashByName = [], MicroNameByHash = [];
+
         public readonly Dictionary<string, string> YieldHashByName = [], YieldNameByHash = [];
 
         public readonly Dictionary<string, BioticumDefinition> BioticumDefinitionByHash = [];
@@ -24,67 +20,21 @@ namespace Reus2Surveyor
         public readonly Dictionary<string, GiantDefinition> GiantDefinitionByHash = [];
         public readonly List<GiantDefinition> GiantDefinitionList = [];
 
+        public readonly Dictionary<string, CityProjectDefinition> ProjectDefinitionByHash = [];
+        public readonly List<CityProjectDefinition> ProjectDefinitionList = [];
+
+        public readonly Dictionary<string, EraDefinition> EraDefinitionByHash = [];
+        public readonly List<EraDefinition> EraDefinitionList = [];
+
         public Glossaries(
-            string nbFile, 
             string bioFile, 
             string giantFile, 
             string spiritFile,
-            string eraFile
+            string eraFile,
+            string projectFile,
+            string biomeFile
             )
         {
-            // NonBiotica 
-            /*using (StreamReader nbsr = new StreamReader(nbFile))
-            {
-                string currentLine;
-                string headerLine = nbsr.ReadLine().Trim();
-                List<string> header = [.. headerLine.Split(",")];
-                while ((currentLine = nbsr.ReadLine()) != null)
-                {
-                    currentLine = currentLine.Trim();
-                    List<string> data = [.. currentLine.Split(",")];
-                    string type = data[header.IndexOf("Type")];
-                    string name = data[header.IndexOf("Name")];
-                    string hash = data[header.IndexOf("Hash")];
-
-                    if (hash.Length != 32) continue;
-                    else
-                    {
-                        switch (type)
-                        {
-                            case "Character":
-                            case "Spirit":
-                                this.SpiritHashByName.Add(name, hash);
-                                this.SpiritNameByHash.Add(hash, name);
-                                break;
-                            case "Biome":
-                                this.BiomeHashByName.Add(name, hash);
-                                this.BiomeNameByHash.Add(hash, name);
-                                break;
-                            case "Luxury":
-                                this.LuxuryHashByName.Add(name, hash);
-                                this.LuxuryNameByHash.Add(hash, name);
-                                break;
-                            case "Micro":
-                            case "Aspect":
-                            case "Emblem":
-                                this.MicroHashByName.Add(name, hash);
-                                this.MicroNameByHash.Add(hash, name);
-                                break;
-                            case "Era":
-                            case "TurningPoint":
-                            case "Turning Point":
-                            case "Age":
-                                this.TurningPointHashByName.Add(name, hash);
-                                this.TurningPointNameByHash.Add(hash, name);
-                                break;
-                            case "Yield":
-                                this.YieldHashByName.Add(name, hash);
-                                this.YieldNameByHash.Add(hash, name);
-                                break;
-                        }
-                    }
-                }
-            }*/
 
             using (StreamReader bsr = new StreamReader(bioFile))
             {
@@ -143,12 +93,12 @@ namespace Reus2Surveyor
                 }
             }
 
-            using (StreamReader esr = new StreamReader(eraFile))
+            using (StreamReader biomesr = new StreamReader(biomeFile))
             {
                 string currentLine;
-                string headerLine = esr.ReadLine().Trim();
+                string headerLine = biomesr.ReadLine().Trim();
                 List<string> header = [.. headerLine.Split(",")];
-                while ((currentLine = esr.ReadLine()) != null)
+                while ((currentLine = biomesr.ReadLine()) != null)
                 {
                     currentLine = currentLine.Trim();
                     List<string> data = [.. currentLine.Split(",")];
@@ -159,19 +109,56 @@ namespace Reus2Surveyor
                         continue;
                     }
 
-                    this.EraHashByName[name] = hash;
-                    this.EraNameByHash[hash] = name;
+                    this.BiomeHashByName[name] = hash;
+                    this.BiomeNameByHash[hash] = name;
                 }
+            }
+
+            using (StreamReader esr = new StreamReader(eraFile))
+            {
+                string currentLine;
+                string headerLine = esr.ReadLine().Trim();
+                List<string> header = [.. headerLine.Split(",")];
+                while ((currentLine = esr.ReadLine()) != null)
+                {
+                    currentLine = currentLine.Trim();
+                    List<string> data = [.. currentLine.Split(",")];
+                    EraDefinitionList.Add(new(header, data));
+                }
+            }
+            foreach (EraDefinition ed in this.EraDefinitionList)
+            {
+                if (ed.Hash is null || ed.Hash.Length == 0) continue;
+                else this.EraDefinitionByHash.Add(ed.Hash, ed);
+            }
+
+            using (StreamReader psr = new StreamReader(projectFile))
+            {
+                string currentLine;
+                string headerLine = psr.ReadLine().Trim();
+                List<string> header = [.. headerLine.Split(",")];
+                while ((currentLine = psr.ReadLine()) != null)
+                {
+                    currentLine = currentLine.Trim();
+                    List<string> data = [.. currentLine.Split(",")];
+                    ProjectDefinitionList.Add(new(header, data));
+                }
+            }
+            foreach (CityProjectDefinition pd in this.ProjectDefinitionList)
+            {
+                if (pd.Hash is null || pd.Hash.Length == 0) continue;
+                else this.ProjectDefinitionByHash.Add(pd.Hash, pd);
             }
         }
 
         public Glossaries(string folderPath)
             : this(
-                  nbFile: Path.Combine(folderPath, "NonBiotica.csv"),
                   bioFile: Path.Combine(folderPath, "Biotica.csv"),
                   giantFile: Path.Combine(folderPath, "Giants.csv"),
                   spiritFile: Path.Combine(folderPath, "Spirits.csv"),
-                  eraFile: Path.Combine(folderPath, "Eras.csv")
+                  eraFile: Path.Combine(folderPath, "Eras.csv"),
+                  projectFile: Path.Combine(folderPath, "Projects.csv"),
+                  biomeFile: Path.Combine(folderPath, "Biomes.csv")
                   )
         {
         }
@@ -188,7 +175,7 @@ namespace Reus2Surveyor
         };
         public static readonly Dictionary<string, int> BiomeIntByName = BiomeNameByInt.ToDictionary(x => x.Value, x => x.Key);
 
-        public string BiomeNameFromDef(string def)
+        public string BiomeNameFromHash(string def)
         {
             if (BiomeNameByHash.ContainsKey(def))
             {
@@ -226,8 +213,14 @@ namespace Reus2Surveyor
 
         public string EraNameFromHash(string hash)
         {
-            if (this.EraNameByHash.ContainsKey(hash)) return this.EraNameByHash[hash];
+            if (this.EraDefinitionByHash.ContainsKey(hash)) return this.EraDefinitionByHash[hash].Name;
             else return hash;
+        }
+
+        public EraDefinition TryEraDefinitionFromHash(string hash)
+        {
+            if (this.EraDefinitionByHash.ContainsKey(hash)) return this.EraDefinitionByHash[hash];
+            else return new(hash);
         }
 
         public string GiantNameFromHash(string hash)
@@ -236,10 +229,25 @@ namespace Reus2Surveyor
             else return hash;
         }
 
-        public GiantDefinition TryGiantDefinitionFromhash(string hash)
+        public GiantDefinition TryGiantDefinitionFromHash(string hash)
         {
             if (this.GiantDefinitionByHash.ContainsKey(hash)) return this.GiantDefinitionByHash[hash];
             else return new(hash);
+        }
+
+        public CityProjectDefinition TrProjectDefinitionFromHash(string hash)
+        {
+            if (this.ProjectDefinitionByHash.ContainsKey(hash)) return this.ProjectDefinitionByHash[hash];
+            else return new(hash);
+        }
+
+        public static bool InterpretEntryBool(string d)
+        {
+            return d switch
+            {
+                "1" or "y" or "Y" or "t" or "T" or "true" or "True" => true,
+                _ => false,
+            };
         }
 
         public class BioticumDefinition
@@ -250,13 +258,7 @@ namespace Reus2Surveyor
             public int Tier { get; private set; }
             public bool Apex { get; private set; }
 
-            public bool Desert { get; private set; } = false;
-            public bool Forest { get; private set; } = false;
-            public bool IceAge { get; private set; } = false;
-            public bool Ocean { get; private set; } = false;
-            public bool Rainforest { get; private set; } = false;
-            public bool Savanna { get; private set; } = false;
-            public bool Taiga { get; private set; } = false;
+            public Dictionary<string, bool> BiomesAllowed { get; private set; } = [];
 
             public string Hash { get; private set; }
 
@@ -278,42 +280,11 @@ namespace Reus2Surveyor
                             this.Tier = Convert.ToInt32(d);
                             break;
                         case "Apex":
-
-                        case "Desert":
-                        case "Forest":
-                        case "IceAge":
-                        case "Ocean":
-                        case "Rainforest":
-                        case "Savanna":
-                        case "Taiga":
-                            bool res = false;
-                            if (d.Length == 0)
-                            {
-                                this.GetType().GetProperty(thisCol).SetValue(this, false);
-                                break;
-                            }
-                            switch (d)
-                            {
-                                case "1":
-                                case "y":
-                                case "Y":
-                                case "t":
-                                case "T":
-                                case "true":
-                                case "True":
-                                    this.GetType().GetProperty(thisCol).SetValue(this, true);
-                                    break;
-                                case "0":
-                                case "n":
-                                case "N":
-                                case "f":
-                                case "F":
-                                case "false":
-                                case "False":
-                                default:
-                                    this.GetType().GetProperty(thisCol).SetValue(this, false);
-                                    break;
-                            }
+                            this.Apex = InterpretEntryBool(d);
+                            break;
+                        case string s when s.StartsWith("Biome:"):
+                            string biomeName = s.Split(":").Last();
+                            this.BiomesAllowed[biomeName] = InterpretEntryBool(d);
                             break;
                     }
 
@@ -351,7 +322,59 @@ namespace Reus2Surveyor
             {
                 this.Hash = hash;
                 this.Name = hash;
+            }
+        }
 
+        public class EraDefinition
+        {
+            public readonly string Name, Hash;
+            public readonly int Era;
+
+            public EraDefinition(List<string> header, List<string> data)
+            {
+                int i = -1;
+                foreach (string d in data)
+                {
+                    i++;
+                    string thisCol = header[i];
+                    if (thisCol == "Era")
+                    {
+                        this.Era = System.Convert.ToInt32(d);
+                        continue;
+                    }
+                    this.GetType().GetField(thisCol).SetValue(this, d);
+                }
+            }
+
+            public EraDefinition(string hash)
+            {
+                this.Hash = hash;
+                this.Name = hash;
+                this.Era = 0;
+            }
+        }
+
+        public class CityProjectDefinition
+        {
+            public readonly string InternalName, DisplayName, Slot, Hash;
+
+            public CityProjectDefinition(List<string> header, List<string> data)
+            {
+                int i = -1;
+                foreach (string d in data)
+                {
+                    i++;
+                    string thisCol = header[i];
+                    this.GetType().GetField(thisCol).SetValue(this, d);
+                }
+            }
+
+            // Empty constructor
+            // Use only when making blanks in StatCollector
+            public CityProjectDefinition(string hash)
+            {
+                this.Hash = hash;
+                this.DisplayName = hash;
             }
         }
     }
