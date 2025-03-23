@@ -1,11 +1,7 @@
 ﻿using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Reus2Surveyor
 {
@@ -24,67 +20,18 @@ namespace Reus2Surveyor
         public readonly Dictionary<string, GiantDefinition> GiantDefinitionByHash = [];
         public readonly List<GiantDefinition> GiantDefinitionList = [];
 
+        public readonly Dictionary<string, CityProjectDefinition> ProjectDefinitionByHash = [];
+        public readonly List<CityProjectDefinition> ProjectDefinitionList = [];
+
         public Glossaries(
             string nbFile, 
             string bioFile, 
             string giantFile, 
             string spiritFile,
-            string eraFile
+            string eraFile,
+            string projectFile
             )
         {
-            // NonBiotica 
-            /*using (StreamReader nbsr = new StreamReader(nbFile))
-            {
-                string currentLine;
-                string headerLine = nbsr.ReadLine().Trim();
-                List<string> header = [.. headerLine.Split(",")];
-                while ((currentLine = nbsr.ReadLine()) != null)
-                {
-                    currentLine = currentLine.Trim();
-                    List<string> data = [.. currentLine.Split(",")];
-                    string type = data[header.IndexOf("Type")];
-                    string name = data[header.IndexOf("Name")];
-                    string hash = data[header.IndexOf("Hash")];
-
-                    if (hash.Length != 32) continue;
-                    else
-                    {
-                        switch (type)
-                        {
-                            case "Character":
-                            case "Spirit":
-                                this.SpiritHashByName.Add(name, hash);
-                                this.SpiritNameByHash.Add(hash, name);
-                                break;
-                            case "Biome":
-                                this.BiomeHashByName.Add(name, hash);
-                                this.BiomeNameByHash.Add(hash, name);
-                                break;
-                            case "Luxury":
-                                this.LuxuryHashByName.Add(name, hash);
-                                this.LuxuryNameByHash.Add(hash, name);
-                                break;
-                            case "Micro":
-                            case "Aspect":
-                            case "Emblem":
-                                this.MicroHashByName.Add(name, hash);
-                                this.MicroNameByHash.Add(hash, name);
-                                break;
-                            case "Era":
-                            case "TurningPoint":
-                            case "Turning Point":
-                            case "Age":
-                                this.TurningPointHashByName.Add(name, hash);
-                                this.TurningPointNameByHash.Add(hash, name);
-                                break;
-                            case "Yield":
-                                this.YieldHashByName.Add(name, hash);
-                                this.YieldNameByHash.Add(hash, name);
-                                break;
-                        }
-                    }
-                }
-            }*/
 
             using (StreamReader bsr = new StreamReader(bioFile))
             {
@@ -163,6 +110,24 @@ namespace Reus2Surveyor
                     this.EraNameByHash[hash] = name;
                 }
             }
+
+            using (StreamReader psr = new StreamReader(projectFile))
+            {
+                string currentLine;
+                string headerLine = psr.ReadLine().Trim();
+                List<string> header = [.. headerLine.Split(",")];
+                while ((currentLine = psr.ReadLine()) != null)
+                {
+                    currentLine = currentLine.Trim();
+                    List<string> data = [.. currentLine.Split(",")];
+                    ProjectDefinitionList.Add(new(header, data));
+                }
+            }
+            foreach (CityProjectDefinition pd in this.ProjectDefinitionList)
+            {
+                if (pd.Hash is null || pd.Hash.Length == 0) continue;
+                else this.ProjectDefinitionByHash.Add(pd.Hash, pd);
+            }
         }
 
         public Glossaries(string folderPath)
@@ -171,7 +136,8 @@ namespace Reus2Surveyor
                   bioFile: Path.Combine(folderPath, "Biotica.csv"),
                   giantFile: Path.Combine(folderPath, "Giants.csv"),
                   spiritFile: Path.Combine(folderPath, "Spirits.csv"),
-                  eraFile: Path.Combine(folderPath, "Eras.csv")
+                  eraFile: Path.Combine(folderPath, "Eras.csv"),
+                  projectFile: Path.Combine(folderPath, "Projects.csv")
                   )
         {
         }
@@ -236,9 +202,15 @@ namespace Reus2Surveyor
             else return hash;
         }
 
-        public GiantDefinition TryGiantDefinitionFromhash(string hash)
+        public GiantDefinition TryGiantDefinitionFromHash(string hash)
         {
             if (this.GiantDefinitionByHash.ContainsKey(hash)) return this.GiantDefinitionByHash[hash];
+            else return new(hash);
+        }
+
+        public CityProjectDefinition TrProjectDefinitionFromHash(string hash)
+        {
+            if (this.ProjectDefinitionByHash.ContainsKey(hash)) return this.ProjectDefinitionByHash[hash];
             else return new(hash);
         }
 
@@ -323,7 +295,30 @@ namespace Reus2Surveyor
             {
                 this.Hash = hash;
                 this.Name = hash;
+            }
+        }
 
+        public class CityProjectDefinition
+        {
+            public readonly string InternalName, DisplayName, Slot, Hash;
+
+            public CityProjectDefinition(List<string> header, List<string> data)
+            {
+                int i = -1;
+                foreach (string d in data)
+                {
+                    i++;
+                    string thisCol = header[i];
+                    this.GetType().GetField(thisCol).SetValue(this, d);
+                }
+            }
+
+            // Empty constructor
+            // Use only when making blanks in StatCollector
+            public CityProjectDefinition(string hash)
+            {
+                this.Hash = hash;
+                this.DisplayName = hash;
             }
         }
     }

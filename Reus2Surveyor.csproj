@@ -37,6 +37,9 @@
     <None Update="Glossaries\NonBiotica.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Glossaries\Projects.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Glossaries\Spirits.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -1,0 +1,90 @@
+﻿InternalName,DisplayName,Slot,Hash
+UC_Pyramid,Construction Site,Era1,a795f7ab8340f134ab11fdbecb853dce
+Great Forge,Great Forge,Era1,39addab01cf822c419313256f4a09077
+Great Hall,Great Hall,Era1,100da027aa7b5ad4e8af598ee2bfc783
+COM_Oracle,Oracle,Era1,d9e07fc4b796edf478738c0a24d61544
+COM_Pyramid,Pyramid,Era1,451bfea6be82cb24a81de14bc422a688
+Castle_Food,Crimson Castle,Era2,561c894c87132c147ad5549ed4a90a6d
+Evil Hideout,Evil Hideout,Era2,3601e7fa78c9c6249b9a9c59f2d06533
+Castle_Tech,Le Chateau,Era2,9e52ce066cdc3db4990c86c0c4193c5b
+Inventor's Tower,Inventor's Tower,Era2,783432a72ebc0ef4cbd8ad6cb9cb0d3e
+Castle_Wealth,Fort Fantastic,Era2,4dedf4e78cbf217479dcb8fd653e1c05
+Revolutionary Quarters,Revolutionary Quarters,Era2,d9d98e50c0a3bc34db66b7116ba9bac1
+World Market,World Market,Era2,94cd762a5c8b6e048ad2fd9fe2ff57ab
+Biosphere,Biosphere,Era3,606714c3207f81b4c8b610fd8542193c
+Critter Sanctuary,Critter Sanctuary,Era3,9b30bf5651a9d6e4e89bac7d45bed6bc
+COM_MissleSilo,Missile Silo,Era3,5e0b73361ee091c4a8cf94db594482ba
+Museum Color,Museum of Color,Era3,29680f6189c6e0342902db42573279c9
+Museum Danger,Museum of Danger,Era3,617de11554ccc8a48b7c7298ffc7686f
+RocketLaunchPad,Rocket Launch Pad,Era3,02e670b53281abf419e533b24569fdca
+[COM] Sacrifice Altar,Sacrifice Altar,Era3,44ede5c872a11a147995868999a80112
+COM_skyscraper,Skyscraper,Era3,d83e0036017732542ab210f1f019becd
+COM_SludgeFactory,Sludge Factor,Era3,7eb0528800942f844b7a60e99236ae19
+Museum Tiny,The Tiny Museum,Era3,4b425771f3922c542ba18f4f2794db24
+Tropical Club,Tropical Club,Era3,48a692bf2a18dbe4fb27ba3417597060
+1R. Algae Farm,Algae Farm,Lv1,889b9c4f6b5c4a146bfb57c42b214d11
+1C. Barracks,Barracks,Lv1,2b2474fa256953e4d93fc0b562041229
+1R. Canoe Maker,Canoe Maker,Lv1,42f807837662c4841b885d58f46a8794
+1R. Cat Temple,Cat Temple,Lv1,90ab80ea02fcd644480e65f3820c01ea
+1C. Colosseum,Colosseum,Lv1,f7ac0464fbd8c614a84b52df45cca3d6
+1C. Farm (Agriculture),Farm,Lv1,c2a82e732bb9d1a4cade4a9b061f7147
+1C. Fishing Hut,Fishing Hut,Lv1,c3db37b1daf697f448a01cf91da3df62
+1C. Fruit Picker,Fruit Picker,Lv1,12a9813a86f94ea4dbebec4b79434b0b
+1C. Gem Seeker,Gem Seeker,Lv1,38b7a9f27690a614d83b63bad3f84409
+1C. Herbalist,Herbalist,Lv1,6996aa1ec5566c2409651558012a8db4
+1C. Herder's Hut,Herder's Hut,Lv1,3ba1247e66cd48e41aea672adee2d1d3
+1C. Hunter,Hunter,Lv1,8800562d604e4394f8c458cc29e7150f
+1C. Mercenary Den,Mercenary Den,Lv1,a2cb5ffdaf1ffc4498d739ddfa4b95f7
+1C. Merchant Pier,Merchant Pier,Lv1,70f4218c58b2601419c7c2e197282e94
+1C. Farm (Neo),Neolithic Farm,Era1,504a417d49c1bbe479d48418ad9526e7
+1C. Ocean Shrine,Ocean Shrine,Lv1,140c3adcc6cb81141ba5e5b8c38cb682
+1C. Overseer,Overseer,Lv1,db0d6ce895fb32c4b8e94cba87891547
+1C. Scribe,Scribe,Lv1,bf1893adc11b7e840bb3d4f4ca753ac6
+1C. Stone Cutter,Stone Cutter,Lv1,d7ce8ff412a8a7a49907fbff1f578744
+1R. Tool Smith,Toolsmith,Lv1,1ac25ec12f4cfde40a17b058348fb4c0
+1C. Tradepost,Trade Post,Lv1,922a4417b69e97149b331080d9124bfa
+1C. Trapper,Trapper,Lv1,6caaa664d95cae74db44bfb385817be7
+1C. Woodcutter,Woodcutter,Lv1,28ab7bded22560e489c6a2d99f8487c2
+2C. Alchemist Hut,Alchemist Hut,Lv2,365c107fc1ae6864ead4d29a689a64e8
+2C. Amulet Smith,Amulet Smith,Lv2,0ed61879129ea9d4e8d9acd248e65b2c
+2R. Animal Breeder,Animal Breeder,Lv2,d593d79798b12c54ebd5cbe38f4f5339
+2C. Butcher,Butcher,Lv2,58c0049a14f2ddd469121d8c64a1d788
+2C. Cake Baker,Cake Baker,Lv2,2724859a7b1ce804f85ab6e00b1f531c
+2C. Coral Diver,Coral Diver,Lv2,a2f8cae4285042141bb312d773012d6c
+2C. Fishing Fleet,Fishing Fleet,Lv2,d2b717311844faa4d9abcb51da4e6c5d
+2C. Fur Clothier,Fur Clothier,Lv2,e2f63296daf5f8046aaca02b2ef86090
+2R. Great Garden,Great Garden,Lv2,31e3ff2ed3c4b7e428ab368c25de09d4
+2C. Mansion,Mansion,Lv2,564c07cce9d9a4a41b09ab5e5608f484
+2C. Market,Market,Lv2,c0b8be85e77876d48932720bc63fc0a4
+2C. Mill,Mill,Lv2,3092c0ea321daeb46a8e7a58abedc6a7
+2C. Statue,Statue,Lv2,fc8f7ae2f88ec2e40922d510b76b06f3
+2C. Tavern,Tavern,Lv2,e50617f95084750478bc7e2b4a3a54df
+2C. Theater,Theater,Lv2,de56f2ac403e09049b8d913a754854b1
+2C. Weapon Smith,Weaponsmith,Lv2,97dfa9ab7145a88488fcb2c093d8a162
+2C. WoodWorkshop,Wood Workshop,Lv2,c15896949889f9140bbef9688bcf79c8
+3C. Apothecary,Apothecary,Lv3,f4d735ded46c1304889fd1318865bab8
+3C. Blast Furnace,Blast Furnace,Lv3,ed5b73f40fd035244a4d8cc74562e1f9
+3C. Café,Café,Lv3,3993e87127965ed43b7bc94a32500e90
+3C. Country Club,Country Club,Lv3,e3f775dc4dcf81844a8c4261651e149e
+3C. Furniture Factory,Furniture Factor,Lv3,eb76168452cca374faeda4e6edc171c5
+3C. Gallery,Gallery,Lv3,544f3670af8fe5b499180e0d32eb8bdb
+3R. Hotel,Hotel,Lv3,d77b72c70af22994fac309cc08133391
+3C. Jam Maker,Jam Maker,Lv3,4ba1f1a63ff5baf47a593bf4d7503660
+3C. Lighthouse,Lighthouse,Lv3,840cdc76cd3323d4face17a31b584104
+3C. Luxury Shop,Luxury Shop,Lv3,512f27cb1399b374684e576b6a8c8e03
+3R. Marine Ecological Institute,Marine Ecological Institute,Lv3,ba8c65a4e763ede4c95942f8c7d21d8b
+3C. Military Base,Military Base,Lv3,66eb3c835886ddc479e4b9034be69d0a
+3C. Opera,Opera,Lv3,347ac1db61bac3440aefa1f9f7781c50
+3C. Power Plant,Power Plant,Lv3,9d841cbe2e47d4b4abd81ad68cc9a008
+3C. Prison,Prison,Lv3,5b674ad64be1544449c80978fe3433c1
+3C. Ring Smith,Ring Smith,Lv3,16b288c90497a2e45aa0a566bb6b483f
+3C. Safari Guide Post,Safari Guide Post,Lv3,a9091fd4779188f45a1abf220381804f
+3C. Steak Restaurant,Steak Restaurant,Lv3,ef2c22a5ac76da342a17921a3e662b31
+3C. Sushi Bar,Sushi Bar,Lv3,36398d8f46c092b438662df5ca186ddb
+T. Swamp Temple,Temple of Reginald,Temple1,85bbad49989dab74faf8d44f858960af
+T. Forest Temple,Temple of Satari,Temple1,02750e78925d237459ab7a27ff007172
+T. Savanna Temple,Temple of Jangwa,Temple2,d0a3175da2b35fa46bec07d751c3aa79
+T. Ocean Temple,Temple of Khiton,Temple2,cec4823020c6a424ba7a4e7a0c9d106a
+T. Frost Temple (Ice),Temple of Aegir,Temple3,19f2d34119348fc4fb10be607541frost
+T. Frost Temple (Taiga),Temple of Aegir (Icy),Temple3,2b4d5389928bfa74691d48a8bd14be27
+T. Rock Temple,Temple of Atlas,Temple3,3fce5e7e96379fd4db6959b9ddb52114
