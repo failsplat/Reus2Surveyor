@@ -639,7 +639,8 @@ namespace Reus2Surveyor
         {
             // Internally Constructed
             public readonly List<LuxurySlot> luxurySlots = [];
-            
+            public readonly List<LuxurySlot> tradeSlots = [];
+            public readonly List<int?> importAgreementIds = []; 
             public LuxuryController(Dictionary<string, object> refDict, List<object> referenceTokensList)
             {
                 List<object> luxurySlotSubdictList = (List<object>)DictHelper.DigValueAtKeys(refDict, ["luxurySlots", "itemData"]);
@@ -647,6 +648,14 @@ namespace Reus2Surveyor
                 {
                     this.luxurySlots.Add(new LuxurySlot((Dictionary<string, object>)subdict["value"], referenceTokensList));
                 }
+
+                List<object> tradeSlotSubdictList = (List<object>)DictHelper.DigValueAtKeys(refDict, ["tradeSlots", "itemData"]);
+                foreach (Dictionary<string, object> subdict in tradeSlotSubdictList)
+                {
+                    this.tradeSlots.Add(new LuxurySlot((Dictionary<string, object>)subdict["value"], referenceTokensList));
+                }
+
+                this.importAgreementIds = DictHelper.TryGetIntList(refDict, ["importAgreements", "itemData"], "id");
             }
 
             // Classes for internal use

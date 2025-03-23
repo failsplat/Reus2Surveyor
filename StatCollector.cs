@@ -11,6 +11,7 @@ using DocumentFormat.OpenXml.Features;
 using DocumentFormat.OpenXml.Spreadsheet;
 using static Reus2Surveyor.Glossaries;
 using MathNet.Numerics.Statistics;
+using System.Numerics;
 
 namespace Reus2Surveyor
 {
@@ -19,6 +20,7 @@ namespace Reus2Surveyor
         private Glossaries glossaryInstance;
         public Dictionary<string, BioticumStatEntry> BioticaStats { get; private set; } = [];
         public List<PlanetSummaryEntry> PlanetSummaries { get; private set; } = [];
+        public List<CitySummaryEntry> CitySummaries { get; private set; } = [];
         private int planetCount = 0;
 
         public StatCollector(Glossaries g)
@@ -143,10 +145,11 @@ namespace Reus2Surveyor
 
         public void UpdateHumanityStats(Planet planet, int index)
         {
+            // Planet Summary
             PlanetSummaryEntry planetEntry = new(index, planet.name);
             planetEntry.Score = (int)planet.gameSession.turningPointPerformances.Last().scoreTotal;
 
-            List<GiantDefinition> giantDefs = [.. planet.gameSession.giantRosterDefs.Select(v => glossaryInstance.TryGiantDefinitionFromhash(v))];
+            List<GiantDefinition> giantDefs = [.. planet.gameSession.giantRosterDefs.Select(v => glossaryInstance.TryGiantDefinitionFromHash(v))];
             giantDefs.Sort((x, y) => x.Position - y.Position);
             List<string> giantNames = [.. giantDefs.Select(v => v.Name)];
 
@@ -196,9 +199,9 @@ namespace Reus2Surveyor
             //planetEntry.TechP = SafeDivide(planetEntry.Tech, planetEntry.Pros);
             //planetEntry.WealP = SafeDivide(planetEntry.Weal, planetEntry.Pros);
 
-            planetEntry.PopP = SafeDivide(planetEntry.Pop, planetEntry.Pop+planetEntry.Tech+planetEntry.Weal);
-            planetEntry.TechP = SafeDivide(planetEntry.Tech, planetEntry.Pop + planetEntry.Tech + planetEntry.Weal);
-            planetEntry.WealP = SafeDivide(planetEntry.Weal, planetEntry.Pop + planetEntry.Tech + planetEntry.Weal);
+            planetEntry.PopP = SafePercent(planetEntry.Pop, planetEntry.Pop+planetEntry.Tech+planetEntry.Weal);
+            planetEntry.TechP = SafePercent(planetEntry.Tech, planetEntry.Pop + planetEntry.Tech + planetEntry.Weal);
+            planetEntry.WealP = SafePercent(planetEntry.Weal, planetEntry.Pop + planetEntry.Tech + planetEntry.Weal);
 
             planetEntry.PopHi = cityPopList.Max();
             planetEntry.TechHi = cityTechList.Max();
@@ -267,6 +270,146 @@ namespace Reus2Surveyor
             }
 
             this.PlanetSummaries.Add(planetEntry);
+
+            // City Summary
+
+            List<CitySummaryEntry> thisPlanetCitySummaries = [];
+            List<City> citiesInOrder = [..planet.cityDictionary.ToList().OrderBy(kv => kv.Key).Select(kv => kv.Value)];
+            int cityN = 0;
+            foreach (City city in citiesInOrder)
+            {
+                cityN++;
+                CitySummaryEntry cityEntry = new(index, cityN, city.fancyName);
+
+                cityEntry.Char = glossaryInstance.SpiritNameFromHash(city.founderCharacterDef);
+                cityEntry.Level = city.currentVisualStage is not null? city.currentVisualStage + 1 : null;
+
+                cityEntry.Pros = (int)city.CivSummary.prosperity;
+                cityEntry.Pop = (int)city.CivSummary.population;
+                cityEntry.Tech = (int)city.CivSummary.innovation;
+                cityEntry.Weal = (int)city.CivSummary.wealth;
+
+                cityEntry.FoundBiome = glossaryInstance.BiomeNameFromHash(city.settledBiomeDef);
+                cityEntry.CurrBiome = glossaryInstance.BiomeNameFromHash(city.currentBiomeDef);
+
+                cityEntry.PopP = SafePercent(cityEntry.Pop, cityEntry.Pop + cityEntry.Tech + cityEntry.Weal);
+                cityEntry.TechP = SafePercent(cityEntry.Tech, cityEntry.Pop + cityEntry.Tech + cityEntry.Weal);
+                cityEntry.WealP = SafePercent(cityEntry.Weal, cityEntry.Pop + cityEntry.Tech + cityEntry.Weal);
+
+                cityEntry.ProsVMdn = cityEntry.Pros / planetEntry.ProsMdn;
+                cityEntry.PopVMdn = cityEntry.Pop / planetEntry.PopMdn;
+                cityEntry.TechVMdn = cityEntry.Tech / planetEntry.TechMdn;
+                cityEntry.WealVMdn = cityEntry.Weal / planetEntry.WealMdn;
+
+                cityEntry.Inventions = city.CityLuxuryController.luxurySlots.Where(ls => ls.luxuryGoodId is not null).Count();
+                cityEntry.TradeRoutes = city.CityLuxuryController.importAgreementIds.Count();
+                cityEntry.TerrPatches = city.PatchesInTerritory.Where(p => p.IsWildPatch()).Count();
+
+                cityEntry.TPLead = city.initiatedTurningPointsDefs.Count();
+                foreach (string cityStartedEras in city.initiatedTurningPointsDefs)
+                {
+                    EraDefinition thisEra = glossaryInstance.TryEraDefinitionFromHash(cityStartedEras);
+                    if (thisEra.Era == 0) continue;
+                    string eraName = thisEra.Name;
+                    switch (thisEra.Era)
+                    {
+                        case 1:
+                            cityEntry.TP1 = eraName;
+                            break;
+                        case 2:
+                            cityEntry.TP2 = eraName;
+                            break;
+                        case 3:
+                            cityEntry.TP3 = eraName;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                cityEntry.Biotica = city.BioticaInTerritory.Count;
+                List<int> bioticaLevels = [];
+                foreach (NatureBioticum nb in city.BioticaInTerritory)
+                {
+                    if (glossaryInstance.BioticumDefinitionByHash.ContainsKey(nb.definition))
+                    {
+                        BioticumDefinition thisBio = glossaryInstance.BioticumDefinitionByHash[nb.definition];
+                        bioticaLevels.Add(thisBio.Tier);
+                        switch (thisBio.Type)
+                        {
+                            case "Plant":
+                                cityEntry.Plants += 1;
+                                break;
+                            case "Animal":
+                                cityEntry.Animals += 1;
+                                break;
+                            case "Mineral":
+                                cityEntry.Minerals += 1;
+                                break;
+                        }
+                    }
+                }
+                cityEntry.AvBioLv = bioticaLevels.Average();
+                cityEntry.PlantP = SafePercent(cityEntry.Plants, cityEntry.Biotica);
+                cityEntry.AnimalP = SafePercent(cityEntry.Animals, cityEntry.Biotica);
+                cityEntry.MineralP = SafePercent(cityEntry.Minerals, cityEntry.Biotica);
+
+                foreach(City.ProjectController.CityProject project in city.CityProjectController.projects)
+                {
+                    cityEntry.Buildings += 1;
+                    if (glossaryInstance.ProjectDefinitionByHash.ContainsKey(project.definition))
+                    {
+                        CityProjectDefinition projectDef = glossaryInstance.TrProjectDefinitionFromHash(project.definition);
+                        switch (projectDef.Slot)
+                        {
+                            case "Era1":
+                                cityEntry.Era1B = projectDef.DisplayName;
+                                break;
+                            case "Era2":
+                                cityEntry.Era2B = projectDef.DisplayName;
+                                break;
+                            case "Era3":
+                                cityEntry.Era3B = projectDef.DisplayName;
+                                break;
+                            case "Lv1":
+                                cityEntry.Lv1B = projectDef.DisplayName;
+                                break;
+                            case "Lv2":
+                                cityEntry.Lv2B = projectDef.DisplayName;
+                                break;
+                            case "Lv3":
+                                cityEntry.Lv3B = projectDef.DisplayName;
+                                break;
+                            case "Temple1":
+                                cityEntry.Temple1 = projectDef.DisplayName;
+                                break;
+                            case "Temple2":
+                                cityEntry.Temple2 = projectDef.DisplayName;
+                                break;
+                            case "Temple3":
+                                cityEntry.Temple3 = projectDef.DisplayName;
+                                break;
+                        }
+                    }
+                }
+
+                thisPlanetCitySummaries.Add(cityEntry);
+            }
+            thisPlanetCitySummaries.OrderBy(x => x.CityN);
+
+            List<int> cityRanks = [..thisPlanetCitySummaries
+                .Select(cs => cs.Pros)
+                .Select((x, i) => new KeyValuePair<int, int>(x, i))
+                .OrderBy(xi => -xi.Key)
+                .Select(xi => xi.Value+1)];
+
+            for (int i = 0; i < thisPlanetCitySummaries.Count; i++)
+            {
+                thisPlanetCitySummaries[i].Rank = cityRanks[i];
+                thisPlanetCitySummaries[i].Upset = thisPlanetCitySummaries[i].CityN - thisPlanetCitySummaries[i].Rank;
+            }
+
+            this.CitySummaries.AddRange(thisPlanetCitySummaries);
         }
 
         public void FinalizeStats()
@@ -310,6 +453,25 @@ namespace Reus2Surveyor
                         try
                         {
                             var col = planetTable.FindColumn(c => c.FirstCell().Value.ToString() == colName);
+                            col.Style.NumberFormat.Format = format;
+                        }
+                        catch { }
+                    }
+                }
+
+                var cityWs = wb.AddWorksheet("Cities");
+                var cityTable = cityWs.Cell("A1").InsertTable(this.CitySummaries, "Cities");
+                cityTable.Theme = XLTableTheme.TableStyleLight1;
+                foreach (KeyValuePair<string, List<string>> kv in CitySummaryEntry.GetColumnFormats())
+                {
+                    string format = kv.Key;
+                    List<string> columns = kv.Value;
+
+                    foreach (string colName in columns)
+                    {
+                        try
+                        {
+                            var col = cityTable.FindColumn(c => c.FirstCell().Value.ToString() == colName);
                             col.Style.NumberFormat.Format = format;
                         }
                         catch { }
@@ -529,10 +691,10 @@ namespace Reus2Surveyor
             public void CalculateStats()
             {
                 this.SlotLvAv = SafeDivide(this.OccupiedSlotTotalLevel, this.FilledSlots);
-                this.AnimalP = SafeDivide(this.Animals, this.Biotica);
-                this.PlantP = SafeDivide(this.Plants, this.Biotica);
-                this.MineralP = SafeDivide(this.Minerals, this.Biotica);
-                this.ApexP = SafeDivide(this.Apex, this.Biotica);
+                this.AnimalP = SafePercent(this.Animals, this.Biotica);
+                this.PlantP = SafePercent(this.Plants, this.Biotica);
+                this.MineralP = SafePercent(this.Minerals, this.Biotica);
+                this.ApexP = SafePercent(this.Apex, this.Biotica);
             }
 
             public static Dictionary<string, List<string>> GetColumnFormats()
@@ -541,6 +703,48 @@ namespace Reus2Surveyor
             }
 
         }
+
+        public class CitySummaryEntry
+        {
+            public readonly int PlanetN, CityN;
+            public readonly string Name;
+            public string Char;
+            public int? Level;
+            public int Pros, Pop, Tech, Weal;
+            public string FoundBiome, CurrBiome;
+            public int? Rank, Upset = null;
+            public double? PopP, TechP, WealP = null;
+            public double? ProsVMdn, PopVMdn, TechVMdn, WealVMdn = null;
+
+            public int Inventions, TradeRoutes = 0;
+            public int TerrPatches = 0;
+            
+            public int TPLead = 0;
+            public string TP1, TP2, TP3 = null;
+
+            public int Biotica = 0;
+            public double? AvBioLv = null;
+            public int Plants, Animals, Minerals = 0;
+            public double? PlantP, AnimalP, MineralP = null;
+
+            public int Buildings = 0;
+            public string Lv1B, Lv2B, Lv3B, Era1B, Era2B, Era3B, Temple1, Temple2, Temple3 = null;
+
+            private static Dictionary<string, List<string>> columnFormats = new() {
+                {"0.00%", new List<string> { "PopP", "TechP", "WealP", "PlantP", "AnimalP", "MineralP"} },
+                {"0.00", new List<string> { "ProsVMdn", "PopVMdn", "TechVMdn", "WealVMdn", "AvBioLv" } },
+                };
+
+            public static Dictionary<string, List<string>> GetColumnFormats() { return columnFormats; }
+
+            public CitySummaryEntry(int planetN, int cityN, string name)
+            {
+                this.PlanetN = planetN;
+                this.CityN = cityN;
+                this.Name = name;
+            }
+        }
+
         private static double? SafePercent(int a0, int b0)
         {
             double? c = SafeDivide(a0, b0);

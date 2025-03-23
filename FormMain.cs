@@ -283,6 +283,8 @@ namespace Reus2Surveyor
                 testPlanet.SetGlossaryThenLookup(GameGlossaries);
                 planetOK = true;
 
+                StatCollector sc;
+
                 if (planetOK)
                 {
                     // Counting biotica
@@ -307,7 +309,7 @@ namespace Reus2Surveyor
                         bio123 = String.Join('\n', [bio1, bio2, bio3]);
                     }
 
-                    StatCollector sc = new(GameGlossaries);
+                    sc = new(GameGlossaries);
                     sc.ConsumePlanet(testPlanet, 0);
                     sc.FinalizeStats();
                 }
