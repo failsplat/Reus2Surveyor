@@ -1,17 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Tracing;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Transactions;
 using ClosedXML.Excel;
-using DocumentFormat.OpenXml.Features;
-using DocumentFormat.OpenXml.Spreadsheet;
 using static Reus2Surveyor.Glossaries;
 using MathNet.Numerics.Statistics;
-using System.Numerics;
 
 namespace Reus2Surveyor
 {
