@@ -200,9 +200,8 @@ namespace Reus2Surveyor
             // Count legacy biotica
             foreach (BioticumSlot slot in this.slotDictionary.Values)
             {
-                foreach (Dictionary<string,object> abDict in slot.archivedBiotica)
+                foreach (string archivedBioticumDef in slot.archivedBioticaDefs)
                 {
-                    string? archivedBioticumDef = DictHelper.TryGetString(abDict, ["bioticum", "value"]);
                     if (archivedBioticumDef is null) continue;
                     if (this.LegacyBioticaCounterDefs.ContainsKey(archivedBioticumDef))
                     {
@@ -257,6 +256,7 @@ namespace Reus2Surveyor
         public readonly bool? isInvasiveSlot;
         public readonly List<string> slotbonusDefinitions;
         public readonly List<Dictionary<string, object>> archivedBiotica;
+        public readonly List<string> archivedBioticaDefs;
         public readonly string name;
 
         public BioticumSlot(Dictionary<string, object> refDict)
@@ -275,7 +275,8 @@ namespace Reus2Surveyor
             this.slotLevel = DictHelper.TryGetInt(refDict,"slotLevel");
 
             this.archivedBiotica = DictHelper.TryGetDictList(refDict, ["archivedBiotica", "itemData"], "value");
-            
+            this.archivedBioticaDefs = DictHelper.TryGetStringList(refDict, ["archivedBiotica", "itemData"], ["value","bioticum","value"]);
+
             this.isInvasiveSlot = DictHelper.TryGetBool(refDict, "isInvasiveSlot");
 
             // "BioticumSlot (<patch> - <position>)

@@ -4,6 +4,7 @@ using System.Linq;
 using ClosedXML.Excel;
 using static Reus2Surveyor.Glossaries;
 using MathNet.Numerics.Statistics;
+using System.Data;
 
 namespace Reus2Surveyor
 {
@@ -13,6 +14,8 @@ namespace Reus2Surveyor
         public Dictionary<string, BioticumStatEntry> BioticaStats { get; private set; } = [];
         public List<PlanetSummaryEntry> PlanetSummaries { get; private set; } = [];
         public List<CitySummaryEntry> CitySummaries { get; private set; } = [];
+
+        public Dictionary<string, Dictionary<string, int>> BioticumVsSpiritCounter { get; private set; } = [];
         private int planetCount = 0;
 
         public StatCollector(Glossaries g)
@@ -25,6 +28,7 @@ namespace Reus2Surveyor
             if (planet is null) return;
             this.UpdateBioticaStats(planet, index);
             this.UpdateHumanityStats(planet, index);
+            this.CountBioticaVsSpirit(planet, index);
             this.planetCount++;
         }
 
@@ -134,6 +138,7 @@ namespace Reus2Surveyor
 
 
         }
+
 
         public void UpdateHumanityStats(Planet planet, int index)
         {
@@ -404,6 +409,38 @@ namespace Reus2Surveyor
             this.CitySummaries.AddRange(thisPlanetCitySummaries);
         }
 
+        public void CountBioticaVsSpirit(Planet planet, int index)
+        {
+            foreach(City city in planet.cityDictionary.Values)
+            {
+                string spirit = glossaryInstance.SpiritNameFromHash(city.founderCharacterDef);
+                foreach (NatureBioticum nb in city.BioticaInTerritory)
+                {
+                    if (glossaryInstance.BioticumDefinitionByHash.ContainsKey(nb.definition)) 
+                    {
+                        string activeBioName = glossaryInstance.BioticumNameFromHash(nb.definition);
+                        if (!BioticumVsSpiritCounter.ContainsKey(activeBioName)) this.BioticumVsSpiritCounter[activeBioName] = new();
+                        if (!BioticumVsSpiritCounter[activeBioName].ContainsKey(spirit)) this.BioticumVsSpiritCounter[activeBioName][spirit] = 0;
+                        this.BioticumVsSpiritCounter[activeBioName][spirit] += 1;
+                    }
+                }
+                foreach (int slotIndex in city.ListSlotIndicesInTerritory())
+                {
+                    BioticumSlot slot = planet.slotDictionary[slotIndex];
+                    foreach (string legacyDef in slot.archivedBioticaDefs)
+                    {
+                        if (glossaryInstance.BioticumDefinitionByHash.ContainsKey(legacyDef))
+                        {
+                            string legacyBioName = glossaryInstance.BioticumNameFromHash(legacyDef);
+                            if (!BioticumVsSpiritCounter.ContainsKey(legacyBioName)) this.BioticumVsSpiritCounter[legacyBioName] = new();
+                            if (!BioticumVsSpiritCounter[legacyBioName].ContainsKey(spirit)) this.BioticumVsSpiritCounter[legacyBioName][spirit] = 0;
+                            this.BioticumVsSpiritCounter[legacyBioName][spirit] += 1;
+                        }
+                    }
+                }
+            }
+        }
+
         public void FinalizeStats()
         {
             foreach (BioticumStatEntry bse in this.BioticaStats.Values)
@@ -427,6 +464,34 @@ namespace Reus2Surveyor
                 dict[key] = value;
             }
         }
+
+        public static DataTable NestDictToDataTable<T,T2>(Dictionary<T, Dictionary<T, T2>> input, string indexName)
+        {
+            // Similar to pandas.DataFrame.from_dict with the "row" orientation
+            DataTable output = new();
+            output.Columns.Add(indexName);
+
+            List<string> columnHeaders = [..input.SelectMany(kv => kv.Value.Select(kv => kv.Key.ToString())).Distinct()];
+            columnHeaders.Sort();
+            foreach (string colHead in columnHeaders)
+            {
+                output.Columns.Add(colHead);
+                output.Columns[colHead].DataType = typeof(T2);
+            }
+
+            foreach (KeyValuePair<T, Dictionary<T, T2>> rowKV in input) 
+            {
+                DataRow newRow = output.NewRow();
+                newRow[indexName] = rowKV.Key.ToString();
+                foreach (KeyValuePair<T, T2> dataKV in rowKV.Value)
+                {
+                    newRow[dataKV.Key.ToString()] = dataKV.Value;
+                }
+                output.Rows.Add(newRow);
+            }
+
+            return output;
+        } 
 
         public void WriteToExcel(string dstPath)
         {
@@ -489,10 +554,12 @@ namespace Reus2Surveyor
                     }
                 }
 
+                DataTable bioticaVsSpiritTable = NestDictToDataTable(this.BioticumVsSpiritCounter, "Bioticum");
+                var bioVsCharWs = wb.AddWorksheet("BioticaVsChar");
+                var bioVsCharTable = bioVsCharWs.Cell("A1").InsertTable(bioticaVsSpiritTable);
+
                 wb.SaveAs(dstPath);
             }
-
-
         }
 
         public class BioticumStatEntry
