@@ -46,6 +46,7 @@ namespace Reus2Surveyor
             writeDecodedCheckBox = new System.Windows.Forms.CheckBox();
             label1 = new System.Windows.Forms.Label();
             label2 = new System.Windows.Forms.Label();
+            planetLooperBackgroundWorker = new System.ComponentModel.BackgroundWorker();
             ((System.ComponentModel.ISupportInitialize)planetGridView).BeginInit();
             SuspendLayout();
             // 
@@ -213,6 +214,13 @@ namespace Reus2Surveyor
             label2.TabIndex = 14;
             label2.Text = "For Debugging:";
             // 
+            // planetLooperBackgroundWorker
+            // 
+            planetLooperBackgroundWorker.WorkerReportsProgress = true;
+            planetLooperBackgroundWorker.DoWork += planetLooperBackgroundWorker_DoWork;
+            planetLooperBackgroundWorker.ProgressChanged += planetLooperBackgroundWorker_ProgressChanged;
+            planetLooperBackgroundWorker.RunWorkerCompleted += planetLooperBackgroundWorker_RunWorkerCompleted;
+            // 
             // FormMain
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -258,6 +266,7 @@ namespace Reus2Surveyor
         private System.Windows.Forms.CheckBox writeDecodedCheckBox;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
+        private System.ComponentModel.BackgroundWorker planetLooperBackgroundWorker;
     }
 }
 

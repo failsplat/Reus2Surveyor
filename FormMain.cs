@@ -51,10 +51,12 @@ namespace Reus2Surveyor
 
         public StatCollector PlanetStatCollector;
 
+        private List<string> filesToProcess = [];
+
         public FormMain()
         {
             InitializeComponent();
-            this.Text = "Reus 2 Surveyor "+System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            this.Text = "Reus 2 Surveyor " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
         }
 
         private void FormMain_Load(object sender, EventArgs e)
@@ -88,6 +90,9 @@ namespace Reus2Surveyor
             }
 
             this.planetGridView.Rows.Clear();
+            this.exportStatsButton.Enabled = false;
+            this.ResetPlanetList();
+            this.updateDecodeProgress();
 
             if (Path.GetFileName(value).StartsWith("profile_"))
             {
@@ -108,6 +113,14 @@ namespace Reus2Surveyor
                 this.profileDirOK = false;
                 this.decodeReadyStatusLabel.Text = "Not Ready";
             }
+        }
+
+        public void ResetPlanetList()
+        {
+            this.planetList.Clear();
+            this.planetsOk = 0;
+            this.planetsTotal = 0;
+            this.planetsTried = 0;
         }
 
         public void SetCheckWriteDecodedSetting(bool value)
@@ -144,15 +157,11 @@ namespace Reus2Surveyor
                 incompletePlanetPaths = [.. incompletePlanetPaths.Where(x => x is not null)];
 
                 this.decodeProgressBar.Maximum = completedPlanetCount;
-                this.planetsOk = 0;
-                this.planetsTried = 0;
-                this.planetsTotal = completedPlanetCount;
+                
                 this.updateDecodeProgress();
 
-                this.LoopThroughPlanetSaves(completedPlanetPaths);
-
-                this.exportStatsButton.Enabled = true;
-                this.exportReadyLabel.Text = "Ready";
+                this.filesToProcess = completedPlanetPaths;
+                this.planetLooperBackgroundWorker.RunWorkerAsync();
             }
             else
             {
@@ -160,12 +169,12 @@ namespace Reus2Surveyor
             }
         }
 
-        private void LoopThroughPlanetSaves(List<string> pathsToSaveFiles)
+        private void LoopThroughPlanetSaves()
         {
-            this.planetList.Clear();
-            this.planetList = [..Enumerable.Repeat((Planet)null, pathsToSaveFiles.Count)];
-
-            foreach ((int index, string path) in pathsToSaveFiles.Index())
+            this.ResetPlanetList();
+            this.planetList = [.. Enumerable.Repeat((Planet)null, this.filesToProcess.Count)];
+            this.planetsTotal = this.filesToProcess.Count;
+            foreach ((int index, string path) in this.filesToProcess.Index())
             {
                 ProcessPlanet(index, path);
             }
@@ -176,6 +185,7 @@ namespace Reus2Surveyor
             if (path is null)
             {
                 // TODO: Update the table for a skipped file
+                this.planetsTried++;
                 return;
             }
 
@@ -218,7 +228,8 @@ namespace Reus2Surveyor
                 this.planetList[index] = newPlanet;
             }
 
-            this.updateDecodeProgress();
+            if (this.planetLooperBackgroundWorker.IsBusy) this.planetLooperBackgroundWorker.ReportProgress(1);
+            else this.updateDecodeProgress();
             if (readPlanetOK)
             {
 
@@ -234,7 +245,13 @@ namespace Reus2Surveyor
             this.decodeProgressLabel.Text = String.Format("Planets ({0}/{1}), {2} OK", this.planetsTried, this.planetsTotal, this.planetsOk);
             this.decodeProgressLabel.Refresh();
 
-            if (this.planetsTried < this.planetsTotal) this.decodeProgressBar.Value = this.planetsTried; else this.decodeProgressBar.Value = this.decodeProgressBar.Maximum;
+            if (this.planetsTried < this.planetsTotal) this.decodeProgressBar.Value = this.planetsTried;
+            else if (this.planetsTotal == 0) this.decodeProgressBar.Value = 0;
+            else
+            { 
+                this.decodeProgressBar.Value = this.decodeProgressBar.Maximum;
+                this.decodeProgressLabel.Text += " - Done!";
+            }
         }
 
         private void exportStatsButton_Click(object sender, EventArgs e)
@@ -274,7 +291,7 @@ namespace Reus2Surveyor
 
                 resAsDict = PlanetFileUtil.ReadDictFromFile(path);
                 planetName = PlanetFileUtil.PlanetNameFromFilePath(path);
-                
+
                 this.LastSpotCheckDir = Path.GetDirectoryName(path);
 
                 List<string> pathParts = [.. path.Split(Path.DirectorySeparatorChar)];
@@ -337,6 +354,42 @@ namespace Reus2Surveyor
         private void writeDecodedCheckBox_CheckStateChanged(object sender, EventArgs e)
         {
             this.WriteDecodedSetting = this.writeDecodedCheckBox.Checked;
+        }
+
+        private void planetLooperBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            this.planetLooperBackgroundWorker.ReportProgress(0);
+            this.LoopThroughPlanetSaves();
+
+        }
+
+        private void planetLooperBackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            
+            this.exportStatsButton.Enabled = true;
+            this.exportReadyLabel.Text = "Ready";
+
+            // Remove Lockout
+            this.findProfileButton.Enabled = true;
+            this.decodeButton.Enabled = true;
+            this.writeDecodedCheckBox.Enabled = true;
+        }
+
+        private void planetLooperBackgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            if (e.ProgressPercentage == 0) 
+            {
+                // Lockout
+                this.findProfileButton.Enabled = false;
+                this.decodeButton.Enabled = false;
+                this.writeDecodedCheckBox.Enabled = false;
+
+                // Clearing
+                this.planetGridView.Rows.Clear();
+                this.exportStatsButton.Enabled = false;
+            } 
+
+            this.updateDecodeProgress();
         }
     }
 }
