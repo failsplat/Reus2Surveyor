@@ -36,6 +36,8 @@ namespace Reus2Surveyor
         public bool profileDirOK = false;
 
         private List<Planet> planetList = [];
+        private int planetsTried, planetsOk, planetsTotal = 0;
+
         public static readonly Glossaries GameGlossaries = new(Path.Combine(baseDir, "Glossaries"));
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -49,10 +51,12 @@ namespace Reus2Surveyor
 
         public StatCollector PlanetStatCollector;
 
+        private List<string> filesToProcess = [];
+
         public FormMain()
         {
             InitializeComponent();
-            this.Text = "Reus 2 Surveyor "+System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            this.Text = "Reus 2 Surveyor " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
         }
 
         private void FormMain_Load(object sender, EventArgs e)
@@ -86,6 +90,9 @@ namespace Reus2Surveyor
             }
 
             this.planetGridView.Rows.Clear();
+            this.exportStatsButton.Enabled = false;
+            this.ResetPlanetList();
+            this.updateDecodeProgress();
 
             if (Path.GetFileName(value).StartsWith("profile_"))
             {
@@ -106,6 +113,14 @@ namespace Reus2Surveyor
                 this.profileDirOK = false;
                 this.decodeReadyStatusLabel.Text = "Not Ready";
             }
+        }
+
+        public void ResetPlanetList()
+        {
+            this.planetList.Clear();
+            this.planetsOk = 0;
+            this.planetsTotal = 0;
+            this.planetsTried = 0;
         }
 
         public void SetCheckWriteDecodedSetting(bool value)
@@ -141,14 +156,12 @@ namespace Reus2Surveyor
                 List<string> incompletePlanetPaths = [.. allPlanetPaths.Select(x => Path.Exists(Path.Combine(x, "auto_complete.deux")) ? null : x)];
                 incompletePlanetPaths = [.. incompletePlanetPaths.Where(x => x is not null)];
 
-                int readPlanetCount = 0;
                 this.decodeProgressBar.Maximum = completedPlanetCount;
-                this.updateDecodeProgress(readPlanetCount, 0, completedPlanetCount);
+                
+                this.updateDecodeProgress();
 
-                this.LoopThroughPlanetSaves(completedPlanetPaths);
-
-                this.exportStatsButton.Enabled = true;
-                this.exportReadyLabel.Text = "Ready";
+                this.filesToProcess = completedPlanetPaths;
+                this.planetLooperBackgroundWorker.RunWorkerAsync();
             }
             else
             {
@@ -156,77 +169,89 @@ namespace Reus2Surveyor
             }
         }
 
-        private void LoopThroughPlanetSaves(List<string> pathsToSaveFiles)
+        private void LoopThroughPlanetSaves()
         {
-            this.planetList.Clear();
-
-            int i = -1;
-            int ok = 0;
-            foreach (string path in pathsToSaveFiles)
+            this.ResetPlanetList();
+            this.planetList = [.. Enumerable.Repeat((Planet)null, this.filesToProcess.Count)];
+            this.planetsTotal = this.filesToProcess.Count;
+            foreach ((int index, string path) in this.filesToProcess.Index())
             {
-                if (path is null)
-                {
-                    // TODO: Update the table for a skipped file
-                    continue;
-                }
-                i++;
-                
-                List<string> pathParts = [.. path.Split(Path.DirectorySeparatorChar)];
-                pathParts.Reverse();
-                bool readPlanetOK = false;
-                Planet newPlanet = null;
-                string planetName = null;
-                Dictionary<string, object> resAsDict = null;
-                try
-                {
-                    resAsDict = PlanetFileUtil.ReadDictFromFile(path);
-                    planetName = PlanetFileUtil.PlanetNameFromFilePath(path);
-                    newPlanet = PlanetFileUtil.InterpretDictAsPlanet(resAsDict, path);
-                }
-                catch (Exception e)
-                {
-                    newPlanet = null;
-                    Program.TracePlanetException(e, pathParts[1] + Path.DirectorySeparatorChar + pathParts[0]);
-                }
-                
-                if (newPlanet is not null)
-                {
-                    this.planetList.Add(newPlanet);
-                    readPlanetOK = true;
-                    ok++;
-                    newPlanet.SetGlossaryThenLookup(GameGlossaries);
-
-                    // Write decoded file
-                    if (this.WriteDecodedSetting)
-                    {
-                        string dst = Path.Combine(decodedDir, pathParts[1] + "." + pathParts[0] + ".json");
-                        string outputText = JsonConvert.SerializeObject(resAsDict, Formatting.Indented);
-                        File.WriteAllText(dst, outputText);
-                    }
-                }
-                else
-                {
-                    this.planetList.Add(newPlanet);
-                }
-
-                this.updateDecodeProgress(i + 1, ok, pathsToSaveFiles.Count);
-                if (readPlanetOK)
-                {
-
-                }
-                else
-                {
-                    Trace.TraceError("Failed to read planet file: " + pathParts[1] + "/" + pathParts[0]);
-                }
+                ProcessPlanet(index, path);
             }
         }
 
-        private void updateDecodeProgress(int tried, int ok, int total)
+        public void ProcessPlanet(int index, string path)
         {
-            this.decodeProgressLabel.Text = String.Format("Planets ({0}/{1}), {2} OK", tried, total, ok);
+            if (path is null)
+            {
+                // TODO: Update the table for a skipped file
+                this.planetsTried++;
+                return;
+            }
+
+            List<string> pathParts = [.. path.Split(Path.DirectorySeparatorChar)];
+            pathParts.Reverse();
+            bool readPlanetOK = false;
+            Planet newPlanet = null;
+            string planetName = null;
+            Dictionary<string, object> resAsDict = null;
+            try
+            {
+                resAsDict = PlanetFileUtil.ReadDictFromFile(path);
+                planetName = PlanetFileUtil.PlanetNameFromFilePath(path);
+                newPlanet = PlanetFileUtil.InterpretDictAsPlanet(resAsDict, path);
+            }
+            catch (Exception e)
+            {
+                newPlanet = null;
+                Program.TracePlanetException(e, pathParts[1] + Path.DirectorySeparatorChar + pathParts[0]);
+            }
+
+            this.planetsTried++;
+            if (newPlanet is not null)
+            {
+                this.planetList[index] = newPlanet;
+                readPlanetOK = true;
+                this.planetsOk++;
+                newPlanet.SetGlossaryThenLookup(GameGlossaries);
+
+                // Write decoded file
+                if (this.WriteDecodedSetting)
+                {
+                    string dst = Path.Combine(decodedDir, pathParts[1] + "." + pathParts[0] + ".json");
+                    string outputText = JsonConvert.SerializeObject(resAsDict, Formatting.Indented);
+                    File.WriteAllText(dst, outputText);
+                }
+            }
+            else
+            {
+                this.planetList[index] = newPlanet;
+            }
+
+            if (this.planetLooperBackgroundWorker.IsBusy) this.planetLooperBackgroundWorker.ReportProgress(1);
+            else this.updateDecodeProgress();
+            if (readPlanetOK)
+            {
+
+            }
+            else
+            {
+                Trace.TraceError("Failed to read planet file: " + pathParts[1] + "/" + pathParts[0]);
+            }
+        }
+
+        private void updateDecodeProgress()
+        {
+            this.decodeProgressLabel.Text = String.Format("Planets ({0}/{1}), {2} OK", this.planetsTried, this.planetsTotal, this.planetsOk);
             this.decodeProgressLabel.Refresh();
 
-            if (tried < total) this.decodeProgressBar.Value = tried; else this.decodeProgressBar.Value = this.decodeProgressBar.Maximum;
+            if (this.planetsTried < this.planetsTotal) this.decodeProgressBar.Value = this.planetsTried;
+            else if (this.planetsTotal == 0) this.decodeProgressBar.Value = 0;
+            else
+            { 
+                this.decodeProgressBar.Value = this.decodeProgressBar.Maximum;
+                this.decodeProgressLabel.Text += " - Done!";
+            }
         }
 
         private void exportStatsButton_Click(object sender, EventArgs e)
@@ -266,7 +291,7 @@ namespace Reus2Surveyor
 
                 resAsDict = PlanetFileUtil.ReadDictFromFile(path);
                 planetName = PlanetFileUtil.PlanetNameFromFilePath(path);
-                
+
                 this.LastSpotCheckDir = Path.GetDirectoryName(path);
 
                 List<string> pathParts = [.. path.Split(Path.DirectorySeparatorChar)];
@@ -329,6 +354,42 @@ namespace Reus2Surveyor
         private void writeDecodedCheckBox_CheckStateChanged(object sender, EventArgs e)
         {
             this.WriteDecodedSetting = this.writeDecodedCheckBox.Checked;
+        }
+
+        private void planetLooperBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            this.planetLooperBackgroundWorker.ReportProgress(0);
+            this.LoopThroughPlanetSaves();
+
+        }
+
+        private void planetLooperBackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            
+            this.exportStatsButton.Enabled = true;
+            this.exportReadyLabel.Text = "Ready";
+
+            // Remove Lockout
+            this.findProfileButton.Enabled = true;
+            this.decodeButton.Enabled = true;
+            this.writeDecodedCheckBox.Enabled = true;
+        }
+
+        private void planetLooperBackgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            if (e.ProgressPercentage == 0) 
+            {
+                // Lockout
+                this.findProfileButton.Enabled = false;
+                this.decodeButton.Enabled = false;
+                this.writeDecodedCheckBox.Enabled = false;
+
+                // Clearing
+                this.planetGridView.Rows.Clear();
+                this.exportStatsButton.Enabled = false;
+            } 
+
+            this.updateDecodeProgress();
         }
     }
 }
