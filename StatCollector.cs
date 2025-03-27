@@ -398,12 +398,13 @@ namespace Reus2Surveyor
                 .Select(cs => cs.Pros)
                 .Select((x, i) => new KeyValuePair<int, int>(x, i))
                 .OrderBy(xi => -xi.Key)
-                .Select(xi => xi.Value+1)];
+                .Select(xi => xi.Value)];
 
-            for (int i = 0; i < thisPlanetCitySummaries.Count; i++)
+            for (int i = 0; i < cityRanks.Count; i++)
             {
-                thisPlanetCitySummaries[i].Rank = cityRanks[i];
-                thisPlanetCitySummaries[i].Upset = thisPlanetCitySummaries[i].CityN - thisPlanetCitySummaries[i].Rank;
+                int c = cityRanks[i];
+                thisPlanetCitySummaries[c].Rank = i+1;
+                thisPlanetCitySummaries[c].Upset = thisPlanetCitySummaries[c].CityN - thisPlanetCitySummaries[c].Rank;
             }
 
             this.CitySummaries.AddRange(thisPlanetCitySummaries);
