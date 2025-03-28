@@ -29,6 +29,7 @@ namespace Reus2Surveyor
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
             findProfileButton = new System.Windows.Forms.Button();
             profileFolderTextBox = new System.Windows.Forms.TextBox();
             decodeReadyStatusLabel = new System.Windows.Forms.Label();
@@ -283,6 +284,7 @@ namespace Reus2Surveyor
             Controls.Add(decodeReadyStatusLabel);
             Controls.Add(profileFolderTextBox);
             Controls.Add(findProfileButton);
+            Icon = (System.Drawing.Icon)resources.GetObject("$this.Icon");
             Name = "FormMain";
             Text = "Reus 2 Planet Surveyor";
             Load += FormMain_Load;
