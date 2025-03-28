@@ -36,17 +36,19 @@ namespace Reus2Surveyor
             decodeProgressBar = new System.Windows.Forms.ProgressBar();
             decodeProgressLabel = new System.Windows.Forms.Label();
             planetGridView = new System.Windows.Forms.DataGridView();
-            NameCol = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            HasCompleteCol = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            ReadOKCol = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             exportStatsButton = new System.Windows.Forms.Button();
             exportReadyLabel = new System.Windows.Forms.Label();
             spotCheckButton = new System.Windows.Forms.Button();
             spotCheckWriteCheckBox = new System.Windows.Forms.CheckBox();
             writeDecodedCheckBox = new System.Windows.Forms.CheckBox();
-            label1 = new System.Windows.Forms.Label();
             label2 = new System.Windows.Forms.Label();
             planetLooperBackgroundWorker = new System.ComponentModel.BackgroundWorker();
+            NameCol = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            ScoreCol = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            SpiritCol = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            CompletionCol = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            ReadOptionCol = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            ReadStatusCol = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)planetGridView).BeginInit();
             SuspendLayout();
             // 
@@ -107,36 +109,16 @@ namespace Reus2Surveyor
             // 
             // planetGridView
             // 
+            planetGridView.AllowUserToAddRows = false;
+            planetGridView.AllowUserToDeleteRows = false;
             planetGridView.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
             planetGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            planetGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] { NameCol, HasCompleteCol, ReadOKCol });
+            planetGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] { NameCol, ScoreCol, SpiritCol, CompletionCol, ReadOptionCol, ReadStatusCol });
+            planetGridView.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
             planetGridView.Location = new System.Drawing.Point(12, 111);
             planetGridView.Name = "planetGridView";
             planetGridView.Size = new System.Drawing.Size(710, 314);
             planetGridView.TabIndex = 7;
-            // 
-            // NameCol
-            // 
-            NameCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            NameCol.HeaderText = "Name";
-            NameCol.Name = "NameCol";
-            NameCol.ReadOnly = true;
-            // 
-            // HasCompleteCol
-            // 
-            HasCompleteCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
-            HasCompleteCol.HeaderText = "C";
-            HasCompleteCol.Name = "HasCompleteCol";
-            HasCompleteCol.ReadOnly = true;
-            HasCompleteCol.Width = 21;
-            // 
-            // ReadOKCol
-            // 
-            ReadOKCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
-            ReadOKCol.HeaderText = "ReadOK";
-            ReadOKCol.Name = "ReadOKCol";
-            ReadOKCol.ReadOnly = true;
-            ReadOKCol.Width = 55;
             // 
             // exportStatsButton
             // 
@@ -196,17 +178,9 @@ namespace Reus2Surveyor
             writeDecodedCheckBox.UseVisualStyleBackColor = true;
             writeDecodedCheckBox.CheckStateChanged += writeDecodedCheckBox_CheckStateChanged;
             // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.Location = new System.Drawing.Point(28, 175);
-            label1.Name = "label1";
-            label1.Size = new System.Drawing.Size(368, 30);
-            label1.TabIndex = 13;
-            label1.Text = "This table is still WIP and doesn't do anything yet\r\nIt's going to display a preview of the planets as it runs through them.\r\n";
-            // 
             // label2
             // 
+            label2.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
             label2.AutoSize = true;
             label2.Location = new System.Drawing.Point(442, 436);
             label2.Name = "label2";
@@ -221,13 +195,56 @@ namespace Reus2Surveyor
             planetLooperBackgroundWorker.ProgressChanged += planetLooperBackgroundWorker_ProgressChanged;
             planetLooperBackgroundWorker.RunWorkerCompleted += planetLooperBackgroundWorker_RunWorkerCompleted;
             // 
+            // NameCol
+            // 
+            NameCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            NameCol.HeaderText = "Name";
+            NameCol.Name = "NameCol";
+            NameCol.ReadOnly = true;
+            // 
+            // ScoreCol
+            // 
+            ScoreCol.HeaderText = "Score";
+            ScoreCol.Name = "ScoreCol";
+            // 
+            // SpiritCol
+            // 
+            SpiritCol.HeaderText = "Spirit";
+            SpiritCol.Name = "SpiritCol";
+            // 
+            // CompletionCol
+            // 
+            CompletionCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
+            CompletionCol.HeaderText = "SaveSlot";
+            CompletionCol.Name = "CompletionCol";
+            CompletionCol.ReadOnly = true;
+            CompletionCol.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            CompletionCol.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            CompletionCol.Width = 57;
+            // 
+            // ReadOptionCol
+            // 
+            ReadOptionCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
+            ReadOptionCol.HeaderText = "ToRead?";
+            ReadOptionCol.Name = "ReadOptionCol";
+            ReadOptionCol.Width = 56;
+            // 
+            // ReadStatusCol
+            // 
+            ReadStatusCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
+            ReadStatusCol.HeaderText = "Status";
+            ReadStatusCol.Name = "ReadStatusCol";
+            ReadStatusCol.ReadOnly = true;
+            ReadStatusCol.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            ReadStatusCol.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            ReadStatusCol.Width = 45;
+            // 
             // FormMain
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             ClientSize = new System.Drawing.Size(734, 461);
             Controls.Add(label2);
-            Controls.Add(label1);
             Controls.Add(writeDecodedCheckBox);
             Controls.Add(spotCheckWriteCheckBox);
             Controls.Add(spotCheckButton);
@@ -258,15 +275,17 @@ namespace Reus2Surveyor
         private System.Windows.Forms.DataGridView planetGridView;
         private System.Windows.Forms.Button exportStatsButton;
         private System.Windows.Forms.Label exportReadyLabel;
-        private System.Windows.Forms.DataGridViewTextBoxColumn NameCol;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn HasCompleteCol;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn ReadOKCol;
         private System.Windows.Forms.Button spotCheckButton;
         private System.Windows.Forms.CheckBox spotCheckWriteCheckBox;
         private System.Windows.Forms.CheckBox writeDecodedCheckBox;
-        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.ComponentModel.BackgroundWorker planetLooperBackgroundWorker;
+        private System.Windows.Forms.DataGridViewTextBoxColumn NameCol;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ScoreCol;
+        private System.Windows.Forms.DataGridViewTextBoxColumn SpiritCol;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CompletionCol;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn ReadOptionCol;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ReadStatusCol;
     }
 }
 

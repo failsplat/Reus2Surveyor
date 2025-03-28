@@ -51,7 +51,8 @@ namespace Reus2Surveyor
 
         public StatCollector PlanetStatCollector;
 
-        private List<string> filesToProcess = [];
+        private Dictionary<int, PlanetFileUtil.SaveSlotManager> planetsInProfile = [];
+        private Dictionary<int, string> filesToProcess = [];
 
         public FormMain()
         {
@@ -102,6 +103,7 @@ namespace Reus2Surveyor
                 this.profileFolderTextBox.ForeColor = Color.Green;
                 this.profileDirOK = true;
                 this.decodeReadyStatusLabel.Text = "Ready";
+                this.GetPlanetsInProfile();
                 this.InitializePlanetGridView();
             }
             else
@@ -135,31 +137,65 @@ namespace Reus2Surveyor
             this.spotCheckWriteCheckBox.Checked = value;
         }
 
+        public void GetPlanetsInProfile()
+        {
+            List<string> allPlanetPaths = [.. Directory.GetDirectories(Path.Combine(this.ProfileDir, "sessions"))];
+            allPlanetPaths.Sort();
+            List<PlanetFileUtil.SaveSlotManager> availablePlanetSaves = [.. allPlanetPaths.Select(x => new PlanetFileUtil.SaveSlotManager(x))];
+            this.planetsInProfile = availablePlanetSaves.Select((x,ind) => new { x, ind }).ToDictionary(x => x.ind, x=> x.x);
+        }
+
         public void InitializePlanetGridView()
         {
+            this.planetGridView.Rows.Clear();
+            foreach (KeyValuePair<int,PlanetFileUtil.SaveSlotManager> kv in this.planetsInProfile)
+            {
+                this.AddPlanetGridViewRow(kv.Value);
+            }
+        }
 
+        public void AddPlanetGridViewRow(PlanetFileUtil.SaveSlotManager ssm)
+        {
+            int index = this.planetGridView.Rows.Add();
+            DataGridViewRow thisRow = this.planetGridView.Rows[index];
+            thisRow.Cells["NameCol"].Value = PlanetFileUtil.PlanetNameFromPlanetFolderPath(ssm.parentPath);
+            if (ssm.Complete.valid)
+            {
+                thisRow.Cells["CompletionCol"].Value = "Complete";
+                thisRow.Cells["ReadOptionCol"].Value = true;
+            }
+            else
+            {
+                thisRow.Cells["ReadOptionCol"].ReadOnly = true;
+            }
         }
 
         private void decodeButton_Click(object sender, EventArgs e)
         {
             if (this.profileDirOK)
             {
-                this.PlanetStatCollector = new(GameGlossaries);
-
-                List<string> allPlanetPaths = [.. Directory.GetDirectories(Path.Combine(this.ProfileDir, "sessions"))];
-                //List<string> completedPlanetPaths = [.. allPlanetPaths.Where(path => Path.Exists(Path.Combine(path, "auto_complete.deux")))];
-
-                List<string> completedPlanetPaths = [.. allPlanetPaths.Select(x => Path.Exists(Path.Combine(x, "auto_complete.deux")) ? Path.Combine(x, "auto_complete.deux") : null)];
-                completedPlanetPaths = [.. completedPlanetPaths.Where(x => x is not null)];
+                Dictionary<int, string> completedPlanetPaths = this.planetsInProfile.Where(kv => kv.Value.Complete.valid).Select(kv => new KeyValuePair<int, string>(kv.Key, kv.Value.Complete.path)).ToDictionary();
                 int completedPlanetCount = completedPlanetPaths.Count();
 
-                List<string> incompletePlanetPaths = [.. allPlanetPaths.Select(x => Path.Exists(Path.Combine(x, "auto_complete.deux")) ? null : x)];
-                incompletePlanetPaths = [.. incompletePlanetPaths.Where(x => x is not null)];
+                List<int> readOptionOff = [];
+                foreach (DataGridViewRow r in this.planetGridView.Rows)
+                {
+                    bool? readOption = r.Cells["ReadOptionCol"].Value is null ? null : (bool)r.Cells["ReadOptionCol"].Value;
+                    if (readOption is null || !(bool)readOption)
+                    {
+                        readOptionOff.Add(r.Index);
+                    }
+                }
+                foreach (int ro in readOptionOff)
+                {
+                    completedPlanetPaths.Remove(ro);
+                    this.planetGridView.Rows[ro].Cells["SpiritCol"].Value = "Skipped";
+                    this.planetGridView.Rows[ro].Cells["ScoreCol"].Value = "Skipped";
+                }
 
                 this.decodeProgressBar.Maximum = completedPlanetCount;
-                
-                this.updateDecodeProgress();
 
+                this.updateDecodeProgress();
                 this.filesToProcess = completedPlanetPaths;
                 this.planetLooperBackgroundWorker.RunWorkerAsync();
             }
@@ -172,9 +208,9 @@ namespace Reus2Surveyor
         private void LoopThroughPlanetSaves()
         {
             this.ResetPlanetList();
-            this.planetList = [.. Enumerable.Repeat((Planet)null, this.filesToProcess.Count)];
+            this.planetList = [.. Enumerable.Repeat((Planet)null, this.planetsInProfile.Count)];
             this.planetsTotal = this.filesToProcess.Count;
-            foreach ((int index, string path) in this.filesToProcess.Index())
+            foreach ((int index, string path) in this.filesToProcess)
             {
                 ProcessPlanet(index, path);
             }
@@ -198,7 +234,7 @@ namespace Reus2Surveyor
             try
             {
                 resAsDict = PlanetFileUtil.ReadDictFromFile(path);
-                planetName = PlanetFileUtil.PlanetNameFromFilePath(path);
+                planetName = PlanetFileUtil.PlanetNameFromSaveFilePath(path);
                 newPlanet = PlanetFileUtil.InterpretDictAsPlanet(resAsDict, path);
             }
             catch (Exception e)
@@ -215,6 +251,8 @@ namespace Reus2Surveyor
                 this.planetsOk++;
                 newPlanet.SetGlossaryThenLookup(GameGlossaries);
 
+                this.UpdatePlanetGrid(index, newPlanet);
+
                 // Write decoded file
                 if (this.WriteDecodedSetting)
                 {
@@ -226,6 +264,7 @@ namespace Reus2Surveyor
             else
             {
                 this.planetList[index] = newPlanet;
+                this.planetGridView.Rows[index].Cells["ReadStatusCol"].Value = "Failed";
             }
 
             if (this.planetLooperBackgroundWorker.IsBusy) this.planetLooperBackgroundWorker.ReportProgress(1);
@@ -240,6 +279,13 @@ namespace Reus2Surveyor
             }
         }
 
+        public void UpdatePlanetGrid(int index, Planet newPlanet)
+        {
+            this.planetGridView.Rows[index].Cells["ScoreCol"].Value = newPlanet.gameSession.turningPointPerformances.Last().scoreTotal.ToString();
+            this.planetGridView.Rows[index].Cells["SpiritCol"].Value = GameGlossaries.SpiritNameFromHash(newPlanet.gameSession.selectedCharacterDef);
+            this.planetGridView.Rows[index].Cells["ReadStatusCol"].Value = "OK";
+        }
+
         private void updateDecodeProgress()
         {
             this.decodeProgressLabel.Text = String.Format("Planets ({0}/{1}), {2} OK", this.planetsTried, this.planetsTotal, this.planetsOk);
@@ -248,7 +294,7 @@ namespace Reus2Surveyor
             if (this.planetsTried < this.planetsTotal) this.decodeProgressBar.Value = this.planetsTried;
             else if (this.planetsTotal == 0) this.decodeProgressBar.Value = 0;
             else
-            { 
+            {
                 this.decodeProgressBar.Value = this.decodeProgressBar.Maximum;
                 this.decodeProgressLabel.Text += " - Done!";
             }
@@ -261,6 +307,7 @@ namespace Reus2Surveyor
             foreach (Planet planet in this.planetList)
             {
                 i++;
+                if (planet is null) continue;
                 this.PlanetStatCollector.ConsumePlanet(planet, i);
             }
             this.PlanetStatCollector.FinalizeStats();
@@ -290,7 +337,7 @@ namespace Reus2Surveyor
                 string planetName = null;
 
                 resAsDict = PlanetFileUtil.ReadDictFromFile(path);
-                planetName = PlanetFileUtil.PlanetNameFromFilePath(path);
+                planetName = PlanetFileUtil.PlanetNameFromSaveFilePath(path);
 
                 this.LastSpotCheckDir = Path.GetDirectoryName(path);
 
@@ -365,7 +412,7 @@ namespace Reus2Surveyor
 
         private void planetLooperBackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            
+
             this.exportStatsButton.Enabled = true;
             this.exportReadyLabel.Text = "Ready";
 
@@ -377,7 +424,7 @@ namespace Reus2Surveyor
 
         private void planetLooperBackgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            if (e.ProgressPercentage == 0) 
+            if (e.ProgressPercentage == 0)
             {
                 // Lockout
                 this.findProfileButton.Enabled = false;
@@ -385,9 +432,9 @@ namespace Reus2Surveyor
                 this.writeDecodedCheckBox.Enabled = false;
 
                 // Clearing
-                this.planetGridView.Rows.Clear();
+                //this.planetGridView.Rows.Clear();
                 this.exportStatsButton.Enabled = false;
-            } 
+            }
 
             this.updateDecodeProgress();
         }

@@ -124,7 +124,7 @@ namespace Reus2Surveyor
             }
 
             this.path = planetPath;
-            this.name = PlanetFileUtil.PlanetNameFromFilePath(planetPath);
+            this.name = PlanetFileUtil.PlanetNameFromSaveFilePath(planetPath);
             List<string> pathParts = [.. this.path.Split(Path.DirectorySeparatorChar)];
             pathParts.Reverse();
             this.debugName = pathParts[1] + Path.DirectorySeparatorChar + pathParts[0];
