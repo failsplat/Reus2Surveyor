@@ -142,13 +142,13 @@ namespace Reus2Surveyor
             List<string> allPlanetPaths = [.. Directory.GetDirectories(Path.Combine(this.ProfileDir, "sessions"))];
             allPlanetPaths.Sort();
             List<PlanetFileUtil.SaveSlotManager> availablePlanetSaves = [.. allPlanetPaths.Select(x => new PlanetFileUtil.SaveSlotManager(x))];
-            this.planetsInProfile = availablePlanetSaves.Select((x,ind) => new { x, ind }).ToDictionary(x => x.ind, x=> x.x);
+            this.planetsInProfile = availablePlanetSaves.Select((x, ind) => new { x, ind }).ToDictionary(x => x.ind, x => x.x);
         }
 
         public void InitializePlanetGridView()
         {
             this.planetGridView.Rows.Clear();
-            foreach (KeyValuePair<int,PlanetFileUtil.SaveSlotManager> kv in this.planetsInProfile)
+            foreach (KeyValuePair<int, PlanetFileUtil.SaveSlotManager> kv in this.planetsInProfile)
             {
                 this.AddPlanetGridViewRow(kv.Value);
             }
@@ -437,6 +437,22 @@ namespace Reus2Surveyor
             }
 
             this.updateDecodeProgress();
+        }
+
+        private void readAllButton_Click(object sender, EventArgs e)
+        {
+            foreach((int index, PlanetFileUtil.SaveSlotManager ssm) in this.planetsInProfile)
+            {
+                if (ssm.Complete.valid) { this.planetGridView.Rows[index].Cells["ReadOptionCol"].Value = true; }
+            }
+        }
+
+        private void readNoneButton_Click(object sender, EventArgs e)
+        {
+            foreach (DataGridViewRow row in this.planetGridView.Rows)
+            {
+                row.Cells["ReadOptionCol"].Value = false;
+            }
         }
     }
 }
