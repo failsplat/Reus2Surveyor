@@ -63,6 +63,26 @@ namespace Reus2Surveyor.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] AegirSquare {
+            get {
+                object obj = ResourceManager.GetObject("AegirSquare", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] AtlasSquare {
+            get {
+                object obj = ResourceManager.GetObject("AtlasSquare", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] BotanistSquare {
             get {
                 object obj = ResourceManager.GetObject("BotanistSquare", resourceCulture);
@@ -113,9 +133,39 @@ namespace Reus2Surveyor.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] IcyAegirSquare {
+            get {
+                object obj = ResourceManager.GetObject("IcyAegirSquare", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] InventorSquare {
             get {
                 object obj = ResourceManager.GetObject("InventorSquare", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] JangwaSquare {
+            get {
+                object obj = ResourceManager.GetObject("JangwaSquare", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] KhitonSquare {
+            get {
+                object obj = ResourceManager.GetObject("KhitonSquare", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -173,9 +223,29 @@ namespace Reus2Surveyor.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] ReginaldSquare {
+            get {
+                object obj = ResourceManager.GetObject("ReginaldSquare", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] SageSquare {
             get {
                 object obj = ResourceManager.GetObject("SageSquare", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] SatariSquare {
+            get {
+                object obj = ResourceManager.GetObject("SatariSquare", resourceCulture);
                 return ((byte[])(obj));
             }
         }

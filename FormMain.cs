@@ -183,6 +183,12 @@ namespace Reus2Surveyor
                     r.Cells["SpiritCol"].Value = null;
                     r.Cells["ScoreCol"].Value = null;
                     r.Cells["ReadStatusCol"].Value = null;
+
+                    r.Cells["SpiritIconCol"].Value = null;
+                    r.Cells["Giant1Col"].Value = null;
+                    r.Cells["Giant2Col"].Value = null;
+                    r.Cells["Giant3Col"].Value = null;
+
                     bool? readOption = r.Cells["ReadOptionCol"].Value is null ? null : (bool)r.Cells["ReadOptionCol"].Value;
                     if (readOption is null || !(bool)readOption)
                     {
@@ -299,6 +305,19 @@ namespace Reus2Surveyor
             {"Villain",  Properties.Resources.VillainSquare},
         };
 
+        public static Dictionary<string, byte[]> giantSquares = new()
+        {
+            {"Satari", Properties.Resources.SatariSquare },
+            {"Reginald", Properties.Resources.ReginaldSquare },
+
+            {"Khiton", Properties.Resources.KhitonSquare },
+            {"Jangwa", Properties.Resources.JangwaSquare },
+
+            {"Atlas", Properties.Resources.AtlasSquare },
+            {"Aegir", Properties.Resources.AegirSquare },
+            {"Icy Aegir", Properties.Resources.IcyAegirSquare },
+        };
+
         public void UpdatePlanetGrid(int index, Planet newPlanet)
         {
             string spiritName = GameGlossaries.SpiritNameFromHash(newPlanet.gameSession.selectedCharacterDef);
@@ -309,7 +328,11 @@ namespace Reus2Surveyor
             thisRow.Cells["SpiritCol"].Value = spiritName;
             thisRow.Cells["ReadStatusCol"].Value = "OK";
 
-            if (spiritSquares.TryGetValue(spiritName, out byte[] value)) { thisRow.Cells["SpiritIconCol"].Value = value; }
+            if (spiritSquares.TryGetValue(spiritName, out byte[] spiritImage)) { thisRow.Cells["SpiritIconCol"].Value = spiritImage; }
+
+            if (giantSquares.TryGetValue(newPlanet.GiantNames[0], out byte[] giant1Image)) { thisRow.Cells["Giant1Col"].Value = giant1Image; }
+            if (giantSquares.TryGetValue(newPlanet.GiantNames[1], out byte[] giant2Image)) { thisRow.Cells["Giant2Col"].Value = giant2Image; }
+            if (giantSquares.TryGetValue(newPlanet.GiantNames[2], out byte[] giant3Image)) { thisRow.Cells["Giant3Col"].Value = giant3Image; }
         }
 
         private void updateDecodeProgress()
@@ -447,6 +470,9 @@ namespace Reus2Surveyor
             this.decodeButton.Enabled = true;
             this.writeDecodedCheckBox.Enabled = true;
             this.planetGridView.Columns["ReadOptionCol"].ReadOnly = false;
+
+            this.readAllButton.Enabled = true;
+            this.readNoneButton.Enabled = true;
         }
 
         private void planetLooperBackgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -458,6 +484,9 @@ namespace Reus2Surveyor
                 this.decodeButton.Enabled = false;
                 this.writeDecodedCheckBox.Enabled = false;
                 this.planetGridView.Columns["ReadOptionCol"].ReadOnly = true;
+
+                this.readAllButton.Enabled = false;
+                this.readNoneButton.Enabled = false;
 
                 // Clearing
                 //this.planetGridView.Rows.Clear();

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using static Reus2Surveyor.Glossaries;
 
 namespace Reus2Surveyor
 {
@@ -33,6 +34,8 @@ namespace Reus2Surveyor
         public Dictionary<string, int> LegacyBioticaCounterNames { get; private set; } = [];
 
         public HashSet<string> MasteredBioticaDefSet { get; private set; } = [];
+
+        public List<string> GiantNames { get; private set; } = [];
 
         private Glossaries glossaries;
 
@@ -145,7 +148,6 @@ namespace Reus2Surveyor
                 b.BuildPatchInfo(this.patchIdMap, this.patchDictionary);
             }
 
-
             // Remove biotica with ID 0
             /*List<int> inactiveBiotica = [];
             foreach (KeyValuePair<int,NatureBioticum> kv in this.natureBioticumDictionary)
@@ -244,6 +246,10 @@ namespace Reus2Surveyor
             {
                 this.BioticaCounterNames[this.glossaries.BioticumNameFromHash(kv.Key)] = kv.Value;
             }
+
+            List<GiantDefinition> giantDefs = [.. this.gameSession.giantRosterDefs.Select(v => glossaries.TryGiantDefinitionFromHash(v))];
+            giantDefs.Sort((x, y) => x.Position - y.Position);
+            this.GiantNames = [.. giantDefs.Select(v => v.Name)];
         }
     }
 
