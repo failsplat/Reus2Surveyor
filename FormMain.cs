@@ -180,6 +180,9 @@ namespace Reus2Surveyor
                 List<int> readOptionOff = [];
                 foreach (DataGridViewRow r in this.planetGridView.Rows)
                 {
+                    r.Cells["SpiritCol"].Value = null;
+                    r.Cells["ScoreCol"].Value = null;
+                    r.Cells["ReadStatusCol"].Value = null;
                     bool? readOption = r.Cells["ReadOptionCol"].Value is null ? null : (bool)r.Cells["ReadOptionCol"].Value;
                     if (readOption is null || !(bool)readOption)
                     {
@@ -420,6 +423,7 @@ namespace Reus2Surveyor
             this.findProfileButton.Enabled = true;
             this.decodeButton.Enabled = true;
             this.writeDecodedCheckBox.Enabled = true;
+            this.planetGridView.Columns["ReadOptionCol"].ReadOnly = false;
         }
 
         private void planetLooperBackgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -430,6 +434,7 @@ namespace Reus2Surveyor
                 this.findProfileButton.Enabled = false;
                 this.decodeButton.Enabled = false;
                 this.writeDecodedCheckBox.Enabled = false;
+                this.planetGridView.Columns["ReadOptionCol"].ReadOnly = true;
 
                 // Clearing
                 //this.planetGridView.Rows.Clear();
