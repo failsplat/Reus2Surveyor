@@ -282,11 +282,34 @@ namespace Reus2Surveyor
             }
         }
 
+        public static Dictionary<string, byte[]> spiritSquares = new() 
+        {
+            {"Botanist",  Properties.Resources.BotanistSquare},
+            {"Diplomat",  Properties.Resources.DiplomatSquare},
+            {"General", Properties.Resources.GeneralSquare},
+            {"Goddess", Properties.Resources.GoddessSquare},
+            {"Huntress", Properties.Resources.HuntressSquare},
+            {"Inventor",  Properties.Resources.InventorSquare},
+            {"Merchant",  Properties.Resources.MerchantSquare},
+            {"Miner",  Properties.Resources.MinerSquare},
+            {"Painter",  Properties.Resources.PainterSquare},
+            {"Pirate Queen",  Properties.Resources.PirateQueenSquare},
+            {"Poet",  Properties.Resources.PoetSquare},
+            {"Sage",  Properties.Resources.SageSquare},
+            {"Villain",  Properties.Resources.VillainSquare},
+        };
+
         public void UpdatePlanetGrid(int index, Planet newPlanet)
         {
-            this.planetGridView.Rows[index].Cells["ScoreCol"].Value = newPlanet.gameSession.turningPointPerformances.Last().scoreTotal.ToString();
-            this.planetGridView.Rows[index].Cells["SpiritCol"].Value = GameGlossaries.SpiritNameFromHash(newPlanet.gameSession.selectedCharacterDef);
-            this.planetGridView.Rows[index].Cells["ReadStatusCol"].Value = "OK";
+            string spiritName = GameGlossaries.SpiritNameFromHash(newPlanet.gameSession.selectedCharacterDef);
+            DataGridViewRow thisRow = this.planetGridView.Rows[index];
+
+
+            thisRow.Cells["ScoreCol"].Value = newPlanet.gameSession.turningPointPerformances.Last().scoreTotal.ToString();
+            thisRow.Cells["SpiritCol"].Value = spiritName;
+            thisRow.Cells["ReadStatusCol"].Value = "OK";
+
+            if (spiritSquares.TryGetValue(spiritName, out byte[] value)) { thisRow.Cells["SpiritIconCol"].Value = value; }
         }
 
         private void updateDecodeProgress()

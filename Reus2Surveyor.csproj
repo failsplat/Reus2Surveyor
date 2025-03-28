@@ -8,11 +8,11 @@
     <AssemblyVersion>0.3.0</AssemblyVersion>
     <FileVersion>0.3.0</FileVersion>
     <PathMap>$(MSBuildProjectDirectory)\$(IntermediateOutputPath)=.</PathMap>
-    <ApplicationIcon>icon.ico</ApplicationIcon>
+    <ApplicationIcon>Icons\icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="icon.ico" />
+    <Content Include="Icons\icon.ico" />
   </ItemGroup>
 
   <ItemGroup>

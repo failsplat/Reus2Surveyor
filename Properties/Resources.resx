@@ -117,4 +117,44 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="BotanistSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\BotanistSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="DiplomatSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\DiplomatSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="GeneralSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\GeneralSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="GoddessSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\GoddessSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="HuntressSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\HuntressSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="InventorSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\InventorSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="MerchantSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\MerchantSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="MinerSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\MinerSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="PainterSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\PainterSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="PirateQueenSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\PirateQueenSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="PoetSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\PoetSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SageSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\SageSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="VillainSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\VillainSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
 </root>

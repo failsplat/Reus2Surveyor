@@ -59,5 +59,135 @@ namespace Reus2Surveyor.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] BotanistSquare {
+            get {
+                object obj = ResourceManager.GetObject("BotanistSquare", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] DiplomatSquare {
+            get {
+                object obj = ResourceManager.GetObject("DiplomatSquare", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] GeneralSquare {
+            get {
+                object obj = ResourceManager.GetObject("GeneralSquare", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] GoddessSquare {
+            get {
+                object obj = ResourceManager.GetObject("GoddessSquare", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] HuntressSquare {
+            get {
+                object obj = ResourceManager.GetObject("HuntressSquare", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] InventorSquare {
+            get {
+                object obj = ResourceManager.GetObject("InventorSquare", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] MerchantSquare {
+            get {
+                object obj = ResourceManager.GetObject("MerchantSquare", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] MinerSquare {
+            get {
+                object obj = ResourceManager.GetObject("MinerSquare", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] PainterSquare {
+            get {
+                object obj = ResourceManager.GetObject("PainterSquare", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] PirateQueenSquare {
+            get {
+                object obj = ResourceManager.GetObject("PirateQueenSquare", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] PoetSquare {
+            get {
+                object obj = ResourceManager.GetObject("PoetSquare", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] SageSquare {
+            get {
+                object obj = ResourceManager.GetObject("SageSquare", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] VillainSquare {
+            get {
+                object obj = ResourceManager.GetObject("VillainSquare", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
     }
 }
