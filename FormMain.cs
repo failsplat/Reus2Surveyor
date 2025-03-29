@@ -288,51 +288,20 @@ namespace Reus2Surveyor
             }
         }
 
-        public static Dictionary<string, byte[]> spiritSquares = new() 
-        {
-            {"Botanist",  Properties.Resources.BotanistSquare},
-            {"Diplomat",  Properties.Resources.DiplomatSquare},
-            {"General", Properties.Resources.GeneralSquare},
-            {"Goddess", Properties.Resources.GoddessSquare},
-            {"Huntress", Properties.Resources.HuntressSquare},
-            {"Inventor",  Properties.Resources.InventorSquare},
-            {"Merchant",  Properties.Resources.MerchantSquare},
-            {"Miner",  Properties.Resources.MinerSquare},
-            {"Painter",  Properties.Resources.PainterSquare},
-            {"Pirate Queen",  Properties.Resources.PirateQueenSquare},
-            {"Poet",  Properties.Resources.PoetSquare},
-            {"Sage",  Properties.Resources.SageSquare},
-            {"Villain",  Properties.Resources.VillainSquare},
-        };
-
-        public static Dictionary<string, byte[]> giantSquares = new()
-        {
-            {"Satari", Properties.Resources.SatariSquare },
-            {"Reginald", Properties.Resources.ReginaldSquare },
-
-            {"Khiton", Properties.Resources.KhitonSquare },
-            {"Jangwa", Properties.Resources.JangwaSquare },
-
-            {"Atlas", Properties.Resources.AtlasSquare },
-            {"Aegir", Properties.Resources.AegirSquare },
-            {"Icy Aegir", Properties.Resources.IcyAegirSquare },
-        };
-
         public void UpdatePlanetGrid(int index, Planet newPlanet)
         {
             string spiritName = GameGlossaries.SpiritNameFromHash(newPlanet.gameSession.selectedCharacterDef);
             DataGridViewRow thisRow = this.planetGridView.Rows[index];
 
-
             thisRow.Cells["ScoreCol"].Value = newPlanet.gameSession.turningPointPerformances.Last().scoreTotal.ToString();
             thisRow.Cells["SpiritCol"].Value = spiritName;
             thisRow.Cells["ReadStatusCol"].Value = "OK";
 
-            if (spiritSquares.TryGetValue(spiritName, out byte[] spiritImage)) { thisRow.Cells["SpiritIconCol"].Value = spiritImage; }
+            if (TableGraphics.spiritSquares.TryGetValue(spiritName, out byte[] spiritImage)) { thisRow.Cells["SpiritIconCol"].Value = spiritImage; }
 
-            if (giantSquares.TryGetValue(newPlanet.GiantNames[0], out byte[] giant1Image)) { thisRow.Cells["Giant1Col"].Value = giant1Image; }
-            if (giantSquares.TryGetValue(newPlanet.GiantNames[1], out byte[] giant2Image)) { thisRow.Cells["Giant2Col"].Value = giant2Image; }
-            if (giantSquares.TryGetValue(newPlanet.GiantNames[2], out byte[] giant3Image)) { thisRow.Cells["Giant3Col"].Value = giant3Image; }
+            if (TableGraphics.giantSquares.TryGetValue(newPlanet.GiantNames[0], out byte[] giant1Image)) { thisRow.Cells["Giant1Col"].Value = giant1Image; }
+            if (TableGraphics.giantSquares.TryGetValue(newPlanet.GiantNames[1], out byte[] giant2Image)) { thisRow.Cells["Giant2Col"].Value = giant2Image; }
+            if (TableGraphics.giantSquares.TryGetValue(newPlanet.GiantNames[2], out byte[] giant3Image)) { thisRow.Cells["Giant3Col"].Value = giant3Image; }
         }
 
         private void updateDecodeProgress()
