@@ -1,9 +1,9 @@
-﻿using System;
+﻿using ImageMagick;
+using ImageMagick.Drawing;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using ImageMagick;
-using ImageMagick.Drawing;
 
 namespace Reus2Surveyor
 {
@@ -69,7 +69,7 @@ namespace Reus2Surveyor
             {"Taiga",  new MagickColor("#7CE2D1") },
         };
 
-        public static MagickImage BiomePercentsToMinimap(Dictionary<string, double> percents, int width=100, int height=24)
+        public static MagickImage BiomeTypePercentsToMinimap(Dictionary<string, double> percents, int width=100, int height=24)
         {
             Dictionary<string, int> biomeStripes = PercentsToWholeNumber(percents, width);
 
@@ -81,6 +81,51 @@ namespace Reus2Surveyor
             Drawables dr = new Drawables();
             foreach ((string biomeName, int stripeWidth) in biomeStripes)
             {
+                dr.FillColor(BiomeColors[biomeName]);
+                dr.Rectangle(leftPos, 0, leftPos + stripeWidth, height);
+                leftPos += stripeWidth;
+            }
+            dr.Draw(image);
+            return image;
+        }
+
+        public static Dictionary<int, (string biomeTypeName, int px)> PositionalDictToWholeNumber(
+            Dictionary<int, (string biomeTypeName, double percentSize)> biomeInfo, 
+            int totalAmount = 100)
+        {
+            Dictionary<int, (string biomeTypeName, int px)> output =
+                biomeInfo.Select(kv => new KeyValuePair<int, (string, int)>(
+                    kv.Key, 
+                    (kv.Value.biomeTypeName, (int)Math.Floor(kv.Value.percentSize * totalAmount))))
+                .ToDictionary();
+
+            int remainder = totalAmount - output.Values.Select(x =>x.px).Sum();
+            for (; remainder > 0; remainder--)
+            {
+                int minKey = output.MinBy(kv => kv.Value.px).Key;
+                output[minKey] = (output[minKey].biomeTypeName, output[minKey].px + 1);
+            }
+
+            return output;
+        }
+
+        public static MagickImage BiomePositionalToMinimap(Dictionary<int, (string biomeTypeName, double percentSize)> biomeInfo, int width = 100, int height = 24)
+        {
+            Dictionary<int, (string biomeTypeName, int px)> biomeStripes = PositionalDictToWholeNumber(biomeInfo, width);
+            List<int> anchorPatches = biomeStripes.Keys.ToList();
+            anchorPatches.Sort();
+
+            using MemoryStream s = new();
+            MagickImage image = new MagickImage(MagickColors.Transparent, (uint)width, (uint)height);
+            image.Format = MagickFormat.Png;
+
+            int leftPos = 0;
+            Drawables dr = new Drawables();
+            foreach (int anchorPatch in anchorPatches)
+            {
+                string biomeName = biomeStripes[anchorPatch].biomeTypeName;
+                int stripeWidth = biomeStripes[anchorPatch].px;
+                
                 dr.FillColor(BiomeColors[biomeName]);
                 dr.Rectangle(leftPos, 0, leftPos + stripeWidth, height);
                 leftPos += stripeWidth;

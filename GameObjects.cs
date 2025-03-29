@@ -37,6 +37,7 @@ namespace Reus2Surveyor
 
         public List<string> GiantNames { get; private set; } = [];
         public Dictionary<string, double> BiomePercentages = [];
+        public Dictionary<int, (string biomeTypeName, double percentSize)> BiomeSizeMap = [];
 
         private Glossaries glossaries;
 
@@ -241,7 +242,17 @@ namespace Reus2Surveyor
                 if (!patchesPerBiomeType.ContainsKey(biomeType)) patchesPerBiomeType[biomeType] = 0;
                 patchesPerBiomeType[biomeType] += biome.totalSize;
             }
-            this.BiomePercentages = patchesPerBiomeType.Select(kv => new KeyValuePair<string, double>(kv.Key, (double)kv.Value / (double)this.totalSize)).ToDictionary();
+            this.BiomePercentages = patchesPerBiomeType
+                .Select(kv => new KeyValuePair<string, double>(kv.Key, (double)kv.Value / (double)this.totalSize))
+                .ToDictionary();
+            this.BiomeSizeMap = 
+                this.biomeDictionary.Values
+                .Where(b => b.anchorPatchId is not null)
+                .Select(b => new KeyValuePair<int, (string, double)>(
+                    (int)b.anchorPatchId, (b.biomeTypeName, (double)b.totalSize/ (double)this.totalSize))
+                )
+                .ToDictionary()
+                ;
         }
 
         public void SetGlossaryThenLookup(Glossaries g)
