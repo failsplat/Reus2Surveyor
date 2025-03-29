@@ -1,6 +1,6 @@
 # Reus 2 Planet Surveyor
 This fan-made desktop app reads the save files for completed Reus 2 planets and produces a spreadsheet of stats. It is written in C# and uses the .NET framework.
-(Not affiliated officially with Reus 2 or its developer and publisher.) Tested for Reus 2 v1.4.3 and up.
+(Not affiliated officially with Reus 2 or its developer and publisher.) Tested for Reus 2 v1.3.0 (Atlantic Forest) and up.
 
 ![UI Pic v3](https://github.com/user-attachments/assets/50b12e7c-2fac-4db8-b55a-aaf8e7417e6d)
 ## Usage Instructions
