@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using ClosedXML.Excel;
-using static Reus2Surveyor.Glossaries;
+﻿using ClosedXML.Excel;
 using MathNet.Numerics.Statistics;
+using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
+using static Reus2Surveyor.Glossaries;
 
 namespace Reus2Surveyor
 {
@@ -192,7 +192,7 @@ namespace Reus2Surveyor
             //planetEntry.TechP = SafeDivide(planetEntry.Tech, planetEntry.Pros);
             //planetEntry.WealP = SafeDivide(planetEntry.Weal, planetEntry.Pros);
 
-            planetEntry.PopP = SafePercent(planetEntry.Pop, planetEntry.Pop+planetEntry.Tech+planetEntry.Weal);
+            planetEntry.PopP = SafePercent(planetEntry.Pop, planetEntry.Pop + planetEntry.Tech + planetEntry.Weal);
             planetEntry.TechP = SafePercent(planetEntry.Tech, planetEntry.Pop + planetEntry.Tech + planetEntry.Weal);
             planetEntry.WealP = SafePercent(planetEntry.Weal, planetEntry.Pop + planetEntry.Tech + planetEntry.Weal);
 
@@ -267,7 +267,7 @@ namespace Reus2Surveyor
             // City Summary
 
             List<CitySummaryEntry> thisPlanetCitySummaries = [];
-            List<City> citiesInOrder = [..planet.cityDictionary.ToList().OrderBy(kv => kv.Key).Select(kv => kv.Value)];
+            List<City> citiesInOrder = [.. planet.cityDictionary.ToList().OrderBy(kv => kv.Key).Select(kv => kv.Value)];
             int cityN = 0;
             foreach (City city in citiesInOrder)
             {
@@ -275,7 +275,7 @@ namespace Reus2Surveyor
                 CitySummaryEntry cityEntry = new(index, cityN, city.fancyName);
 
                 cityEntry.Char = glossaryInstance.SpiritNameFromHash(city.founderCharacterDef);
-                cityEntry.Level = city.currentVisualStage is not null? city.currentVisualStage + 1 : null;
+                cityEntry.Level = city.currentVisualStage is not null ? city.currentVisualStage + 1 : null;
 
                 cityEntry.Pros = (int)city.CivSummary.prosperity;
                 cityEntry.Pop = (int)city.CivSummary.population;
@@ -347,7 +347,7 @@ namespace Reus2Surveyor
                 cityEntry.AnimalP = SafePercent(cityEntry.Animals, cityEntry.Biotica);
                 cityEntry.MineralP = SafePercent(cityEntry.Minerals, cityEntry.Biotica);
 
-                foreach(City.ProjectController.CityProject project in city.CityProjectController.projects)
+                foreach (City.ProjectController.CityProject project in city.CityProjectController.projects)
                 {
                     cityEntry.Buildings += 1;
                     if (glossaryInstance.ProjectDefinitionByHash.ContainsKey(project.definition))
@@ -399,7 +399,7 @@ namespace Reus2Surveyor
             for (int i = 0; i < cityRanks.Count; i++)
             {
                 int c = cityRanks[i];
-                thisPlanetCitySummaries[c].Rank = i+1;
+                thisPlanetCitySummaries[c].Rank = i + 1;
                 thisPlanetCitySummaries[c].Upset = thisPlanetCitySummaries[c].CityN - thisPlanetCitySummaries[c].Rank;
             }
 
@@ -408,12 +408,12 @@ namespace Reus2Surveyor
 
         public void CountBioticaVsSpirit(Planet planet, int index)
         {
-            foreach(City city in planet.cityDictionary.Values)
+            foreach (City city in planet.cityDictionary.Values)
             {
                 string spirit = glossaryInstance.SpiritNameFromHash(city.founderCharacterDef);
                 foreach (NatureBioticum nb in city.BioticaInTerritory)
                 {
-                    if (glossaryInstance.BioticumDefinitionByHash.ContainsKey(nb.definition)) 
+                    if (glossaryInstance.BioticumDefinitionByHash.ContainsKey(nb.definition))
                     {
                         string activeBioName = glossaryInstance.BioticumNameFromHash(nb.definition);
                         if (!BioticumVsSpiritCounter.ContainsKey(activeBioName)) this.BioticumVsSpiritCounter[activeBioName] = new();
@@ -462,13 +462,13 @@ namespace Reus2Surveyor
             }
         }
 
-        public static DataTable NestDictToDataTable<T,T2>(Dictionary<T, Dictionary<T, T2>> input, string indexName)
+        public static DataTable NestDictToDataTable<T, T2>(Dictionary<T, Dictionary<T, T2>> input, string indexName)
         {
             // Similar to pandas.DataFrame.from_dict with the "row" orientation
             DataTable output = new();
             output.Columns.Add(indexName);
 
-            List<string> columnHeaders = [..input.SelectMany(kv => kv.Value.Select(kv => kv.Key.ToString())).Distinct()];
+            List<string> columnHeaders = [.. input.SelectMany(kv => kv.Value.Select(kv => kv.Key.ToString())).Distinct()];
             columnHeaders.Sort();
             foreach (string colHead in columnHeaders)
             {
@@ -476,7 +476,7 @@ namespace Reus2Surveyor
                 output.Columns[colHead].DataType = typeof(T2);
             }
 
-            foreach (KeyValuePair<T, Dictionary<T, T2>> rowKV in input) 
+            foreach (KeyValuePair<T, Dictionary<T, T2>> rowKV in input)
             {
                 DataRow newRow = output.NewRow();
                 newRow[indexName] = rowKV.Key.ToString();
@@ -488,7 +488,7 @@ namespace Reus2Surveyor
             }
 
             return output;
-        } 
+        }
 
         public void WriteToExcel(string dstPath)
         {
@@ -686,7 +686,7 @@ namespace Reus2Surveyor
             {
                 return columnFormats;
             }
-            
+
         }
 
         public class PlanetSummaryEntry
@@ -774,7 +774,7 @@ namespace Reus2Surveyor
 
             public int Inventions, TradeRoutes = 0;
             public int TerrPatches = 0;
-            
+
             public int TPLead = 0;
             public string TP1, TP2, TP3 = null;
 
@@ -824,8 +824,8 @@ namespace Reus2Surveyor
         {
             int n = values.Count;
             if (n == 0) return null;
-            
-            List<double> v2 = [.. values.Select(v => v/values.Sum())];
+
+            List<double> v2 = [.. values.Select(v => v / values.Sum())];
             v2.Sort();
 
             double a = 0;
@@ -854,7 +854,7 @@ namespace Reus2Surveyor
             for (int i = 0; i < v2.Count; i++)
             {
                 double vi = v2[i];
-                a += (i+1) * vi;
+                a += (i + 1) * vi;
             }
 
             double g = a;

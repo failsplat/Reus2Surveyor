@@ -1,28 +1,16 @@
 ﻿
 using ImageMagick;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Bson;
-using Newtonsoft.Json.Serialization;
 using System;
-using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
-using System.Dynamic;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.Swift;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Windows.Forms.VisualStyles;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace Reus2Surveyor
 {
@@ -410,7 +398,7 @@ namespace Reus2Surveyor
                     sc.ConsumePlanet(testPlanet, 0);
                     sc.FinalizeStats();
                 } // Breakpoint here
-            } 
+            }
         }
 
         private void spotCheckWriteCheckBox_CheckStateChanged(object sender, EventArgs e)
@@ -474,7 +462,7 @@ namespace Reus2Surveyor
 
         private void readAllButton_Click(object sender, EventArgs e)
         {
-            foreach((int index, PlanetFileUtil.SaveSlotManager ssm) in this.planetsInProfile)
+            foreach ((int index, PlanetFileUtil.SaveSlotManager ssm) in this.planetsInProfile)
             {
                 if (ssm.Complete.valid) { this.planetGridView.Rows[index].Cells["ReadOptionCol"].Value = true; }
             }

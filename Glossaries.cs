@@ -27,8 +27,8 @@ namespace Reus2Surveyor
         public readonly List<EraDefinition> EraDefinitionList = [];
 
         public Glossaries(
-            string bioFile, 
-            string giantFile, 
+            string bioFile,
+            string giantFile,
             string spiritFile,
             string eraFile,
             string projectFile,
@@ -307,7 +307,7 @@ namespace Reus2Surveyor
                 {
                     i++;
                     string thisCol = header[i];
-                    if (thisCol == "Position") 
+                    if (thisCol == "Position")
                     {
                         this.Position = System.Convert.ToInt32(d);
                         continue;

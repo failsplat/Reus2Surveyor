@@ -107,7 +107,7 @@ namespace Reus2Surveyor
             return null;
         }
 
-        public static string TryGetString(Dictionary<string, object> dict, string key) 
+        public static string TryGetString(Dictionary<string, object> dict, string key)
         {
             return TryGetString(dict, [key]);
         }

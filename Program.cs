@@ -1,8 +1,8 @@
-using System;
-using System.Windows.Forms;
-using System.Diagnostics;
 using Reus2Surveyor.Properties;
+using System;
+using System.Diagnostics;
 using System.IO;
+using System.Windows.Forms;
 
 namespace Reus2Surveyor
 {
@@ -61,10 +61,10 @@ namespace Reus2Surveyor
             //Get the column number
             int col = frame.GetFileColumnNumber();
             Trace.TraceError(String.Format("{0}:Line{1}:Col{2}", methodName, line, col));
-            Trace.TraceError("Message:"+e.Message);
+            Trace.TraceError("Message:" + e.Message);
             //Trace.TraceError(e.StackTrace);
         }
     }
 
-    
+
 }

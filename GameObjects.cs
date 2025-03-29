@@ -62,11 +62,11 @@ namespace Reus2Surveyor
             "biomeBuffs", "anchorPatch", "visualName", "biomeType", "name",
             ];
         public readonly static List<string> bioticumCheckKeys = [
-            "aspectSlots", "_type", "definition", "receivedRiverBonus", 
+            "aspectSlots", "_type", "definition", "receivedRiverBonus",
             "name", "parent"
             ];
         public readonly static List<string> cityCheckKeys = [
-            "projectController", "resourceController", "luxuryController", "fancyName", 
+            "projectController", "resourceController", "luxuryController", "fancyName",
             "leftNeighbour", "rightNeighbour", // British Spelling
             "biomeOrigin", "initiatedTurningPoints", "nomadHeritage", "currentVisualStage", "projectSlots",
             ];
@@ -101,7 +101,7 @@ namespace Reus2Surveyor
                     this.biomeDictionary.Add(i, new Biome(refToken));
                     continue;
                 }
-                if (bioticumCheckKeys.All(k=> rtKeys.Contains(k)) && (string)refToken["name"] == "NatureBioticum")
+                if (bioticumCheckKeys.All(k => rtKeys.Contains(k)) && (string)refToken["name"] == "NatureBioticum")
                 {
                     this.natureBioticumDictionary.Add(i, new NatureBioticum(refToken));
                     continue;
@@ -115,7 +115,7 @@ namespace Reus2Surveyor
                 {
                     this.gameSession = new GameSession(refToken);
                     continue;
-                } 
+                }
                 if (patchCollectionCheckKeys.All(k => rtKeys.Contains(k)) && (string)refToken["name"] == "PatchCollection")
                 {
                     this.patchIdMap = new PatchMap<int?>(
@@ -144,7 +144,7 @@ namespace Reus2Surveyor
 
             // Secondary Data (calculated when all game objects parsed)
             this.totalSize = this.patchDictionary.Count;
-            this.wildSize =  this.patchDictionary.Where(kvp => kvp.Value.IsWildPatch()).Count();
+            this.wildSize = this.patchDictionary.Where(kvp => kvp.Value.IsWildPatch()).Count();
             foreach (Biome b in this.biomeDictionary.Values)
             {
                 b.BuildPatchInfo(this.patchIdMap, this.patchDictionary);
@@ -171,7 +171,7 @@ namespace Reus2Surveyor
             {
                 if (bs.futureSlotId is not null) this.futureSlotIndices.Add((int)bs.futureSlotId);
             }
-            foreach (KeyValuePair<int,NatureBioticum> kv in this.natureBioticumDictionary)
+            foreach (KeyValuePair<int, NatureBioticum> kv in this.natureBioticumDictionary)
             {
                 if (kv.Value.slotId is not null)
                 {
@@ -191,7 +191,7 @@ namespace Reus2Surveyor
             foreach (NatureBioticum nb in this.natureBioticumDictionary.Values)
             {
                 if (nb.definition is null) continue;
-                if(this.BioticaCounterDefs.ContainsKey(nb.definition))
+                if (this.BioticaCounterDefs.ContainsKey(nb.definition))
                 {
                     this.BioticaCounterDefs[nb.definition] += 1;
                 }
@@ -219,14 +219,14 @@ namespace Reus2Surveyor
             }
 
             // City information
-            foreach(City city in this.cityDictionary.Values)
+            foreach (City city in this.cityDictionary.Values)
             {
                 city.BuildTerritoryInfo(this.patchIdMap, this.patchDictionary);
                 city.CountTerritoryBiotica(this.slotDictionary, this.natureBioticumDictionary);
             }
 
-            List<ValueTuple<City,GameSession.CivSummary>> CitySummaryPairs = [..this.cityDictionary.Values.Zip(this.gameSession.civSummaries).ToList()];
-            foreach (ValueTuple<City,GameSession.CivSummary> cc in CitySummaryPairs)
+            List<ValueTuple<City, GameSession.CivSummary>> CitySummaryPairs = [.. this.cityDictionary.Values.Zip(this.gameSession.civSummaries).ToList()];
+            foreach (ValueTuple<City, GameSession.CivSummary> cc in CitySummaryPairs)
             {
                 cc.Item1.AttachCivSummary(cc.Item2);
             }
@@ -245,11 +245,11 @@ namespace Reus2Surveyor
             this.BiomePercentages = patchesPerBiomeType
                 .Select(kv => new KeyValuePair<string, double>(kv.Key, (double)kv.Value / (double)this.totalSize))
                 .ToDictionary();
-            this.BiomeSizeMap = 
+            this.BiomeSizeMap =
                 this.biomeDictionary.Values
                 .Where(b => b.anchorPatchId is not null)
                 .Select(b => new KeyValuePair<int, (string, double)>(
-                    (int)b.anchorPatchId, (b.biomeTypeName, (double)b.totalSize/ (double)this.totalSize))
+                    (int)b.anchorPatchId, (b.biomeTypeName, (double)b.totalSize / (double)this.totalSize))
                 )
                 .ToDictionary()
                 ;
@@ -303,10 +303,10 @@ namespace Reus2Surveyor
 
             this.slotbonusDefinitions = DictHelper.TryGetStringList(refDict, ["slotbonusDefinitions", "itemData"], "itemData");
 
-            this.slotLevel = DictHelper.TryGetInt(refDict,"slotLevel");
+            this.slotLevel = DictHelper.TryGetInt(refDict, "slotLevel");
 
             this.archivedBiotica = DictHelper.TryGetDictList(refDict, ["archivedBiotica", "itemData"], "value");
-            this.archivedBioticaDefs = DictHelper.TryGetStringList(refDict, ["archivedBiotica", "itemData"], ["value","bioticum","value"]);
+            this.archivedBioticaDefs = DictHelper.TryGetStringList(refDict, ["archivedBiotica", "itemData"], ["value", "bioticum", "value"]);
 
             this.isInvasiveSlot = DictHelper.TryGetBool(refDict, "isInvasiveSlot");
 
@@ -340,7 +340,7 @@ namespace Reus2Surveyor
             this.biomeDefinition = DictHelper.TryGetString(refDict, ["biomeDefinition", "value"]);
 
             this.mountainPart = DictHelper.TryGetInt(refDict, ["mountainPart", "value"]);
-            if(refDict.ContainsKey("ruinedCityMemory")) this.ruinedCityMemory = refDict["ruinedCityMemory"];
+            if (refDict.ContainsKey("ruinedCityMemory")) this.ruinedCityMemory = refDict["ruinedCityMemory"];
             this.name = (string)refDict["name"];
 
             this.specialNaturalFeature = DictHelper.TryGetInt(refDict, ["specialNaturalFeature", "value"]);
@@ -375,7 +375,7 @@ namespace Reus2Surveyor
         {
             if (leftIndex <= rightIndex)
             {
-                return this.Slice(leftIndex, rightIndex-leftIndex+1);
+                return this.Slice(leftIndex, rightIndex - leftIndex + 1);
             }
             else
             {
@@ -456,7 +456,7 @@ namespace Reus2Surveyor
             rightPatches.Insert(0, this.anchorPatchId);
             leftPatches.AddRange(rightPatches);
             this.patchList = leftPatches;
-            this.wildPatchList = [..this.patchList.Where(x => patchDict[(int)x].IsWildPatch())];
+            this.wildPatchList = [.. this.patchList.Where(x => patchDict[(int)x].IsWildPatch())];
             this.totalSize = this.patchList.Count;
             this.wildSize = this.wildPatchList.Count;
         }
@@ -479,7 +479,7 @@ namespace Reus2Surveyor
         public bool HasMicro { get; private set; }
         public string BioticumName { get; private set; }
 
-        public NatureBioticum(Dictionary<string,object> refDict)
+        public NatureBioticum(Dictionary<string, object> refDict)
         {
             this.aspectSlotsIds = DictHelper.TryGetIntList(refDict, ["aspectSlots", "itemData"], "id");
 
@@ -500,7 +500,7 @@ namespace Reus2Surveyor
 
             this.slotId = DictHelper.TryGetInt(refDict, ["parent", "id"]);
         }
-        
+
         public void CheckSlotProperties(Dictionary<int, BioticumSlot> slotDict)
         {
             if (this.slotId is null || this.bioticumId is null) return;
@@ -522,10 +522,10 @@ namespace Reus2Surveyor
         // Internally Constructed
         // These are generated with the city, instead of as an external object
         public readonly int? projectControllerId, resourceControllerId, luxuryControllerId, borderControllerId;
-        public ProjectController CityProjectController {get; private set;}
-        public ResourceController CityResourceController {get; private set;}
-        public LuxuryController CityLuxuryController {get; private set;}
-        public BorderController CityBorderController {get; private set;}
+        public ProjectController CityProjectController { get; private set; }
+        public ResourceController CityResourceController { get; private set; }
+        public LuxuryController CityLuxuryController { get; private set; }
+        public BorderController CityBorderController { get; private set; }
 
         // Primary Data
         public readonly string fancyName;
@@ -551,14 +551,14 @@ namespace Reus2Surveyor
             this.luxuryControllerId = DictHelper.TryGetInt(refDict, ["luxuryController", "id"]);
             this.borderControllerId = DictHelper.TryGetInt(refDict, ["borderController", "id"]);
 
-            if (this.projectControllerId is not null) 
+            if (this.projectControllerId is not null)
             {
-                this.CityProjectController = 
+                this.CityProjectController =
                     new ProjectController((Dictionary<string, object>)(referenceTokensList[(int)this.projectControllerId]), referenceTokensList);
             }
             if (this.resourceControllerId is not null)
             {
-                this.CityResourceController = 
+                this.CityResourceController =
                     new ResourceController((Dictionary<string, object>)(referenceTokensList[(int)this.resourceControllerId]));
             }
             if (this.luxuryControllerId is not null)
@@ -585,8 +585,8 @@ namespace Reus2Surveyor
 
         public void BuildTerritoryInfo(PatchMap<int?> patchIDMap, Dictionary<int, Patch> patchDictionary)
         {
-            this.PatchIdsInTerritory = [..patchIDMap.PatchIndexSlice(this.CityBorderController.leftBorderPatchId, this.CityBorderController.rightBorderPatchId).Select(v => (int)v)];
-            this.PatchesInTerritory = [..patchDictionary.Where(kv => this.PatchIdsInTerritory.Contains(kv.Key)).Select(kv => kv.Value)];
+            this.PatchIdsInTerritory = [.. patchIDMap.PatchIndexSlice(this.CityBorderController.leftBorderPatchId, this.CityBorderController.rightBorderPatchId).Select(v => (int)v)];
+            this.PatchesInTerritory = [.. patchDictionary.Where(kv => this.PatchIdsInTerritory.Contains(kv.Key)).Select(kv => kv.Value)];
             this.currentBiomeDef = patchDictionary[(int)this.patchId].biomeDefinition;
         }
 
@@ -595,7 +595,7 @@ namespace Reus2Surveyor
             List<int> output = [];
             foreach (Patch patch in this.PatchesInTerritory)
             {
-                output.AddRange([..patch.GetActiveSlotIndices()]);
+                output.AddRange([.. patch.GetActiveSlotIndices()]);
             }
             return output;
         }
@@ -607,7 +607,7 @@ namespace Reus2Surveyor
             {
                 return;
             }
-            List<BioticumSlot> slots = [..slotIndices.Select(s => slotDictionary[s])];
+            List<BioticumSlot> slots = [.. slotIndices.Select(s => slotDictionary[s])];
             List<int> biotIndices = [.. slots.Where(s => s.bioticumId is not null && s.bioticumId > 0).Select(s => (int)s.bioticumId)];
             this.BioticaInTerritory = [.. biotIndices.Select(s => bioticaDictionary.ContainsKey(s) ? bioticaDictionary[s] : null)];
         }
@@ -661,11 +661,11 @@ namespace Reus2Surveyor
             // Internally Constructed
             public readonly List<LuxurySlot> luxurySlots = [];
             public readonly List<LuxurySlot> tradeSlots = [];
-            public readonly List<int?> importAgreementIds = []; 
+            public readonly List<int?> importAgreementIds = [];
             public LuxuryController(Dictionary<string, object> refDict, List<object> referenceTokensList)
             {
                 List<object> luxurySlotSubdictList = (List<object>)DictHelper.DigValueAtKeys(refDict, ["luxurySlots", "itemData"]);
-                foreach (Dictionary<string,object> subdict in luxurySlotSubdictList)
+                foreach (Dictionary<string, object> subdict in luxurySlotSubdictList)
                 {
                     this.luxurySlots.Add(new LuxurySlot((Dictionary<string, object>)subdict["value"], referenceTokensList));
                 }
@@ -689,9 +689,9 @@ namespace Reus2Surveyor
                 public readonly LuxuryGood luxuryGood;
                 public LuxurySlot(Dictionary<string, object> subDict, List<object> referenceTokensList)
                 {
-                    this.tradePartnerId = DictHelper.TryGetInt(subDict, ["tradePartner","id"]);
-                    this.luxuryGoodId = DictHelper.TryGetInt(subDict, ["luxuryGood","id"]);
-                    if (this.luxuryGoodId is not null) 
+                    this.tradePartnerId = DictHelper.TryGetInt(subDict, ["tradePartner", "id"]);
+                    this.luxuryGoodId = DictHelper.TryGetInt(subDict, ["luxuryGood", "id"]);
+                    if (this.luxuryGoodId is not null)
                     {
                         this.luxuryGood = new LuxuryGood((Dictionary<string, object>)(referenceTokensList[(int)this.luxuryGoodId]));
                     }
@@ -750,12 +750,12 @@ namespace Reus2Surveyor
         public readonly int? coolBiomes;
 
         public readonly bool? pacifismMode, planetIsLost;
-        
+
         public GameSession(Dictionary<string, object> refDict)
         {
             // sessionSummary
-            this.giantRosterDefs = DictHelper.TryGetStringList(refDict, 
-                ["sessionSummary", "startParameters", "giantRoster", "itemData"], 
+            this.giantRosterDefs = DictHelper.TryGetStringList(refDict,
+                ["sessionSummary", "startParameters", "giantRoster", "itemData"],
                 ["value", "Item2", "value"]);
             this.scenarioDefinition = DictHelper.TryGetString(refDict, ["sessionSummary", "startParameters", "scenarioDefinition", "value"]);
             this.selectedCharacterDef = DictHelper.TryGetString(refDict, ["sessionSummary", "startParameters", "selectedCharacter", "value"]);
@@ -775,7 +775,7 @@ namespace Reus2Surveyor
             this.coolBiomes = DictHelper.TryGetInt(refDict, ["sessionSummary", "coolBiomes"]);
 
             List<object> tpDicts = (List<object>)DictHelper.DigValueAtKeys(refDict, ["sessionSummary", "scoreCard", "turningPointPerformances", "itemData"]);
-            if (tpDicts is not null) 
+            if (tpDicts is not null)
             {
                 foreach (Dictionary<string, object> tpd in tpDicts)
                 {
@@ -784,15 +784,15 @@ namespace Reus2Surveyor
             }
 
             // planetSummary
-            List<object> sectorDicts = (List<object>) DictHelper.DigValueAtKeys(refDict, ["sessionSummary", "planetSummary2", "biomeSectors", "itemData"]);
-            foreach (Dictionary<string,object> sd in sectorDicts)
+            List<object> sectorDicts = (List<object>)DictHelper.DigValueAtKeys(refDict, ["sessionSummary", "planetSummary2", "biomeSectors", "itemData"]);
+            foreach (Dictionary<string, object> sd in sectorDicts)
             {
                 this.biomeSectors.Add(new BiomeSector(sd));
             }
             this.terribleFate = DictHelper.TryGetInt(refDict, ["sessionSummary", "planetSummary2", "terribleFate", "value"]);
 
-            List<object> civDicts = (List<object>) DictHelper.DigValueAtKeys(refDict, ["sessionSummary", "humanitySummary2", "civs", "itemData"]);
-            foreach(Dictionary<string, object> cd in civDicts)
+            List<object> civDicts = (List<object>)DictHelper.DigValueAtKeys(refDict, ["sessionSummary", "humanitySummary2", "civs", "itemData"]);
+            foreach (Dictionary<string, object> cd in civDicts)
             {
                 this.civSummaries.Add(new CivSummary(cd));
             }
@@ -808,7 +808,7 @@ namespace Reus2Surveyor
             {
                 this.turningPointDef = DictHelper.TryGetString(subDict, ["value", "turningPoint", "value"]);
                 this.requestingCharacterDef = DictHelper.TryGetString(subDict, ["value", "requestingCharacter", "value"]);
-                this.starRating = DictHelper.TryGetInt(subDict, ["value","starRating"]);
+                this.starRating = DictHelper.TryGetInt(subDict, ["value", "starRating"]);
                 this.scoreTotal = DictHelper.TryGetIntList(subDict, ["value", "scoreElements", "itemData"], ["value", "score"]).Sum();
             }
         }
@@ -846,8 +846,8 @@ namespace Reus2Surveyor
                 this.characterDef = DictHelper.TryGetString(subDict, ["value", "character", "value"]);
                 this.homeBiomeDef = DictHelper.TryGetString(subDict, ["value", "homeBiome", "value"]);
 
-                this.projectDefs = DictHelper.TryGetStringList(subDict, 
-                    ["value", "projects", "itemData"], 
+                this.projectDefs = DictHelper.TryGetStringList(subDict,
+                    ["value", "projects", "itemData"],
                     ["value", "projectDefinition", "value"]);
             }
         }

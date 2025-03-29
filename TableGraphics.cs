@@ -39,11 +39,12 @@ namespace Reus2Surveyor
             {"Icy Aegir", Properties.Resources.IcyAegirSquare },
         };
 
-        public static Dictionary<string, int> PercentsToWholeNumber(Dictionary<string, double> percents, int totalAmount=100)
+        public static Dictionary<string, int> PercentsToWholeNumber(Dictionary<string, double> percents, int totalAmount = 100)
         {
-            Dictionary<string, int> output = percents.Select(kv => new KeyValuePair<string, int>(kv.Key, (int)Math.Floor(kv.Value*totalAmount))).ToDictionary();
+            Dictionary<string, int> output = percents.Select(kv => new KeyValuePair<string, int>(kv.Key, (int)Math.Floor(kv.Value * totalAmount))).ToDictionary();
             int remainder = totalAmount - output.Values.Sum();
-            for (; remainder > 0; remainder--) {
+            for (; remainder > 0; remainder--)
+            {
                 output[output.MinBy(kv => kv.Value).Key] += 1;
             }
             return output;
@@ -69,7 +70,7 @@ namespace Reus2Surveyor
             {"Taiga",  new MagickColor("#7CE2D1") },
         };
 
-        public static MagickImage BiomeTypePercentsToMinimap(Dictionary<string, double> percents, int width=100, int height=24)
+        public static MagickImage BiomeTypePercentsToMinimap(Dictionary<string, double> percents, int width = 100, int height = 24)
         {
             Dictionary<string, int> biomeStripes = PercentsToWholeNumber(percents, width);
 
@@ -90,16 +91,16 @@ namespace Reus2Surveyor
         }
 
         public static Dictionary<int, (string biomeTypeName, int px)> PositionalDictToWholeNumber(
-            Dictionary<int, (string biomeTypeName, double percentSize)> biomeInfo, 
+            Dictionary<int, (string biomeTypeName, double percentSize)> biomeInfo,
             int totalAmount = 100)
         {
             Dictionary<int, (string biomeTypeName, int px)> output =
                 biomeInfo.Select(kv => new KeyValuePair<int, (string, int)>(
-                    kv.Key, 
+                    kv.Key,
                     (kv.Value.biomeTypeName, (int)Math.Floor(kv.Value.percentSize * totalAmount))))
                 .ToDictionary();
 
-            int remainder = totalAmount - output.Values.Select(x =>x.px).Sum();
+            int remainder = totalAmount - output.Values.Select(x => x.px).Sum();
             for (; remainder > 0; remainder--)
             {
                 int minKey = output.MinBy(kv => kv.Value.px).Key;
@@ -125,7 +126,7 @@ namespace Reus2Surveyor
             {
                 string biomeName = biomeStripes[anchorPatch].biomeTypeName;
                 int stripeWidth = biomeStripes[anchorPatch].px;
-                
+
                 dr.FillColor(BiomeColors[biomeName]);
                 dr.Rectangle(leftPos, 0, leftPos + stripeWidth, height);
                 leftPos += stripeWidth;

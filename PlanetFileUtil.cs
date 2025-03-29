@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-using System.IO.Compression;
-using System.IO;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
+using System.Linq;
 
 namespace Reus2Surveyor
 {
@@ -34,7 +33,7 @@ namespace Reus2Surveyor
                 case JObject jObject: // objects become Dictionary<string,object>
                     var dict = ((IEnumerable<KeyValuePair<string, JToken>>)jObject).ToDictionary(j => j.Key, j => ObjectToDictionaryInner(j.Value));
 
-                    if (dict.ContainsKey("$type")) 
+                    if (dict.ContainsKey("$type"))
                     {
                         dict.Remove("$type");
                     }
@@ -54,7 +53,7 @@ namespace Reus2Surveyor
 
         public static Dictionary<string, object> ObjectToDictionary(object inputObject)
         {
-            return (Dictionary<string, object>) ObjectToDictionaryInner(inputObject);
+            return (Dictionary<string, object>)ObjectToDictionaryInner(inputObject);
         }
 
         public static Dictionary<string, object> ReadDictFromFile(string path)
@@ -85,8 +84,8 @@ namespace Reus2Surveyor
             List<string> pathParts = [.. path.Split(Path.DirectorySeparatorChar)];
             pathParts.Reverse();
             string planetFolder = pathParts[1];
-            List<string> planetNameParts = [..planetFolder.Split('_')];
-            return String.Join(' ',planetNameParts[1..]);
+            List<string> planetNameParts = [.. planetFolder.Split('_')];
+            return String.Join(' ', planetNameParts[1..]);
         }
 
         public static string PlanetNameFromPlanetFolderPath(string path)
