@@ -155,7 +155,7 @@ namespace Reus2Surveyor
             List<int> cityProsList = [];
             List<int> cityPopList = [];
             List<int> cityTechList = [];
-            List<int> cityWealList = [];
+            List<int> cityWelList = [];
 
             planetEntry.Cities = planet.cityDictionary.Count;
             planetEntry.Prjs = 0;
@@ -171,7 +171,7 @@ namespace Reus2Surveyor
                 cityProsList.Add((int)city.CivSummary.prosperity);
                 cityPopList.Add((int)city.CivSummary.population);
                 cityTechList.Add((int)city.CivSummary.innovation);
-                cityWealList.Add((int)city.CivSummary.wealth);
+                cityWelList.Add((int)city.CivSummary.wealth);
 
                 string founderName = glossaryInstance.SpiritNameFromHash(city.founderCharacterDef);
                 typeof(PlanetSummaryEntry).GetField("Char" + cityIndex.ToString()).SetValue(planetEntry, founderName);
@@ -185,27 +185,27 @@ namespace Reus2Surveyor
 
             planetEntry.Pop = cityPopList.Sum();
             planetEntry.Tech = cityTechList.Sum();
-            planetEntry.Weal = cityWealList.Sum();
+            planetEntry.Wel = cityWelList.Sum();
 
             // // % of total Prosperity (including bonus prosperity from luxuries, requests, etc.)
             //planetEntry.PopP = SafeDivide(planetEntry.Pop, planetEntry.Pros);
             //planetEntry.TechP = SafeDivide(planetEntry.Tech, planetEntry.Pros);
-            //planetEntry.WealP = SafeDivide(planetEntry.Weal, planetEntry.Pros);
+            //planetEntry.WelP = SafeDivide(planetEntry.Wel, planetEntry.Pros);
 
-            planetEntry.PopP = SafePercent(planetEntry.Pop, planetEntry.Pop + planetEntry.Tech + planetEntry.Weal);
-            planetEntry.TechP = SafePercent(planetEntry.Tech, planetEntry.Pop + planetEntry.Tech + planetEntry.Weal);
-            planetEntry.WealP = SafePercent(planetEntry.Weal, planetEntry.Pop + planetEntry.Tech + planetEntry.Weal);
+            planetEntry.PopP = SafePercent(planetEntry.Pop, planetEntry.Pop + planetEntry.Tech + planetEntry.Wel);
+            planetEntry.TechP = SafePercent(planetEntry.Tech, planetEntry.Pop + planetEntry.Tech + planetEntry.Wel);
+            planetEntry.WelP = SafePercent(planetEntry.Wel, planetEntry.Pop + planetEntry.Tech + planetEntry.Wel);
 
             planetEntry.PopHi = cityPopList.Max();
             planetEntry.TechHi = cityTechList.Max();
-            planetEntry.WealHi = cityWealList.Max();
+            planetEntry.WelHi = cityWelList.Max();
 
             planetEntry.PopMdn = Statistics.Median([.. cityPopList]);
             planetEntry.PopAv = Statistics.Mean([.. cityPopList]);
             planetEntry.TechMdn = Statistics.Median([.. cityTechList]);
             planetEntry.TechAv = Statistics.Mean([.. cityTechList]);
-            planetEntry.WealMdn = Statistics.Median([.. cityWealList]);
-            planetEntry.WealAv = Statistics.Mean([.. cityWealList]);
+            planetEntry.WelMdn = Statistics.Median([.. cityWelList]);
+            planetEntry.WelAv = Statistics.Mean([.. cityWelList]);
 
             if (planet.gameSession.turningPointPerformances.Count >= 1)
             {
@@ -280,19 +280,19 @@ namespace Reus2Surveyor
                 cityEntry.Pros = (int)city.CivSummary.prosperity;
                 cityEntry.Pop = (int)city.CivSummary.population;
                 cityEntry.Tech = (int)city.CivSummary.innovation;
-                cityEntry.Weal = (int)city.CivSummary.wealth;
+                cityEntry.Wel = (int)city.CivSummary.wealth;
 
                 cityEntry.FoundBiome = glossaryInstance.BiomeNameFromHash(city.settledBiomeDef);
                 cityEntry.CurrBiome = glossaryInstance.BiomeNameFromHash(city.currentBiomeDef);
 
-                cityEntry.PopP = SafePercent(cityEntry.Pop, cityEntry.Pop + cityEntry.Tech + cityEntry.Weal);
-                cityEntry.TechP = SafePercent(cityEntry.Tech, cityEntry.Pop + cityEntry.Tech + cityEntry.Weal);
-                cityEntry.WealP = SafePercent(cityEntry.Weal, cityEntry.Pop + cityEntry.Tech + cityEntry.Weal);
+                cityEntry.PopP = SafePercent(cityEntry.Pop, cityEntry.Pop + cityEntry.Tech + cityEntry.Wel);
+                cityEntry.TechP = SafePercent(cityEntry.Tech, cityEntry.Pop + cityEntry.Tech + cityEntry.Wel);
+                cityEntry.WelP = SafePercent(cityEntry.Wel, cityEntry.Pop + cityEntry.Tech + cityEntry.Wel);
 
                 cityEntry.ProsVMdn = cityEntry.Pros / planetEntry.ProsMdn;
                 cityEntry.PopVMdn = cityEntry.Pop / planetEntry.PopMdn;
                 cityEntry.TechVMdn = cityEntry.Tech / planetEntry.TechMdn;
-                cityEntry.WealVMdn = cityEntry.Weal / planetEntry.WealMdn;
+                cityEntry.WelVMdn = cityEntry.Wel / planetEntry.WelMdn;
 
                 cityEntry.Inventions = city.CityLuxuryController.luxurySlots.Where(ls => ls.luxuryGoodId is not null).Count();
                 cityEntry.TradeRoutes = city.CityLuxuryController.importAgreementIds.Count();
@@ -715,10 +715,10 @@ namespace Reus2Surveyor
 
             public int ProsHi;
             public double? ProsMdn, ProsAv, Gini;
-            public int Pop, Tech, Weal;
-            public double? PopP, TechP, WealP;
-            public int PopHi, TechHi, WealHi;
-            public double? PopMdn, TechMdn, WealMdn, PopAv, TechAv, WealAv;
+            public int Pop, Tech, Wel;
+            public double? PopP, TechP, WelP;
+            public int PopHi, TechHi, WelHi;
+            public double? PopMdn, TechMdn, WelMdn, PopAv, TechAv, WelAv;
 
             public int? Biomes, CBiomes;
             public int Biotica, Plants, Animals, Minerals = 0;
@@ -729,8 +729,8 @@ namespace Reus2Surveyor
             public double? ApexP, SlotLvAv;
 
             private static Dictionary<string, List<string>> columnFormats = new() {
-                {"0.00%", new List<string> { "PopP", "TechP", "WealP", "PlantP", "AnimalP", "MineralP", "ApexP" } },
-                {"0.00", new List<string> { "ProsAv", "Gini", "PopAv", "TechAv", "WealAv", "SlotLvAv" } },
+                {"0.00%", new List<string> { "PopP", "TechP", "WelP", "PlantP", "AnimalP", "MineralP", "ApexP" } },
+                {"0.00", new List<string> { "ProsAv", "Gini", "PopAv", "TechAv", "WelAv", "SlotLvAv" } },
                 };
 
             public PlanetSummaryEntry(int N, string Name)
@@ -766,11 +766,11 @@ namespace Reus2Surveyor
             public readonly string Name;
             public string Char;
             public int? Level;
-            public int Pros, Pop, Tech, Weal;
+            public int Pros, Pop, Tech, Wel;
             public string FoundBiome, CurrBiome;
             public int? Rank, Upset = null;
-            public double? PopP, TechP, WealP = null;
-            public double? ProsVMdn, PopVMdn, TechVMdn, WealVMdn = null;
+            public double? PopP, TechP, WelP = null;
+            public double? ProsVMdn, PopVMdn, TechVMdn, WelVMdn = null;
 
             public int Inventions, TradeRoutes = 0;
             public int TerrPatches = 0;
@@ -787,8 +787,8 @@ namespace Reus2Surveyor
             public string Lv1B, Lv2B, Lv3B, Era1B, Era2B, Era3B, Temple1, Temple2, Temple3 = null;
 
             private static Dictionary<string, List<string>> columnFormats = new() {
-                {"0.00%", new List<string> { "PopP", "TechP", "WealP", "PlantP", "AnimalP", "MineralP"} },
-                {"0.00", new List<string> { "ProsVMdn", "PopVMdn", "TechVMdn", "WealVMdn", "AvBioLv" } },
+                {"0.00%", new List<string> { "PopP", "TechP", "WelP", "PlantP", "AnimalP", "MineralP"} },
+                {"0.00", new List<string> { "ProsVMdn", "PopVMdn", "TechVMdn", "WelVMdn", "AvBioLv" } },
                 };
 
             public static Dictionary<string, List<string>> GetColumnFormats() { return columnFormats; }
