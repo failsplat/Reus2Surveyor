@@ -36,6 +36,7 @@ namespace Reus2Surveyor
         public HashSet<string> MasteredBioticaDefSet { get; private set; } = [];
 
         public List<string> GiantNames { get; private set; } = [];
+        public Dictionary<string, double> BiomePercentages = [];
 
         private Glossaries glossaries;
 
@@ -228,6 +229,19 @@ namespace Reus2Surveyor
             {
                 cc.Item1.AttachCivSummary(cc.Item2);
             }
+
+            // Percentages of each biome
+            Dictionary<string, int> patchesPerBiomeType = [];
+            foreach (Biome biome in this.biomeDictionary.Values)
+            {
+                if (biome.anchorPatchId is null) continue;
+
+                string biomeType = biome.biomeTypeName;
+
+                if (!patchesPerBiomeType.ContainsKey(biomeType)) patchesPerBiomeType[biomeType] = 0;
+                patchesPerBiomeType[biomeType] += biome.totalSize;
+            }
+            this.BiomePercentages = patchesPerBiomeType.Select(kv => new KeyValuePair<string, double>(kv.Key, (double)kv.Value / (double)this.totalSize)).ToDictionary();
         }
 
         public void SetGlossaryThenLookup(Glossaries g)

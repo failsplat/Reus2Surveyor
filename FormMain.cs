@@ -1,4 +1,5 @@
 ﻿
+using ImageMagick;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
 using Newtonsoft.Json.Serialization;
@@ -188,6 +189,7 @@ namespace Reus2Surveyor
                     r.Cells["Giant1Col"].Value = null;
                     r.Cells["Giant2Col"].Value = null;
                     r.Cells["Giant3Col"].Value = null;
+                    r.Cells["MinimapCol"].Value = null;
 
                     bool? readOption = r.Cells["ReadOptionCol"].Value is null ? null : (bool)r.Cells["ReadOptionCol"].Value;
                     if (readOption is null || !(bool)readOption)
@@ -302,6 +304,11 @@ namespace Reus2Surveyor
             if (TableGraphics.giantSquares.TryGetValue(newPlanet.GiantNames[0], out byte[] giant1Image)) { thisRow.Cells["Giant1Col"].Value = giant1Image; }
             if (TableGraphics.giantSquares.TryGetValue(newPlanet.GiantNames[1], out byte[] giant2Image)) { thisRow.Cells["Giant2Col"].Value = giant2Image; }
             if (TableGraphics.giantSquares.TryGetValue(newPlanet.GiantNames[2], out byte[] giant3Image)) { thisRow.Cells["Giant3Col"].Value = giant3Image; }
+
+            MagickImage miniMap = TableGraphics.BiomePercentsToMinimap(newPlanet.BiomePercentages);
+            using MemoryStream ms = new MemoryStream();
+            miniMap.Write(ms, miniMap.Format);
+            thisRow.Cells["MinimapCol"].Value = ms.ToArray();
         }
 
         private void updateDecodeProgress()
@@ -402,8 +409,8 @@ namespace Reus2Surveyor
                     sc = new(GameGlossaries);
                     sc.ConsumePlanet(testPlanet, 0);
                     sc.FinalizeStats();
-                }
-            } // Breakpoint here
+                } // Breakpoint here
+            } 
         }
 
         private void spotCheckWriteCheckBox_CheckStateChanged(object sender, EventArgs e)

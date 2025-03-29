@@ -37,16 +37,8 @@ namespace Reus2Surveyor
             decodeProgressBar = new System.Windows.Forms.ProgressBar();
             decodeProgressLabel = new System.Windows.Forms.Label();
             planetGridView = new System.Windows.Forms.DataGridView();
-            exportStatsButton = new System.Windows.Forms.Button();
-            exportReadyLabel = new System.Windows.Forms.Label();
-            spotCheckButton = new System.Windows.Forms.Button();
-            spotCheckWriteCheckBox = new System.Windows.Forms.CheckBox();
-            writeDecodedCheckBox = new System.Windows.Forms.CheckBox();
-            label2 = new System.Windows.Forms.Label();
-            planetLooperBackgroundWorker = new System.ComponentModel.BackgroundWorker();
-            readAllButton = new System.Windows.Forms.Button();
-            readNoneButton = new System.Windows.Forms.Button();
             NameCol = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            MinimapCol = new System.Windows.Forms.DataGridViewImageColumn();
             ScoreCol = new System.Windows.Forms.DataGridViewTextBoxColumn();
             Giant1Col = new System.Windows.Forms.DataGridViewImageColumn();
             Giant2Col = new System.Windows.Forms.DataGridViewImageColumn();
@@ -56,6 +48,15 @@ namespace Reus2Surveyor
             CompletionCol = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ReadOptionCol = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             ReadStatusCol = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            exportStatsButton = new System.Windows.Forms.Button();
+            exportReadyLabel = new System.Windows.Forms.Label();
+            spotCheckButton = new System.Windows.Forms.Button();
+            spotCheckWriteCheckBox = new System.Windows.Forms.CheckBox();
+            writeDecodedCheckBox = new System.Windows.Forms.CheckBox();
+            label2 = new System.Windows.Forms.Label();
+            planetLooperBackgroundWorker = new System.ComponentModel.BackgroundWorker();
+            readAllButton = new System.Windows.Forms.Button();
+            readNoneButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)planetGridView).BeginInit();
             SuspendLayout();
             // 
@@ -118,14 +119,103 @@ namespace Reus2Surveyor
             // 
             planetGridView.AllowUserToAddRows = false;
             planetGridView.AllowUserToDeleteRows = false;
+            planetGridView.AllowUserToResizeColumns = false;
+            planetGridView.AllowUserToResizeRows = false;
             planetGridView.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
             planetGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            planetGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] { NameCol, ScoreCol, Giant1Col, Giant2Col, Giant3Col, SpiritCol, SpiritIconCol, CompletionCol, ReadOptionCol, ReadStatusCol });
+            planetGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] { NameCol, MinimapCol, ScoreCol, Giant1Col, Giant2Col, Giant3Col, SpiritCol, SpiritIconCol, CompletionCol, ReadOptionCol, ReadStatusCol });
             planetGridView.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
             planetGridView.Location = new System.Drawing.Point(12, 124);
             planetGridView.Name = "planetGridView";
             planetGridView.Size = new System.Drawing.Size(760, 301);
             planetGridView.TabIndex = 7;
+            // 
+            // NameCol
+            // 
+            NameCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            NameCol.HeaderText = "Name";
+            NameCol.Name = "NameCol";
+            NameCol.ReadOnly = true;
+            NameCol.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            // 
+            // MinimapCol
+            // 
+            MinimapCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            MinimapCol.HeaderText = "Minimap";
+            MinimapCol.Name = "MinimapCol";
+            // 
+            // ScoreCol
+            // 
+            ScoreCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
+            ScoreCol.HeaderText = "Score";
+            ScoreCol.Name = "ScoreCol";
+            ScoreCol.ReadOnly = true;
+            ScoreCol.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            ScoreCol.Width = 42;
+            // 
+            // Giant1Col
+            // 
+            Giant1Col.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            Giant1Col.HeaderText = "G1";
+            Giant1Col.Name = "Giant1Col";
+            Giant1Col.Width = 25;
+            // 
+            // Giant2Col
+            // 
+            Giant2Col.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            Giant2Col.HeaderText = "G2";
+            Giant2Col.Name = "Giant2Col";
+            Giant2Col.Width = 25;
+            // 
+            // Giant3Col
+            // 
+            Giant3Col.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            Giant3Col.HeaderText = "G3";
+            Giant3Col.Name = "Giant3Col";
+            Giant3Col.Width = 25;
+            // 
+            // SpiritCol
+            // 
+            SpiritCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
+            SpiritCol.HeaderText = "Spirit";
+            SpiritCol.Name = "SpiritCol";
+            SpiritCol.ReadOnly = true;
+            SpiritCol.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            SpiritCol.Width = 40;
+            // 
+            // SpiritIconCol
+            // 
+            SpiritIconCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            SpiritIconCol.HeaderText = "S";
+            SpiritIconCol.Name = "SpiritIconCol";
+            SpiritIconCol.Width = 25;
+            // 
+            // CompletionCol
+            // 
+            CompletionCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
+            CompletionCol.HeaderText = "SaveSlot";
+            CompletionCol.Name = "CompletionCol";
+            CompletionCol.ReadOnly = true;
+            CompletionCol.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            CompletionCol.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            CompletionCol.Width = 57;
+            // 
+            // ReadOptionCol
+            // 
+            ReadOptionCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
+            ReadOptionCol.HeaderText = "Read?";
+            ReadOptionCol.Name = "ReadOptionCol";
+            ReadOptionCol.Width = 44;
+            // 
+            // ReadStatusCol
+            // 
+            ReadStatusCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
+            ReadStatusCol.HeaderText = "Status";
+            ReadStatusCol.Name = "ReadStatusCol";
+            ReadStatusCol.ReadOnly = true;
+            ReadStatusCol.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            ReadStatusCol.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            ReadStatusCol.Width = 45;
             // 
             // exportStatsButton
             // 
@@ -224,84 +314,6 @@ namespace Reus2Surveyor
             readNoneButton.UseVisualStyleBackColor = true;
             readNoneButton.Click += readNoneButton_Click;
             // 
-            // NameCol
-            // 
-            NameCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            NameCol.HeaderText = "Name";
-            NameCol.Name = "NameCol";
-            NameCol.ReadOnly = true;
-            // 
-            // ScoreCol
-            // 
-            ScoreCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
-            ScoreCol.HeaderText = "Score";
-            ScoreCol.Name = "ScoreCol";
-            ScoreCol.ReadOnly = true;
-            ScoreCol.Width = 61;
-            // 
-            // Giant1Col
-            // 
-            Giant1Col.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-            Giant1Col.HeaderText = "G1";
-            Giant1Col.Name = "Giant1Col";
-            Giant1Col.Width = 25;
-            // 
-            // Giant2Col
-            // 
-            Giant2Col.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-            Giant2Col.HeaderText = "G2";
-            Giant2Col.Name = "Giant2Col";
-            Giant2Col.Width = 25;
-            // 
-            // Giant3Col
-            // 
-            Giant3Col.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-            Giant3Col.HeaderText = "G3";
-            Giant3Col.Name = "Giant3Col";
-            Giant3Col.Width = 25;
-            // 
-            // SpiritCol
-            // 
-            SpiritCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
-            SpiritCol.HeaderText = "Spirit";
-            SpiritCol.Name = "SpiritCol";
-            SpiritCol.ReadOnly = true;
-            SpiritCol.Width = 59;
-            // 
-            // SpiritIconCol
-            // 
-            SpiritIconCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-            SpiritIconCol.HeaderText = "S";
-            SpiritIconCol.Name = "SpiritIconCol";
-            SpiritIconCol.Width = 25;
-            // 
-            // CompletionCol
-            // 
-            CompletionCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
-            CompletionCol.HeaderText = "SaveSlot";
-            CompletionCol.Name = "CompletionCol";
-            CompletionCol.ReadOnly = true;
-            CompletionCol.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            CompletionCol.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            CompletionCol.Width = 57;
-            // 
-            // ReadOptionCol
-            // 
-            ReadOptionCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
-            ReadOptionCol.HeaderText = "Read?";
-            ReadOptionCol.Name = "ReadOptionCol";
-            ReadOptionCol.Width = 44;
-            // 
-            // ReadStatusCol
-            // 
-            ReadStatusCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
-            ReadStatusCol.HeaderText = "Status";
-            ReadStatusCol.Name = "ReadStatusCol";
-            ReadStatusCol.ReadOnly = true;
-            ReadStatusCol.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            ReadStatusCol.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            ReadStatusCol.Width = 45;
-            // 
             // FormMain
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -349,6 +361,7 @@ namespace Reus2Surveyor
         private System.Windows.Forms.Button readAllButton;
         private System.Windows.Forms.Button readNoneButton;
         private System.Windows.Forms.DataGridViewTextBoxColumn NameCol;
+        private System.Windows.Forms.DataGridViewImageColumn MinimapCol;
         private System.Windows.Forms.DataGridViewTextBoxColumn ScoreCol;
         private System.Windows.Forms.DataGridViewImageColumn Giant1Col;
         private System.Windows.Forms.DataGridViewImageColumn Giant2Col;
