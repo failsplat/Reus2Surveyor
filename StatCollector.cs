@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Wordprocessing;
 using MathNet.Numerics.Statistics;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ namespace Reus2Surveyor
         public Dictionary<string, BioticumStatEntry> BioticaStats { get; private set; } = [];
         public List<PlanetSummaryEntry> PlanetSummaries { get; private set; } = [];
         public List<CitySummaryEntry> CitySummaries { get; private set; } = [];
+        public Dictionary<string, SpiritStatEntry> SpiritStats { get; private set; } = [];
 
         public Dictionary<string, Dictionary<string, int>> BioticumVsSpiritCounter { get; private set; } = [];
         private int planetCount = 0;
@@ -264,7 +266,7 @@ namespace Reus2Surveyor
 
             this.PlanetSummaries.Add(planetEntry);
 
-            // City Summary
+            // City Summary and Spirit Stats
 
             List<CitySummaryEntry> thisPlanetCitySummaries = [];
             List<City> citiesInOrder = [.. planet.cityDictionary.ToList().OrderBy(kv => kv.Key).Select(kv => kv.Value)];
@@ -274,7 +276,9 @@ namespace Reus2Surveyor
                 cityN++;
                 CitySummaryEntry cityEntry = new(index, cityN, city.fancyName);
 
-                cityEntry.Char = glossaryInstance.SpiritNameFromHash(city.founderCharacterDef);
+                string founderName = glossaryInstance.SpiritNameFromHash(city.founderCharacterDef);
+
+                cityEntry.Char = founderName;
                 cityEntry.Level = city.currentVisualStage is not null ? city.currentVisualStage + 1 : null;
 
                 cityEntry.Pros = (int)city.CivSummary.prosperity;
@@ -289,10 +293,10 @@ namespace Reus2Surveyor
                 cityEntry.TechP = SafePercent(cityEntry.Tech, cityEntry.Pop + cityEntry.Tech + cityEntry.Wel);
                 cityEntry.WelP = SafePercent(cityEntry.Wel, cityEntry.Pop + cityEntry.Tech + cityEntry.Wel);
 
-                cityEntry.ProsVMdn = cityEntry.Pros / planetEntry.ProsMdn;
-                cityEntry.PopVMdn = cityEntry.Pop / planetEntry.PopMdn;
-                cityEntry.TechVMdn = cityEntry.Tech / planetEntry.TechMdn;
-                cityEntry.WelVMdn = cityEntry.Wel / planetEntry.WelMdn;
+                cityEntry.ProsRel = cityEntry.Pros / planetEntry.ProsMdn;
+                cityEntry.PopRel = cityEntry.Pop / planetEntry.PopMdn;
+                cityEntry.TechRel = cityEntry.Tech / planetEntry.TechMdn;
+                cityEntry.WelRel = cityEntry.Wel / planetEntry.WelMdn;
 
                 cityEntry.Inventions = city.CityLuxuryController.luxurySlots.Where(ls => ls.luxuryGoodId is not null).Count();
                 cityEntry.TradeRoutes = city.CityLuxuryController.importAgreementIds.Count();
@@ -322,6 +326,7 @@ namespace Reus2Surveyor
 
                 cityEntry.Biotica = city.BioticaInTerritory.Count;
                 List<int> bioticaLevels = [];
+                // Active biotica only!
                 foreach (NatureBioticum nb in city.BioticaInTerritory)
                 {
                     if (glossaryInstance.BioticumDefinitionByHash.ContainsKey(nb.definition))
@@ -340,12 +345,42 @@ namespace Reus2Surveyor
                                 cityEntry.Minerals += 1;
                                 break;
                         }
+                        if (thisBio.Apex) cityEntry.Apex += 1;
                     }
                 }
-                cityEntry.AvBioLv = bioticaLevels.Average();
+
+                foreach (Patch patch in city.PatchesInTerritory)
+                {
+                    foreach (int slotIndex in patch.GetActiveSlotIndices())
+                    {
+                        BioticumSlot slot = planet.slotDictionary[slotIndex];
+                        foreach (string abd in slot.archivedBioticaDefs)
+                        {
+                            BioticumDefinition thisLegBio = glossaryInstance.BioticumDefFromHash(abd);
+                            if (thisLegBio is null) continue;
+                            switch (thisLegBio.Type)
+                            {
+                                case "Plant":
+                                    cityEntry.Plants += 1;
+                                    break;
+                                case "Animal":
+                                    cityEntry.Animals += 1;
+                                    break;
+                                case "Mineral":
+                                    cityEntry.Minerals += 1;
+                                    break;
+                            }
+                            if (thisLegBio.Apex) cityEntry.Apex += 1;
+                            cityEntry.Biotica += 1;
+                        }
+                    }
+                }
+
+                cityEntry.AvFBioLv = bioticaLevels.Average();
                 cityEntry.PlantP = SafePercent(cityEntry.Plants, cityEntry.Biotica);
                 cityEntry.AnimalP = SafePercent(cityEntry.Animals, cityEntry.Biotica);
                 cityEntry.MineralP = SafePercent(cityEntry.Minerals, cityEntry.Biotica);
+                cityEntry.ApexP = SafePercent(cityEntry.Apex, cityEntry.Biotica);
 
                 foreach (City.ProjectController.CityProject project in city.CityProjectController.projects)
                 {
@@ -403,6 +438,76 @@ namespace Reus2Surveyor
                 thisPlanetCitySummaries[c].Upset = thisPlanetCitySummaries[c].CityN - thisPlanetCitySummaries[c].Rank;
             }
 
+            foreach (CitySummaryEntry ce in thisPlanetCitySummaries)
+            {
+                string founderName = ce.Char;
+                if (!this.SpiritStats.ContainsKey(founderName)) { this.SpiritStats[founderName] = new(founderName); }
+
+                SpiritStatEntry se = this.SpiritStats[founderName];
+                se.Count += 1;
+                if (ce.CityN == 1) se.Prime += 1;
+
+                se.IncrementProsperityTotals(ce.Pros, ce.Pop, ce.Tech, ce.Wel);
+                se.IncrementProsperityPercentTotals((double)ce.PopP, (double)ce.TechP, (double)ce.WelP);
+                se.IncrementProsperityRelTotals((double)ce.ProsRel, (double)ce.PopRel, (double)ce.TechRel, (double)ce.WelRel);
+
+                se.ProsHi = Math.Max(se.ProsHi, ce.Pros);
+                se.PopHi = Math.Max(se.PopHi, ce.Pop);
+                se.TechHi = Math.Max(se.TechHi, ce.Tech);
+                se.WelHi = Math.Max(se.WelHi, ce.Wel);
+
+                se.PopPHi = Math.Max(se.PopPHi, (double)ce.PopP);
+                se.TechPHi = Math.Max(se.TechPHi, (double)ce.TechP);
+                se.WelPHi = Math.Max(se.WelPHi, (double)ce.WelP);
+
+                se.ProsRelHi = Math.Max(se.ProsRelHi, (double)ce.ProsRel);
+                se.PopRelHi = Math.Max(se.PopRelHi, (double)ce.PopRel);
+                se.TechRelHi = Math.Max(se.TechRelHi, (double)ce.TechRel);
+                se.WelRelHi = Math.Max(se.WelRelHi, (double)ce.WelRel);
+
+                se.Inventions += ce.Inventions;
+                se.TradeRoutes += ce.TradeRoutes;
+
+                int upset = (int)ce.Upset;
+                se.IncrementUpsetTotal(upset);
+                if (upset > 0) se.PosUpset += 1;
+                if (upset < 0) se.NegUpset += 1;
+
+                se.Plants += ce.Plants;
+                se.Animals += ce.Animals;
+                se.Minerals += ce.Minerals;
+
+                se.IncrementBioticaPercentTotals((double)ce.PlantP, (double)ce.AnimalP, (double)ce.MineralP, (double)ce.ApexP);
+                se.Apex += ce.Apex;
+            }
+
+            foreach (City city in planet.cityDictionary.Values)
+            {
+                Dictionary<string, int> biomePatchesInCity = [];
+                string founderName = glossaryInstance.SpiritNameFromHash(city.founderCharacterDef);
+                foreach (Patch patch in city.PatchesInTerritory)
+                {
+                    if (!patch.IsWildPatch()) continue;
+                    string patchBiome = glossaryInstance.BiomeNameFromHash(patch.biomeDefinition);
+                    if (!biomePatchesInCity.ContainsKey(patchBiome)) biomePatchesInCity[patchBiome] = 0;
+                    biomePatchesInCity[patchBiome] += 1;
+                }
+
+                this.SpiritStats[founderName].IncrementBiomeUsage(biomePatchesInCity);
+
+                List<int> bioticaLevels = [];
+                // Active biotica only!
+                foreach (NatureBioticum nb in city.BioticaInTerritory)
+                {
+                    if (glossaryInstance.BioticumDefinitionByHash.ContainsKey(nb.definition))
+                    {
+                        BioticumDefinition thisBio = glossaryInstance.BioticumDefinitionByHash[nb.definition];
+                        bioticaLevels.Add(thisBio.Tier);
+                    }
+                }
+                this.SpiritStats[founderName].IncrementBioticaLevelTotal(bioticaLevels);
+            }
+
             this.CitySummaries.AddRange(thisPlanetCitySummaries);
         }
 
@@ -447,6 +552,10 @@ namespace Reus2Surveyor
             foreach (PlanetSummaryEntry pse in this.PlanetSummaries)
             {
                 pse.CalculateStats();
+            }
+            foreach(SpiritStatEntry sse in this.SpiritStats.Values)
+            {
+                sse.CalculateStats(this.PlanetSummaries.Count);
             }
         }
 
@@ -526,6 +635,25 @@ namespace Reus2Surveyor
                         try
                         {
                             var col = cityTable.FindColumn(c => c.FirstCell().Value.ToString() == colName);
+                            col.Style.NumberFormat.Format = format;
+                        }
+                        catch { }
+                    }
+                }
+
+                var spiritWs = wb.AddWorksheet("Spirits");
+                var spiritTable = spiritWs.Cell("A1").InsertTable(this.SpiritStats.Values, "Spirits");
+                spiritTable.Theme = XLTableTheme.TableStyleMedium5;
+                foreach (KeyValuePair<string, List<string>> kv in SpiritStatEntry.GetColumnFormats())
+                {
+                    string format = kv.Key;
+                    List<string> columns = kv.Value;
+
+                    foreach (string colName in columns)
+                    {
+                        try
+                        {
+                            var col = spiritTable.FindColumn(c => c.FirstCell().Value.ToString() == colName);
                             col.Style.NumberFormat.Format = format;
                         }
                         catch { }
@@ -726,11 +854,11 @@ namespace Reus2Surveyor
             public double? PlantP, AnimalP, MineralP;
             public int Apex;
             private int OccupiedSlotTotalLevel = 0;
-            public double? ApexP, SlotLvAv;
+            public double? ApexP, AvFBioLv;
 
             private static Dictionary<string, List<string>> columnFormats = new() {
                 {"0.00%", new List<string> { "PopP", "TechP", "WelP", "PlantP", "AnimalP", "MineralP", "ApexP" } },
-                {"0.00", new List<string> { "ProsAv", "Gini", "PopAv", "TechAv", "WelAv", "SlotLvAv" } },
+                {"0.00", new List<string> { "ProsAv", "Gini", "PopAv", "TechAv", "WelAv", "AvFBioLv" } },
                 };
 
             public PlanetSummaryEntry(int N, string Name)
@@ -746,7 +874,7 @@ namespace Reus2Surveyor
 
             public void CalculateStats()
             {
-                this.SlotLvAv = SafeDivide(this.OccupiedSlotTotalLevel, this.FilledSlots);
+                this.AvFBioLv = SafeDivide(this.OccupiedSlotTotalLevel, this.FilledSlots);
                 this.AnimalP = SafePercent(this.Animals, this.Biotica);
                 this.PlantP = SafePercent(this.Plants, this.Biotica);
                 this.MineralP = SafePercent(this.Minerals, this.Biotica);
@@ -770,7 +898,7 @@ namespace Reus2Surveyor
             public string FoundBiome, CurrBiome;
             public int? Rank, Upset = null;
             public double? PopP, TechP, WelP = null;
-            public double? ProsVMdn, PopVMdn, TechVMdn, WelVMdn = null;
+            public double? ProsRel, PopRel, TechRel, WelRel = null;
 
             public int Inventions, TradeRoutes = 0;
             public int TerrPatches = 0;
@@ -779,16 +907,16 @@ namespace Reus2Surveyor
             public string TP1, TP2, TP3 = null;
 
             public int Biotica = 0;
-            public double? AvBioLv = null;
-            public int Plants, Animals, Minerals = 0;
-            public double? PlantP, AnimalP, MineralP = null;
+            public double? AvFBioLv = null;
+            public int Plants, Animals, Minerals, Apex = 0;
+            public double? PlantP, AnimalP, MineralP, ApexP = null;
 
             public int Buildings = 0;
             public string Lv1B, Lv2B, Lv3B, Era1B, Era2B, Era3B, Temple1, Temple2, Temple3 = null;
 
             private static Dictionary<string, List<string>> columnFormats = new() {
-                {"0.00%", new List<string> { "PopP", "TechP", "WelP", "PlantP", "AnimalP", "MineralP"} },
-                {"0.00", new List<string> { "ProsVMdn", "PopVMdn", "TechVMdn", "WelVMdn", "AvBioLv" } },
+                {"0.00%", new List<string> { "PopP", "TechP", "WelP", "PlantP", "AnimalP", "MineralP", "ApexP"} },
+                {"0.00", new List<string> { "ProsRel", "PopRel", "TechRel", "WelRel", "AvFBioLv" } },
                 };
 
             public static Dictionary<string, List<string>> GetColumnFormats() { return columnFormats; }
@@ -801,6 +929,238 @@ namespace Reus2Surveyor
             }
         }
 
+        public class SpiritStatEntry
+        {
+            public readonly string Name;
+            public int Count = 0;
+            public int Prime = 0;
+            public double? MainP = null;
+            public double? PrimeP = null;
+
+            private int prosTotal, popTotal, techTotal, welTotal = 0;
+            private double popPercTotal, techPercTotal, welPercTotal = 0;
+            private double prosRelTotal, popRelTotal, techRelTotal, welRelTotal = 0;
+
+            public double? ProsAv, PopAv, TechAv, WelAv = null;
+            public int ProsHi, PopHi, TechHi, WelHi = 0;
+
+            public double? PopPAv, TechPAv, WelPAv = null;
+            public double PopPHi, TechPHi, WelPHi = 0;
+
+            public double? ProsRelAv, PopRelAv, TechRelAv, WelRelAv = null;
+            public double ProsRelHi, PopRelHi, TechRelHi, WelRelHi = 0;
+
+            public int Territory = 0;
+            public double? TerrAv = null;
+            public int Inventions = 0;
+            public double? InventionAv = null;
+            public int TradeRoutes = 0;
+            public double? TradeRouteAv = null;
+
+            private int upsetTotal = 0;
+            public double? UpsetAv = null;
+            public int PosUpset, NegUpset = 0;
+            public double? PosUpsetP, NegUpsetP = null;
+
+            public int Plants, Animals, Minerals = 0;
+            private int activeBioticaCount = 0;
+            private int totalActiveBioLevel = 0;
+            public double? AvFBioLv = null;
+            public double? PlantP, AnimalP, MineralP = null;
+            private double plantPercTotal, animalPercTotal, mineralPercTotal = 0;
+            public double? PlantAvP, AnimalAvP, MineralAvP = null;
+
+            public int Apex = 0;
+            public double? ApexP = null;
+            private double apexPercTotal = 0;
+            public double? ApexAvP = null;
+
+            // Counts/percents of wild biome patches, per planet
+            private int desertUse, forestUse, iceAgeUse, oceanUse, rainforestUse, savannaUse, taigaUse = 0;
+            public double? HasDesert, HasForest, HasIceAge, HasOcean, HasRainforest, HasSavanna, HasTaiga = null;
+
+            // Counts of wild patches in territory
+            public int DesertSz, ForestSz, IceAgeSz, OceanSz, RainforestSz, SavannaSz, TaigaSz = 0;
+            public double? DesertP, ForestP, IceAgeP, OceanP, RainforestP, SavannaP, TaigaP = null;
+            /*// Sum/Average of percents of biomes in territory (sum per/average over planets)
+            private double desertTotalP, forestTotalP, iceAgeTotalP, oceanTotalP, rainforestTotalP, savannaTotalP, taigaTotalP;
+            public double? DesertAvP, ForestAvP, IceAgeAvP, OceanAvP, RainforestAvP, SavannaAvP, TaigaAvP = null;*/
+
+            private static Dictionary<string, List<string>> columnFormats = new() {
+                {"0.00%", new List<string> { 
+                    "PrimeP", "MainP",
+                    "PopPAv", "TechPAv", "WelPAv", "PopPHi", "TechPHi", "WelPHi", 
+                    "PosUpsetP", "NegUpsetP",
+                    "PlantP", "AnimalP", "MineralP", "PlantAvP", "AnimalAvP", "MineralAvP", "ApexP", "ApexAvP",
+                    "HasDesert", "HasForest", "HasIceAge", "HasOcean", "HasRainforest", "HasSavanna", "HasTaiga",
+                    "DesertP", "ForestP", "IceAgeP", "OceanP", "RainforestP", "SavannaP", "TaigaP",
+                } },
+                {"0.00", new List<string> { 
+                    "ProsAv", "PopAv", "TechAv", "WelAv",
+                    "ProsRelAv", "PopRelAv", "TechRelAv", "WelRelAv",
+                    "ProsRelHi", "PopRelHi", "TechRelHi", "WelRelHi",
+                    "InventionAv", "TradeRouteAv",
+                    "UpsetAv", "AvFBioLv", "TerrAv"
+                } },
+                };
+
+            public static Dictionary<string, List<string>> GetColumnFormats() { return columnFormats; }
+
+            public SpiritStatEntry(string spiritName)
+            {
+                this.Name = spiritName;
+            }
+
+            public void IncrementProsperityTotals(int pros, int pop, int tech, int wel)
+            {
+                this.prosTotal += pros;
+                this.popTotal += pop;
+                this.techTotal += tech;
+                this.welTotal += wel;
+            }
+
+            public void IncrementProsperityPercentTotals(double popPerc, double techPerc, double welPerc)
+            {
+                this.popPercTotal += popPerc;
+                this.techPercTotal += techPerc;
+                this.welPercTotal += welPerc;
+            }
+
+            public void IncrementProsperityRelTotals(double prosRel, double popRel, double techRel, double welRel)
+            {
+                this.prosRelTotal += prosRel;
+                this.popRelTotal += popRel;
+                this.techRelTotal += techRel;
+                this.welRelTotal += welRel;
+            }
+
+            public void IncrementUpsetTotal(int upset)
+            {
+                this.upsetTotal += upset;
+            }
+
+            public void IncrementBioticaPercentTotals(double plantP, double animalP, double mineralP, double apexP)
+            {
+                this.plantPercTotal += plantP;
+                this.animalPercTotal += animalP;
+                this.mineralPercTotal += mineralP;
+                this.apexPercTotal += apexP;
+            }
+
+            public void IncrementBioticaLevelTotal(int level)
+            {
+                this.totalActiveBioLevel += level;
+                this.activeBioticaCount += 1;
+            }
+
+            public void IncrementBioticaLevelTotal(List<int> levels)
+            {
+                foreach(int level in levels)
+                {
+                    this.IncrementBioticaLevelTotal(level);
+                }
+            }
+
+            public void IncrementBiomeUsage(Dictionary<string, int> BiomePatchCounts)
+            {
+                foreach (string bn in BiomePatchCounts.Keys)
+                {
+                    int patches = BiomePatchCounts[bn];
+                    this.Territory += patches;
+                    switch (bn)
+                    {
+                        case "Desert":
+                            this.desertUse += 1;
+                            this.DesertSz += patches;
+                            break;
+                        case "Forest":
+                            this.forestUse += 1;
+                            this.ForestSz += patches;
+                            break;
+                        case "Ice Age":
+                        case "IceAge":
+                            this.iceAgeUse += 1;
+                            this.IceAgeSz += patches;
+                            break;
+                        case "Ocean":
+                            this.oceanUse += 1;
+                            this.OceanSz += patches;
+                            break;
+                        case "Rainforest":
+                            this.rainforestUse += 1;
+                            this.RainforestSz += patches;
+                            break;
+                        case "Savanna":
+                            this.savannaUse += 1;
+                            this.SavannaSz += patches;
+                            break;
+                        case "Taiga":
+                            this.taigaUse += 1;
+                            this.TaigaSz += patches;
+                            break;
+                        default: break;
+                    }
+                }
+            }
+
+            public void CalculateStats(int planetCount) 
+            {
+                this.PrimeP = SafePercent(this.Prime, this.Count);
+                this.MainP = SafePercent(this.Prime, planetCount);
+
+                this.ProsAv = SafeDivide(this.prosTotal, this.Count);
+                this.PopAv = SafeDivide(this.popTotal, this.Count);
+                this.TechAv = SafeDivide(this.techTotal, this.Count);
+                this.WelAv = SafeDivide(this.welTotal, this.Count);
+
+                this.PopPAv = SafeDivide(this.popPercTotal, this.Count);
+                this.TechPAv = SafeDivide(this.techPercTotal, this.Count);
+                this.WelPAv = SafeDivide(this.welPercTotal, this.Count);
+
+                this.ProsRelAv = SafeDivide(this.prosRelTotal, this.Count);
+                this.PopRelAv = SafeDivide(this.popRelTotal, this.Count);
+                this.TechRelAv = SafeDivide(this.techRelTotal, this.Count);
+                this.WelRelAv = SafeDivide(this.welRelTotal, this.Count);
+
+                this.TerrAv = SafeDivide(this.Territory, this.Count);
+                this.InventionAv = SafeDivide(this.Inventions, this.Count);
+                this.TradeRouteAv = SafeDivide(this.TradeRoutes, this.Count);
+
+                this.UpsetAv = SafeDivide(this.upsetTotal, this.Count);
+                this.PosUpsetP = SafeDivide(this.PosUpset, this.Count);
+                this.NegUpsetP = SafeDivide(this.NegUpset, this.Count);
+
+                int bioticaCount = this.Plants + this.Animals + this.Minerals;
+                this.AvFBioLv = SafeDivide(this.totalActiveBioLevel, this.activeBioticaCount);
+                this.PlantP = SafePercent(this.Plants, bioticaCount);
+                this.AnimalP = SafePercent(this.Animals, bioticaCount);
+                this.MineralP = SafePercent(this.Minerals, bioticaCount);
+
+                this.PlantAvP = SafeDivide(this.plantPercTotal, this.Count);
+                this.AnimalAvP = SafeDivide(this.animalPercTotal, this.Count);
+                this.MineralAvP = SafeDivide(this.mineralPercTotal, this.Count);
+
+                this.ApexP = SafePercent(this.Apex, bioticaCount);
+                this.ApexAvP = SafeDivide(this.apexPercTotal, this.Count);
+
+                this.HasDesert = SafePercent(this.desertUse, this.Count);
+                this.HasForest = SafePercent(this.forestUse, this.Count);
+                this.HasIceAge = SafePercent(this.iceAgeUse, this.Count);
+                this.HasOcean = SafePercent(this.oceanUse, this.Count);
+                this.HasRainforest = SafePercent(this.rainforestUse, this.Count);
+                this.HasSavanna = SafePercent(this.savannaUse, this.Count);
+                this.HasTaiga = SafePercent(this.taigaUse, this.Count);
+
+                this.DesertP = SafePercent(this.DesertSz, this.Territory);
+                this.ForestP = SafePercent(this.ForestSz, this.Territory);
+                this.IceAgeP = SafePercent(this.IceAgeSz, this.Territory);
+                this.OceanP = SafePercent(this.OceanSz, this.Territory);
+                this.RainforestP = SafePercent(this.RainforestSz, this.Territory);
+                this.SavannaP = SafePercent(this.SavannaSz, this.Territory);
+                this.TaigaP = SafePercent(this.TaigaSz, this.Territory);
+            }
+        }
+
         private static double? SafePercent(int a0, int b0)
         {
             double? c = SafeDivide(a0, b0);
@@ -809,11 +1169,15 @@ namespace Reus2Surveyor
         }
         public static double? SafeDivide(int a0, int b0)
         {
-            if (b0 == 0) return null;
-            double a = (double)a0;
-            double b = (double)b0;
+            return SafeDivide((double)a0, (double)b0);
+        }
+
+        public static double? SafeDivide(double a, double b)
+        {
+            if (b == 0) return null;
             return a / b;
         }
+
         public static void FormatColumn(IXLTable table, string columnName, string numFormat = "0.00%")
         {
             var column = table.FindColumn(c => c.FirstCell().Value.ToString() == columnName);
