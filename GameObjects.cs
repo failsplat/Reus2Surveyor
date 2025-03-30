@@ -10,6 +10,8 @@ namespace Reus2Surveyor
     public class Planet
     {
         public readonly string name;
+        public readonly int epochMinutes;
+        public int number = -1;
         public readonly string path;
         public readonly string debugName;
         public readonly Dictionary<int, BioticumSlot> slotDictionary = [];
@@ -131,6 +133,7 @@ namespace Reus2Surveyor
 
             this.path = planetPath;
             this.name = PlanetFileUtil.PlanetNameFromSaveFilePath(planetPath);
+            this.epochMinutes = PlanetFileUtil.EpochMinutesFromSaveFilePath(planetPath);
             List<string> pathParts = [.. this.path.Split(Path.DirectorySeparatorChar)];
             pathParts.Reverse();
             this.debugName = pathParts[1] + Path.DirectorySeparatorChar + pathParts[0];

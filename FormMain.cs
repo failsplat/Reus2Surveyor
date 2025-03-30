@@ -235,6 +235,7 @@ namespace Reus2Surveyor
                 resAsDict = PlanetFileUtil.ReadDictFromFile(path);
                 planetName = PlanetFileUtil.PlanetNameFromSaveFilePath(path);
                 newPlanet = PlanetFileUtil.InterpretDictAsPlanet(resAsDict, path);
+                newPlanet.number = index;
             }
             catch (Exception e)
             {

@@ -145,7 +145,7 @@ namespace Reus2Surveyor
         public void UpdateHumanityStats(Planet planet, int index)
         {
             // Planet Summary
-            PlanetSummaryEntry planetEntry = new(index, planet.name);
+            PlanetSummaryEntry planetEntry = new(planet);
             planetEntry.Score = (int)planet.gameSession.turningPointPerformances.Last().scoreTotal;
 
             planetEntry.Giant1 = planet.GiantNames[0];
@@ -821,6 +821,8 @@ namespace Reus2Surveyor
         {
             public readonly int N;
             public readonly string Name;
+            public readonly int Ser;
+            public readonly DateTime TS;
 
             public int Score;
             public int Pros;
@@ -861,10 +863,13 @@ namespace Reus2Surveyor
                 {"0.00", new List<string> { "ProsAv", "Gini", "PopAv", "TechAv", "WelAv", "AvFBioLv" } },
                 };
 
-            public PlanetSummaryEntry(int N, string Name)
+            public PlanetSummaryEntry(Planet planet)
             {
-                this.N = N;
-                this.Name = Name;
+                this.N = planet.number;
+                this.Name = planet.name;
+                this.Ser = planet.epochMinutes;
+                this.TS = DateTime.UnixEpoch.AddMinutes(this.Ser);
+                this.TS = this.TS.ToLocalTime();
             }
 
             public void IncrementSlotTotalLevel(int value)

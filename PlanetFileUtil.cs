@@ -88,6 +88,22 @@ namespace Reus2Surveyor
             return String.Join(' ', planetNameParts[1..]);
         }
 
+        public static int EpochMinutesFromSaveFilePath(string path)
+        {
+            List<string> pathParts = [.. path.Split(Path.DirectorySeparatorChar)];
+            pathParts.Reverse();
+            string planetFolder = pathParts[1];
+            List<string> planetNameParts = [.. planetFolder.Split('_')];
+            try
+            {
+                return System.Convert.ToInt32(planetNameParts[0]);
+            }
+            catch
+            {
+                return -1;
+            }
+        }
+
         public static string PlanetNameFromPlanetFolderPath(string path)
         {
             List<string> pathParts = [.. path.Split(Path.DirectorySeparatorChar)];
