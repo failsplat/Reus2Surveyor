@@ -1,5 +1,5 @@
 ﻿using ClosedXML.Excel;
-using DocumentFormat.OpenXml.Wordprocessing;
+using ImageMagick.Drawing;
 using MathNet.Numerics.Statistics;
 using System;
 using System.Collections.Generic;
@@ -264,6 +264,35 @@ namespace Reus2Surveyor
                 }
             }
 
+            foreach ((string biomeName, double percent) in planet.BiomePercentages)
+            {
+                switch (biomeName) 
+                {
+                    case "Desert":
+                        planetEntry.DesertP = percent;
+                        break;
+                    case "Forest":
+                        planetEntry.ForestP = percent;
+                        break;
+                    case "Ice Age":
+                    case "IceAge":
+                        planetEntry.IceAgeP = percent;
+                        break;
+                    case "Ocean":
+                        planetEntry.OceanP = percent;
+                        break;
+                    case "Rainforest":
+                        planetEntry.RainforestP = percent;
+                        break;
+                    case "Savanna":
+                        planetEntry.SavannaP = percent;
+                        break;
+                    case "Taiga":
+                        planetEntry.TaigaP = percent;
+                        break;
+                }
+            }
+
             this.PlanetSummaries.Add(planetEntry);
 
             // City Summary and Spirit Stats
@@ -445,7 +474,12 @@ namespace Reus2Surveyor
 
                 SpiritStatEntry se = this.SpiritStats[founderName];
                 se.Count += 1;
-                if (ce.CityN == 1) se.Prime += 1;
+                if (ce.CityN == 1)
+                {
+                    se.Prime += 1;
+                    se.IncrementPlanetScoreTotalAsPrimary((int)planet.gameSession.turningPointPerformances.Last().scoreTotal);
+                }
+                se.IncrementPlanetScoreTotal((int)planet.gameSession.turningPointPerformances.Last().scoreTotal);
 
                 se.IncrementProsperityTotals(ce.Pros, ce.Pop, ce.Tech, ce.Wel);
                 se.IncrementProsperityPercentTotals((double)ce.PopP, (double)ce.TechP, (double)ce.WelP);
@@ -857,9 +891,13 @@ namespace Reus2Surveyor
             public int Apex;
             private int OccupiedSlotTotalLevel = 0;
             public double? ApexP, AvFBioLv;
+            public double? DesertP, ForestP, IceAgeP, OceanP, RainforestP, SavannaP, TaigaP = null;
 
             private static Dictionary<string, List<string>> columnFormats = new() {
-                {"0.00%", new List<string> { "PopP", "TechP", "WelP", "PlantP", "AnimalP", "MineralP", "ApexP" } },
+                {"0.00%", new List<string> { 
+                    "PopP", "TechP", "WelP", "PlantP", "AnimalP", "MineralP", "ApexP",
+                    "DesertP", "ForestP", "IceAgeP", "OceanP", "RainforestP", "SavannaP", "TaigaP",
+                } },
                 {"0.00", new List<string> { "ProsAv", "Gini", "PopAv", "TechAv", "WelAv", "AvFBioLv" } },
                 };
 
@@ -942,6 +980,12 @@ namespace Reus2Surveyor
             public double? MainP = null;
             public double? PrimeP = null;
 
+            private int totalPlanetScore = 0;
+            public double? AvScore = null;
+
+            private int totalPlanetScorePrimary = 0;
+            public double? Av1stScore = null;
+
             private int prosTotal, popTotal, techTotal, welTotal = 0;
             private double popPercTotal, techPercTotal, welPercTotal = 0;
             private double prosRelTotal, popRelTotal, techRelTotal, welRelTotal = 0;
@@ -1001,7 +1045,7 @@ namespace Reus2Surveyor
                     "DesertP", "ForestP", "IceAgeP", "OceanP", "RainforestP", "SavannaP", "TaigaP",
                 } },
                 {"0.00", new List<string> { 
-                    "ProsAv", "PopAv", "TechAv", "WelAv",
+                    "ProsAv", "PopAv", "TechAv", "WelAv", "AvScore", "Av1stScore",
                     "ProsRelAv", "PopRelAv", "TechRelAv", "WelRelAv",
                     "ProsRelHi", "PopRelHi", "TechRelHi", "WelRelHi",
                     "InventionAv", "TradeRouteAv",
@@ -1108,10 +1152,23 @@ namespace Reus2Surveyor
                 }
             }
 
+            public void IncrementPlanetScoreTotal(int score)
+            {
+                this.totalPlanetScore += score;
+            }
+
+            public void IncrementPlanetScoreTotalAsPrimary(int score)
+            {
+                this.totalPlanetScorePrimary += score;
+            }
+
             public void CalculateStats(int planetCount) 
             {
                 this.PrimeP = SafePercent(this.Prime, this.Count);
                 this.MainP = SafePercent(this.Prime, planetCount);
+
+                this.AvScore = SafeDivide(this.totalPlanetScore, this.Count);
+                this.Av1stScore = SafeDivide(this.totalPlanetScorePrimary, this.Prime);
 
                 this.ProsAv = SafeDivide(this.prosTotal, this.Count);
                 this.PopAv = SafeDivide(this.popTotal, this.Count);
