@@ -527,7 +527,8 @@ namespace Reus2Surveyor
                 se.Animals += ce.Animals;
                 se.Minerals += ce.Minerals;
 
-                se.IncrementBioticaPercentTotals((double)ce.PlantP, (double)ce.AnimalP, (double)ce.MineralP, (double)ce.ApexP);
+                //se.IncrementBioticaPercentTotals((double)ce.PlantP, (double)ce.AnimalP, (double)ce.MineralP, (double)ce.ApexP);
+                //se.IncrementBioticaPercentTotals((double)ce.ApexP);
                 se.Apex += ce.Apex;
             }
 
@@ -675,59 +676,17 @@ namespace Reus2Surveyor
                 var cityWs = wb.AddWorksheet("Cities");
                 var cityTable = cityWs.Cell("A1").InsertTable(this.CitySummaries, "Cities");
                 cityTable.Theme = XLTableTheme.TableStyleLight1;
-                foreach (KeyValuePair<string, List<string>> kv in CitySummaryEntry.GetColumnFormats())
-                {
-                    string format = kv.Key;
-                    List<string> columns = kv.Value;
-
-                    foreach (string colName in columns)
-                    {
-                        try
-                        {
-                            var col = cityTable.FindColumn(c => c.FirstCell().Value.ToString() == colName);
-                            col.Style.NumberFormat.Format = format;
-                        }
-                        catch { }
-                    }
-                }
+                ApplyTableNumberFormats(CitySummaryEntry.GetColumnFormats(), cityTable);
 
                 var spiritWs = wb.AddWorksheet("Spirits");
                 var spiritTable = spiritWs.Cell("A1").InsertTable(this.SpiritStats.Values, "Spirits");
                 spiritTable.Theme = XLTableTheme.TableStyleMedium5;
-                foreach (KeyValuePair<string, List<string>> kv in SpiritStatEntry.GetColumnFormats())
-                {
-                    string format = kv.Key;
-                    List<string> columns = kv.Value;
-
-                    foreach (string colName in columns)
-                    {
-                        try
-                        {
-                            var col = spiritTable.FindColumn(c => c.FirstCell().Value.ToString() == colName);
-                            col.Style.NumberFormat.Format = format;
-                        }
-                        catch { }
-                    }
-                }
+                ApplyTableNumberFormats(SpiritStatEntry.GetColumnFormats(), spiritTable);
 
                 var bioWs = wb.AddWorksheet("Biotica");
                 var bioticaTable = bioWs.Cell("A1").InsertTable(this.BioticaStats.Values, "Biotica");
                 bioticaTable.Theme = XLTableTheme.TableStyleMedium3;
-                foreach (KeyValuePair<string, List<string>> kv in BioticumStatEntry.GetColumnFormats())
-                {
-                    string format = kv.Key;
-                    List<string> columns = kv.Value;
-
-                    foreach (string colName in columns)
-                    {
-                        try
-                        {
-                            var col = bioticaTable.FindColumn(c => c.FirstCell().Value.ToString() == colName);
-                            col.Style.NumberFormat.Format = format;
-                        }
-                        catch { }
-                    }
-                }
+                ApplyTableNumberFormats(BioticumStatEntry.GetColumnFormats(), bioticaTable);
 
                 DataTable bioticaVsSpiritTable = NestDictToDataTable(this.BioticumVsSpiritCounter, "Bioticum");
                 var bioVsCharWs = wb.AddWorksheet("BioticaVsChar");
@@ -1035,13 +994,13 @@ namespace Reus2Surveyor
             private int totalActiveBioLevel = 0;
             public double? AvFBioLv = null;
             public double? PlantP, AnimalP, MineralP = null;
-            private double plantPercTotal, animalPercTotal, mineralPercTotal = 0;
-            public double? PlantAvP, AnimalAvP, MineralAvP = null;
+            //private double plantPercTotal, animalPercTotal, mineralPercTotal = 0;
+            //public double? PlantAvP, AnimalAvP, MineralAvP = null;
 
             public int Apex = 0;
             public double? ApexP = null;
-            private double apexPercTotal = 0;
-            public double? ApexAvP = null;
+            //private double apexPercTotal = 0;
+            //public double? ApexAvP = null;
 
             // Counts/percents of wild biome patches, per planet
             private int desertUse, forestUse, iceAgeUse, oceanUse, rainforestUse, savannaUse, taigaUse = 0;
@@ -1059,7 +1018,7 @@ namespace Reus2Surveyor
                     "PrimeP", "MainP",
                     "PopPAv", "TechPAv", "WelPAv", "PopPHi", "TechPHi", "WelPHi", 
                     "PosUpsetP", "NegUpsetP",
-                    "PlantP", "AnimalP", "MineralP", "PlantAvP", "AnimalAvP", "MineralAvP", "ApexP", "ApexAvP",
+                    "PlantP", "AnimalP", "MineralP", "ApexP",
                     "HasDesert", "HasForest", "HasIceAge", "HasOcean", "HasRainforest", "HasSavanna", "HasTaiga",
                     "DesertP", "ForestP", "IceAgeP", "OceanP", "RainforestP", "SavannaP", "TaigaP",
                 } },
@@ -1107,13 +1066,14 @@ namespace Reus2Surveyor
                 this.upsetTotal += upset;
             }
 
-            public void IncrementBioticaPercentTotals(double plantP, double animalP, double mineralP, double apexP)
+            //public void IncrementBioticaPercentTotals(double plantP, double animalP, double mineralP, double apexP)
+            /*public void IncrementBioticaPercentTotals(double apexP)
             {
-                this.plantPercTotal += plantP;
-                this.animalPercTotal += animalP;
-                this.mineralPercTotal += mineralP;
-                this.apexPercTotal += apexP;
-            }
+                //this.plantPercTotal += plantP;
+                //this.animalPercTotal += animalP;
+                //this.mineralPercTotal += mineralP;
+                //this.apexPercTotal += apexP;
+            }*/
 
             public void IncrementBioticaLevelTotal(int level)
             {
@@ -1217,12 +1177,12 @@ namespace Reus2Surveyor
                 this.AnimalP = SafePercent(this.Animals, bioticaCount);
                 this.MineralP = SafePercent(this.Minerals, bioticaCount);
 
-                this.PlantAvP = SafeDivide(this.plantPercTotal, this.Count);
-                this.AnimalAvP = SafeDivide(this.animalPercTotal, this.Count);
-                this.MineralAvP = SafeDivide(this.mineralPercTotal, this.Count);
+                //this.PlantAvP = SafeDivide(this.plantPercTotal, this.Count);
+                //this.AnimalAvP = SafeDivide(this.animalPercTotal, this.Count);
+                //this.MineralAvP = SafeDivide(this.mineralPercTotal, this.Count);
 
                 this.ApexP = SafePercent(this.Apex, bioticaCount);
-                this.ApexAvP = SafeDivide(this.apexPercTotal, this.Count);
+                //this.ApexAvP = SafeDivide(this.apexPercTotal, this.Count);
 
                 this.HasDesert = SafePercent(this.desertUse, this.Count);
                 this.HasForest = SafePercent(this.forestUse, this.Count);
@@ -1308,6 +1268,26 @@ namespace Reus2Surveyor
             g /= n;
             g -= (n + 1) / n;
             return g;
+        }
+
+        public static void ApplyTableNumberFormats(Dictionary<string, List<string>> columnFormats, IXLTable table)
+        {
+            foreach (KeyValuePair<string, List<string>> kv in columnFormats)
+            {
+                string format = kv.Key;
+                List<string> columns = kv.Value;
+
+                foreach (string colName in columns)
+                {
+                    try
+                    {
+                        var col = table.FindColumn(c => c.FirstCell().Value.ToString() == colName);
+                        if (col is null) continue;
+                        col.Style.NumberFormat.Format = format;
+                    }
+                    catch { }
+                }
+            }
         }
 
     }
