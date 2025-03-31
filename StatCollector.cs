@@ -264,6 +264,10 @@ namespace Reus2Surveyor
                 }
             }
 
+            Dictionary<int, Patch> wildPatches = planet.patchDictionary.Where(kv => kv.Value.IsWildPatch()).ToDictionary();
+            int wildSlots = wildPatches.SelectMany(kv => kv.Value.GetActiveSlotIndices()).Count();
+            planetEntry.FillP = SafePercent(planetEntry.FilledSlots, wildSlots);
+
             foreach ((string biomeName, double percent) in planet.BiomePercentages)
             {
                 switch (biomeName) 
@@ -352,6 +356,18 @@ namespace Reus2Surveyor
                             break;
                     }
                 }
+
+                int slotCount = 0;
+                foreach (Patch wildPatch in city.PatchesInTerritory.Where(p => p.IsWildPatch()))
+                {
+                    foreach(int slotIndex in wildPatch.GetActiveSlotIndices())
+                    {
+                        BioticumSlot slot = planet.slotDictionary[slotIndex];
+                        slotCount += 1;
+                        if (slot.bioticumId is not null) cityEntry.FilledSlots += 1;
+                    }
+                }
+                cityEntry.FillP = SafePercent(cityEntry.FilledSlots, slotCount);
 
                 cityEntry.Biotica = city.BioticaInTerritory.Count;
                 List<int> bioticaLevels = [];
@@ -876,6 +892,7 @@ namespace Reus2Surveyor
 
             public int SzT, SzWld;
             public int FilledSlots = 0;
+            public double? FillP;
 
             public int ProsHi;
             public double? ProsMdn, ProsAv, Gini;
@@ -895,7 +912,7 @@ namespace Reus2Surveyor
 
             private static Dictionary<string, List<string>> columnFormats = new() {
                 {"0.00%", new List<string> { 
-                    "PopP", "TechP", "WelP", "PlantP", "AnimalP", "MineralP", "ApexP",
+                    "PopP", "TechP", "WelP", "PlantP", "AnimalP", "MineralP", "ApexP", "FillP",
                     "DesertP", "ForestP", "IceAgeP", "OceanP", "RainforestP", "SavannaP", "TaigaP",
                 } },
                 {"0.00", new List<string> { "ProsAv", "Gini", "PopAv", "TechAv", "WelAv", "AvFBioLv" } },
@@ -951,6 +968,8 @@ namespace Reus2Surveyor
 
             public int Biotica = 0;
             public double? AvFBioLv = null;
+            public int FilledSlots = 0;
+            public double? FillP = null;
             public int Plants, Animals, Minerals, Apex = 0;
             public double? PlantP, AnimalP, MineralP, ApexP = null;
 
@@ -958,7 +977,7 @@ namespace Reus2Surveyor
             public string Lv1B, Lv2B, Lv3B, Era1B, Era2B, Era3B, Temple1, Temple2, Temple3 = null;
 
             private static Dictionary<string, List<string>> columnFormats = new() {
-                {"0.00%", new List<string> { "PopP", "TechP", "WelP", "PlantP", "AnimalP", "MineralP", "ApexP"} },
+                {"0.00%", new List<string> { "PopP", "TechP", "WelP", "FillP", "PlantP", "AnimalP", "MineralP", "ApexP"} },
                 {"0.00", new List<string> { "ProsRel", "PopRel", "TechRel", "WelRel", "AvFBioLv" } },
                 };
 
