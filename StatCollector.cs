@@ -181,33 +181,33 @@ namespace Reus2Surveyor
 
             planetEntry.Pros = cityProsList.Sum();
             planetEntry.ProsMdn = Statistics.Median([.. cityProsList]);
-            planetEntry.ProsAv = Statistics.Mean([.. cityProsList]);
+            planetEntry.AvPros = Statistics.Mean([.. cityProsList]);
             planetEntry.Gini = GiniCoeff(cityProsList);
-            planetEntry.ProsHi = cityProsList.Max();
+            planetEntry.HiPros = cityProsList.Max();
 
             planetEntry.Pop = cityPopList.Sum();
             planetEntry.Tech = cityTechList.Sum();
             planetEntry.Wel = cityWelList.Sum();
 
             // // % of total Prosperity (including bonus prosperity from luxuries, requests, etc.)
-            //planetEntry.PopP = SafeDivide(planetEntry.Pop, planetEntry.Pros);
-            //planetEntry.TechP = SafeDivide(planetEntry.Tech, planetEntry.Pros);
-            //planetEntry.WelP = SafeDivide(planetEntry.Wel, planetEntry.Pros);
+            //planetEntry.PPop = SafeDivide(planetEntry.Pop, planetEntry.Pros);
+            //planetEntry.PTech = SafeDivide(planetEntry.Tech, planetEntry.Pros);
+            //planetEntry.PWel = SafeDivide(planetEntry.Wel, planetEntry.Pros);
 
-            planetEntry.PopP = SafePercent(planetEntry.Pop, planetEntry.Pop + planetEntry.Tech + planetEntry.Wel);
-            planetEntry.TechP = SafePercent(planetEntry.Tech, planetEntry.Pop + planetEntry.Tech + planetEntry.Wel);
-            planetEntry.WelP = SafePercent(planetEntry.Wel, planetEntry.Pop + planetEntry.Tech + planetEntry.Wel);
+            planetEntry.PPop = SafePercent(planetEntry.Pop, planetEntry.Pop + planetEntry.Tech + planetEntry.Wel);
+            planetEntry.PTech = SafePercent(planetEntry.Tech, planetEntry.Pop + planetEntry.Tech + planetEntry.Wel);
+            planetEntry.PWel = SafePercent(planetEntry.Wel, planetEntry.Pop + planetEntry.Tech + planetEntry.Wel);
 
-            planetEntry.PopHi = cityPopList.Max();
-            planetEntry.TechHi = cityTechList.Max();
-            planetEntry.WelHi = cityWelList.Max();
+            planetEntry.HiPop = cityPopList.Max();
+            planetEntry.HiTech = cityTechList.Max();
+            planetEntry.HiWel = cityWelList.Max();
 
-            planetEntry.PopMdn = Statistics.Median([.. cityPopList]);
-            planetEntry.PopAv = Statistics.Mean([.. cityPopList]);
-            planetEntry.TechMdn = Statistics.Median([.. cityTechList]);
-            planetEntry.TechAv = Statistics.Mean([.. cityTechList]);
-            planetEntry.WelMdn = Statistics.Median([.. cityWelList]);
-            planetEntry.WelAv = Statistics.Mean([.. cityWelList]);
+            planetEntry.MdnPop = Statistics.Median([.. cityPopList]);
+            planetEntry.AvPop = Statistics.Mean([.. cityPopList]);
+            planetEntry.MdnTech = Statistics.Median([.. cityTechList]);
+            planetEntry.AvTech = Statistics.Mean([.. cityTechList]);
+            planetEntry.MdnWel = Statistics.Median([.. cityWelList]);
+            planetEntry.AvWel = Statistics.Mean([.. cityWelList]);
 
             if (planet.gameSession.turningPointPerformances.Count >= 1)
             {
@@ -322,17 +322,17 @@ namespace Reus2Surveyor
                 cityEntry.FoundBiome = glossaryInstance.BiomeNameFromHash(city.settledBiomeDef);
                 cityEntry.CurrBiome = glossaryInstance.BiomeNameFromHash(city.currentBiomeDef);
 
-                cityEntry.PopP = SafePercent(cityEntry.Pop, cityEntry.Pop + cityEntry.Tech + cityEntry.Wel);
-                cityEntry.TechP = SafePercent(cityEntry.Tech, cityEntry.Pop + cityEntry.Tech + cityEntry.Wel);
-                cityEntry.WelP = SafePercent(cityEntry.Wel, cityEntry.Pop + cityEntry.Tech + cityEntry.Wel);
+                cityEntry.PPop = SafePercent(cityEntry.Pop, cityEntry.Pop + cityEntry.Tech + cityEntry.Wel);
+                cityEntry.PTech = SafePercent(cityEntry.Tech, cityEntry.Pop + cityEntry.Tech + cityEntry.Wel);
+                cityEntry.PWel = SafePercent(cityEntry.Wel, cityEntry.Pop + cityEntry.Tech + cityEntry.Wel);
 
-                cityEntry.ProsRel = cityEntry.Pros / planetEntry.ProsMdn;
-                cityEntry.PopRel = cityEntry.Pop / planetEntry.PopMdn;
-                cityEntry.TechRel = cityEntry.Tech / planetEntry.TechMdn;
-                cityEntry.WelRel = cityEntry.Wel / planetEntry.WelMdn;
+                cityEntry.RelPros = cityEntry.Pros / planetEntry.ProsMdn;
+                cityEntry.RelPop = cityEntry.Pop / planetEntry.MdnPop;
+                cityEntry.RelTech = cityEntry.Tech / planetEntry.MdnTech;
+                cityEntry.RelWel = cityEntry.Wel / planetEntry.MdnWel;
 
-                cityEntry.Inventions = city.CityLuxuryController.luxurySlots.Where(ls => ls.luxuryGoodId is not null).Count();
-                cityEntry.TradeRoutes = city.CityLuxuryController.importAgreementIds.Count();
+                cityEntry.Invent = city.CityLuxuryController.luxurySlots.Where(ls => ls.luxuryGoodId is not null).Count();
+                cityEntry.Trades = city.CityLuxuryController.importAgreementIds.Count();
                 cityEntry.TerrPatches = city.PatchesInTerritory.Where(p => p.IsWildPatch()).Count();
 
                 cityEntry.TPLead = city.initiatedTurningPointsDefs.Count();
@@ -422,9 +422,9 @@ namespace Reus2Surveyor
                 }
 
                 cityEntry.AvFBioLv = bioticaLevels.Average();
-                cityEntry.PlantP = SafePercent(cityEntry.Plants, cityEntry.Biotica);
-                cityEntry.AnimalP = SafePercent(cityEntry.Animals, cityEntry.Biotica);
-                cityEntry.MineralP = SafePercent(cityEntry.Minerals, cityEntry.Biotica);
+                cityEntry.PPlant = SafePercent(cityEntry.Plants, cityEntry.Biotica);
+                cityEntry.PAnimal = SafePercent(cityEntry.Animals, cityEntry.Biotica);
+                cityEntry.PMineral = SafePercent(cityEntry.Minerals, cityEntry.Biotica);
                 cityEntry.ApexP = SafePercent(cityEntry.Apex, cityEntry.Biotica);
 
                 foreach (City.ProjectController.CityProject project in city.CityProjectController.projects)
@@ -494,29 +494,30 @@ namespace Reus2Surveyor
                 {
                     se.Prime += 1;
                     se.IncrementPlanetScoreTotalAsPrimary((int)planet.gameSession.turningPointPerformances.Last().scoreTotal);
+                    se.PrScoreHi = Math.Max(se.PrScoreHi, (int)planet.gameSession.turningPointPerformances.Last().scoreTotal);
                 }
                 se.IncrementPlanetScoreTotal((int)planet.gameSession.turningPointPerformances.Last().scoreTotal);
 
                 se.IncrementProsperityTotals(ce.Pros, ce.Pop, ce.Tech, ce.Wel);
-                se.IncrementProsperityPercentTotals((double)ce.PopP, (double)ce.TechP, (double)ce.WelP);
-                se.IncrementProsperityRelTotals((double)ce.ProsRel, (double)ce.PopRel, (double)ce.TechRel, (double)ce.WelRel);
+                se.IncrementProsperityPercentTotals((double)ce.PPop, (double)ce.PTech, (double)ce.PWel);
+                se.IncrementProsperityRelTotals((double)ce.RelPros, (double)ce.RelPop, (double)ce.RelTech, (double)ce.RelWel);
 
-                se.ProsHi = Math.Max(se.ProsHi, ce.Pros);
-                se.PopHi = Math.Max(se.PopHi, ce.Pop);
-                se.TechHi = Math.Max(se.TechHi, ce.Tech);
-                se.WelHi = Math.Max(se.WelHi, ce.Wel);
+                se.HiPros = Math.Max(se.HiPros, ce.Pros);
+                se.HiPop = Math.Max(se.HiPop, ce.Pop);
+                se.HiTech = Math.Max(se.HiTech, ce.Tech);
+                se.HiWel = Math.Max(se.HiWel, ce.Wel);
 
-                se.PopPHi = Math.Max(se.PopPHi, (double)ce.PopP);
-                se.TechPHi = Math.Max(se.TechPHi, (double)ce.TechP);
-                se.WelPHi = Math.Max(se.WelPHi, (double)ce.WelP);
+                se.HiPPop = Math.Max(se.HiPPop, (double)ce.PPop);
+                se.HiPTech = Math.Max(se.HiPTech, (double)ce.PTech);
+                se.HiPWel = Math.Max(se.HiPWel, (double)ce.PWel);
 
-                se.ProsRelHi = Math.Max(se.ProsRelHi, (double)ce.ProsRel);
-                se.PopRelHi = Math.Max(se.PopRelHi, (double)ce.PopRel);
-                se.TechRelHi = Math.Max(se.TechRelHi, (double)ce.TechRel);
-                se.WelRelHi = Math.Max(se.WelRelHi, (double)ce.WelRel);
+                se.HiRelPros = Math.Max(se.HiRelPros, (double)ce.RelPros);
+                se.HiRelPop = Math.Max(se.HiRelPop, (double)ce.RelPop);
+                se.HiRelTech = Math.Max(se.HiRelTech, (double)ce.RelTech);
+                se.HiRelWel = Math.Max(se.HiRelWel, (double)ce.RelWel);
 
-                se.Inventions += ce.Inventions;
-                se.TradeRoutes += ce.TradeRoutes;
+                se.Invent += ce.Invent;
+                se.Trades += ce.Trades;
 
                 int upset = (int)ce.Upset;
                 se.IncrementUpsetTotal(upset);
@@ -527,7 +528,7 @@ namespace Reus2Surveyor
                 se.Animals += ce.Animals;
                 se.Minerals += ce.Minerals;
 
-                //se.IncrementBioticaPercentTotals((double)ce.PlantP, (double)ce.AnimalP, (double)ce.MineralP, (double)ce.ApexP);
+                //se.IncrementBioticaPercentTotals((double)ce.PPlant, (double)ce.PAnimal, (double)ce.PMineral, (double)ce.ApexP);
                 //se.IncrementBioticaPercentTotals((double)ce.ApexP);
                 se.Apex += ce.Apex;
             }
@@ -853,17 +854,17 @@ namespace Reus2Surveyor
             public int FilledSlots = 0;
             public double? FillP;
 
-            public int ProsHi;
-            public double? ProsMdn, ProsAv, Gini;
+            public int HiPros;
+            public double? ProsMdn, AvPros, Gini;
             public int Pop, Tech, Wel;
-            public double? PopP, TechP, WelP;
-            public int PopHi, TechHi, WelHi;
-            public double? PopMdn, TechMdn, WelMdn, PopAv, TechAv, WelAv;
+            public double? PPop, PTech, PWel;
+            public int HiPop, HiTech, HiWel;
+            public double? MdnPop, MdnTech, MdnWel, AvPop, AvTech, AvWel;
 
             public int? Biomes, CBiomes;
             public int Biotica, Plants, Animals, Minerals = 0;
             public int UqBiotica, UqPlants, UqAnimals, UqMinerals;
-            public double? PlantP, AnimalP, MineralP;
+            public double? PPlant, PAnimal, PMineral;
             public int Apex;
             private int OccupiedSlotTotalLevel = 0;
             public double? ApexP, AvFBioLv;
@@ -871,10 +872,10 @@ namespace Reus2Surveyor
 
             private static Dictionary<string, List<string>> columnFormats = new() {
                 {"0.00%", new List<string> { 
-                    "PopP", "TechP", "WelP", "PlantP", "AnimalP", "MineralP", "ApexP", "FillP",
+                    "PPop", "PTech", "PWel", "PPlant", "PAnimal", "PMineral", "ApexP", "FillP",
                     "DesertP", "ForestP", "IceAgeP", "OceanP", "RainforestP", "SavannaP", "TaigaP",
                 } },
-                {"0.00", new List<string> { "ProsAv", "Gini", "PopAv", "TechAv", "WelAv", "AvFBioLv" } },
+                {"0.00", new List<string> { "AvPros", "Gini", "AvPop", "AvTech", "AvWel", "AvFBioLv" } },
                 };
 
             public PlanetSummaryEntry(Planet planet)
@@ -894,9 +895,9 @@ namespace Reus2Surveyor
             public void CalculateStats()
             {
                 this.AvFBioLv = SafeDivide(this.OccupiedSlotTotalLevel, this.FilledSlots);
-                this.AnimalP = SafePercent(this.Animals, this.Biotica);
-                this.PlantP = SafePercent(this.Plants, this.Biotica);
-                this.MineralP = SafePercent(this.Minerals, this.Biotica);
+                this.PAnimal = SafePercent(this.Animals, this.Biotica);
+                this.PPlant = SafePercent(this.Plants, this.Biotica);
+                this.PMineral = SafePercent(this.Minerals, this.Biotica);
                 this.ApexP = SafePercent(this.Apex, this.Biotica);
             }
 
@@ -916,10 +917,10 @@ namespace Reus2Surveyor
             public int Pros, Pop, Tech, Wel;
             public string FoundBiome, CurrBiome;
             public int? Rank, Upset = null;
-            public double? PopP, TechP, WelP = null;
-            public double? ProsRel, PopRel, TechRel, WelRel = null;
+            public double? PPop, PTech, PWel = null;
+            public double? RelPros, RelPop, RelTech, RelWel = null;
 
-            public int Inventions, TradeRoutes = 0;
+            public int Invent, Trades = 0;
             public int TerrPatches = 0;
 
             public int TPLead = 0;
@@ -930,14 +931,14 @@ namespace Reus2Surveyor
             public int FilledSlots = 0;
             public double? FillP = null;
             public int Plants, Animals, Minerals, Apex = 0;
-            public double? PlantP, AnimalP, MineralP, ApexP = null;
+            public double? PPlant, PAnimal, PMineral, ApexP = null;
 
             public int Buildings = 0;
             public string Lv1B, Lv2B, Lv3B, Era1B, Era2B, Era3B, Temple1, Temple2, Temple3 = null;
 
             private static Dictionary<string, List<string>> columnFormats = new() {
-                {"0.00%", new List<string> { "PopP", "TechP", "WelP", "FillP", "PlantP", "AnimalP", "MineralP", "ApexP"} },
-                {"0.00", new List<string> { "ProsRel", "PopRel", "TechRel", "WelRel", "AvFBioLv" } },
+                {"0.00%", new List<string> { "PPop", "PTech", "PWel", "FillP", "PPlant", "PAnimal", "PMineral", "ApexP"} },
+                {"0.00", new List<string> { "RelPros", "RelPop", "RelTech", "RelWel", "AvFBioLv" } },
                 };
 
             public static Dictionary<string, List<string>> GetColumnFormats() { return columnFormats; }
@@ -962,27 +963,28 @@ namespace Reus2Surveyor
             public double? AvScore = null;
 
             private int totalPlanetScorePrimary = 0;
-            public double? Av1stScore = null;
+            public double? AvPrScore = null;
 
             private int prosTotal, popTotal, techTotal, welTotal = 0;
             private double popPercTotal, techPercTotal, welPercTotal = 0;
             private double prosRelTotal, popRelTotal, techRelTotal, welRelTotal = 0;
 
-            public double? ProsAv, PopAv, TechAv, WelAv = null;
-            public int ProsHi, PopHi, TechHi, WelHi = 0;
+            public double? AvPros, AvPop, AvTech, AvWel = null;
+            public int PrScoreHi = 0;
+            public int HiPros, HiPop, HiTech, HiWel = 0;
 
-            public double? PopPAv, TechPAv, WelPAv = null;
-            public double PopPHi, TechPHi, WelPHi = 0;
+            public double? AvPPop, AvPTech, AvPWel = null;
+            public double HiPPop, HiPTech, HiPWel = 0;
 
-            public double? ProsRelAv, PopRelAv, TechRelAv, WelRelAv = null;
-            public double ProsRelHi, PopRelHi, TechRelHi, WelRelHi = 0;
+            public double? AvRelPros, AvRelPop, AvRelTech, AvRelWel = null;
+            public double HiRelPros, HiRelPop, HiRelTech, HiRelWel = 0;
 
-            public int Territory = 0;
+            public int Terr = 0;
             public double? TerrAv = null;
-            public int Inventions = 0;
-            public double? InventionAv = null;
-            public int TradeRoutes = 0;
-            public double? TradeRouteAv = null;
+            public int Invent = 0;
+            public double? InventAv = null;
+            public int Trades = 0;
+            public double? TradeAv = null;
 
             private int upsetTotal = 0;
             public double? UpsetAv = null;
@@ -993,7 +995,7 @@ namespace Reus2Surveyor
             private int activeBioticaCount = 0;
             private int totalActiveBioLevel = 0;
             public double? AvFBioLv = null;
-            public double? PlantP, AnimalP, MineralP = null;
+            public double? PPlant, PAnimal, PMineral = null;
             //private double plantPercTotal, animalPercTotal, mineralPercTotal = 0;
             //public double? PlantAvP, AnimalAvP, MineralAvP = null;
 
@@ -1016,16 +1018,16 @@ namespace Reus2Surveyor
             private static Dictionary<string, List<string>> columnFormats = new() {
                 {"0.00%", new List<string> { 
                     "PrimeP", "MainP",
-                    "PopPAv", "TechPAv", "WelPAv", "PopPHi", "TechPHi", "WelPHi", 
+                    "AvPPop", "AvPTech", "AvPWel", "HiPPop", "HiPTech", "HiPWel", 
                     "PosUpsetP", "NegUpsetP",
-                    "PlantP", "AnimalP", "MineralP", "ApexP",
+                    "PPlant", "PAnimal", "PMineral", "ApexP",
                     "HasDesert", "HasForest", "HasIceAge", "HasOcean", "HasRainforest", "HasSavanna", "HasTaiga",
                     "DesertP", "ForestP", "IceAgeP", "OceanP", "RainforestP", "SavannaP", "TaigaP",
                 } },
                 {"0.00", new List<string> { 
-                    "ProsAv", "PopAv", "TechAv", "WelAv", "AvScore", "Av1stScore",
-                    "ProsRelAv", "PopRelAv", "TechRelAv", "WelRelAv",
-                    "ProsRelHi", "PopRelHi", "TechRelHi", "WelRelHi",
+                    "AvPros", "AvPop", "AvTech", "AvWel", "AvScore", "AvPrScore",
+                    "AvRelPros", "AvRelPop", "AvRelTech", "AvRelWel",
+                    "HiRelPros", "HiRelPop", "HiRelTech", "HiRelWel",
                     "InventionAv", "TradeRouteAv",
                     "UpsetAv", "AvFBioLv", "TerrAv"
                 } },
@@ -1053,12 +1055,12 @@ namespace Reus2Surveyor
                 this.welPercTotal += welPerc;
             }
 
-            public void IncrementProsperityRelTotals(double prosRel, double popRel, double techRel, double welRel)
+            public void IncrementProsperityRelTotals(double RelPros, double RelPop, double RelTech, double RelWel)
             {
-                this.prosRelTotal += prosRel;
-                this.popRelTotal += popRel;
-                this.techRelTotal += techRel;
-                this.welRelTotal += welRel;
+                this.prosRelTotal += RelPros;
+                this.popRelTotal += RelPop;
+                this.techRelTotal += RelTech;
+                this.welRelTotal += RelWel;
             }
 
             public void IncrementUpsetTotal(int upset)
@@ -1066,12 +1068,12 @@ namespace Reus2Surveyor
                 this.upsetTotal += upset;
             }
 
-            //public void IncrementBioticaPercentTotals(double plantP, double animalP, double mineralP, double apexP)
+            //public void IncrementBioticaPercentTotals(double PPlant, double PAnimal, double PMineral, double apexP)
             /*public void IncrementBioticaPercentTotals(double apexP)
             {
-                //this.plantPercTotal += plantP;
-                //this.animalPercTotal += animalP;
-                //this.mineralPercTotal += mineralP;
+                //this.plantPercTotal += PPlant;
+                //this.animalPercTotal += PAnimal;
+                //this.mineralPercTotal += PMineral;
                 //this.apexPercTotal += apexP;
             }*/
 
@@ -1094,7 +1096,7 @@ namespace Reus2Surveyor
                 foreach (string bn in BiomePatchCounts.Keys)
                 {
                     int patches = BiomePatchCounts[bn];
-                    this.Territory += patches;
+                    this.Terr += patches;
                     switch (bn)
                     {
                         case "Desert":
@@ -1147,25 +1149,25 @@ namespace Reus2Surveyor
                 this.MainP = SafePercent(this.Prime, planetCount);
 
                 this.AvScore = SafeDivide(this.totalPlanetScore, this.Count);
-                this.Av1stScore = SafeDivide(this.totalPlanetScorePrimary, this.Prime);
+                this.AvPrScore = SafeDivide(this.totalPlanetScorePrimary, this.Prime);
 
-                this.ProsAv = SafeDivide(this.prosTotal, this.Count);
-                this.PopAv = SafeDivide(this.popTotal, this.Count);
-                this.TechAv = SafeDivide(this.techTotal, this.Count);
-                this.WelAv = SafeDivide(this.welTotal, this.Count);
+                this.AvPros = SafeDivide(this.prosTotal, this.Count);
+                this.AvPop = SafeDivide(this.popTotal, this.Count);
+                this.AvTech = SafeDivide(this.techTotal, this.Count);
+                this.AvWel = SafeDivide(this.welTotal, this.Count);
 
-                this.PopPAv = SafeDivide(this.popPercTotal, this.Count);
-                this.TechPAv = SafeDivide(this.techPercTotal, this.Count);
-                this.WelPAv = SafeDivide(this.welPercTotal, this.Count);
+                this.AvPPop = SafeDivide(this.popPercTotal, this.Count);
+                this.AvPTech = SafeDivide(this.techPercTotal, this.Count);
+                this.AvPWel = SafeDivide(this.welPercTotal, this.Count);
 
-                this.ProsRelAv = SafeDivide(this.prosRelTotal, this.Count);
-                this.PopRelAv = SafeDivide(this.popRelTotal, this.Count);
-                this.TechRelAv = SafeDivide(this.techRelTotal, this.Count);
-                this.WelRelAv = SafeDivide(this.welRelTotal, this.Count);
+                this.AvRelPros = SafeDivide(this.prosRelTotal, this.Count);
+                this.AvRelPop = SafeDivide(this.popRelTotal, this.Count);
+                this.AvRelTech = SafeDivide(this.techRelTotal, this.Count);
+                this.AvRelWel = SafeDivide(this.welRelTotal, this.Count);
 
-                this.TerrAv = SafeDivide(this.Territory, this.Count);
-                this.InventionAv = SafeDivide(this.Inventions, this.Count);
-                this.TradeRouteAv = SafeDivide(this.TradeRoutes, this.Count);
+                this.TerrAv = SafeDivide(this.Terr, this.Count);
+                this.InventAv = SafeDivide(this.Invent, this.Count);
+                this.TradeAv = SafeDivide(this.Trades, this.Count);
 
                 this.UpsetAv = SafeDivide(this.upsetTotal, this.Count);
                 this.PosUpsetP = SafeDivide(this.PosUpset, this.Count);
@@ -1173,9 +1175,9 @@ namespace Reus2Surveyor
 
                 int bioticaCount = this.Plants + this.Animals + this.Minerals;
                 this.AvFBioLv = SafeDivide(this.totalActiveBioLevel, this.activeBioticaCount);
-                this.PlantP = SafePercent(this.Plants, bioticaCount);
-                this.AnimalP = SafePercent(this.Animals, bioticaCount);
-                this.MineralP = SafePercent(this.Minerals, bioticaCount);
+                this.PPlant = SafePercent(this.Plants, bioticaCount);
+                this.PAnimal = SafePercent(this.Animals, bioticaCount);
+                this.PMineral = SafePercent(this.Minerals, bioticaCount);
 
                 //this.PlantAvP = SafeDivide(this.plantPercTotal, this.Count);
                 //this.AnimalAvP = SafeDivide(this.animalPercTotal, this.Count);
@@ -1192,13 +1194,13 @@ namespace Reus2Surveyor
                 this.HasSavanna = SafePercent(this.savannaUse, this.Count);
                 this.HasTaiga = SafePercent(this.taigaUse, this.Count);
 
-                this.DesertP = SafePercent(this.DesertSz, this.Territory);
-                this.ForestP = SafePercent(this.ForestSz, this.Territory);
-                this.IceAgeP = SafePercent(this.IceAgeSz, this.Territory);
-                this.OceanP = SafePercent(this.OceanSz, this.Territory);
-                this.RainforestP = SafePercent(this.RainforestSz, this.Territory);
-                this.SavannaP = SafePercent(this.SavannaSz, this.Territory);
-                this.TaigaP = SafePercent(this.TaigaSz, this.Territory);
+                this.DesertP = SafePercent(this.DesertSz, this.Terr);
+                this.ForestP = SafePercent(this.ForestSz, this.Terr);
+                this.IceAgeP = SafePercent(this.IceAgeSz, this.Terr);
+                this.OceanP = SafePercent(this.OceanSz, this.Terr);
+                this.RainforestP = SafePercent(this.RainforestSz, this.Terr);
+                this.SavannaP = SafePercent(this.SavannaSz, this.Terr);
+                this.TaigaP = SafePercent(this.TaigaSz, this.Terr);
             }
         }
 
