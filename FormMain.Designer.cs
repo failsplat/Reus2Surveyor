@@ -57,7 +57,10 @@ namespace Reus2Surveyor
             planetLooperBackgroundWorker = new System.ComponentModel.BackgroundWorker();
             readAllButton = new System.Windows.Forms.Button();
             readNoneButton = new System.Windows.Forms.Button();
+            debugPanel = new System.Windows.Forms.Panel();
+            debugMenuButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)planetGridView).BeginInit();
+            debugPanel.SuspendLayout();
             SuspendLayout();
             // 
             // findProfileButton
@@ -243,7 +246,7 @@ namespace Reus2Surveyor
             // spotCheckButton
             // 
             spotCheckButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
-            spotCheckButton.Location = new System.Drawing.Point(587, 432);
+            spotCheckButton.Location = new System.Drawing.Point(92, 1);
             spotCheckButton.Name = "spotCheckButton";
             spotCheckButton.Size = new System.Drawing.Size(75, 23);
             spotCheckButton.TabIndex = 10;
@@ -257,7 +260,7 @@ namespace Reus2Surveyor
             spotCheckWriteCheckBox.AutoSize = true;
             spotCheckWriteCheckBox.Checked = true;
             spotCheckWriteCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-            spotCheckWriteCheckBox.Location = new System.Drawing.Point(668, 435);
+            spotCheckWriteCheckBox.Location = new System.Drawing.Point(173, 3);
             spotCheckWriteCheckBox.Name = "spotCheckWriteCheckBox";
             spotCheckWriteCheckBox.Size = new System.Drawing.Size(104, 19);
             spotCheckWriteCheckBox.TabIndex = 11;
@@ -280,7 +283,7 @@ namespace Reus2Surveyor
             // 
             label2.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
             label2.AutoSize = true;
-            label2.Location = new System.Drawing.Point(492, 436);
+            label2.Location = new System.Drawing.Point(3, 5);
             label2.Name = "label2";
             label2.Size = new System.Drawing.Size(89, 15);
             label2.TabIndex = 14;
@@ -315,17 +318,39 @@ namespace Reus2Surveyor
             readNoneButton.UseVisualStyleBackColor = true;
             readNoneButton.Click += readNoneButton_Click;
             // 
+            // debugPanel
+            // 
+            debugPanel.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
+            debugPanel.Controls.Add(label2);
+            debugPanel.Controls.Add(spotCheckButton);
+            debugPanel.Controls.Add(spotCheckWriteCheckBox);
+            debugPanel.Location = new System.Drawing.Point(463, 432);
+            debugPanel.Name = "debugPanel";
+            debugPanel.Size = new System.Drawing.Size(280, 24);
+            debugPanel.TabIndex = 17;
+            debugPanel.Visible = false;
+            // 
+            // debugMenuButton
+            // 
+            debugMenuButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
+            debugMenuButton.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
+            debugMenuButton.Location = new System.Drawing.Point(749, 433);
+            debugMenuButton.Name = "debugMenuButton";
+            debugMenuButton.Size = new System.Drawing.Size(23, 23);
+            debugMenuButton.TabIndex = 18;
+            debugMenuButton.Text = "D";
+            debugMenuButton.UseVisualStyleBackColor = true;
+            debugMenuButton.Click += debugMenuButton_Click;
+            // 
             // FormMain
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             ClientSize = new System.Drawing.Size(784, 461);
+            Controls.Add(debugMenuButton);
             Controls.Add(readNoneButton);
             Controls.Add(readAllButton);
-            Controls.Add(label2);
             Controls.Add(writeDecodedCheckBox);
-            Controls.Add(spotCheckWriteCheckBox);
-            Controls.Add(spotCheckButton);
             Controls.Add(exportReadyLabel);
             Controls.Add(exportStatsButton);
             Controls.Add(planetGridView);
@@ -335,11 +360,14 @@ namespace Reus2Surveyor
             Controls.Add(decodeReadyStatusLabel);
             Controls.Add(profileFolderTextBox);
             Controls.Add(findProfileButton);
+            Controls.Add(debugPanel);
             Icon = (System.Drawing.Icon)resources.GetObject("$this.Icon");
             Name = "FormMain";
             Text = "Reus 2 Planet Surveyor";
             Load += FormMain_Load;
             ((System.ComponentModel.ISupportInitialize)planetGridView).EndInit();
+            debugPanel.ResumeLayout(false);
+            debugPanel.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -372,6 +400,8 @@ namespace Reus2Surveyor
         private System.Windows.Forms.DataGridViewTextBoxColumn CompletionCol;
         private System.Windows.Forms.DataGridViewCheckBoxColumn ReadOptionCol;
         private System.Windows.Forms.DataGridViewTextBoxColumn ReadStatusCol;
+        private System.Windows.Forms.Panel debugPanel;
+        private System.Windows.Forms.Button debugMenuButton;
     }
 }
 

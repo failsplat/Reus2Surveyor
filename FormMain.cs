@@ -316,6 +316,7 @@ namespace Reus2Surveyor
 
         private void exportStatsButton_Click(object sender, EventArgs e)
         {
+            exportStatsButton.Enabled = false;
             int i = -1;
             this.PlanetStatCollector = new(GameGlossaries);
             foreach (Planet planet in this.planetList)
@@ -328,6 +329,7 @@ namespace Reus2Surveyor
 
             string dst = Path.Combine(outputDir, DateTime.Now.ToString("yyyyMMdd HHmm") + ".xlsx");
             this.PlanetStatCollector.WriteToExcel(dst);
+            exportStatsButton.Enabled = true;
         }
 
         private void spotCheckButton_Click(object sender, EventArgs e)
@@ -475,6 +477,11 @@ namespace Reus2Surveyor
             {
                 row.Cells["ReadOptionCol"].Value = false;
             }
+        }
+
+        private void debugMenuButton_Click(object sender, EventArgs e)
+        {
+            this.debugPanel.Visible = !this.debugPanel.Visible;
         }
     }
 }
