@@ -955,6 +955,7 @@ namespace Reus2Surveyor
         {
             public readonly string Name;
             public int Count = 0;
+            public double? P = null;
             public int Prime = 0;
             public double? MainP = null;
             public double? PrimeP = null;
@@ -1017,7 +1018,7 @@ namespace Reus2Surveyor
 
             private static Dictionary<string, List<string>> columnFormats = new() {
                 {"0.00%", new List<string> { 
-                    "PrimeP", "MainP",
+                    "P", "PrimeP", "MainP",
                     "AvPPop", "AvPTech", "AvPWel", "HiPPop", "HiPTech", "HiPWel", 
                     "PosUpsetP", "NegUpsetP",
                     "PPlant", "PAnimal", "PMineral", "ApexP",
@@ -1145,6 +1146,7 @@ namespace Reus2Surveyor
 
             public void CalculateStats(int planetCount) 
             {
+                this.P = SafePercent(this.Count, planetCount);
                 this.PrimeP = SafePercent(this.Prime, this.Count);
                 this.MainP = SafePercent(this.Prime, planetCount);
 
