@@ -9,6 +9,13 @@ This fan-made desktop app reads the save files for completed Reus 2 planets and 
 2. The checkboxes in the `Read?` column mark a planet to be read and processed. Only planets that have a completed game session (having a `auto_complete.deux` save file in the planet's folder) can be selected. The `Check All` and `Check None` buttons can be used to clear or check the boxes for all the available planets.
 3. Click **\[Decode Planets\]** to read the planet files. If the **Write Decoded** box is checked, the program will also write the decoded save files into `/Decoded`. As the program reads planets, it will fill out the table with information such as the planet's founding spirit, the mini map of the biomes, and the giants.
 4. Once the planets have been read, the **\[Export XLSX\]** button will become ready. Clicking it will produce an Excel workbook (XLSX) file in `/Output`.
+## Output
+This program outputs an Excel workbook (.xlsx) file. It has the following sheets:
+1. **Planets** - A ledger summarizing each completed planet in the profile. It includes starting information (giants, starting spirit, etc.), era performance, summary information for cities (charcters chosen, total prosperity scores, etc.), summary information for biotica (amount and unique types placed, etc.) and biome information.
+2. **Cities** - A listing of each city present on the planets. For each, there are prosperity stats, stats on biotica in borders, and buildings.
+3. **Spirits** - A sheet grouping city stats by leader.
+4. **Biotica** - Usage stats for each bioticum type.
+5. **BioticaVsChar** - A table showing how many of each bioticum were placed in the borders of each spirit's cities. 
 ## To Do/WIP Features
 * Biotica Stat Table: Account for biotica unlocked with Evolve
 * Planet Summary Table: Scenario and difficulty information
