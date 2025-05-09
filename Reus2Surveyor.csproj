@@ -5,8 +5,8 @@
     <TargetFramework>net9.0-windows7.0</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <RunPostBuildEvent>Always</RunPostBuildEvent>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2.0.0.0</FileVersion>
     <PathMap>$(MSBuildProjectDirectory)\$(IntermediateOutputPath)=.</PathMap>
     <ApplicationIcon>Icons\icon.ico</ApplicationIcon>
   </PropertyGroup>
@@ -17,10 +17,10 @@
 
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.105.0-rc" />
-    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="14.5.0" />
-    <PackageReference Include="Magick.NET.Core" Version="14.5.0" />
     <PackageReference Include="MathNet.Numerics" Version="6.0.0-beta2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.8" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.6" />
   </ItemGroup>
 
   <ItemGroup>

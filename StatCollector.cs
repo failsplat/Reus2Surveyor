@@ -1,5 +1,4 @@
 ﻿using ClosedXML.Excel;
-using ImageMagick.Drawing;
 using MathNet.Numerics.Statistics;
 using System;
 using System.Collections.Generic;

@@ -1,6 +1,6 @@
 ﻿
-using ImageMagick;
 using Newtonsoft.Json;
+using SixLabors.ImageSharp;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -89,7 +89,7 @@ namespace Reus2Surveyor
                 this.ProfileDir = value;
                 this.profileFolderTextBox.Text = this.ProfileDir;
                 this.profileFolderTextBox.BackColor = this.profileFolderTextBox.BackColor;
-                this.profileFolderTextBox.ForeColor = Color.Green;
+                this.profileFolderTextBox.ForeColor = System.Drawing.Color.Green;
                 this.profileDirOK = true;
                 this.decodeReadyStatusLabel.Text = "Ready";
                 this.GetPlanetsInProfile();
@@ -100,7 +100,7 @@ namespace Reus2Surveyor
                 this.ProfileDir = value;
                 this.profileFolderTextBox.Text = this.ProfileDir;
                 this.profileFolderTextBox.BackColor = this.profileFolderTextBox.BackColor;
-                this.profileFolderTextBox.ForeColor = Color.Red;
+                this.profileFolderTextBox.ForeColor = System.Drawing.Color.Red;
                 this.profileDirOK = false;
                 this.decodeReadyStatusLabel.Text = "Not Ready";
             }
@@ -200,7 +200,7 @@ namespace Reus2Surveyor
             }
             else
             {
-                this.decodeReadyStatusLabel.ForeColor = Color.Red;
+                this.decodeReadyStatusLabel.ForeColor = System.Drawing.Color.Red;
             }
         }
 
@@ -294,9 +294,9 @@ namespace Reus2Surveyor
             if (TableGraphics.giantSquares.TryGetValue(newPlanet.GiantNames[1], out byte[] giant2Image)) { thisRow.Cells["Giant2Col"].Value = giant2Image; }
             if (TableGraphics.giantSquares.TryGetValue(newPlanet.GiantNames[2], out byte[] giant3Image)) { thisRow.Cells["Giant3Col"].Value = giant3Image; }
 
-            MagickImage miniMap = TableGraphics.BiomePositionalToMinimap(newPlanet.BiomeSizeMap);
+            SixLabors.ImageSharp.Image miniMap = TableGraphics.BiomePositionalToMinimap(newPlanet.BiomeSizeMap);
             using MemoryStream ms = new MemoryStream();
-            miniMap.Write(ms, miniMap.Format);
+            miniMap.SaveAsPng(ms, new SixLabors.ImageSharp.Formats.Png.PngEncoder());
             thisRow.Cells["MinimapCol"].Value = ms.ToArray();
         }
 

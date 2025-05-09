@@ -1,9 +1,12 @@
-﻿using ImageMagick;
-using ImageMagick.Drawing;
+﻿using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Drawing;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using SixLabors.ImageSharp.Drawing.Processing;
 
 namespace Reus2Surveyor
 {
@@ -50,7 +53,7 @@ namespace Reus2Surveyor
             return output;
         }
 
-        public static Dictionary<string, MagickColor> BiomeColors = new()
+        public static Dictionary<string, Color> BiomeColors = new()
         {
             // Sampled from in-game biome icons
             /*{"Desert", new MagickColor("#FFAE52") },
@@ -61,32 +64,30 @@ namespace Reus2Surveyor
             {"Savanna",  new MagickColor("#FFD752") },
             {"Taiga",  new MagickColor("#71CCBE") },*/
 
-            {"Desert", new MagickColor("#FF9B59") },
-            {"Forest",  new MagickColor("#59F704") },
-            {"Ice Age",  new MagickColor("#BFFFFF") },
-            {"Ocean",  new MagickColor("#052DF8") },
-            {"Rainforest",  new MagickColor("#00A571") },
-            {"Savanna",  new MagickColor("#FFE108") },
-            {"Taiga",  new MagickColor("#7CE2D1") },
+            {"Desert", Color.ParseHex("FF9B59")},
+            {"Forest",  Color.ParseHex("59F704") },
+            {"Ice Age",  Color.ParseHex("BFFFFF") },
+            {"Ocean",  Color.ParseHex("052DF8") },
+            {"Rainforest",  Color.ParseHex("00A571") },
+            {"Savanna",  Color.ParseHex("FFE108") },
+            {"Taiga",  Color.ParseHex("7CE2D1") },
         };
 
-        public static MagickImage BiomeTypePercentsToMinimap(Dictionary<string, double> percents, int width = 100, int height = 24)
+        public static Image BiomeTypePercentsToMinimap(Dictionary<string, double> percents, int width = 100, int height = 24)
         {
             Dictionary<string, int> biomeStripes = PercentsToWholeNumber(percents, width);
 
             using MemoryStream s = new();
-            MagickImage image = new MagickImage(MagickColors.Transparent, (uint)width, (uint)height);
-            image.Format = MagickFormat.Png;
+            Image image = new Image<Rgb24>(width, height);
 
             int leftPos = 0;
-            Drawables dr = new Drawables();
             foreach ((string biomeName, int stripeWidth) in biomeStripes)
             {
-                dr.FillColor(BiomeColors[biomeName]);
-                dr.Rectangle(leftPos, 0, leftPos + stripeWidth, height);
+                Rectangle biomeBar = new Rectangle(leftPos, 0, stripeWidth, height);
+                Brush fillBrush = new SolidBrush(BiomeColors[biomeName]);
+                image.Mutate(x => x.Fill(fillBrush, biomeBar));
                 leftPos += stripeWidth;
             }
-            dr.Draw(image);
             return image;
         }
 
@@ -110,28 +111,27 @@ namespace Reus2Surveyor
             return output;
         }
 
-        public static MagickImage BiomePositionalToMinimap(Dictionary<int, (string biomeTypeName, double percentSize)> biomeInfo, int width = 100, int height = 24)
+        public static Image BiomePositionalToMinimap(Dictionary<int, (string biomeTypeName, double percentSize)> biomeInfo, int width = 100, int height = 24)
         {
             Dictionary<int, (string biomeTypeName, int px)> biomeStripes = PositionalDictToWholeNumber(biomeInfo, width);
             List<int> anchorPatches = biomeStripes.Keys.ToList();
             anchorPatches.Sort();
 
             using MemoryStream s = new();
-            MagickImage image = new MagickImage(MagickColors.Transparent, (uint)width, (uint)height);
-            image.Format = MagickFormat.Png;
+            Image image = new Image<Rgb24>(width, height);
 
             int leftPos = 0;
-            Drawables dr = new Drawables();
             foreach (int anchorPatch in anchorPatches)
             {
                 string biomeName = biomeStripes[anchorPatch].biomeTypeName;
                 int stripeWidth = biomeStripes[anchorPatch].px;
 
-                dr.FillColor(BiomeColors[biomeName]);
-                dr.Rectangle(leftPos, 0, leftPos + stripeWidth, height);
+                Rectangle biomeBar = new Rectangle(leftPos, 0, stripeWidth, height);
+                Brush fillBrush = new SolidBrush(BiomeColors[biomeName]);
+                image.Mutate(x => x.Fill(fillBrush, biomeBar));
+
                 leftPos += stripeWidth;
             }
-            dr.Draw(image);
             return image;
         }
     }
