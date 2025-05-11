@@ -327,9 +327,11 @@ namespace Reus2Surveyor
             }
             this.PlanetStatCollector.FinalizeStats();
 
-            string dst = Path.Combine(outputDir, DateTime.Now.ToString("yyyyMMdd HHmm") + ".xlsx");
+            string dst = Path.Combine(outputDir, "Reus 2 Stats " + DateTime.Now.ToString("yyyyMMdd HHmm") + ".xlsx");
             this.PlanetStatCollector.WriteToExcel(dst);
             exportStatsButton.Enabled = true;
+            this.exportReadyLabel.Text = "Export Complete";
+            this.exportReadyLabel.ForeColor = System.Drawing.Color.Green;
         }
 
         private void spotCheckButton_Click(object sender, EventArgs e)
