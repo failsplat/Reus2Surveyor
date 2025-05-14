@@ -1,4 +1,5 @@
-﻿using ClosedXML.Excel;
+﻿using ClosedXML.Attributes;
+using ClosedXML.Excel;
 using MathNet.Numerics.Statistics;
 using System;
 using System.Collections.Generic;
@@ -37,35 +38,6 @@ namespace Reus2Surveyor
         {
             if (planet is null) return;
 
-            HashSet<Glossaries.BioticumDefinition> biomeMatchingBiotica = [];
-            // Count all biotica that are available in available biomes
-            foreach (string giantHash in planet.gameSession.giantRosterDefs)
-            {
-                Glossaries.GiantDefinition gd = this.glossaryInstance.GiantDefinitionByHash[giantHash];
-
-                foreach (Glossaries.BioticumDefinition bd in this.glossaryInstance.BioticumDefinitionList)
-                {
-                    bool b1match = bd.BiomesAllowed[gd.Biome1];
-                    bool b2match = bd.BiomesAllowed[gd.Biome2];
-                    if (b1match || b2match)
-                    {
-                        biomeMatchingBiotica.Add(bd);
-                    }
-                }
-            }
-
-            foreach (Glossaries.BioticumDefinition availDef in biomeMatchingBiotica)
-            {
-                if (!BioticaStats.ContainsKey(availDef.Hash))
-                {
-                    // This hash should never be null, but just in case and to keep things consistent:
-                    if (glossaryInstance.BioticumDefFromHash(availDef.Hash) is null) BioticaStats[availDef.Hash] = new BioticumStatEntry(availDef.Hash, null);
-                    else BioticaStats[availDef.Hash] = new BioticumStatEntry(this.glossaryInstance.BioticumDefFromHash(availDef.Hash), null);
-
-                }
-                BioticaStats[availDef.Hash].Avail += 1;
-            }
-
             Dictionary<string, int> activeBioCounter = [];
             Dictionary<string, int> legacyBioCounter = [];
             //Dictionary<(string,string), int> bioPropertyDict = [];
@@ -89,16 +61,11 @@ namespace Reus2Surveyor
                 IncrementCounter(completeBioCounter, kv.Key, kv.Value);
             }
 
-            // Make entries for drafted
+            HashSet<string> draftedOrPlaced = [];
+            // Count if drafted
             foreach (string draftDef in planet.MasteredBioticaDefSet)
             {
-                if (!BioticaStats.ContainsKey(draftDef))
-                {
-                    if (glossaryInstance.BioticumDefFromHash(draftDef) is null) BioticaStats[draftDef] = new BioticumStatEntry(draftDef, planet.name);
-                    else BioticaStats[draftDef] = new BioticumStatEntry(this.glossaryInstance.BioticumDefFromHash(draftDef), planet.name);
-
-                }
-                BioticaStats[draftDef].Draft += 1;
+                draftedOrPlaced.Add(draftDef);
             }
 
             // Make entries for active then archived then complete
@@ -106,38 +73,76 @@ namespace Reus2Surveyor
             {
                 if (!BioticaStats.ContainsKey(activeDef))
                 {
-                    if (glossaryInstance.BioticumDefFromHash(activeDef) is null) BioticaStats[activeDef] = new BioticumStatEntry(activeDef, planet.name);
-                    else BioticaStats[activeDef] = new BioticumStatEntry(this.glossaryInstance.BioticumDefFromHash(activeDef), planet.name);
+                    if (glossaryInstance.BioticumDefFromHash(activeDef) is null) BioticaStats[activeDef] = new BioticumStatEntry(activeDef, planet.number);
+                    else BioticaStats[activeDef] = new BioticumStatEntry(this.glossaryInstance.BioticumDefFromHash(activeDef), planet.number);
 
                 }
                 BioticaStats[activeDef].Final += activeBioCounter[activeDef];
+                draftedOrPlaced.Add(activeDef);
             }
             foreach (string legacyDef in legacyBioCounter.Keys)
             {
                 if (!BioticaStats.ContainsKey(legacyDef))
                 {
-                    if (glossaryInstance.BioticumDefFromHash(legacyDef) is null) BioticaStats[legacyDef] = new BioticumStatEntry(legacyDef, planet.name);
-                    else BioticaStats[legacyDef] = new BioticumStatEntry(this.glossaryInstance.BioticumDefFromHash(legacyDef), planet.name);
+                    if (glossaryInstance.BioticumDefFromHash(legacyDef) is null) BioticaStats[legacyDef] = new BioticumStatEntry(legacyDef, planet.number);
+                    else BioticaStats[legacyDef] = new BioticumStatEntry(this.glossaryInstance.BioticumDefFromHash(legacyDef), planet.number);
 
                 }
                 BioticaStats[legacyDef].Legacy += legacyBioCounter[legacyDef];
+                draftedOrPlaced.Add(legacyDef);
+            }
+
+            foreach (string draftDef in draftedOrPlaced)
+            {
+                if (!BioticaStats.ContainsKey(draftDef))
+                {
+                    if (glossaryInstance.BioticumDefFromHash(draftDef) is null) BioticaStats[draftDef] = new BioticumStatEntry(draftDef, planet.number);
+                    else BioticaStats[draftDef] = new BioticumStatEntry(this.glossaryInstance.BioticumDefFromHash(draftDef), planet.number);
+
+                }
+                BioticaStats[draftDef].Draft += 1;
             }
 
             foreach (string cDef in completeBioCounter.Keys)
             {
                 if (!BioticaStats.ContainsKey(cDef))
                 {
-                    if (glossaryInstance.BioticumDefFromHash(cDef) is null) BioticaStats[cDef] = new BioticumStatEntry(cDef, planet.name);
-                    else BioticaStats[cDef] = new BioticumStatEntry(this.glossaryInstance.BioticumDefFromHash(cDef), planet.name);
+                    if (glossaryInstance.BioticumDefFromHash(cDef) is null) BioticaStats[cDef] = new BioticumStatEntry(cDef, planet.number);
+                    else BioticaStats[cDef] = new BioticumStatEntry(this.glossaryInstance.BioticumDefFromHash(cDef), planet.number);
 
                 }
                 BioticaStats[cDef].Planets += 1;
-                if (BioticaStats[cDef].P1 is null) BioticaStats[cDef].P1 = planet.name;
                 BioticaStats[cDef].Total += completeBioCounter[cDef];
+                BioticaStats[cDef].PLast = planet.number;
                 if (completeBioCounter[cDef] > 1) BioticaStats[cDef].AddMultiValue(completeBioCounter[cDef]);
             }
 
 
+            // Count all biotica that are available in available biomes
+            // Only increment if it has been drafted or placed in this planet or previous planets
+            // (Could be not unavailable by level or DLC)
+            HashSet<string> biomeMatchingBiotica = [];
+            foreach (string giantHash in planet.gameSession.giantRosterDefs)
+            {
+                Glossaries.GiantDefinition gd = this.glossaryInstance.GiantDefinitionByHash[giantHash];
+                foreach (Glossaries.BioticumDefinition bd in this.glossaryInstance.BioticumDefinitionList)
+                {
+                    bool b1match = bd.BiomesAllowed[gd.Biome1];
+                    bool b2match = bd.BiomesAllowed[gd.Biome2];
+                    if (b1match || b2match)
+                    {
+                        biomeMatchingBiotica.Add(bd.Hash);
+                    }
+                }
+            }
+            HashSet<string> missedDraft = [.. draftedOrPlaced.Except(biomeMatchingBiotica)];
+            foreach (string availDef in biomeMatchingBiotica)
+            {
+                if (BioticaStats.ContainsKey(availDef))
+                {
+                    BioticaStats[availDef].Avail += 1;
+                }
+            }
         }
 
 
@@ -145,7 +150,10 @@ namespace Reus2Surveyor
         {
             // Planet Summary
             PlanetSummaryEntry planetEntry = new(planet);
-            planetEntry.Score = (int)planet.gameSession.turningPointPerformances.Last().scoreTotal;
+            if (planet.gameSession.turningPointPerformances.Count > 0)
+            {
+                planetEntry.Score = (int)planet.gameSession.turningPointPerformances.Last().scoreTotal;
+            }
 
             planetEntry.Giant1 = planet.GiantNames[0];
             planetEntry.Giant2 = planet.GiantNames[1];
@@ -420,7 +428,7 @@ namespace Reus2Surveyor
                     }
                 }
 
-                cityEntry.AvFBioLv = bioticaLevels.Average();
+                cityEntry.AvFBioLv = bioticaLevels.Count > 0 ? bioticaLevels.Average() : 0;
                 cityEntry.PPlant = SafePercent(cityEntry.Plants, cityEntry.Biotica);
                 cityEntry.PAnimal = SafePercent(cityEntry.Animals, cityEntry.Biotica);
                 cityEntry.PMineral = SafePercent(cityEntry.Minerals, cityEntry.Biotica);
@@ -492,10 +500,13 @@ namespace Reus2Surveyor
                 if (ce.CityN == 1)
                 {
                     se.Prime += 1;
-                    se.IncrementPlanetScoreTotalAsPrimary((int)planet.gameSession.turningPointPerformances.Last().scoreTotal);
-                    se.PrScoreHi = Math.Max(se.PrScoreHi, (int)planet.gameSession.turningPointPerformances.Last().scoreTotal);
+                    if (planet.gameSession.turningPointPerformances.Count > 0)
+                    {
+                        se.IncrementPlanetScoreTotalAsPrimary((int)planet.gameSession.turningPointPerformances.Last().scoreTotal);
+                        se.PrScoreHi = Math.Max(se.PrScoreHi, (int)planet.gameSession.turningPointPerformances.Last().scoreTotal);
+                    }
                 }
-                se.IncrementPlanetScoreTotal((int)planet.gameSession.turningPointPerformances.Last().scoreTotal);
+                if (planet.gameSession.turningPointPerformances.Count > 0) se.IncrementPlanetScoreTotal((int)planet.gameSession.turningPointPerformances.Last().scoreTotal);
 
                 se.IncrementProsperityTotals(ce.Pros, ce.Pop, ce.Tech, ce.Wel);
                 se.IncrementProsperityPercentTotals((double)ce.PPop, (double)ce.PTech, (double)ce.PWel);
@@ -699,53 +710,44 @@ namespace Reus2Surveyor
         public class BioticumStatEntry
         {
             private readonly Glossaries.BioticumDefinition Definition;
-            public readonly string Name;
-            public readonly string Type;
-            public readonly int? Tier;
-            public readonly string Apex;
+            [XLColumn(Order = 0)] public readonly string Name;
+            [XLColumn(Order = 1)] public readonly string Type;
+            [XLColumn(Order = 2)] public readonly int? Tier;
+            [XLColumn(Order = 3)] public readonly string Apex;
 
-            public readonly string Desert, Forest, IceAge, Ocean, Rainforest, Savanna, Taiga;
+            [XLColumn(Order = 4)] public readonly string Desert, Forest, IceAge, Ocean, Rainforest, Savanna, Taiga;
 
-            public int Avail { get; set; } = 0;
-            public double? AvailP { get; set; } = null;
-            public int Draft { get; set; } = 0;
-            public double? DraftP { get; set; } = null;
-            public int Planets { get; set; } = 0;
-            public double? UsageP { get; private set; } = null;
+            [XLColumn(Order = 20)] public readonly string Hash;
+            [XLColumn(Order = 21)] public int Avail { get; set; } = 0;
+            [XLColumn(Order = 22)] public double? AvailP { get; set; } = null;
+            [XLColumn(Order = 23)] public int Draft { get; set; } = 0;
+            [XLColumn(Order = 24)] public double? DraftP { get; set; } = null;
+            [XLColumn(Order = 25)] public int Planets { get; set; } = 0;
+            [XLColumn(Order = 26)] public double? UsagePA { get; private set; } = null;
+            [XLColumn(Order = 27)] public double? UsagePD { get; private set; } = null;
 
-            public int Total { get; set; } = 0;
-            public int Legacy { get; set; } = 0;
-            public double? LegacyP { get; private set; } = null;
-            public int Final { get; set; } = 0;
-            public double? FinalP { get; private set; } = null;
+            [XLColumn(Order = 30)] public int Total { get; set; } = 0;
+            [XLColumn(Order = 31)] public int Legacy { get; set; } = 0;
+            [XLColumn(Order = 32)] public double? LegacyP { get; private set; } = null;
+            [XLColumn(Order = 33)] public int Final { get; set; } = 0;
+            [XLColumn(Order = 34)] public double? FinalP { get; private set; } = null;
 
             private List<int> MultiNumberList = [];
-            public int? Multi { get; set; } = null;
-            public double? MultiP { get; private set; } = null;
-            public int? MultiMx { get; private set; } = null;
-            public double? MultiAv { get; private set; } = null;
+            [XLColumn(Order = 40)] public int? Multi { get; set; } = null;
+            [XLColumn(Order = 41)] public double? MultiP { get; private set; } = null;
+            [XLColumn(Order = 42)] public int? MultiMx { get; private set; } = null;
+            [XLColumn(Order = 43)] public double? MultiAv { get; private set; } = null;
 
-            /*public int Creek { get; set; } = 0;
-            public double? CreekPercent { get; private set; } = null;
-            public int Invasive { get; set; } = 0;
-            public double? InvasivePercent { get; private set; } = null;
-            public int Anomaly { get; set; } = 0;
-            public double? AnomalyPercent { get; private set; } = null;
-            public int Sanctuary { get; set; } = 0;
-            public double? SanctuaryPercent { get; private set; } = null;
-            public int Mountain { get; set; } = 0;
-            public double? MountainPercent { get; private set; } = null;
-            public int Micro { get; set; } = 0;
-            public double? MicroPercent { get; private set; } = null;*/
-            public string P1 { get; set; }
-            public readonly string Hash;
+            [XLColumn(Order = 50)] public int P1st { get; set; }
+            [XLColumn(Order = 51)] public int PLast { get; set; }
+            
 
             private static Dictionary<string, List<string>> columnFormats = new() {
-                {"0.00%", new List<string> { "AvailP", "DraftP", "UsageP", "LegacyP", "FinalP", "MultiP", } },
+                {"0.00%", new List<string> { "AvailP", "DraftP", "UsagePA", "UsagePD", "LegacyP", "FinalP", "MultiP", } },
                 {"0.00", new List<string> { "MultiAv", } },
                 };
 
-            public BioticumStatEntry(Glossaries.BioticumDefinition bioDef, string p1name)
+            public BioticumStatEntry(Glossaries.BioticumDefinition bioDef, int p1)
             {
                 this.Definition = bioDef;
                 this.Name = bioDef.Name;
@@ -762,10 +764,11 @@ namespace Reus2Surveyor
                 this.Taiga = bioDef.BiomesAllowed["Taiga"] ? "Y" : null;
 
                 this.Hash = bioDef.Hash;
-                this.P1 = p1name;
+                this.P1st = p1;
+                this.PLast = p1;
             }
 
-            public BioticumStatEntry(string hash, string p1name)
+            public BioticumStatEntry(string hash, int p1)
             {
                 this.Definition = null;
                 this.Name = "?";
@@ -782,7 +785,8 @@ namespace Reus2Surveyor
                 this.Savanna = null;
                 this.Taiga = null;
 
-                this.P1 = p1name;
+                this.P1st = p1;
+                this.PLast = p1;
             }
 
             public void AddMultiValue(int value)
@@ -792,7 +796,8 @@ namespace Reus2Surveyor
 
             public void CalculateStats(int planetCount)
             {
-                this.UsageP = SafePercent(this.Planets, this.Avail);
+                this.UsagePA = SafePercent(this.Planets, this.Avail);
+                this.UsagePD = SafePercent(this.Planets, this.Draft);
                 this.LegacyP = SafePercent(this.Legacy, this.Total);
                 this.FinalP = SafePercent(this.Final, this.Total);
                 this.DraftP = SafePercent(this.Draft, this.Avail);
@@ -828,46 +833,79 @@ namespace Reus2Surveyor
 
         public class PlanetSummaryEntry
         {
-            public readonly int N;
-            public readonly string Name;
-            public readonly int Ser;
-            public readonly DateTime TS;
+            [XLColumn(Order = 0)] public readonly int N;
+            [XLColumn(Order = 1)] public readonly string Name;
+            [XLColumn(Order = 2)] public readonly int Ser;
+            [XLColumn(Order = 3)] public readonly DateTime TS;
 
-            public int Score;
-            public int Pros;
-            public string Giant1, Giant2, Giant3;
-            public string Spirit;
+            [XLColumn(Order = 10)] public int Score;
+            [XLColumn(Order = 11)] public int Pros;
+            [XLColumn(Order = 12)] public string Giant1;
+            [XLColumn(Order = 13)] public string Giant2;
+            [XLColumn(Order = 14)] public string Giant3;
+            [XLColumn(Order = 15)] public string Spirit;
 
-            public int Cities, Prjs;
+            [XLColumn(Order = 16)] public int Cities;
+            [XLColumn(Order = 17)] public int Prjs;
 
-            public string Era1Name;
-            public int? Era1Star, Era1Score;
-            public string Era2Name;
-            public int? Era2Star, Era2Score;
-            public string Era3Name;
-            public int? Era3Star, Era3Score;
+            [XLColumn(Order = 20)] public string Era1Name;
+            [XLColumn(Order = 21)] public int? Era1Star; 
+            [XLColumn(Order = 22)] public int? Era1Score;
+            [XLColumn(Order = 23)] public string Era2Name;
+            [XLColumn(Order = 24)] public int? Era2Star; 
+            [XLColumn(Order = 25)] public int? Era2Score;
+            [XLColumn(Order = 26)] public string Era3Name;
+            [XLColumn(Order = 27)] public int? Era3Star;
+            [XLColumn(Order = 28)] public int? Era3Score;
 
-            public string Char1, Char2, Char3, Char4, Char5, Char6;
+            [XLColumn(Order = 30)] public string Char1, Char2, Char3, Char4, Char5, Char6;
 
-            public int SzT, SzWld;
-            public int FilledSlots = 0;
-            public double? FillP;
+            [XLColumn(Order = 40)] public int SzT;
+            [XLColumn(Order = 41)] public int SzWld;
+            [XLColumn(Order = 42)] public int FilledSlots = 0;
+            [XLColumn(Order = 43)] public double? FillP;
 
-            public int HiPros;
-            public double? ProsMdn, AvPros, Gini;
-            public int Pop, Tech, Wel;
-            public double? PPop, PTech, PWel;
-            public int HiPop, HiTech, HiWel;
-            public double? MdnPop, MdnTech, MdnWel, AvPop, AvTech, AvWel;
+            [XLColumn(Order = 50)] public int HiPros;
+            [XLColumn(Order = 51)] public double? ProsMdn;
+            [XLColumn(Order = 52)] public double? AvPros;
+            [XLColumn(Order = 53)] public double? Gini;
 
-            public int? Biomes, CBiomes;
-            public int Biotica, Plants, Animals, Minerals = 0;
-            public int UqBiotica, UqPlants, UqAnimals, UqMinerals;
-            public double? PPlant, PAnimal, PMineral;
-            public int Apex;
-            private int OccupiedSlotTotalLevel = 0;
-            public double? ApexP, AvFBioLv;
-            public double? DesertP, ForestP, IceAgeP, OceanP, RainforestP, SavannaP, TaigaP = null;
+            [XLColumn(Order = 60)] public int Pop;
+            [XLColumn(Order = 61)] public int Tech;
+            [XLColumn(Order = 62)] public int Wel;
+            [XLColumn(Order = 70)] public double? PPop;
+            [XLColumn(Order = 71)] public double? PTech;
+            [XLColumn(Order = 72)] public double? PWel;
+            [XLColumn(Order = 80)] public int HiPop;
+            [XLColumn(Order = 81)] public int HiTech;
+            [XLColumn(Order = 82)] public int HiWel;
+            [XLColumn(Order = 90)] public double? MdnPop;
+            [XLColumn(Order = 91)] public double? MdnTech;
+            [XLColumn(Order = 92)] public double? MdnWel;
+            [XLColumn(Order = 100)] public double? AvPop;
+            [XLColumn(Order = 101)] public double? AvTech;
+            [XLColumn(Order = 102)] public double? AvWel;
+
+            [XLColumn(Order = 110)] public int? Biomes;
+            [XLColumn(Order = 111)] public int? CBiomes;
+
+            [XLColumn(Order = 120)] public int Biotica = 0;
+            [XLColumn(Order = 121)] public int Plants = 0;
+            [XLColumn(Order = 122)] public int Animals = 0;
+            [XLColumn(Order = 123)] public int Minerals = 0;
+
+            [XLColumn(Order = 130)] public int UqBiotica;
+            [XLColumn(Order = 131)] public int UqPlants;
+            [XLColumn(Order = 132)] public int UqAnimals;
+            [XLColumn(Order = 133)] public int UqMinerals;
+            [XLColumn(Order = 134)] public double? PPlant, PAnimal, PMineral;
+
+            [XLColumn(Order = 140)] public int Apex;
+            [XLColumn(Order = 141)] private int OccupiedSlotTotalLevel = 0;
+            [XLColumn(Order = 142)] public double? ApexP;
+            [XLColumn(Order = 143)] public double? AvFBioLv;
+
+            [XLColumn(Order = 150)] public double? DesertP, ForestP, IceAgeP, OceanP, RainforestP, SavannaP, TaigaP = null;
 
             private static Dictionary<string, List<string>> columnFormats = new() {
                 {"0.00%", new List<string> { 
@@ -909,31 +947,53 @@ namespace Reus2Surveyor
 
         public class CitySummaryEntry
         {
-            public readonly int PlanetN, CityN;
-            public readonly string Name;
-            public string Char;
-            public int? Level;
-            public int Pros, Pop, Tech, Wel;
-            public string FoundBiome, CurrBiome;
-            public int? Rank, Upset = null;
-            public double? PPop, PTech, PWel = null;
-            public double? RelPros, RelPop, RelTech, RelWel = null;
+            [XLColumn(Order = 0)] public readonly int PlanetN;
+            [XLColumn(Order = 1)] public readonly int CityN;
+            [XLColumn(Order = 2)] public readonly string Name;
+            [XLColumn(Order = 3)] public string Char;
+            [XLColumn(Order = 4)] public int? Level;
 
-            public int Invent, Trades = 0;
-            public int TerrPatches = 0;
+            [XLColumn(Order = 10)] public int Pros;
+            [XLColumn(Order = 11)] public int Pop, Tech, Wel;
 
-            public int TPLead = 0;
-            public string TP1, TP2, TP3 = null;
+            [XLColumn(Order = 20)] public string FoundBiome;
+            [XLColumn(Order = 21)] public string CurrBiome;
 
-            public int Biotica = 0;
-            public double? AvFBioLv = null;
-            public int FilledSlots = 0;
-            public double? FillP = null;
-            public int Plants, Animals, Minerals, Apex = 0;
-            public double? PPlant, PAnimal, PMineral, ApexP = null;
+            [XLColumn(Order = 30)] public int? Rank = null;
+            [XLColumn(Order = 31)] public int? Upset = null;
 
-            public int Buildings = 0;
-            public string Lv1B, Lv2B, Lv3B, Era1B, Era2B, Era3B, Temple1, Temple2, Temple3 = null;
+            [XLColumn(Order = 40)] public double? PPop, PTech, PWel = null;
+
+            [XLColumn(Order = 50)] public double? RelPros = null;
+            [XLColumn(Order = 51)] public double? RelPop, RelTech, RelWel = null;
+
+            [XLColumn(Order = 60)] public int Invent = 0;
+            [XLColumn(Order = 61)] public int Trades = 0;
+
+            [XLColumn(Order = 70)] public int TerrPatches = 0;
+
+            [XLColumn(Order = 80)] public int TPLead = 0;
+            [XLColumn(Order = 81)] public string TP1, TP2, TP3 = null;
+
+            [XLColumn(Order = 90)] public int Biotica = 0;
+            [XLColumn(Order = 91)] public double? AvFBioLv = null;
+            [XLColumn(Order = 92)] public int FilledSlots = 0;
+            [XLColumn(Order = 93)] public double? FillP = null;
+
+            [XLColumn(Order = 100)] public int Plants = 0;
+            [XLColumn(Order = 101)] public int Animals = 0;
+            [XLColumn(Order = 102)] public int Minerals = 0;
+            [XLColumn(Order = 103)] public int Apex = 0;
+
+            [XLColumn(Order = 110)] public double? PPlant = null;
+            [XLColumn(Order = 111)] public double? PAnimal = null;
+            [XLColumn(Order = 112)] public double? PMineral = null;
+            [XLColumn(Order = 113)] public double? ApexP = null;
+
+            [XLColumn(Order = 120)] public int Buildings = 0;
+            [XLColumn(Order = 130)] public string Lv1B, Lv2B, Lv3B = null;
+            [XLColumn(Order = 140)] public string Era1B, Era2B, Era3B = null;
+            [XLColumn(Order = 150)] public string Temple1, Temple2, Temple3 = null;
 
             private static Dictionary<string, List<string>> columnFormats = new() {
                 {"0.00%", new List<string> { "PPop", "PTech", "PWel", "FillP", "PPlant", "PAnimal", "PMineral", "ApexP"} },
@@ -952,68 +1012,74 @@ namespace Reus2Surveyor
 
         public class SpiritStatEntry
         {
-            public readonly string Name;
-            public int Count = 0;
-            public double? P = null;
-            public int Prime = 0;
-            public double? MainP = null;
-            public double? PrimeP = null;
+            [XLColumn(Order = 0)] public readonly string Name;
+            [XLColumn(Order = 1)] public int Count = 0;
+            [XLColumn(Order = 2)] public double? P = null;
+            [XLColumn(Order = 3)] public int Prime = 0;
+            [XLColumn(Order = 4)] public double? MainP = null;
+            [XLColumn(Order = 5)] public double? PrimeP = null;
 
             private int totalPlanetScore = 0;
-            public double? AvScore = null;
+            [XLColumn(Order = 10)] public double? AvScore = null;
 
             private int totalPlanetScorePrimary = 0;
-            public double? AvPrScore = null;
+            [XLColumn(Order = 11)] public double? AvPrScore = null;
 
-            private int prosTotal, popTotal, techTotal, welTotal = 0;
+            private int prosTotal = 0;
+            private int popTotal, techTotal, welTotal = 0;
+
             private double popPercTotal, techPercTotal, welPercTotal = 0;
-            private double prosRelTotal, popRelTotal, techRelTotal, welRelTotal = 0;
+            private double prosRelTotal = 0;
+            private double popRelTotal, techRelTotal, welRelTotal = 0;
 
-            public double? AvPros, AvPop, AvTech, AvWel = null;
-            public int PrScoreHi = 0;
-            public int HiPros, HiPop, HiTech, HiWel = 0;
+            [XLColumn(Order = 20)] public double? AvPros = null;
+            [XLColumn(Order = 21)] public double? AvPop, AvTech, AvWel = null;
+            [XLColumn(Order = 22)] public int PrScoreHi = 0;
+            [XLColumn(Order = 23)] public int HiPros = 0;
+            [XLColumn(Order = 24)] public int HiPop, HiTech, HiWel = 0;
 
-            public double? AvPPop, AvPTech, AvPWel = null;
-            public double HiPPop, HiPTech, HiPWel = 0;
+            [XLColumn(Order = 30)] public double? AvPPop, AvPTech, AvPWel = null;
+            [XLColumn(Order = 40)] public double HiPPop, HiPTech, HiPWel = 0;
 
-            public double? AvRelPros, AvRelPop, AvRelTech, AvRelWel = null;
-            public double HiRelPros, HiRelPop, HiRelTech, HiRelWel = 0;
+            [XLColumn(Order = 50)] public double? AvRelPros = null;
+            [XLColumn(Order = 51)] public double? AvRelPop, AvRelTech, AvRelWel = null;
+            [XLColumn(Order = 60)] public double HiRelPros = 0;
+            [XLColumn(Order = 61)] public double HiRelPop, HiRelTech, HiRelWel = 0;
 
-            public int Terr = 0;
-            public double? TerrAv = null;
-            public int Invent = 0;
-            public double? InventAv = null;
-            public int Trades = 0;
-            public double? TradeAv = null;
+            [XLColumn(Order = 70)] public int Terr = 0;
+            [XLColumn(Order = 71)] public double? TerrAv = null;
+            [XLColumn(Order = 80)] public int Invent = 0;
+            [XLColumn(Order = 81)] public double? InventAv = null;
+            [XLColumn(Order = 90)] public int Trades = 0;
+            [XLColumn(Order = 91)] public double? TradeAv = null;
 
             private int upsetTotal = 0;
-            public double? UpsetAv = null;
-            public int PosUpset, NegUpset = 0;
-            public double? PosUpsetP, NegUpsetP = null;
+            [XLColumn(Order = 100)] public double? UpsetAv = null;
+            [XLColumn(Order = 101)] public int PosUpset = 0;
+            [XLColumn(Order = 102)] public int NegUpset = 0;
+            [XLColumn(Order = 103)] public double? PosUpsetP = null;
+            [XLColumn(Order = 104)] public double? NegUpsetP = null;
 
-            public int Plants, Animals, Minerals = 0;
+            [XLColumn(Order = 110)] public int Plants = 0;
+            [XLColumn(Order = 111)] public int Animals = 0;
+            [XLColumn(Order = 112)] public int Minerals = 0;
             private int activeBioticaCount = 0;
             private int totalActiveBioLevel = 0;
-            public double? AvFBioLv = null;
-            public double? PPlant, PAnimal, PMineral = null;
-            //private double plantPercTotal, animalPercTotal, mineralPercTotal = 0;
-            //public double? PlantAvP, AnimalAvP, MineralAvP = null;
+            [XLColumn(Order = 113)] public double? AvFBioLv = null;
+            [XLColumn(Order = 114)] public double? PPlant = null;
+            [XLColumn(Order = 115)] public double? PAnimal = null;
+            [XLColumn(Order = 116)] public double? PMineral = null;
 
-            public int Apex = 0;
-            public double? ApexP = null;
-            //private double apexPercTotal = 0;
-            //public double? ApexAvP = null;
+            [XLColumn(Order = 117)] public int Apex = 0;
+            [XLColumn(Order = 118)] public double? ApexP = null;
 
             // Counts/percents of wild biome patches, per planet
             private int desertUse, forestUse, iceAgeUse, oceanUse, rainforestUse, savannaUse, taigaUse = 0;
-            public double? HasDesert, HasForest, HasIceAge, HasOcean, HasRainforest, HasSavanna, HasTaiga = null;
+            [XLColumn(Order = 120)] public double? HasDesert, HasForest, HasIceAge, HasOcean, HasRainforest, HasSavanna, HasTaiga = null;
 
             // Counts of wild patches in territory
-            public int DesertSz, ForestSz, IceAgeSz, OceanSz, RainforestSz, SavannaSz, TaigaSz = 0;
-            public double? DesertP, ForestP, IceAgeP, OceanP, RainforestP, SavannaP, TaigaP = null;
-            /*// Sum/Average of percents of biomes in territory (sum per/average over planets)
-            private double desertTotalP, forestTotalP, iceAgeTotalP, oceanTotalP, rainforestTotalP, savannaTotalP, taigaTotalP;
-            public double? DesertAvP, ForestAvP, IceAgeAvP, OceanAvP, RainforestAvP, SavannaAvP, TaigaAvP = null;*/
+            [XLColumn(Order = 130)] public int DesertSz, ForestSz, IceAgeSz, OceanSz, RainforestSz, SavannaSz, TaigaSz = 0;
+            [XLColumn(Order = 140)] public double? DesertP, ForestP, IceAgeP, OceanP, RainforestP, SavannaP, TaigaP = null;
 
             private static Dictionary<string, List<string>> columnFormats = new() {
                 {"0.00%", new List<string> { 

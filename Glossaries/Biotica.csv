@@ -22,7 +22,7 @@ Rattlesnake,Animal,1,,1,,,,,,,c1d4148c425dc2848a4f94aa39516d93
 Sandgrouse,Animal,1,,1,,,,,,,0fef67ec746a4b74d90aa6b2520a1341
 Ostrich,Animal,1,1,1,,,,,,,8236a411e4fd65c40aeb2d2836a48836
 Desert Tortoise,Animal,2,,1,,,,,,,c8a17d7cb7c70aa4f9ec0e6bfb6c5070
-Armadillo,Animal,2,,1,,,,,,,f7df096a75d488545a7d809384b79703
+Armadillo,Animal,2,,1,,,,1,,,f7df096a75d488545a7d809384b79703
 Fennec,Animal,2,1,1,,,,,,,d69bf8e216d656e4299b01cc99dd8edc
 Gila Monster,Animal,2,1,1,,,,,,,d7625d144f29d0b4cb43b485fb6fedfe
 Ibex,Animal,2,1,1,,,,,,,779ff2df727cec549923b87ab1295840
@@ -209,6 +209,7 @@ Surgeon Fish,Animal,3,1,,,,1,,,,3a2be48de37486646ba479a0a129d33b
 Great White Shark,Animal,3,1,,,,1,,,,0d6d984ae4580e047a3381000c4e9daf
 Bedrock,Mineral,1,,,,,1,,,,c57a7b85ab2110d4fac1fb656ea13fb1
 Chert,Mineral,1,,,,,1,,,,a956c578802acb644aa4a626057aa7e6
+Coral Rock,Mineral,1,,,,,1,,,,05a5ac842864b2049bcb6e1ac28b48b1
 Agate,Mineral,1,,,,,1,,,1,2ddf303a31cc8564db5e57abaa61e266
 Pearls,Mineral,1,1,,,,1,,,,5400f4d3073f80e4696d540df80a39b3
 Basalt (Aquatic),Mineral,2,,,,,1,,,,3d8044c724580ed45be8e4d81933d1db
@@ -225,6 +226,7 @@ Titan Fall,Mineral,3,1,,,,1,,,,e2e16750d76e3a5408176216d61c302b
 Papaya Tree,Plant,1,,,,,,1,,,d33899eff0cc0d248ae8cfd6a818e80d
 Ramón Tree,Plant,1,,,,,,1,,,d927891766bc2274087d1a2c0fe960f9
 Cinchona Tree,Plant,1,,,,,,1,,,b2e4572107af5c24f83674446ad72d1a
+Taro,Plant,1,,,,,,1,,,ca236001ab3ec144da405dae25098f20
 Banana,Plant,1,1,,,,,1,,,ee343780b467df948bde99e77449aa64
 Gumbo-Limbo,Plant,1,1,,,,,1,,,5c6e9a72de843704ebd0da1214dee491
 Jabuticaba,Plant,2,,,,,,1,,,42ecd904fc3445342ba1827430be60ca
