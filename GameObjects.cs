@@ -745,7 +745,7 @@ namespace Reus2Surveyor
         public readonly int? finalEra;
         public readonly bool? isTimeBasedChallenge, giantsRandomized, startingSpiritRandomized;
         public readonly int? draftMode, rerollsPerEra, eventIntensity;
-        public readonly int? challengeIndex, timedChallengeType, sessionDifficulty;
+        public readonly int? challengeIndex, timedChallengeType, sessionDifficulty, challengeTimestamp;
         // sessionSummary:planetSummary2
         // Biome sectors for planet preview bar
         public readonly List<BiomeSector> biomeSectors = [];
@@ -774,6 +774,7 @@ namespace Reus2Surveyor
             this.eventIntensity = DictHelper.TryGetInt(refDict, ["sessionSummary", "startParameters", "draftMode", "value"]);
             this.challengeIndex = DictHelper.TryGetInt(refDict, ["sessionSummary", "startParameters", "challengeID", "challengeIndex"]);
             this.timedChallengeType = DictHelper.TryGetInt(refDict, ["sessionSummary", "startParameters", "challengeID", "timedChallengeType", "value"]);
+            this.challengeTimestamp = DictHelper.TryGetInt(refDict, ["sessionSummary", "startParameters", "challengeID", "challengeDate"]);
             this.pacifismMode = DictHelper.TryGetBool(refDict, ["sessionSummary", "startParameters", "pacifismMode"]);
             this.sessionDifficulty = DictHelper.TryGetInt(refDict, ["sessionSummary", "startParameters", "sessionDifficulty", "value"]);
             this.planetIsLost = DictHelper.TryGetBool(refDict, "planetIsLost");

@@ -190,7 +190,7 @@ namespace Reus2Surveyor
             planetEntry.ProsMdn = Statistics.Median([.. cityProsList]);
             planetEntry.AvPros = Statistics.Mean([.. cityProsList]);
             planetEntry.Gini = GiniCoeff(cityProsList);
-            planetEntry.HiPros = cityProsList.Max();
+            planetEntry.HiPros = cityProsList.Count > 0 ? cityProsList.Max() : 0;
 
             planetEntry.Pop = cityPopList.Sum();
             planetEntry.Tech = cityTechList.Sum();
@@ -205,9 +205,9 @@ namespace Reus2Surveyor
             planetEntry.PTech = SafePercent(planetEntry.Tech, planetEntry.Pop + planetEntry.Tech + planetEntry.Wel);
             planetEntry.PWel = SafePercent(planetEntry.Wel, planetEntry.Pop + planetEntry.Tech + planetEntry.Wel);
 
-            planetEntry.HiPop = cityPopList.Max();
-            planetEntry.HiTech = cityTechList.Max();
-            planetEntry.HiWel = cityWelList.Max();
+            planetEntry.HiPop = cityPopList.Count > 0 ? cityPopList.Max() : 0;
+            planetEntry.HiTech = cityTechList.Count > 0 ? cityTechList.Max() : 0;
+            planetEntry.HiWel = cityWelList.Count > 0 ? cityWelList.Max() : 0;
 
             planetEntry.MdnPop = Statistics.Median([.. cityPopList]);
             planetEntry.AvPop = Statistics.Mean([.. cityPopList]);
@@ -723,8 +723,8 @@ namespace Reus2Surveyor
             [XLColumn(Order = 23)] public int Draft { get; set; } = 0;
             [XLColumn(Order = 24)] public double? DraftP { get; set; } = null;
             [XLColumn(Order = 25)] public int Planets { get; set; } = 0;
-            [XLColumn(Order = 26)] public double? UsagePA { get; private set; } = null;
-            [XLColumn(Order = 27)] public double? UsagePD { get; private set; } = null;
+            [XLColumn(Order = 26)] public double? AUsageP { get; private set; } = null;
+            [XLColumn(Order = 27)] public double? DUsageP { get; private set; } = null;
 
             [XLColumn(Order = 30)] public int Total { get; set; } = 0;
             [XLColumn(Order = 31)] public int Legacy { get; set; } = 0;
@@ -743,7 +743,7 @@ namespace Reus2Surveyor
             
 
             private static Dictionary<string, List<string>> columnFormats = new() {
-                {"0.00%", new List<string> { "AvailP", "DraftP", "UsagePA", "UsagePD", "LegacyP", "FinalP", "MultiP", } },
+                {"0.00%", new List<string> { "AvailP", "DraftP", "AUsageP", "DUsageP", "LegacyP", "FinalP", "MultiP", } },
                 {"0.00", new List<string> { "MultiAv", } },
                 };
 
@@ -796,8 +796,8 @@ namespace Reus2Surveyor
 
             public void CalculateStats(int planetCount)
             {
-                this.UsagePA = SafePercent(this.Planets, this.Avail);
-                this.UsagePD = SafePercent(this.Planets, this.Draft);
+                this.AUsageP = SafePercent(this.Planets, this.Avail);
+                this.DUsageP = SafePercent(this.Planets, this.Draft);
                 this.LegacyP = SafePercent(this.Legacy, this.Total);
                 this.FinalP = SafePercent(this.Final, this.Total);
                 this.DraftP = SafePercent(this.Draft, this.Avail);
@@ -837,6 +837,12 @@ namespace Reus2Surveyor
             [XLColumn(Order = 1)] public readonly string Name;
             [XLColumn(Order = 2)] public readonly int Ser;
             [XLColumn(Order = 3)] public readonly DateTime TS;
+
+            private readonly int DiffValue;
+            [XLColumn(Order = 5)] public readonly string Difficulty;
+            [XLColumn(Order = 6)] public readonly int? ChIndex;
+            [XLColumn(Order = 7)] public readonly string? ChType;
+            [XLColumn(Order = 8)] public readonly DateTime? ChTS;
 
             [XLColumn(Order = 10)] public int Score;
             [XLColumn(Order = 11)] public int Pros;
@@ -922,6 +928,31 @@ namespace Reus2Surveyor
                 this.Ser = planet.epochMinutes;
                 this.TS = DateTime.UnixEpoch.AddMinutes(this.Ser);
                 this.TS = this.TS.ToLocalTime();
+
+                this.DiffValue = (int)planet.gameSession.sessionDifficulty;
+                if (DifficultyNames.TryGetValue(this.DiffValue, out string diffName))
+                {
+                    this.Difficulty = diffName;
+                }
+                else
+                {
+                    this.Difficulty = null;
+                }
+
+                this.ChIndex = planet.gameSession.challengeIndex > 0 ? planet.gameSession.challengeIndex : null;
+                if (this.ChIndex is not null)
+                {
+                    this.ChTS = DateTime.UnixEpoch.AddSeconds((int)planet.gameSession.challengeTimestamp);
+                    this.ChTS = ((DateTime)this.ChTS).ToLocalTime();
+                    if (TimedChallengeTypes.TryGetValue((int)planet.gameSession.timedChallengeType, out string challengeType))
+                    {
+                        this.ChType = challengeType;
+                    }
+                    else
+                    {
+                        this.ChType = planet.gameSession.timedChallengeType.ToString();
+                    }
+                }
             }
 
             public void IncrementSlotTotalLevel(int value)
@@ -1270,6 +1301,21 @@ namespace Reus2Surveyor
                 this.TaigaP = SafePercent(this.TaigaSz, this.Terr);
             }
         }
+
+        public static readonly Dictionary<int, string> TimedChallengeTypes = new()
+        {
+            { 0, "Daily" },
+            { 1, "Weekly" },
+        };
+
+        public static readonly Dictionary<int, string> DifficultyNames = new()
+        {
+            { 0, "Relaxing" },
+            { 1, "Human" },
+            { 2, "Giant" },
+            { 3, "Titan" },
+            { 4, "True Titan" },
+        };
 
         private static double? SafePercent(int a0, int b0)
         {

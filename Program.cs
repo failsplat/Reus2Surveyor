@@ -11,6 +11,10 @@ namespace Reus2Surveyor
         /// <summary>
         ///  The main entry point for the application.
         /// </summary>
+        /// 
+
+        public static Version programVersion = new(0, 2, 2);
+
         [STAThread]
         static void Main()
         {
@@ -24,6 +28,7 @@ namespace Reus2Surveyor
             Trace.Listeners.Add(t);
             Trace.AutoFlush = true;
             FormMain formMain = new();
+            formMain.Text = "Reus 2 Surveyor " + programVersion.ToString();
             formMain.SetAndCheckProfilePath(Settings.Default.StartProfileDir);
             if (!Path.Exists(Settings.Default.LastSpotCheckDir))
             {
