@@ -19,6 +19,7 @@ namespace Reus2Surveyor
 
         public Dictionary<string, Dictionary<string, int>> BioticumVsSpiritCounter { get; private set; } = [];
         private int planetCount = 0;
+        private HashSet<string> draftedOrPlaced { get; set; } = [];
 
         public StatCollector(Glossaries g)
         {
@@ -61,7 +62,7 @@ namespace Reus2Surveyor
                 IncrementCounter(completeBioCounter, kv.Key, kv.Value);
             }
 
-            HashSet<string> draftedOrPlaced = [];
+            
             // Count if drafted
             foreach (string draftDef in planet.MasteredBioticaDefSet)
             {
@@ -136,7 +137,8 @@ namespace Reus2Surveyor
                 }
             }
             HashSet<string> missedDraft = [.. draftedOrPlaced.Except(biomeMatchingBiotica)];
-            foreach (string availDef in biomeMatchingBiotica)
+            HashSet<string> availBiotica = [..biomeMatchingBiotica.Intersect(draftedOrPlaced)];
+            foreach (string availDef in availBiotica)
             {
                 if (BioticaStats.ContainsKey(availDef))
                 {
