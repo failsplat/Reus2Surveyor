@@ -1127,7 +1127,7 @@ namespace Reus2Surveyor
                     "AvPros", "AvPop", "AvTech", "AvWel", "AvScore", "AvPrScore",
                     "AvRelPros", "AvRelPop", "AvRelTech", "AvRelWel",
                     "HiRelPros", "HiRelPop", "HiRelTech", "HiRelWel",
-                    "InventionAv", "TradeRouteAv",
+                    "InventAv", "TradeAv",
                     "UpsetAv", "AvFBioLv", "TerrAv"
                 } },
                 };
