@@ -257,6 +257,7 @@ namespace Reus2Surveyor
 
             public int Tier { get; private set; }
             public bool Apex { get; private set; }
+            public bool Starter { get; private set; }
 
             public Dictionary<string, bool> BiomesAllowed { get; private set; } = [];
 
@@ -281,6 +282,9 @@ namespace Reus2Surveyor
                             break;
                         case "Apex":
                             this.Apex = InterpretEntryBool(d);
+                            break;
+                        case "Starter":
+                            this.Starter = InterpretEntryBool(d);
                             break;
                         case string s when s.StartsWith("Biome:"):
                             string biomeName = s.Split(":").Last();

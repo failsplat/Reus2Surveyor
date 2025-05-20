@@ -19,7 +19,7 @@ namespace Reus2Surveyor
 
         public Dictionary<string, Dictionary<string, int>> BioticumVsSpiritCounter { get; private set; } = [];
         private int planetCount = 0;
-        private HashSet<string> draftedOrPlaced { get; set; } = [];
+        private HashSet<string> draftedOrPlacedInProfile { get; set; } = [];
 
         public StatCollector(Glossaries g)
         {
@@ -62,11 +62,12 @@ namespace Reus2Surveyor
                 IncrementCounter(completeBioCounter, kv.Key, kv.Value);
             }
 
-            
+            HashSet<string> draftedOrPlacedInSession = [];
             // Count if drafted
             foreach (string draftDef in planet.MasteredBioticaDefSet)
             {
-                draftedOrPlaced.Add(draftDef);
+                draftedOrPlacedInProfile.Add(draftDef);
+                draftedOrPlacedInSession.Add(draftDef);
             }
 
             // Make entries for active then archived then complete
@@ -79,7 +80,8 @@ namespace Reus2Surveyor
 
                 }
                 BioticaStats[activeDef].Final += activeBioCounter[activeDef];
-                draftedOrPlaced.Add(activeDef);
+                draftedOrPlacedInProfile.Add(activeDef);
+                draftedOrPlacedInSession.Add(activeDef);
             }
             foreach (string legacyDef in legacyBioCounter.Keys)
             {
@@ -90,10 +92,34 @@ namespace Reus2Surveyor
 
                 }
                 BioticaStats[legacyDef].Legacy += legacyBioCounter[legacyDef];
-                draftedOrPlaced.Add(legacyDef);
+                draftedOrPlacedInProfile.Add(legacyDef);
+                draftedOrPlacedInSession.Add(legacyDef);
             }
 
-            foreach (string draftDef in draftedOrPlaced)
+            // Count all biotica that are available in available biomes
+            // Only increment if it has been drafted or placed in this planet or previous planets
+            // (Could be not unavailable by level or DLC)
+            HashSet<string> biomeMatchingBiotica = [];
+            foreach (string giantHash in planet.gameSession.giantRosterDefs)
+            {
+                Glossaries.GiantDefinition gd = this.glossaryInstance.GiantDefinitionByHash[giantHash];
+                foreach (Glossaries.BioticumDefinition bd in this.glossaryInstance.BioticumDefinitionList)
+                {
+                    bool b1match = bd.BiomesAllowed[gd.Biome1];
+                    bool b2match = bd.BiomesAllowed[gd.Biome2];
+                    if (b1match || b2match)
+                    {
+                        biomeMatchingBiotica.Add(bd.Hash);
+                        if (bd.Starter)
+                        {
+                            draftedOrPlacedInProfile.Add(bd.Hash);
+                            draftedOrPlacedInSession.Add(bd.Hash);
+                        }
+                    }
+                }
+            }
+
+            foreach (string draftDef in draftedOrPlacedInSession)
             {
                 if (!BioticaStats.ContainsKey(draftDef))
                 {
@@ -118,29 +144,11 @@ namespace Reus2Surveyor
                 if (completeBioCounter[cDef] > 1) BioticaStats[cDef].AddMultiValue(completeBioCounter[cDef]);
             }
 
-
-            // Count all biotica that are available in available biomes
-            // Only increment if it has been drafted or placed in this planet or previous planets
-            // (Could be not unavailable by level or DLC)
-            HashSet<string> biomeMatchingBiotica = [];
-            foreach (string giantHash in planet.gameSession.giantRosterDefs)
-            {
-                Glossaries.GiantDefinition gd = this.glossaryInstance.GiantDefinitionByHash[giantHash];
-                foreach (Glossaries.BioticumDefinition bd in this.glossaryInstance.BioticumDefinitionList)
-                {
-                    bool b1match = bd.BiomesAllowed[gd.Biome1];
-                    bool b2match = bd.BiomesAllowed[gd.Biome2];
-                    if (b1match || b2match)
-                    {
-                        biomeMatchingBiotica.Add(bd.Hash);
-                    }
-                }
-            }
-            HashSet<string> missedDraft = [.. draftedOrPlaced.Except(biomeMatchingBiotica)];
-            HashSet<string> availBiotica = [..biomeMatchingBiotica.Intersect(draftedOrPlaced)];
+            HashSet<string> missedDraft = [.. draftedOrPlacedInSession.Except(biomeMatchingBiotica)];
+            HashSet<string> availBiotica = [..biomeMatchingBiotica.Intersect(draftedOrPlacedInProfile)];
             foreach (string availDef in availBiotica)
             {
-                if (BioticaStats.ContainsKey(availDef))
+                if (draftedOrPlacedInProfile.Contains(availDef))
                 {
                     BioticaStats[availDef].Avail += 1;
                 }
@@ -798,6 +806,8 @@ namespace Reus2Surveyor
 
             public void CalculateStats(int planetCount)
             {
+                this.Draft = Math.Min(this.Avail, this.Draft);
+
                 this.AUsageP = SafePercent(this.Planets, this.Avail);
                 this.DUsageP = SafePercent(this.Planets, this.Draft);
                 this.LegacyP = SafePercent(this.Legacy, this.Total);

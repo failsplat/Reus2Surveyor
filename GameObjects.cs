@@ -740,6 +740,7 @@ namespace Reus2Surveyor
         // sessionSummary
         public readonly List<TurningPointPerformance> turningPointPerformances = [];
         public readonly List<string?> giantRosterDefs = [];
+        public readonly List<string?> encounteredDefinitions = [];
         public readonly string? scenarioDefinition;
         public readonly string? selectedCharacterDef;
         public readonly int? finalEra;
@@ -779,6 +780,8 @@ namespace Reus2Surveyor
             this.sessionDifficulty = DictHelper.TryGetInt(refDict, ["sessionSummary", "startParameters", "sessionDifficulty", "value"]);
             this.planetIsLost = DictHelper.TryGetBool(refDict, "planetIsLost");
             this.coolBiomes = DictHelper.TryGetInt(refDict, ["sessionSummary", "coolBiomes"]);
+
+            this.encounteredDefinitions = DictHelper.TryGetStringList(refDict, ["encounteredDefinitions", "itemData"], ["value"]);
 
             List<object> tpDicts = (List<object>)DictHelper.DigValueAtKeys(refDict, ["sessionSummary", "scoreCard", "turningPointPerformances", "itemData"]);
             if (tpDicts is not null)
