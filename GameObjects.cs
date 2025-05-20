@@ -478,6 +478,7 @@ namespace Reus2Surveyor
         public readonly string? definition;
         public readonly bool? receivedRiverBonus, anomalyBonusActive;
         public readonly int? slotId;
+        public readonly List<string?> evolvedBiotica;
 
         // Secondary Data
         public bool IsOnMountain { get; private set; }
@@ -504,6 +505,7 @@ namespace Reus2Surveyor
             this.anomalyBonusActive = DictHelper.TryGetBool(refDict, "anomalyBonusActve"); // [sic]
 
             this.slotId = DictHelper.TryGetInt(refDict, ["parent", "id"]);
+            this.evolvedBiotica = DictHelper.TryGetStringList(refDict, ["evolvedBiotica", "itemData"], "value");
         }
 
         public void CheckSlotProperties(Dictionary<int, BioticumSlot> slotDict)
