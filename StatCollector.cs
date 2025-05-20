@@ -876,7 +876,7 @@ namespace Reus2Surveyor
             [XLColumn(Order = 27)] public int? Era3Star;
             [XLColumn(Order = 28)] public int? Era3Score;
 
-            [XLColumn(Order = 30)] public string Char1, Char2, Char3, Char4, Char5, Char6;
+            [XLColumn(Order = 30)] public string Char1, Char2, Char3, Char4, Char5;
 
             [XLColumn(Order = 40)] public int SzT;
             [XLColumn(Order = 41)] public int SzWld;
