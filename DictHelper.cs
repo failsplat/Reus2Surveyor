@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualBasic.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -12,7 +13,7 @@ namespace Reus2Surveyor
             {
                 case 0:
                     {
-                        throw new KeyNotFoundException();
+                        return null;
                     }
                 case 1:
                     {
@@ -21,7 +22,7 @@ namespace Reus2Surveyor
                         {
                             return dict[thiskey];
                         }
-                        throw new KeyNotFoundException();
+                        return null;
                     }
                 default:
                     {
@@ -38,7 +39,7 @@ namespace Reus2Surveyor
                             }
 
                         }
-                        throw new KeyNotFoundException();
+                        return null;
                     }
             }
         }
