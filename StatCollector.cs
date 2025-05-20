@@ -746,7 +746,7 @@ namespace Reus2Surveyor
 
             private static Dictionary<string, List<string>> columnFormats = new() {
                 {"0.00%", new List<string> { "AvailP", "DraftP", "AUsageP", "DUsageP", "LegacyP", "FinalP", "MultiP", } },
-                {"0.00", new List<string> { "MultiAv", } },
+                {"0.000", new List<string> { "MultiAv", } },
                 };
 
             public BioticumStatEntry(Glossaries.BioticumDefinition bioDef, int p1)
@@ -920,7 +920,8 @@ namespace Reus2Surveyor
                     "PPop", "PTech", "PWel", "PPlant", "PAnimal", "PMineral", "ApexP", "FillP",
                     "DesertP", "ForestP", "IceAgeP", "OceanP", "RainforestP", "SavannaP", "TaigaP",
                 } },
-                {"0.00", new List<string> { "AvPros", "Gini", "AvPop", "AvTech", "AvWel", "AvFBioLv" } },
+                {"0.000", new List<string> { "AvPros", "AvPop", "AvTech", "AvWel", "AvFBioLv" } },
+                {"0.0000", new List<string>  {"Gini"} },
                 };
 
             public PlanetSummaryEntry(Planet planet)
@@ -1030,7 +1031,7 @@ namespace Reus2Surveyor
 
             private static Dictionary<string, List<string>> columnFormats = new() {
                 {"0.00%", new List<string> { "PPop", "PTech", "PWel", "FillP", "PPlant", "PAnimal", "PMineral", "ApexP"} },
-                {"0.00", new List<string> { "RelPros", "RelPop", "RelTech", "RelWel", "AvFBioLv" } },
+                {"0.000", new List<string> { "RelPros", "RelPop", "RelTech", "RelWel", "AvFBioLv" } },
                 };
 
             public static Dictionary<string, List<string>> GetColumnFormats() { return columnFormats; }
@@ -1123,7 +1124,7 @@ namespace Reus2Surveyor
                     "HasDesert", "HasForest", "HasIceAge", "HasOcean", "HasRainforest", "HasSavanna", "HasTaiga",
                     "DesertP", "ForestP", "IceAgeP", "OceanP", "RainforestP", "SavannaP", "TaigaP",
                 } },
-                {"0.00", new List<string> { 
+                {"0.000", new List<string> { 
                     "AvPros", "AvPop", "AvTech", "AvWel", "AvScore", "AvPrScore",
                     "AvRelPros", "AvRelPop", "AvRelTech", "AvRelWel",
                     "HiRelPros", "HiRelPop", "HiRelTech", "HiRelWel",
@@ -1347,44 +1348,27 @@ namespace Reus2Surveyor
             int n = values.Count;
             if (n == 0) return null;
 
-            List<double> v2 = [.. values.Select(v => v / values.Sum())];
-            v2.Sort();
+            List<double> vSorted = [..values.OrderBy(v => v)];
 
-            double a = 0;
-            for (int i = 0; i < v2.Count; i++)
+            double sumA = 0;
+            double sumB = 0;
+            for (int i = 0; i < vSorted.Count; i++)
             {
-                double vi = v2[i];
-                a += i * vi;
-            }
+                double vi = vSorted[i];
 
-            double g = a;
-            g *= 2;
-            g /= v2.Sum();
+                sumA += (i+1) * vi;
+                sumB += vi; 
+            }
+            double g = 2 * (sumA / sumB);
+            g -= n + 1;
             g /= n;
-            g -= (n + 1) / n;
+
             return g;
         }
         public static double? GiniCoeff(List<int> values)
         {
-            int n = values.Count;
-            if (n == 0) return null;
-
-            List<double> v2 = [.. values.Select(v => ((double)v) / values.Sum())];
-            v2.Sort();
-
-            double a = 0;
-            for (int i = 0; i < v2.Count; i++)
-            {
-                double vi = v2[i];
-                a += (i + 1) * vi;
-            }
-
-            double g = a;
-            g *= 2;
-            g /= v2.Sum();
-            g /= n;
-            g -= (n + 1) / n;
-            return g;
+            List<double> castValues = [.. values.Select(v => (double)v)];
+            return GiniCoeff(castValues);
         }
 
         public static void ApplyTableNumberFormats(Dictionary<string, List<string>> columnFormats, IXLTable table)
