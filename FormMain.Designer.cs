@@ -131,7 +131,7 @@ namespace Reus2Surveyor
             planetGridView.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
             planetGridView.Location = new System.Drawing.Point(12, 124);
             planetGridView.Name = "planetGridView";
-            planetGridView.Size = new System.Drawing.Size(760, 301);
+            planetGridView.Size = new System.Drawing.Size(760, 299);
             planetGridView.TabIndex = 7;
             // 
             // NameCol

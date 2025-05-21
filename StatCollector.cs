@@ -729,8 +729,8 @@ namespace Reus2Surveyor
 
             [XLColumn(Order = 20)] public readonly string Hash;
             [XLColumn(Order = 21)] public int Planets { get; set; } = 0;
-            [XLColumn(Order = 22)] public double? AUsageP { get; private set; } = null;
-            [XLColumn(Order = 23)] public double? DUsageP { get; private set; } = null;
+            [XLColumn(Order = 22)] public double? DUsageP { get; private set; } = null;
+            [XLColumn(Order = 23)] public double? AUsageP { get; private set; } = null;
             [XLColumn(Order = 24)] public int Draft { get; set; } = 0;
             [XLColumn(Order = 25)] public double? DraftP { get; set; } = null;
             [XLColumn(Order = 26)] public int Avail { get; set; } = 0;
@@ -755,6 +755,8 @@ namespace Reus2Surveyor
             private static Dictionary<string, List<string>> columnFormats = new() {
                 {"0.00%", new List<string> { "AvailP", "DraftP", "AUsageP", "DUsageP", "LegacyP", "FinalP", "MultiP", } },
                 {"0.000", new List<string> { "MultiAv", } },
+                {"mm/dd/yyyy hh:mm", new List<string>{"TS", } },
+                {"mm/dd/yyyy", new List<string>{"ChTS", } },
                 };
 
             public BioticumStatEntry(Glossaries.BioticumDefinition bioDef, int p1)

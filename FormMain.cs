@@ -42,6 +42,7 @@ namespace Reus2Surveyor
 
         private Dictionary<int, PlanetFileUtil.SaveSlotManager> planetsInProfile = [];
         private Dictionary<int, string> filesToProcess = [];
+        private DateTime decodeStartTime;
 
         public FormMain()
         {
@@ -192,7 +193,7 @@ namespace Reus2Surveyor
                 }
 
                 this.decodeProgressBar.Maximum = completedPlanetCount;
-
+                this.decodeStartTime = DateTime.Now;
                 this.updateDecodeProgress();
                 this.filesToProcess = completedPlanetPaths;
                 this.planetLooperBackgroundWorker.RunWorkerAsync();
@@ -310,6 +311,8 @@ namespace Reus2Surveyor
             {
                 this.decodeProgressBar.Value = this.decodeProgressBar.Maximum;
                 this.decodeProgressLabel.Text += " - Done!";
+                int decodeSeconds = (int)(DateTime.Now - this.decodeStartTime).TotalSeconds;
+                this.decodeProgressLabel.Text += $" ({decodeSeconds} s)";
             }
         }
 
