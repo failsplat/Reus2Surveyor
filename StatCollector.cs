@@ -728,13 +728,13 @@ namespace Reus2Surveyor
             [XLColumn(Order = 4)] public readonly string Desert, Forest, IceAge, Ocean, Rainforest, Savanna, Taiga;
 
             [XLColumn(Order = 20)] public readonly string Hash;
-            [XLColumn(Order = 21)] public int Avail { get; set; } = 0;
-            [XLColumn(Order = 22)] public double? AvailP { get; set; } = null;
-            [XLColumn(Order = 23)] public int Draft { get; set; } = 0;
-            [XLColumn(Order = 24)] public double? DraftP { get; set; } = null;
-            [XLColumn(Order = 25)] public int Planets { get; set; } = 0;
-            [XLColumn(Order = 26)] public double? AUsageP { get; private set; } = null;
-            [XLColumn(Order = 27)] public double? DUsageP { get; private set; } = null;
+            [XLColumn(Order = 21)] public int Planets { get; set; } = 0;
+            [XLColumn(Order = 22)] public double? AUsageP { get; private set; } = null;
+            [XLColumn(Order = 23)] public double? DUsageP { get; private set; } = null;
+            [XLColumn(Order = 24)] public int Draft { get; set; } = 0;
+            [XLColumn(Order = 25)] public double? DraftP { get; set; } = null;
+            [XLColumn(Order = 26)] public int Avail { get; set; } = 0;
+            [XLColumn(Order = 27)] public double? AvailP { get; set; } = null;
 
             [XLColumn(Order = 30)] public int Total { get; set; } = 0;
             [XLColumn(Order = 31)] public int Legacy { get; set; } = 0;
