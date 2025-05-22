@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace Reus2Surveyor
 {
@@ -486,6 +487,13 @@ namespace Reus2Surveyor
         private void debugMenuButton_Click(object sender, EventArgs e)
         {
             this.debugPanel.Visible = !this.debugPanel.Visible;
+        }
+
+        private void refreshProfileButton_Click(object sender, EventArgs e)
+        {
+            string temp = this.ProfileDir;
+            this.ProfileDir = null;
+            this.SetAndCheckProfilePath(temp);
         }
     }
 }

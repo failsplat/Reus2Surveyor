@@ -63,6 +63,7 @@ namespace Reus2Surveyor
             DecodePanel = new System.Windows.Forms.Panel();
             planetGridPanel = new System.Windows.Forms.Panel();
             ExportPanel = new System.Windows.Forms.Panel();
+            refreshProfileButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)planetGridView).BeginInit();
             debugPanel.SuspendLayout();
             ProfilePanel.SuspendLayout();
@@ -353,6 +354,7 @@ namespace Reus2Surveyor
             // ProfilePanel
             // 
             ProfilePanel.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            ProfilePanel.Controls.Add(refreshProfileButton);
             ProfilePanel.Controls.Add(findProfileButton);
             ProfilePanel.Controls.Add(profileFolderTextBox);
             ProfilePanel.Location = new System.Drawing.Point(0, 0);
@@ -393,6 +395,16 @@ namespace Reus2Surveyor
             ExportPanel.Name = "ExportPanel";
             ExportPanel.Size = new System.Drawing.Size(211, 38);
             ExportPanel.TabIndex = 22;
+            // 
+            // refreshProfileButton
+            // 
+            refreshProfileButton.Location = new System.Drawing.Point(93, 3);
+            refreshProfileButton.Name = "refreshProfileButton";
+            refreshProfileButton.Size = new System.Drawing.Size(75, 23);
+            refreshProfileButton.TabIndex = 3;
+            refreshProfileButton.Text = "⟳ Refresh";
+            refreshProfileButton.UseVisualStyleBackColor = true;
+            refreshProfileButton.Click += refreshProfileButton_Click;
             // 
             // FormMain
             // 
@@ -456,6 +468,7 @@ namespace Reus2Surveyor
         private System.Windows.Forms.Panel DecodePanel;
         private System.Windows.Forms.Panel planetGridPanel;
         private System.Windows.Forms.Panel ExportPanel;
+        private System.Windows.Forms.Button refreshProfileButton;
     }
 }
 
