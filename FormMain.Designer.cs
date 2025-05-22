@@ -60,10 +60,11 @@ namespace Reus2Surveyor
             debugPanel = new System.Windows.Forms.Panel();
             debugMenuButton = new System.Windows.Forms.Button();
             ProfilePanel = new System.Windows.Forms.Panel();
+            refreshProfileButton = new System.Windows.Forms.Button();
             DecodePanel = new System.Windows.Forms.Panel();
             planetGridPanel = new System.Windows.Forms.Panel();
             ExportPanel = new System.Windows.Forms.Panel();
-            refreshProfileButton = new System.Windows.Forms.Button();
+            planetCountLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)planetGridView).BeginInit();
             debugPanel.SuspendLayout();
             ProfilePanel.SuspendLayout();
@@ -362,6 +363,16 @@ namespace Reus2Surveyor
             ProfilePanel.Size = new System.Drawing.Size(784, 57);
             ProfilePanel.TabIndex = 19;
             // 
+            // refreshProfileButton
+            // 
+            refreshProfileButton.Location = new System.Drawing.Point(93, 3);
+            refreshProfileButton.Name = "refreshProfileButton";
+            refreshProfileButton.Size = new System.Drawing.Size(75, 23);
+            refreshProfileButton.TabIndex = 3;
+            refreshProfileButton.Text = "⟳ Refresh";
+            refreshProfileButton.UseVisualStyleBackColor = true;
+            refreshProfileButton.Click += refreshProfileButton_Click;
+            // 
             // DecodePanel
             // 
             DecodePanel.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
@@ -378,6 +389,7 @@ namespace Reus2Surveyor
             // planetGridPanel
             // 
             planetGridPanel.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            planetGridPanel.Controls.Add(planetCountLabel);
             planetGridPanel.Controls.Add(readNoneButton);
             planetGridPanel.Controls.Add(readAllButton);
             planetGridPanel.Controls.Add(planetGridView);
@@ -396,15 +408,14 @@ namespace Reus2Surveyor
             ExportPanel.Size = new System.Drawing.Size(211, 38);
             ExportPanel.TabIndex = 22;
             // 
-            // refreshProfileButton
+            // planetCountLabel
             // 
-            refreshProfileButton.Location = new System.Drawing.Point(93, 3);
-            refreshProfileButton.Name = "refreshProfileButton";
-            refreshProfileButton.Size = new System.Drawing.Size(75, 23);
-            refreshProfileButton.TabIndex = 3;
-            refreshProfileButton.Text = "⟳ Refresh";
-            refreshProfileButton.UseVisualStyleBackColor = true;
-            refreshProfileButton.Click += refreshProfileButton_Click;
+            planetCountLabel.AutoSize = true;
+            planetCountLabel.Location = new System.Drawing.Point(12, 11);
+            planetCountLabel.Name = "planetCountLabel";
+            planetCountLabel.Size = new System.Drawing.Size(38, 15);
+            planetCountLabel.TabIndex = 17;
+            planetCountLabel.Text = "label1";
             // 
             // FormMain
             // 
@@ -429,6 +440,7 @@ namespace Reus2Surveyor
             DecodePanel.ResumeLayout(false);
             DecodePanel.PerformLayout();
             planetGridPanel.ResumeLayout(false);
+            planetGridPanel.PerformLayout();
             ExportPanel.ResumeLayout(false);
             ExportPanel.PerformLayout();
             ResumeLayout(false);
@@ -469,6 +481,7 @@ namespace Reus2Surveyor
         private System.Windows.Forms.Panel planetGridPanel;
         private System.Windows.Forms.Panel ExportPanel;
         private System.Windows.Forms.Button refreshProfileButton;
+        private System.Windows.Forms.Label planetCountLabel;
     }
 }
 

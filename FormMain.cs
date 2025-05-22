@@ -133,6 +133,7 @@ namespace Reus2Surveyor
             allPlanetPaths.Sort();
             List<PlanetFileUtil.SaveSlotManager> availablePlanetSaves = [.. allPlanetPaths.Select(x => new PlanetFileUtil.SaveSlotManager(x))];
             this.planetsInProfile = availablePlanetSaves.Select((x, ind) => new { x, ind }).ToDictionary(x => x.ind, x => x.x);
+            this.planetCountLabel.Text = this.planetsInProfile.Count.ToString();
         }
 
         public void InitializePlanetGridView()
