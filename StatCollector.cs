@@ -1,10 +1,12 @@
-﻿using ClosedXML.Attributes;
+﻿using ClosedXML;
+using ClosedXML.Attributes;
 using ClosedXML.Excel;
 using MathNet.Numerics.Statistics;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using static Reus2Surveyor.Glossaries;
 
 namespace Reus2Surveyor
@@ -717,6 +719,92 @@ namespace Reus2Surveyor
             }
         }
 
+        public static readonly Dictionary<int, string> TimedChallengeTypes = new()
+        {
+            { 0, "Daily" },
+            { 1, "Weekly" },
+        };
+
+        public static readonly Dictionary<int, string> DifficultyNames = new()
+        {
+            { 0, "Relaxing" },
+            { 1, "Human" },
+            { 2, "Giant" },
+            { 3, "Titan" },
+            { 4, "True Titan" },
+        };
+
+        private static double? SafePercent(int a0, int b0)
+        {
+            double? c = SafeDivide(a0, b0);
+            if (c is null) return null;
+            return Math.Max(Math.Min((double)c, 1.0), 0.0);
+        }
+        public static double? SafeDivide(int a0, int b0)
+        {
+            return SafeDivide((double)a0, (double)b0);
+        }
+
+        public static double? SafeDivide(double a, double b)
+        {
+            if (b == 0) return null;
+            return a / b;
+        }
+
+        public static void FormatColumn(IXLTable table, string columnName, string numFormat = "0.00%")
+        {
+            var column = table.FindColumn(c => c.FirstCell().Value.ToString() == columnName);
+            column.Style.NumberFormat.Format = numFormat;
+        }
+
+        public static double? GiniCoeff(List<double> values)
+        {
+            int n = values.Count;
+            if (n == 0) return null;
+
+            List<double> vSorted = [.. values.OrderBy(v => v)];
+
+            double sumA = 0;
+            double sumB = 0;
+            for (int i = 0; i < vSorted.Count; i++)
+            {
+                double vi = vSorted[i];
+
+                sumA += (i + 1) * vi;
+                sumB += vi;
+            }
+            double g = 2 * (sumA / sumB);
+            g -= n + 1;
+            g /= n;
+
+            return g;
+        }
+        public static double? GiniCoeff(List<int> values)
+        {
+            List<double> castValues = [.. values.Select(v => (double)v)];
+            return GiniCoeff(castValues);
+        }
+
+        public static void ApplyTableNumberFormats(Dictionary<string, List<string>> columnFormats, IXLTable table)
+        {
+            foreach (KeyValuePair<string, List<string>> kv in columnFormats)
+            {
+                string format = kv.Key;
+                List<string> columns = kv.Value;
+
+                foreach (string colName in columns)
+                {
+                    try
+                    {
+                        var col = table.FindColumn(c => c.FirstCell().Value.ToString() == colName);
+                        if (col is null) continue;
+                        col.Style.NumberFormat.Format = format;
+                    }
+                    catch { }
+                }
+            }
+        }
+
         public class BioticumStatEntry
         {
             private readonly Glossaries.BioticumDefinition Definition;
@@ -1316,92 +1404,5 @@ namespace Reus2Surveyor
                 this.TaigaP = SafePercent(this.TaigaSz, this.Terr);
             }
         }
-
-        public static readonly Dictionary<int, string> TimedChallengeTypes = new()
-        {
-            { 0, "Daily" },
-            { 1, "Weekly" },
-        };
-
-        public static readonly Dictionary<int, string> DifficultyNames = new()
-        {
-            { 0, "Relaxing" },
-            { 1, "Human" },
-            { 2, "Giant" },
-            { 3, "Titan" },
-            { 4, "True Titan" },
-        };
-
-        private static double? SafePercent(int a0, int b0)
-        {
-            double? c = SafeDivide(a0, b0);
-            if (c is null) return null;
-            return Math.Max(Math.Min((double)c, 1.0), 0.0);
-        }
-        public static double? SafeDivide(int a0, int b0)
-        {
-            return SafeDivide((double)a0, (double)b0);
-        }
-
-        public static double? SafeDivide(double a, double b)
-        {
-            if (b == 0) return null;
-            return a / b;
-        }
-
-        public static void FormatColumn(IXLTable table, string columnName, string numFormat = "0.00%")
-        {
-            var column = table.FindColumn(c => c.FirstCell().Value.ToString() == columnName);
-            column.Style.NumberFormat.Format = numFormat;
-        }
-
-        public static double? GiniCoeff(List<double> values)
-        {
-            int n = values.Count;
-            if (n == 0) return null;
-
-            List<double> vSorted = [..values.OrderBy(v => v)];
-
-            double sumA = 0;
-            double sumB = 0;
-            for (int i = 0; i < vSorted.Count; i++)
-            {
-                double vi = vSorted[i];
-
-                sumA += (i+1) * vi;
-                sumB += vi; 
-            }
-            double g = 2 * (sumA / sumB);
-            g -= n + 1;
-            g /= n;
-
-            return g;
-        }
-        public static double? GiniCoeff(List<int> values)
-        {
-            List<double> castValues = [.. values.Select(v => (double)v)];
-            return GiniCoeff(castValues);
-        }
-
-        public static void ApplyTableNumberFormats(Dictionary<string, List<string>> columnFormats, IXLTable table)
-        {
-            foreach (KeyValuePair<string, List<string>> kv in columnFormats)
-            {
-                string format = kv.Key;
-                List<string> columns = kv.Value;
-
-                foreach (string colName in columns)
-                {
-                    try
-                    {
-                        var col = table.FindColumn(c => c.FirstCell().Value.ToString() == colName);
-                        if (col is null) continue;
-                        col.Style.NumberFormat.Format = format;
-                    }
-                    catch { }
-                }
-            }
-        }
-
     }
 }
