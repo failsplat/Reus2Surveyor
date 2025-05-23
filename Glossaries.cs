@@ -104,6 +104,7 @@ namespace Reus2Surveyor
                     List<string> data = [.. currentLine.Split(",")];
                     string name = data[header.IndexOf("Name")];
                     string hash = data[header.IndexOf("Hash")];
+                    string num = data[header.IndexOf("Num")];
                     if (hash is null || hash.Length == 0)
                     {
                         continue;
@@ -111,6 +112,8 @@ namespace Reus2Surveyor
 
                     this.BiomeHashByName[name] = hash;
                     this.BiomeNameByHash[hash] = name;
+                    this.BiomeNameByInt[Int32.Parse(num)] = name;
+                    this.BiomeIntByName[name] = Int32.Parse(num);
                 }
             }
 
@@ -163,17 +166,8 @@ namespace Reus2Surveyor
         {
         }
 
-        public static readonly Dictionary<int, string> BiomeNameByInt = new()
-        {
-            {0, "Forest" },
-            {1, "Rainforest" },
-            {2, "Taiga" },
-            {4, "Savanna" },
-            {5, "Desert" },
-            {6, "Ocean" },
-            {8, "Ice Age" },
-        };
-        public static readonly Dictionary<string, int> BiomeIntByName = BiomeNameByInt.ToDictionary(x => x.Value, x => x.Key);
+        public Dictionary<int, string> BiomeNameByInt = [];
+        public Dictionary<string, int> BiomeIntByName = [];
 
         public string BiomeNameFromHash(string def)
         {

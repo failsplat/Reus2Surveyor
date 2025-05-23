@@ -58,7 +58,7 @@ namespace Reus2Surveyor
             // Sampled from in-game biome icons
             /*{"Desert", new MagickColor("#FFAE52") },
             {"Forest",  new MagickColor("#A5E622") },k
-            {"Ice Age",  new MagickColor("#B9D3DC") },
+            {"IceAge",  new MagickColor("#B9D3DC") },
             {"Ocean",  new MagickColor("#27A3F9") },
             {"Rainforest",  new MagickColor("#127529") },
             {"Savanna",  new MagickColor("#FFD752") },
@@ -66,7 +66,7 @@ namespace Reus2Surveyor
 
             {"Desert", Color.ParseHex("FF9B59")},
             {"Forest",  Color.ParseHex("59F704") },
-            {"Ice Age",  Color.ParseHex("BFFFFF") },
+            {"IceAge",  Color.ParseHex("BFFFFF") },
             {"Ocean",  Color.ParseHex("052DF8") },
             {"Rainforest",  Color.ParseHex("00A571") },
             {"Savanna",  Color.ParseHex("FFE108") },

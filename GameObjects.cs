@@ -234,30 +234,6 @@ namespace Reus2Surveyor
             {
                 cc.Item1.AttachCivSummary(cc.Item2);
             }
-
-            // Percentages of each biome
-            Dictionary<string, int> patchesPerBiomeType = [];
-            foreach (Biome biome in this.biomeDictionary.Values)
-            {
-                if (biome.anchorPatchId is null) continue;
-
-                string biomeType = biome.biomeTypeName;
-
-                if (!patchesPerBiomeType.ContainsKey(biomeType)) patchesPerBiomeType[biomeType] = 0;
-                patchesPerBiomeType[biomeType] += biome.totalSize;
-            }
-            this.BiomePatchCounts = patchesPerBiomeType;
-            this.BiomePercentages = patchesPerBiomeType
-                .Select(kv => new KeyValuePair<string, double>(kv.Key, (double)kv.Value / (double)this.totalSize))
-                .ToDictionary();
-            this.BiomeSizeMap =
-                this.biomeDictionary.Values
-                .Where(b => b.anchorPatchId is not null)
-                .Select(b => new KeyValuePair<int, (string, double)>(
-                    (int)b.anchorPatchId, (b.biomeTypeName, (double)b.totalSize / (double)this.totalSize))
-                )
-                .ToDictionary()
-                ;
         }
 
         public void SetGlossaryThenLookup(Glossaries g)
@@ -280,6 +256,30 @@ namespace Reus2Surveyor
             List<GiantDefinition> giantDefs = [.. this.gameSession.giantRosterDefs.Select(v => glossaries.TryGiantDefinitionFromHash(v))];
             giantDefs.Sort((x, y) => x.Position - y.Position);
             this.GiantNames = [.. giantDefs.Select(v => v.Name)];
+
+            // Percentages of each biome
+            Dictionary<string, int> patchesPerBiomeType = [];
+            foreach (Biome biome in this.biomeDictionary.Values)
+            {
+                if (biome.anchorPatchId is null) continue;
+                if (biome.biomeTypeInt is not null) biome.biomeTypeName = this.glossaries.BiomeNameByInt[(int)biome.biomeTypeInt];
+                string biomeType = biome.biomeTypeName;
+
+                if (!patchesPerBiomeType.ContainsKey(biomeType)) patchesPerBiomeType[biomeType] = 0;
+                patchesPerBiomeType[biomeType] += biome.totalSize;
+            }
+            this.BiomePatchCounts = patchesPerBiomeType;
+            this.BiomePercentages = patchesPerBiomeType
+                .Select(kv => new KeyValuePair<string, double>(kv.Key, (double)kv.Value / (double)this.totalSize))
+                .ToDictionary();
+            this.BiomeSizeMap =
+                this.biomeDictionary.Values
+                .Where(b => b.anchorPatchId is not null)
+                .Select(b => new KeyValuePair<int, (string, double)>(
+                    (int)b.anchorPatchId, (b.biomeTypeName, (double)b.totalSize / (double)this.totalSize))
+                )
+                .ToDictionary()
+                ;
         }
     }
 
@@ -406,7 +406,7 @@ namespace Reus2Surveyor
         public readonly int? anchorPatchId;
         public readonly string visualName;
         public readonly int? biomeTypeInt;
-        public readonly string biomeTypeName;
+        public string biomeTypeName;
 
         // Secondary Data
         public string biomeTypeDef { get; private set; }
@@ -420,7 +420,6 @@ namespace Reus2Surveyor
             this.anchorPatchId = DictHelper.TryGetInt(refDict, ["anchorPatch", "id"]);
             this.visualName = DictHelper.TryGetString(refDict, ["visualName"]);
             this.biomeTypeInt = DictHelper.TryGetInt(refDict, ["biomeType", "value"]);
-            if (this.biomeTypeInt is not null) this.biomeTypeName = Glossaries.BiomeNameByInt[(int)this.biomeTypeInt];
         }
 
         public void BuildPatchInfo(PatchMap<int?> patchMap, Dictionary<int, Patch> patchDict)
