@@ -17,7 +17,7 @@ namespace Reus2Surveyor
             [XLColumn(Order = 2)] public readonly int? Tier;
             [XLColumn(Order = 3)] public readonly string Apex;
 
-            [XLColumn(Order = 4)] public readonly string Desert, Forest, IceAge, Ocean, Rainforest, Savanna, Taiga;
+            [XLColumn(Order = 4), UnpackToBiomes(defaultValue: "")] public readonly Dictionary<string, string> biomesAllowed = [];
 
             [XLColumn(Order = 20)] public readonly string Hash;
             [XLColumn(Order = 21)] public int Planets { get; set; } = 0;
@@ -59,13 +59,10 @@ namespace Reus2Surveyor
                 this.Tier = bioDef.Tier;
                 this.Apex = bioDef.Apex ? "☆" : null;
 
-                this.Desert = bioDef.BiomesAllowed["Desert"] ? "Y" : null;
-                this.Forest = bioDef.BiomesAllowed["Forest"] ? "Y" : null;
-                this.IceAge = bioDef.BiomesAllowed["IceAge"] ? "Y" : null;
-                this.Ocean = bioDef.BiomesAllowed["Ocean"] ? "Y" : null;
-                this.Rainforest = bioDef.BiomesAllowed["Rainforest"] ? "Y" : null;
-                this.Savanna = bioDef.BiomesAllowed["Savanna"] ? "Y" : null;
-                this.Taiga = bioDef.BiomesAllowed["Taiga"] ? "Y" : null;
+                foreach((string biomeName, bool allowed) in bioDef.BiomesAllowed)
+                {
+                    this.biomesAllowed[biomeName] = allowed ? "Y" : null;
+                }
 
                 this.Hash = bioDef.Hash;
                 this.P1st = p1;
@@ -80,14 +77,6 @@ namespace Reus2Surveyor
                 this.Tier = null;
                 this.Apex = "?";
                 this.Hash = hash;
-
-                this.Desert = null;
-                this.Forest = null;
-                this.IceAge = null;
-                this.Ocean = null;
-                this.Rainforest = null;
-                this.Savanna = null;
-                this.Taiga = null;
 
                 this.P1st = p1;
                 this.PLast = p1;
@@ -217,7 +206,7 @@ namespace Reus2Surveyor
             [XLColumn(Order = 142)] public double? ApexP;
             [XLColumn(Order = 143)] public double? AvFBioLv;
 
-            [XLColumn(Order = 150), UnpackToBiomes(suffix: "P", defaultValue: (double)0, numberFormat:"0.00%")] 
+            [XLColumn(Order = 150), UnpackToBiomes(defaultValue: (double)0, suffix: "P", numberFormat: "0.00%")] 
             public Dictionary<string, double> biomePercents = [];
 
             private static Dictionary<string, List<string>> columnFormats = new() {
@@ -417,12 +406,19 @@ namespace Reus2Surveyor
             [XLColumn(Order = 118)] public double? ApexP = null;
 
             // Counts/percents of wild biome patches, per planet
-            private int desertUse, forestUse, iceAgeUse, oceanUse, rainforestUse, savannaUse, taigaUse = 0;
-            [XLColumn(Order = 120)] public double? HasDesert, HasForest, HasIceAge, HasOcean, HasRainforest, HasSavanna, HasTaiga = null;
+            private Dictionary<string, int> biomeUsageCounts = [];
+            [XLColumn(Order = 120)]
+            [UnpackToBiomes(defaultValue: (double)0, prefix: "Has", numberFormat: "0.00%")] 
+            public Dictionary<string, double?> biomeUsagePercents = [];
 
             // Counts of wild patches in territory
-            [XLColumn(Order = 130)] public int DesertSz, ForestSz, IceAgeSz, OceanSz, RainforestSz, SavannaSz, TaigaSz = 0;
-            [XLColumn(Order = 140)] public double? DesertP, ForestP, IceAgeP, OceanP, RainforestP, SavannaP, TaigaP = null;
+            [XLColumn(Order = 130)]
+            [UnpackToBiomes(defaultValue: (int)0, suffix: "Sz")]
+            public Dictionary<string,int> biomeSizes = [];
+
+            [XLColumn(Order = 140)]
+            [UnpackToBiomes(defaultValue: (double)0, suffix: "P", numberFormat: "0.00%")]
+            public Dictionary<string,double?> biomeSizePercents = [];
 
             private static Dictionary<string, List<string>> columnFormats = new() {
                 {"0.00%", new List<string> {
@@ -430,8 +426,6 @@ namespace Reus2Surveyor
                     "AvPPop", "AvPTech", "AvPWel", "HiPPop", "HiPTech", "HiPWel",
                     "PosUpsetP", "NegUpsetP",
                     "PPlant", "PAnimal", "PMineral", "ApexP",
-                    "HasDesert", "HasForest", "HasIceAge", "HasOcean", "HasRainforest", "HasSavanna", "HasTaiga",
-                    "DesertP", "ForestP", "IceAgeP", "OceanP", "RainforestP", "SavannaP", "TaigaP",
                 } },
                 {"0.000", new List<string> {
                     "AvPros", "AvPop", "AvTech", "AvWel", "AvScore", "AvPrScore",
@@ -443,6 +437,12 @@ namespace Reus2Surveyor
                 };
 
             public static Dictionary<string, List<string>> GetColumnFormats() { return columnFormats; }
+
+            public static void AddColumnFormat(string format, string column)
+            {
+                if (columnFormats.TryGetValue(format, out List<string> columns)) columns.Add(column);
+                else columnFormats[format] = [column];
+            }
 
             public SpiritStatEntry(string spiritName)
             {
@@ -500,45 +500,23 @@ namespace Reus2Surveyor
                 }
             }
 
+            public void InitializeBiomeCounters(Glossaries g)
+            {
+                foreach(string bn in g.BiomeHashByName.Keys)
+                {
+                    this.biomeUsageCounts[bn] = 0;
+                    this.biomeSizes[bn] = 0;
+                }
+            }
+
             public void IncrementBiomeUsage(Dictionary<string, int> BiomePatchCounts)
             {
                 foreach (string bn in BiomePatchCounts.Keys)
                 {
                     int patches = BiomePatchCounts[bn];
                     this.Terr += patches;
-                    switch (bn)
-                    {
-                        case "Desert":
-                            this.desertUse += 1;
-                            this.DesertSz += patches;
-                            break;
-                        case "Forest":
-                            this.forestUse += 1;
-                            this.ForestSz += patches;
-                            break;
-                        case "Ice Age":
-                        case "IceAge":
-                            this.iceAgeUse += 1;
-                            this.IceAgeSz += patches;
-                            break;
-                        case "Ocean":
-                            this.oceanUse += 1;
-                            this.OceanSz += patches;
-                            break;
-                        case "Rainforest":
-                            this.rainforestUse += 1;
-                            this.RainforestSz += patches;
-                            break;
-                        case "Savanna":
-                            this.savannaUse += 1;
-                            this.SavannaSz += patches;
-                            break;
-                        case "Taiga":
-                            this.taigaUse += 1;
-                            this.TaigaSz += patches;
-                            break;
-                        default: break;
-                    }
+                    this.biomeUsageCounts[bn] += 1;
+                    this.biomeSizes[bn] += patches;
                 }
             }
 
@@ -596,21 +574,8 @@ namespace Reus2Surveyor
                 this.ApexP = SafePercent(this.Apex, bioticaCount);
                 //this.ApexAvP = SafeDivide(this.apexPercTotal, this.Count);
 
-                this.HasDesert = SafePercent(this.desertUse, this.Count);
-                this.HasForest = SafePercent(this.forestUse, this.Count);
-                this.HasIceAge = SafePercent(this.iceAgeUse, this.Count);
-                this.HasOcean = SafePercent(this.oceanUse, this.Count);
-                this.HasRainforest = SafePercent(this.rainforestUse, this.Count);
-                this.HasSavanna = SafePercent(this.savannaUse, this.Count);
-                this.HasTaiga = SafePercent(this.taigaUse, this.Count);
-
-                this.DesertP = SafePercent(this.DesertSz, this.Terr);
-                this.ForestP = SafePercent(this.ForestSz, this.Terr);
-                this.IceAgeP = SafePercent(this.IceAgeSz, this.Terr);
-                this.OceanP = SafePercent(this.OceanSz, this.Terr);
-                this.RainforestP = SafePercent(this.RainforestSz, this.Terr);
-                this.SavannaP = SafePercent(this.SavannaSz, this.Terr);
-                this.TaigaP = SafePercent(this.TaigaSz, this.Terr);
+                this.biomeUsagePercents = this.biomeUsageCounts.ToDictionary(kv => kv.Key, kv => SafePercent(kv.Value, this.Count));
+                this.biomeSizePercents = this.biomeSizes.ToDictionary(kv => kv.Key, kv => SafePercent(kv.Value, this.Terr));
             }
         }
     }

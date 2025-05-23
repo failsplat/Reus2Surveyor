@@ -18,12 +18,12 @@ namespace Reus2Surveyor
     public partial class StatCollector
     {
         private Glossaries glossaryInstance;
-        public Dictionary<string, BioticumStatEntry> BioticaStats { get; private set; } = [];
+        public OrderedDictionary<string, BioticumStatEntry> BioticaStats { get; private set; } = [];
         public List<PlanetSummaryEntry> PlanetSummaries { get; private set; } = [];
         public List<CitySummaryEntry> CitySummaries { get; private set; } = [];
-        public Dictionary<string, SpiritStatEntry> SpiritStats { get; private set; } = [];
+        public OrderedDictionary<string, SpiritStatEntry> SpiritStats { get; private set; } = [];
 
-        public Dictionary<string, Dictionary<string, int>> BioticumVsSpiritCounter { get; private set; } = [];
+        public OrderedDictionary<string, Dictionary<string, int>> BioticumVsSpiritCounter { get; private set; } = [];
         private int planetCount = 0;
         private HashSet<string> draftedOrPlacedInProfile { get; set; } = [];
 
@@ -546,7 +546,7 @@ namespace Reus2Surveyor
                     if (!biomePatchesInCity.ContainsKey(patchBiome)) biomePatchesInCity[patchBiome] = 0;
                     biomePatchesInCity[patchBiome] += 1;
                 }
-
+                this.SpiritStats[founderName].InitializeBiomeCounters(this.glossaryInstance);
                 this.SpiritStats[founderName].IncrementBiomeUsage(biomePatchesInCity);
 
                 List<int> bioticaLevels = [];
@@ -625,7 +625,7 @@ namespace Reus2Surveyor
             }
         }
 
-        public static DataTable NestDictToDataTable<T, T2>(Dictionary<T, Dictionary<T, T2>> input, string indexName)
+        public static DataTable NestDictToDataTable<T, T2>(IDictionary<T, Dictionary<T, T2>> input, string indexName)
         {
             // Similar to pandas.DataFrame.from_dict with the "row" orientation
             DataTable output = new();
@@ -851,21 +851,7 @@ namespace Reus2Surveyor
                 }
                 var planetTable = planetSummWs.Cell("A1").InsertTable(planetDataTable, "Planets");
                 planetTable.Theme = XLTableTheme.TableStyleMedium4;
-                foreach (KeyValuePair<string, List<string>> kv in PlanetSummaryEntry.GetColumnFormats())
-                {
-                    string format = kv.Key;
-                    List<string> columns = kv.Value;
-
-                    foreach (string colName in columns)
-                    {
-                        try
-                        {
-                            var col = planetTable.FindColumn(c => c.FirstCell().Value.ToString() == colName);
-                            col.Style.NumberFormat.Format = format;
-                        }
-                        catch { }
-                    }
-                }
+                ApplyTableNumberFormats(PlanetSummaryEntry.GetColumnFormats(), planetTable);
 
                 var cityWs = wb.AddWorksheet("Cities");
                 var cityTable = cityWs.Cell("A1").InsertTable(this.CitySummaries, "Cities");
@@ -873,12 +859,33 @@ namespace Reus2Surveyor
                 ApplyTableNumberFormats(CitySummaryEntry.GetColumnFormats(), cityTable);
 
                 var spiritWs = wb.AddWorksheet("Spirits");
-                var spiritTable = spiritWs.Cell("A1").InsertTable(this.SpiritStats.Values, "Spirits");
+                DataTable spiritDataTable = ExpandToColumns(this.SpiritStats.Values, this.glossaryInstance);
+                {
+                    List<MemberInfo> expandableColumns = [];
+                    expandableColumns.AddRange(typeof(SpiritStatEntry).GetFields());
+                    expandableColumns.AddRange(typeof(SpiritStatEntry).GetProperties());
+                    foreach (MemberInfo mi in expandableColumns)
+                    {
+                        UnpackToBiomesAttribute biomeAttr = mi.GetCustomAttribute<UnpackToBiomesAttribute>();
+                        if (biomeAttr is null) continue;
+                        if (biomeAttr.NumberFormat is not null)
+                        {
+                            foreach (string biomeName in this.glossaryInstance.BiomeHashByName.Keys)
+                            {
+                                string subheader = biomeAttr.Prefix + biomeName + biomeAttr.Suffix;
+                                SpiritStatEntry.AddColumnFormat(biomeAttr.NumberFormat, subheader);
+                            }
+                        }
+
+                    }
+                }
+                var spiritTable = spiritWs.Cell("A1").InsertTable(spiritDataTable, "Spirits");
                 spiritTable.Theme = XLTableTheme.TableStyleMedium5;
                 ApplyTableNumberFormats(SpiritStatEntry.GetColumnFormats(), spiritTable);
 
                 var bioWs = wb.AddWorksheet("Biotica");
-                var bioticaTable = bioWs.Cell("A1").InsertTable(this.BioticaStats.Values, "Biotica");
+                DataTable bioticaDataTable = ExpandToColumns(this.BioticaStats.Values, this.glossaryInstance);
+                var bioticaTable = bioWs.Cell("A1").InsertTable(bioticaDataTable, "Biotica");
                 bioticaTable.Theme = XLTableTheme.TableStyleMedium3;
                 ApplyTableNumberFormats(BioticumStatEntry.GetColumnFormats(), bioticaTable);
 
