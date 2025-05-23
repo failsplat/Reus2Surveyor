@@ -1,13 +1,17 @@
 ﻿using ClosedXML;
 using ClosedXML.Attributes;
 using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.Wordprocessing;
 using MathNet.Numerics.Statistics;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
 using static Reus2Surveyor.Glossaries;
+using static Reus2Surveyor.StatCollector;
 
 namespace Reus2Surveyor
 {
@@ -289,31 +293,7 @@ namespace Reus2Surveyor
 
             foreach ((string biomeName, double percent) in planet.BiomePercentages)
             {
-                switch (biomeName) 
-                {
-                    case "Desert":
-                        planetEntry.DesertP = percent;
-                        break;
-                    case "Forest":
-                        planetEntry.ForestP = percent;
-                        break;
-                    case "Ice Age":
-                    case "IceAge":
-                        planetEntry.IceAgeP = percent;
-                        break;
-                    case "Ocean":
-                        planetEntry.OceanP = percent;
-                        break;
-                    case "Rainforest":
-                        planetEntry.RainforestP = percent;
-                        break;
-                    case "Savanna":
-                        planetEntry.SavannaP = percent;
-                        break;
-                    case "Taiga":
-                        planetEntry.TaigaP = percent;
-                        break;
-                }
+                planetEntry.biomePercents[biomeName] = percent;
             }
 
             this.PlanetSummaries.Add(planetEntry);
@@ -673,12 +653,179 @@ namespace Reus2Surveyor
             return output;
         }
 
+        public static DataTable ExpandToColumns<T>(IEnumerable<T> input, Glossaries glossaryInstance)
+        {
+            DataTable output = new();
+
+            Type thisType = typeof(T);
+            List<MemberInfo> columnMembers = [];
+
+            columnMembers.AddRange(thisType.GetFields());
+            columnMembers.AddRange(thisType.GetProperties());
+
+            columnMembers.Where(mi => mi.GetCustomAttribute<XLColumnAttribute>() is not null ? !mi.GetCustomAttribute<XLColumnAttribute>().Ignore : true);
+            columnMembers.OrderBy(mi =>
+                mi.GetCustomAttribute<XLColumnAttribute>().Order
+                );
+
+            // Build table headers
+            foreach (MemberInfo mi in columnMembers)
+            {
+                UnpackToBiomesAttribute biomeAttr = mi.GetCustomAttribute<UnpackToBiomesAttribute>();
+                string headerName;
+                XLColumnAttribute xlColAttr = mi.GetCustomAttribute<XLColumnAttribute>();
+                if (xlColAttr is null) headerName = mi.Name;
+                else if (xlColAttr.Header is null) headerName = mi.Name;
+                else headerName = xlColAttr.Header;
+                if (biomeAttr is not null)
+                {
+                    foreach (string biomeName in glossaryInstance.BiomeHashByName.Keys)
+                    {
+                        output.Columns.Add(biomeAttr.Prefix + biomeName + biomeAttr.Suffix);
+                        if (biomeAttr.DefaultValue is not null)
+                        {
+                            output.Columns[biomeAttr.Prefix + biomeName + biomeAttr.Suffix].DataType = biomeAttr.DefaultValue.GetType();
+                        }
+                        else
+                        {
+                            output.Columns[biomeAttr.Prefix + biomeName + biomeAttr.Suffix].DataType = typeof(string);
+                        }
+                    }
+                }
+                else
+                {
+                    output.Columns.Add(mi.Name);
+                    Type memberType;
+                    switch (mi.MemberType)
+                    {
+                        case (MemberTypes.Property):
+                            memberType = ((PropertyInfo)mi).PropertyType;
+                            break;
+                        case (MemberTypes.Field):
+                            memberType = ((FieldInfo)mi).FieldType;
+                            break;
+                        default:
+                            throw new NotImplementedException();
+                    }
+                    Type underlyingType = Nullable.GetUnderlyingType(memberType);
+                    if (underlyingType is null) output.Columns[mi.Name].DataType = memberType;
+                    else output.Columns[mi.Name].DataType = underlyingType;
+                }
+            }
+
+            // Build table rows
+            foreach (T entry in input)
+            {
+                DataRow dr = output.NewRow();
+
+                foreach (MemberInfo mi in columnMembers)
+                {
+                    UnpackToBiomesAttribute biomeAttr = mi.GetCustomAttribute<UnpackToBiomesAttribute>();
+                    string headerMain;
+                    XLColumnAttribute xlColAttr = mi.GetCustomAttribute<XLColumnAttribute>();
+                    if (xlColAttr is null) headerMain = mi.Name;
+                    else if (xlColAttr.Header is null) headerMain = mi.Name;
+                    else headerMain = xlColAttr.Header;
+
+                    if (biomeAttr is not null)
+                    {
+                        switch (mi.MemberType)
+                        {
+                            case MemberTypes.Field:
+                                IDictionary fieldDict = ((FieldInfo)mi).GetValue(entry) as IDictionary;
+                                List<string> fieldKeys = [];
+                                foreach(DictionaryEntry de in fieldDict)
+                                {
+                                    fieldKeys.Add((string)de.Key);
+                                }
+                                foreach (string biomeName in glossaryInstance.BiomeHashByName.Keys)
+                                {
+                                    string subheader = biomeAttr.Prefix + biomeName + biomeAttr.Suffix;
+                                    if (fieldKeys.Contains(biomeName))
+                                    {
+                                        dr[subheader] = fieldDict[biomeName];
+                                    }
+                                    else
+                                    {
+                                        dr[subheader] = biomeAttr.DefaultValue;
+                                    }
+                                }
+                                break;
+                            case MemberTypes.Property:
+                                IDictionary propDict = ((FieldInfo)mi).GetValue(entry) as IDictionary;
+                                List<string> propKeys = [];
+                                foreach (DictionaryEntry de in propDict)
+                                {
+                                    propKeys.Add((string)de.Key);
+                                }
+                                foreach (string biomeName in glossaryInstance.BiomeHashByName.Keys)
+                                {
+                                    string subheader = biomeAttr.Prefix + biomeName + biomeAttr.Suffix;
+                                    if (propKeys.Contains(biomeName))
+                                    {
+                                        dr[subheader] = propDict[biomeName];
+                                    }
+                                    else
+                                    {
+                                        dr[subheader] = biomeAttr.DefaultValue;
+                                    }
+                                }
+                                break;
+                            default:
+                                throw new NotImplementedException();
+                        }
+                    }
+                    else
+                    {
+                        switch (mi.MemberType)
+                        {
+                            case MemberTypes.Field:
+                                var fieldPoint = ((FieldInfo)mi).GetValue(entry);
+                                if (fieldPoint is null) dr[headerMain] = DBNull.Value;
+                                else dr[headerMain] = fieldPoint;
+                                break;
+                            case MemberTypes.Property:
+                                var propertyPoint = ((PropertyInfo)mi).GetValue(entry);
+                                if (propertyPoint is null) dr[headerMain] = DBNull.Value;
+                                else dr[headerMain] = propertyPoint;
+                                break;
+                            default:
+                                throw new NotImplementedException();
+                        }
+                    }
+                }
+
+                output.Rows.Add(dr);
+            }
+            return output;
+        }
+
         public void WriteToExcel(string dstPath)
         {
             using (XLWorkbook wb = new())
             {
                 var planetSummWs = wb.AddWorksheet("Planets");
-                var planetTable = planetSummWs.Cell("A1").InsertTable(this.PlanetSummaries, "Planets");
+                DataTable planetDataTable = ExpandToColumns(this.PlanetSummaries, this.glossaryInstance);
+                {
+                    List<MemberInfo> expandableColumns = [];
+                    expandableColumns.AddRange(typeof(PlanetSummaryEntry).GetFields());
+                    expandableColumns.AddRange(typeof(PlanetSummaryEntry).GetProperties());
+                    foreach(MemberInfo mi in expandableColumns)
+                    {
+                        UnpackToBiomesAttribute biomeAttr = mi.GetCustomAttribute<UnpackToBiomesAttribute>();
+                        if (biomeAttr is null) continue;
+                        if (biomeAttr.NumberFormat is not null)
+                        {
+                            foreach (string biomeName in this.glossaryInstance.BiomeHashByName.Keys)
+                            {
+                                string subheader = biomeAttr.Prefix + biomeName + biomeAttr.Suffix;
+                                PlanetSummaryEntry.AddColumnFormat(biomeAttr.NumberFormat, subheader);
+                            }
+                        }
+                        
+                    }
+                }
+                var planetTable = planetSummWs.Cell("A1").InsertTable(planetDataTable, "Planets");
                 planetTable.Theme = XLTableTheme.TableStyleMedium4;
                 foreach (KeyValuePair<string, List<string>> kv in PlanetSummaryEntry.GetColumnFormats())
                 {

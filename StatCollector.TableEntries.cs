@@ -217,12 +217,12 @@ namespace Reus2Surveyor
             [XLColumn(Order = 142)] public double? ApexP;
             [XLColumn(Order = 143)] public double? AvFBioLv;
 
-            [XLColumn(Order = 150)] public double? DesertP, ForestP, IceAgeP, OceanP, RainforestP, SavannaP, TaigaP = null;
+            [XLColumn(Order = 150), UnpackToBiomes(suffix: "P", defaultValue: (double)0, numberFormat:"0.00%")] 
+            public Dictionary<string, double> biomePercents = [];
 
             private static Dictionary<string, List<string>> columnFormats = new() {
                 {"0.00%", new List<string> {
                     "PPop", "PTech", "PWel", "PPlant", "PAnimal", "PMineral", "ApexP", "FillP",
-                    "DesertP", "ForestP", "IceAgeP", "OceanP", "RainforestP", "SavannaP", "TaigaP",
                 } },
                 {"0.000", new List<string> { "AvPros", "AvPop", "AvTech", "AvWel", "AvFBioLv" } },
                 {"0.0000", new List<string>  {"Gini"} },
@@ -281,6 +281,11 @@ namespace Reus2Surveyor
                 return columnFormats;
             }
 
+            public static void AddColumnFormat(string format, string column)
+            {
+                if (columnFormats.TryGetValue(format, out List<string> columns)) columns.Add(column);
+                else columnFormats[format] = [column];
+            }
         }
 
         public class CitySummaryEntry
