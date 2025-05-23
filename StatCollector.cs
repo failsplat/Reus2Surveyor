@@ -741,14 +741,26 @@ namespace Reus2Surveyor
                                 foreach (string biomeName in glossaryInstance.BiomeHashByName.Keys)
                                 {
                                     string subheader = biomeAttr.Prefix + biomeName + biomeAttr.Suffix;
+                                    object fieldValue;
                                     if (fieldKeys.Contains(biomeName))
                                     {
-                                        dr[subheader] = fieldDict[biomeName];
+                                        fieldValue = fieldDict[biomeName];
                                     }
                                     else
                                     {
-                                        dr[subheader] = biomeAttr.DefaultValue;
+                                        fieldValue = biomeAttr.DefaultValue;
                                     }
+                                    Type ct = output.Columns[subheader].DataType;
+                                    bool blank = false;
+                                    if (biomeAttr.NullOnZeroOrBlank)
+                                    {
+                                        double? asNum = fieldValue as double?;
+                                        string asString = fieldValue as string;
+                                        blank |= (asNum is not null && asNum == 0);
+                                        blank |= (asString is not null && asString.Length == 0);
+                                    }
+                                    if (blank) fieldValue = DBNull.Value;
+                                    dr[subheader] = fieldValue;
                                 }
                                 break;
                             case MemberTypes.Property:
@@ -761,14 +773,26 @@ namespace Reus2Surveyor
                                 foreach (string biomeName in glossaryInstance.BiomeHashByName.Keys)
                                 {
                                     string subheader = biomeAttr.Prefix + biomeName + biomeAttr.Suffix;
+                                    object propValue;
                                     if (propKeys.Contains(biomeName))
                                     {
-                                        dr[subheader] = propDict[biomeName];
+                                        propValue = propDict[biomeName];
                                     }
                                     else
                                     {
-                                        dr[subheader] = biomeAttr.DefaultValue;
+                                        propValue = biomeAttr.DefaultValue;
                                     }
+                                    Type ct = output.Columns[subheader].DataType;
+                                    bool blank = false;
+                                    if (biomeAttr.NullOnZeroOrBlank)
+                                    {
+                                        double? asNum = propValue as double?;
+                                        string asString = propValue as string;
+                                        blank |= (asNum is not null && asNum == 0);
+                                        blank |= (asString is not null && asString.Length == 0);
+                                    }
+                                    if (blank) propValue = DBNull.Value;
+                                    dr[subheader] = propValue;
                                 }
                                 break;
                             default:

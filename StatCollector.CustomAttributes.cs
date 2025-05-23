@@ -16,13 +16,15 @@ namespace Reus2Surveyor
             public string Suffix { get; } = "";
             public object DefaultValue { get; } = "";
             public string? NumberFormat { get; } = null;
+            public bool NullOnZeroOrBlank = true;
 
-            public UnpackToBiomesAttribute(string prefix = "", string suffix = "", object defaultValue = null, string numberFormat = null)
+            public UnpackToBiomesAttribute(string prefix = "", string suffix = "", object defaultValue = null, string numberFormat = null, bool nullOnZeroOrBlank = true)
             {
                 this.Prefix = prefix;
                 this.Suffix = suffix;
                 this.DefaultValue = defaultValue;
                 this.NumberFormat = numberFormat;
+                NullOnZeroOrBlank = nullOnZeroOrBlank;
             }
         }
     }
