@@ -1,6 +1,6 @@
 # Reus 2 Planet Surveyor
 This fan-made desktop app reads the save files for completed Reus 2 planets and produces a spreadsheet of stats. It is written in C# and uses the .NET framework.
-(Not affiliated officially with Reus 2 or its developer and publisher.) Tested for Reus 2 v1.3.0 (Atlantic Forest) and up.
+(Not affiliated officially with Reus 2 or its developer and publisher.) Tested for Reus 2 v1.7.0 (Uluru Kata Tjuta) and up.
 
 ![UI Pic v3](https://github.com/user-attachments/assets/50b12e7c-2fac-4db8-b55a-aaf8e7417e6d)
 ## Usage Instructions
@@ -17,10 +17,7 @@ This program outputs an Excel workbook (.xlsx) file. It has the following sheets
 4. **Biotica** - Usage stats for each bioticum type.
 5. **BioticaVsChar** - A table showing how many of each bioticum were placed in the borders of each spirit's cities. 
 ## To Do/WIP Features
-* Biotica Stat Table: Account for biotica unlocked with Evolve
-* Planet Summary Table: Scenario and difficulty information
-* Stat table for Spirits
-  * Table for spirits v. buildings, eras
+* Table for spirits v. buildings, eras
 * Stat table for Luxuries
 * Stat table for Eras
 * Misc. stat table
