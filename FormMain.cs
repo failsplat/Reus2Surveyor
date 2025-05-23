@@ -313,13 +313,14 @@ namespace Reus2Surveyor
             {
                 this.decodeProgressBar.Value = this.decodeProgressBar.Maximum;
                 this.decodeProgressLabel.Text += " - Done!";
-                int decodeSeconds = (int)(DateTime.Now - this.decodeStartTime).TotalSeconds;
-                this.decodeProgressLabel.Text += $" ({decodeSeconds} s)";
+                double decodeSeconds = (DateTime.Now - this.decodeStartTime).TotalSeconds;
+                this.decodeProgressLabel.Text += $" ({decodeSeconds:N2} s)";
             }
         }
 
         private void exportStatsButton_Click(object sender, EventArgs e)
         {
+            DateTime exportStart = DateTime.Now;
             exportStatsButton.Enabled = false;
             int i = -1;
             this.PlanetStatCollector = new(GameGlossaries);
@@ -334,7 +335,8 @@ namespace Reus2Surveyor
             string dst = Path.Combine(outputDir, "Reus 2 Stats " + DateTime.Now.ToString("yyyyMMdd HHmm") + ".xlsx");
             this.PlanetStatCollector.WriteToExcel(dst);
             exportStatsButton.Enabled = true;
-            this.exportReadyLabel.Text = "Export Complete";
+            string timeMsg = $"({((DateTime.Now - exportStart).TotalSeconds):N2} s)";
+            this.exportReadyLabel.Text = "Export Complete " + timeMsg;
             this.exportReadyLabel.ForeColor = System.Drawing.Color.Green;
         }
 

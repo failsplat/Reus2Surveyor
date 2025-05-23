@@ -63,8 +63,8 @@ namespace Reus2Surveyor
             refreshProfileButton = new System.Windows.Forms.Button();
             DecodePanel = new System.Windows.Forms.Panel();
             planetGridPanel = new System.Windows.Forms.Panel();
-            ExportPanel = new System.Windows.Forms.Panel();
             planetCountLabel = new System.Windows.Forms.Label();
+            ExportPanel = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)planetGridView).BeginInit();
             debugPanel.SuspendLayout();
             ProfilePanel.SuspendLayout();
@@ -398,16 +398,6 @@ namespace Reus2Surveyor
             planetGridPanel.Size = new System.Drawing.Size(784, 320);
             planetGridPanel.TabIndex = 21;
             // 
-            // ExportPanel
-            // 
-            ExportPanel.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
-            ExportPanel.Controls.Add(exportStatsButton);
-            ExportPanel.Controls.Add(exportReadyLabel);
-            ExportPanel.Location = new System.Drawing.Point(0, 423);
-            ExportPanel.Name = "ExportPanel";
-            ExportPanel.Size = new System.Drawing.Size(211, 38);
-            ExportPanel.TabIndex = 22;
-            // 
             // planetCountLabel
             // 
             planetCountLabel.AutoSize = true;
@@ -416,6 +406,16 @@ namespace Reus2Surveyor
             planetCountLabel.Size = new System.Drawing.Size(38, 15);
             planetCountLabel.TabIndex = 17;
             planetCountLabel.Text = "label1";
+            // 
+            // ExportPanel
+            // 
+            ExportPanel.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+            ExportPanel.Controls.Add(exportStatsButton);
+            ExportPanel.Controls.Add(exportReadyLabel);
+            ExportPanel.Location = new System.Drawing.Point(0, 423);
+            ExportPanel.Name = "ExportPanel";
+            ExportPanel.Size = new System.Drawing.Size(322, 38);
+            ExportPanel.TabIndex = 22;
             // 
             // FormMain
             // 
