@@ -485,7 +485,11 @@ namespace Reus2Surveyor
             foreach (CitySummaryEntry ce in thisPlanetCitySummaries)
             {
                 string founderName = ce.Char;
-                if (!this.SpiritStats.ContainsKey(founderName)) { this.SpiritStats[founderName] = new(founderName); }
+                if (!this.SpiritStats.ContainsKey(founderName)) 
+                { 
+                    this.SpiritStats[founderName] = new(founderName);
+                    this.SpiritStats[founderName].InitializeBiomeCounters(this.glossaryInstance);
+                }
 
                 SpiritStatEntry se = this.SpiritStats[founderName];
                 se.Count += 1;
@@ -546,7 +550,6 @@ namespace Reus2Surveyor
                     if (!biomePatchesInCity.ContainsKey(patchBiome)) biomePatchesInCity[patchBiome] = 0;
                     biomePatchesInCity[patchBiome] += 1;
                 }
-                this.SpiritStats[founderName].InitializeBiomeCounters(this.glossaryInstance);
                 this.SpiritStats[founderName].IncrementBiomeUsage(biomePatchesInCity);
 
                 List<int> bioticaLevels = [];
