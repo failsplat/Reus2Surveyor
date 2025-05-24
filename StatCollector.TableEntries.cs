@@ -15,24 +15,26 @@ namespace Reus2Surveyor
             [XLColumn(Order = 0)] public readonly string Name;
             [XLColumn(Order = 1)] public readonly string Type;
             [XLColumn(Order = 2)] public readonly int? Tier;
-            [XLColumn(Order = 3)] public readonly string Apex;
+            [XLColumn(Order = 3)] public readonly string Starter;
+            [XLColumn(Order = 4)] public readonly string Apex;
 
-            [XLColumn(Order = 4), UnpackToBiomes(defaultValue: "")] public readonly Dictionary<string, string> biomesAllowed = [];
+            [XLColumn(Order = 10), UnpackToBiomes(defaultValue: "")] public readonly Dictionary<string, string> biomesAllowed = [];
 
             [XLColumn(Order = 20)] public readonly string Hash;
-            [XLColumn(Order = 21)] public int Planets { get; set; } = 0;
-            [XLColumn(Order = 22)] public double? DUsageP { get; private set; } = null;
-            [XLColumn(Order = 23)] public double? AUsageP { get; private set; } = null;
-            [XLColumn(Order = 24)] public int Draft { get; set; } = 0;
-            [XLColumn(Order = 25)] public double? DraftP { get; set; } = null;
-            [XLColumn(Order = 26)] public int Avail { get; set; } = 0;
-            [XLColumn(Order = 27)] public double? AvailP { get; set; } = null;
+            [XLColumn(Order = 21)] public int Total { get; set; } = 0;
+            [XLColumn(Order = 22)] public int Planets { get; set; } = 0;
+            [XLColumn(Order = 23)] public double? DUsageP { get; private set; } = null;
+            [XLColumn(Order = 24)] public double? AUsageP { get; private set; } = null;
+            [XLColumn(Order = 25)] public int Draft { get; set; } = 0;
+            [XLColumn(Order = 26)] public double? DraftP { get; set; } = null;
+            [XLColumn(Order = 27)] public int Avail { get; set; } = 0;
+            [XLColumn(Order = 27)] public double? AvRate { get; set; } = null;
+            [XLColumn(Order = 28)] public double? AvailP { get; set; } = null;
 
-            [XLColumn(Order = 30)] public int Total { get; set; } = 0;
-            [XLColumn(Order = 31)] public int Legacy { get; set; } = 0;
-            [XLColumn(Order = 32)] public double? LegacyP { get; private set; } = null;
-            [XLColumn(Order = 33)] public int Final { get; set; } = 0;
-            [XLColumn(Order = 34)] public double? FinalP { get; private set; } = null;
+            [XLColumn(Order = 30)] public int Legacy { get; set; } = 0;
+            [XLColumn(Order = 31)] public double? LegacyP { get; private set; } = null;
+            [XLColumn(Order = 32)] public int Final { get; set; } = 0;
+            [XLColumn(Order = 33)] public double? FinalP { get; private set; } = null;
 
             private List<int> MultiNumberList = [];
             [XLColumn(Order = 40)] public int? Multi { get; set; } = null;
@@ -46,7 +48,7 @@ namespace Reus2Surveyor
 
             private static Dictionary<string, List<string>> columnFormats = new() {
                 {"0.00%", new List<string> { "AvailP", "DraftP", "AUsageP", "DUsageP", "LegacyP", "FinalP", "MultiP", } },
-                {"0.000", new List<string> { "MultiAv", } },
+                {"0.000", new List<string> { "MultiAv", "AvRate", } },
                 {"mm/dd/yyyy hh:mm", new List<string>{"TS", } },
                 {"mm/dd/yyyy", new List<string>{"ChTS", } },
                 };
@@ -57,6 +59,7 @@ namespace Reus2Surveyor
                 this.Name = bioDef.Name;
                 this.Type = bioDef.Type;
                 this.Tier = bioDef.Tier;
+                this.Starter = bioDef.Starter ? "Y" : null;
                 this.Apex = bioDef.Apex ? "☆" : null;
 
                 foreach((string biomeName, bool allowed) in bioDef.BiomesAllowed)
@@ -75,6 +78,7 @@ namespace Reus2Surveyor
                 this.Name = "?";
                 this.Type = "?";
                 this.Tier = null;
+                this.Starter = "?";
                 this.Apex = "?";
                 this.Hash = hash;
 
@@ -96,6 +100,7 @@ namespace Reus2Surveyor
                 this.LegacyP = SafePercent(this.Legacy, this.Total);
                 this.FinalP = SafePercent(this.Final, this.Total);
                 this.DraftP = SafePercent(this.Draft, this.Avail);
+                this.AvRate = SafeDivide(this.Total, this.Avail);
                 this.AvailP = SafePercent(this.Avail, planetCount);
 
                 if (this.MultiNumberList.Count > 0)
