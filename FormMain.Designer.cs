@@ -60,7 +60,7 @@ namespace Reus2Surveyor
             debugPanel = new System.Windows.Forms.Panel();
             debugMenuButton = new System.Windows.Forms.Button();
             ProfilePanel = new System.Windows.Forms.Panel();
-            refreshProfileButton = new System.Windows.Forms.Button();
+            resetProfileButton = new System.Windows.Forms.Button();
             DecodePanel = new System.Windows.Forms.Panel();
             planetGridPanel = new System.Windows.Forms.Panel();
             planetCountLabel = new System.Windows.Forms.Label();
@@ -355,7 +355,7 @@ namespace Reus2Surveyor
             // ProfilePanel
             // 
             ProfilePanel.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            ProfilePanel.Controls.Add(refreshProfileButton);
+            ProfilePanel.Controls.Add(resetProfileButton);
             ProfilePanel.Controls.Add(findProfileButton);
             ProfilePanel.Controls.Add(profileFolderTextBox);
             ProfilePanel.Location = new System.Drawing.Point(0, 0);
@@ -363,15 +363,15 @@ namespace Reus2Surveyor
             ProfilePanel.Size = new System.Drawing.Size(784, 57);
             ProfilePanel.TabIndex = 19;
             // 
-            // refreshProfileButton
+            // resetProfileButton
             // 
-            refreshProfileButton.Location = new System.Drawing.Point(93, 3);
-            refreshProfileButton.Name = "refreshProfileButton";
-            refreshProfileButton.Size = new System.Drawing.Size(75, 23);
-            refreshProfileButton.TabIndex = 3;
-            refreshProfileButton.Text = "⟳ Refresh";
-            refreshProfileButton.UseVisualStyleBackColor = true;
-            refreshProfileButton.Click += refreshProfileButton_Click;
+            resetProfileButton.Location = new System.Drawing.Point(93, 3);
+            resetProfileButton.Name = "resetProfileButton";
+            resetProfileButton.Size = new System.Drawing.Size(75, 23);
+            resetProfileButton.TabIndex = 3;
+            resetProfileButton.Text = "⟳ Reset";
+            resetProfileButton.UseVisualStyleBackColor = true;
+            resetProfileButton.Click += resetProfileButton_Click;
             // 
             // DecodePanel
             // 
@@ -480,7 +480,7 @@ namespace Reus2Surveyor
         private System.Windows.Forms.Panel DecodePanel;
         private System.Windows.Forms.Panel planetGridPanel;
         private System.Windows.Forms.Panel ExportPanel;
-        private System.Windows.Forms.Button refreshProfileButton;
+        private System.Windows.Forms.Button resetProfileButton;
         private System.Windows.Forms.Label planetCountLabel;
     }
 }

@@ -81,7 +81,6 @@ namespace Reus2Surveyor
             }
 
             this.planetGridView.Rows.Clear();
-            this.exportStatsButton.Enabled = false;
             this.ResetPlanetList();
             this.updateDecodeProgress();
 
@@ -113,6 +112,12 @@ namespace Reus2Surveyor
             this.planetsOk = 0;
             this.planetsTotal = 0;
             this.planetsTried = 0;
+            this.decodeReadyStatusLabel.Text = "Not Ready";
+            this.decodeReadyStatusLabel.ForeColor = System.Drawing.Color.Black;
+            this.decodeReadyStatusLabel.Refresh();
+            this.exportReadyLabel.Text = "Not Ready";
+            this.exportReadyLabel.ForeColor = System.Drawing.Color.Black;
+            this.exportStatsButton.Enabled = false;
         }
 
         public void SetCheckWriteDecodedSetting(bool value)
@@ -308,13 +313,18 @@ namespace Reus2Surveyor
             this.decodeProgressLabel.Refresh();
 
             if (this.planetsTried < this.planetsTotal) this.decodeProgressBar.Value = this.planetsTried;
-            else if (this.planetsTotal == 0) this.decodeProgressBar.Value = 0;
+            else if (this.planetsTotal == 0)
+            {
+                this.decodeProgressBar.Value = 0;
+                this.decodeProgressLabel.ForeColor = System.Drawing.Color.Black;
+            }
             else
             {
                 this.decodeProgressBar.Value = this.decodeProgressBar.Maximum;
                 this.decodeProgressLabel.Text += " - Done!";
                 double decodeSeconds = (DateTime.Now - this.decodeStartTime).TotalSeconds;
                 this.decodeProgressLabel.Text += $" ({decodeSeconds:N2} s)";
+                this.decodeProgressLabel.ForeColor = System.Drawing.Color.Green;
             }
         }
 
@@ -492,7 +502,7 @@ namespace Reus2Surveyor
             this.debugPanel.Visible = !this.debugPanel.Visible;
         }
 
-        private void refreshProfileButton_Click(object sender, EventArgs e)
+        private void resetProfileButton_Click(object sender, EventArgs e)
         {
             string temp = this.ProfileDir;
             this.ProfileDir = null;
