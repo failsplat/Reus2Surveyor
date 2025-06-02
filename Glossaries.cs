@@ -375,5 +375,12 @@ namespace Reus2Surveyor
                 this.DisplayName = hash;
             }
         }
+
+        public enum SpecialNaturalFeatures
+        {
+            Creek = 1,
+            Sanctuary = 2,
+            Anomaly = 3,
+        }
     }
 }

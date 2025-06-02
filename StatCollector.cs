@@ -280,6 +280,7 @@ namespace Reus2Surveyor
             foreach (BioticumSlot slot in planet.slotDictionary.Values)
             {
                 if (slot.bioticumId is null) continue;
+                if (slot.isInvasiveSlot ?? false) planetEntry.InvasiveSpots += 1; 
                 if (planet.natureBioticumDictionary.ContainsKey((int)slot.bioticumId))
                 {
                     planetEntry.FilledSlots += 1;
@@ -290,6 +291,11 @@ namespace Reus2Surveyor
             Dictionary<int, Patch> wildPatches = planet.patchDictionary.Where(kv => kv.Value.IsWildPatch()).ToDictionary();
             int wildSlots = wildPatches.SelectMany(kv => kv.Value.GetActiveSlotIndices()).Count();
             planetEntry.FillP = SafePercent(planetEntry.FilledSlots, wildSlots);
+
+            planetEntry.Creeks = wildPatches.Where(kv => kv.Value.specialNaturalFeature == (int)Glossaries.SpecialNaturalFeatures.Creek).Count();
+            planetEntry.Anomalies = wildPatches.Where(kv => kv.Value.specialNaturalFeature == (int)Glossaries.SpecialNaturalFeatures.Anomaly).Count();
+            planetEntry.Sanctuaries = wildPatches.Where(kv => kv.Value.specialNaturalFeature == (int)Glossaries.SpecialNaturalFeatures.Sanctuary).Count();
+            planetEntry.MountainSlots = wildPatches.Where(kv => kv.Value.mountainPart > 0).Count();
 
             foreach ((string biomeName, double percent) in planet.BiomePercentages)
             {

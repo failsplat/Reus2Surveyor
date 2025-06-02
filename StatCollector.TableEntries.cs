@@ -211,7 +211,13 @@ namespace Reus2Surveyor
             [XLColumn(Order = 142)] public double? ApexP;
             [XLColumn(Order = 143)] public double? AvFBioLv;
 
-            [XLColumn(Order = 150), UnpackToBiomes(defaultValue: (double)0, suffix: "P", numberFormat: "0.00%")] 
+            [XLColumn(Order = 150)] public int Creeks = 0;
+            [XLColumn(Order = 150)] public int InvasiveSpots = 0;
+            [XLColumn(Order = 150)] public int Anomalies = 0;
+            [XLColumn(Order = 150)] public int Sanctuaries = 0;
+            [XLColumn(Order = 150)] public int MountainSlots = 0;
+
+            [XLColumn(Order = 160), UnpackToBiomes(defaultValue: (double)0, suffix: "P", numberFormat: "0.00%")] 
             public Dictionary<string, double> biomePercents = [];
 
             private static Dictionary<string, List<string>> columnFormats = new() {
