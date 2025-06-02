@@ -154,22 +154,17 @@ namespace Reus2Surveyor
             [XLColumn(Order = 16)] public int Cities;
             [XLColumn(Order = 17)] public int Prjs;
 
-            [XLColumn(Order = 20)] public string Era1Name;
-            [XLColumn(Order = 21)] public int? Era1Star;
-            [XLColumn(Order = 22)] public int? Era1Score;
-            [XLColumn(Order = 23)] public string Era2Name;
-            [XLColumn(Order = 24)] public int? Era2Star;
-            [XLColumn(Order = 25)] public int? Era2Score;
-            [XLColumn(Order = 26)] public string Era3Name;
-            [XLColumn(Order = 27)] public int? Era3Star;
-            [XLColumn(Order = 28)] public int? Era3Score;
+            [XLColumn(Order = 20)] public string Char1, Char2, Char3, Char4, Char5;
 
-            [XLColumn(Order = 30)] public string Char1, Char2, Char3, Char4, Char5;
-
-            [XLColumn(Order = 40)] public int SzT;
-            [XLColumn(Order = 41)] public int SzWld;
-            [XLColumn(Order = 42)] public int FilledSlots = 0;
-            [XLColumn(Order = 43)] public double? FillP;
+            [XLColumn(Order = 30)] public string Era1Name;
+            [XLColumn(Order = 31)] public int? Era1Star;
+            [XLColumn(Order = 32)] public int? Era1Score;
+            [XLColumn(Order = 33)] public string Era2Name;
+            [XLColumn(Order = 34)] public int? Era2Star;
+            [XLColumn(Order = 35)] public int? Era2Score;
+            [XLColumn(Order = 36)] public string Era3Name;
+            [XLColumn(Order = 37)] public int? Era3Star;
+            [XLColumn(Order = 38)] public int? Era3Score;
 
             [XLColumn(Order = 50)] public int HiPros;
             [XLColumn(Order = 51)] public double? ProsMdn;
@@ -194,6 +189,11 @@ namespace Reus2Surveyor
 
             [XLColumn(Order = 110)] public int? Biomes;
             [XLColumn(Order = 111)] public int? CBiomes;
+
+            [XLColumn(Order = 112)] public int SzT;
+            [XLColumn(Order = 113)] public int SzWld;
+            [XLColumn(Order = 114)] public int FilledSlots = 0;
+            [XLColumn(Order = 115)] public double? FillP;
 
             [XLColumn(Order = 120)] public int Biotica = 0;
             [XLColumn(Order = 121)] public int Plants = 0;
