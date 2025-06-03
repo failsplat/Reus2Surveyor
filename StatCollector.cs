@@ -24,6 +24,10 @@ namespace Reus2Surveyor
         public OrderedDictionary<string, SpiritStatEntry> SpiritStats { get; private set; } = [];
 
         public OrderedDictionary<string, Dictionary<string, int>> BioticumVsSpiritCounter { get; private set; } = [];
+        public OrderedDictionary<string, Dictionary<string, double>> BioticumVsSpiritRatios { get; private set; } = [];
+        // First key is bioticum
+        // Second key is spirit or character
+
         private int planetCount = 0;
         private HashSet<string> draftedOrPlacedInProfile { get; set; } = [];
 
@@ -160,7 +164,6 @@ namespace Reus2Surveyor
                 }
             }
         }
-
 
         public void UpdateHumanityStats(Planet planet, int index)
         {
@@ -620,6 +623,7 @@ namespace Reus2Surveyor
             {
                 sse.CalculateStats(this.PlanetSummaries.Count);
             }
+            this.BioticumVsSpiritRatios = NestedCounterToNestedRatioDictionary(this.BioticumVsSpiritCounter);
         }
 
         public static void IncrementCounter<T>(Dictionary<T, int> dict, T key, int value)
@@ -659,6 +663,35 @@ namespace Reus2Surveyor
                 output.Rows.Add(newRow);
             }
 
+            return output;
+        }
+        public static OrderedDictionary<TKey, Dictionary<TKey, double>> NestedCounterToNestedRatioDictionary<TKey>(IDictionary<TKey, Dictionary<TKey, int>> input)
+        {
+            OrderedDictionary<TKey, Dictionary<TKey, double>> output = [];
+
+            List<KeyValuePair<TKey, int>> flattened = [..input.SelectMany(kv1 => kv1.Value.ToList())];
+            int total = flattened.Select(kv => kv.Value).Sum();
+            Dictionary<TKey, int> columnTotals = [];
+            List<TKey> columns = [..flattened.Select(kv => kv.Key).Distinct()];
+            foreach (TKey c in columns) columnTotals[c] = 0;
+            foreach (KeyValuePair<TKey, int> f in flattened)
+            {
+                columnTotals[f.Key] += f.Value;
+            }
+            foreach ((TKey rowKey, Dictionary<TKey, int> row) in input)
+            {
+                output[rowKey] = [];
+                int rowTotal = row.Values.Sum();
+                foreach ((TKey colKey, int count) in row)
+                {
+                    output[rowKey][colKey] = ((double)row[colKey] / (double)columnTotals[colKey]) / ((double)rowTotal / (double)total);
+                }
+                List<TKey> missingCols = [..columns.Except(row.Keys)];
+                foreach (TKey missingCol in missingCols)
+                {
+                    output[rowKey][missingCol] = 0;
+                }
+            }
             return output;
         }
 
@@ -898,9 +931,17 @@ namespace Reus2Surveyor
                 bioticaTable.Theme = XLTableTheme.TableStyleMedium3;
                 ApplyTableNumberFormats(BioticumStatEntry.GetColumnFormats(), bioticaTable);
 
-                DataTable bioticaVsSpiritTable = NestDictToDataTable(this.BioticumVsSpiritCounter, "Bioticum");
-                var bioVsCharWs = wb.AddWorksheet("BioticaVsChar");
-                var bioVsCharTable = bioVsCharWs.Cell("A1").InsertTable(bioticaVsSpiritTable);
+                DataTable bioticaVsSpiritCountDataTable = NestDictToDataTable(this.BioticumVsSpiritCounter, "Bioticum");
+                var bioVsCharCountWs = wb.AddWorksheet("BioVsCharCounts");
+                var bioVsCharCountTable = bioVsCharCountWs.Cell("A1").InsertTable(bioticaVsSpiritCountDataTable);
+
+                DataTable bioticaVsSpiritRatioDataTable = NestDictToDataTable(this.BioticumVsSpiritRatios, "Bioticum");
+                var bioVsCharRatioWs = wb.AddWorksheet("BioVsCharRatios");
+                var bioVsCharRatioTable = bioVsCharRatioWs.Cell("A1").InsertTable(bioticaVsSpiritRatioDataTable);
+                foreach (var col in bioVsCharRatioTable.Columns())
+                {
+                    col.Style.NumberFormat.Format = "0.0000";
+                }
 
                 wb.SaveAs(dstPath);
             }

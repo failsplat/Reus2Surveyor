@@ -42,7 +42,7 @@ namespace Reus2Surveyor
         public StatCollector PlanetStatCollector;
 
         private Dictionary<int, PlanetFileUtil.SaveSlotManager> planetsInProfile = [];
-        private Dictionary<int, string> filesToProcess = [];
+        private Dictionary<int, string> filesToProcess { get; set; } = [];
         private DateTime decodeStartTime;
 
         public FormMain()
@@ -112,6 +112,11 @@ namespace Reus2Surveyor
             this.planetsOk = 0;
             this.planetsTotal = 0;
             this.planetsTried = 0;
+            this.InitialPlanetListLockouts();
+        }
+
+        public void InitialPlanetListLockouts()
+        {
             this.decodeReadyStatusLabel.Text = "Not Ready";
             this.decodeReadyStatusLabel.ForeColor = System.Drawing.Color.Black;
             this.decodeReadyStatusLabel.Refresh();
@@ -213,7 +218,6 @@ namespace Reus2Surveyor
 
         private void LoopThroughPlanetSaves()
         {
-            this.ResetPlanetList();
             this.planetList = [.. Enumerable.Repeat((Planet)null, this.planetsInProfile.Count)];
             this.planetsTotal = this.filesToProcess.Count;
             foreach ((int index, string path) in this.filesToProcess)
@@ -473,9 +477,7 @@ namespace Reus2Surveyor
                 this.readAllButton.Enabled = false;
                 this.readNoneButton.Enabled = false;
 
-                // Clearing
-                //this.planetGridView.Rows.Clear();
-                this.exportStatsButton.Enabled = false;
+                this.InitialPlanetListLockouts();
             }
 
             this.updateDecodeProgress();
