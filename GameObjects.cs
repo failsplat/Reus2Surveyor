@@ -94,7 +94,7 @@ namespace Reus2Surveyor
                     this.slotDictionary.Add(i, new BioticumSlot(refToken));
                     continue;
                 }
-                if (patchCheckKeys.All(k => rtKeys.Contains(k)) && (string)refToken["_type"] == "Patch")
+                if (refToken.TryGetValue("_type", out object patchTypeCheck) && (string)patchTypeCheck == "Patch" && patchCheckKeys.All(k => rtKeys.Contains(k)))
                 {
                     this.patchDictionary.Add(i, new Patch(refToken));
                     continue;
@@ -104,7 +104,7 @@ namespace Reus2Surveyor
                     this.biomeDictionary.Add(i, new Biome(refToken));
                     continue;
                 }
-                if (bioticumCheckKeys.All(k => rtKeys.Contains(k)) && (string)refToken["name"] == "NatureBioticum")
+                if (refToken.TryGetValue("name", out object bioNameCheck) && (string)bioNameCheck == "NatureBioticum" && bioticumCheckKeys.All(k => rtKeys.Contains(k)))
                 {
                     this.natureBioticumDictionary.Add(i, new NatureBioticum(refToken));
                     continue;
@@ -114,18 +114,18 @@ namespace Reus2Surveyor
                     this.cityDictionary.Add(i, new City(refToken, referenceTokensList));
                     continue;
                 }
-                if (sessionCheckKeys.All(k => rtKeys.Contains(k)) && (string)refToken["name"] == "Session")
+                if (refToken.TryGetValue("name", out object sessionNameCheck) && (string)sessionNameCheck == "Session" && sessionCheckKeys.All(k => rtKeys.Contains(k)))
                 {
                     this.gameSession = new GameSession(refToken);
                     continue;
                 }
-                if (patchCollectionCheckKeys.All(k => rtKeys.Contains(k)) && (string)refToken["name"] == "PatchCollection")
+                if (refToken.TryGetValue("name", out object patchCollNameCheck) && (string)patchCollNameCheck == "PatchCollection" && patchCollectionCheckKeys.All(k => rtKeys.Contains(k)))
                 {
                     this.patchIdMap = new PatchMap<int?>(
                         DictHelper.TryGetIntList(refToken, ["models", "itemData"], "id"));
                     continue;
                 }
-                if (gameplayControllerCheckKeys.All(k => rtKeys.Contains(k)) && (string)refToken["name"] == "GameplayController")
+                if (refToken.TryGetValue("name", out object gcNameCheck) && (string)gcNameCheck == "GameplayController" && gameplayControllerCheckKeys.All(k => rtKeys.Contains(k)))
                 {
                     this.MasteredBioticaDefSet.UnionWith(DictHelper.TryGetStringList(refToken, ["masteredBiotica", "itemData"], "value"));
                 }
