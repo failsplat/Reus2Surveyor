@@ -28,5 +28,24 @@ namespace Reus2Surveyor
                 NullOnZeroOrBlank = nullOnZeroOrBlank;
             }
         }
+
+        public class UnpackToSpiritsAttribute : System.Attribute
+        {
+            public string Prefix { get; } = "";
+            public string Suffix { get; } = "";
+            public object DefaultValue { get; } = "";
+            public string? NumberFormat { get; } = null;
+            public bool NullOnZeroOrBlank = true;
+
+            public UnpackToSpiritsAttribute(object defaultValue, string prefix = "", string suffix = "",
+                                           string numberFormat = null, bool nullOnZeroOrBlank = true)
+            {
+                this.Prefix = prefix;
+                this.Suffix = suffix;
+                this.DefaultValue = defaultValue;
+                this.NumberFormat = numberFormat;
+                NullOnZeroOrBlank = nullOnZeroOrBlank;
+            }
+        }
     }
 }

@@ -352,6 +352,9 @@ namespace Reus2Surveyor
             string timeMsg = $"({((DateTime.Now - exportStart).TotalSeconds):N2} s)";
             this.exportReadyLabel.Text = "Export Complete " + timeMsg;
             this.exportReadyLabel.ForeColor = System.Drawing.Color.Green;
+
+            // Invention/Luxury spading/debugging
+            //File.WriteAllLines("Invention Names.csv", this.PlanetStatCollector.inventionNamesByDef.Select(kv => String.Join(",", [kv.Key, kv.Value])));
         }
 
         private void spotCheckButton_Click(object sender, EventArgs e)

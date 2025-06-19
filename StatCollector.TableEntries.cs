@@ -455,9 +455,10 @@ namespace Reus2Surveyor
                 else columnFormats[format] = [column];
             }
 
-            public SpiritStatEntry(string spiritName)
+            public SpiritStatEntry(string spiritName, Glossaries glosInstance)
             {
                 this.Name = spiritName;
+                this.InitializeBiomeCounters(glosInstance);
             }
 
             public void IncrementProsperityTotals(int pros, int pop, int tech, int wel)
@@ -587,6 +588,67 @@ namespace Reus2Surveyor
 
                 this.biomeUsagePercents = this.biomeUsageCounts.ToDictionary(kv => kv.Key, kv => SafePercent(kv.Value, this.Count));
                 this.biomeSizePercents = this.biomeSizes.ToDictionary(kv => kv.Key, kv => SafePercent(kv.Value, this.Terr));
+            }
+        }
+
+        public class LuxuryStatEntry
+        {
+            [XLColumn(Order = 0)] public readonly string Name;
+            [XLColumn(Order = 1)] public readonly string Type;
+
+            [XLColumn(Order = 10)] public int Count = 0;
+            [XLColumn(Order = 11)] public int Planets = 0;
+            [XLColumn(Order = 12)] public double PlanetP = 0;
+
+            [XLColumn(Order = 20)] public readonly string Hash;
+
+            [XLColumn(Order = 30)]
+            [UnpackToSpirits(defaultValue:(int)0)]
+            public Dictionary<string, int> LeaderCounts = [];
+
+            [XLColumn(Order = 40)]
+            [UnpackToSpirits(defaultValue: (double)0, suffix:"Ra", numberFormat:"0.0000")]
+            public Dictionary<string, double> LeaderRatios = [];
+
+            private static Dictionary<string, List<string>> columnFormats = new() {
+                {"0.00%", new List<string> {
+                    "PlanetP",
+                } },
+                {"0.000", new List<string> {
+
+                } },
+                };
+
+            public LuxuryStatEntry(Glossaries.LuxuryDefinition luxDef, Glossaries gloss)
+            {
+                this.Name = luxDef.Name;
+                this.Type = luxDef.Type;
+                this.Hash = luxDef.Hash;
+                this.InitializeLeaderSubtables(gloss);
+            }
+
+            public void InitializeLeaderSubtables(Glossaries gloss)
+            {
+                foreach(string leaderName in gloss.SpiritHashByName.Keys)
+                {
+                    LeaderCounts[leaderName] = 0;
+                }
+            }
+
+            public void CalculateStats(int planetCount)
+            {
+                this.PlanetP = (double)SafePercent(this.Planets, planetCount);
+            }
+
+            public static Dictionary<string, List<string>> GetColumnFormats()
+            {
+                return columnFormats;
+            }
+
+            public static void AddColumnFormat(string format, string column)
+            {
+                if (columnFormats.TryGetValue(format, out List<string> columns)) columns.Add(column);
+                else columnFormats[format] = [column];
             }
         }
     }

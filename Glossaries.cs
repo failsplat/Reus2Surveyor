@@ -26,13 +26,17 @@ namespace Reus2Surveyor
         public readonly Dictionary<string, EraDefinition> EraDefinitionByHash = [];
         public readonly List<EraDefinition> EraDefinitionList = [];
 
+        public readonly Dictionary<string, LuxuryDefinition> LuxuryDefinitionsByHash = [];
+        public readonly List<LuxuryDefinition> LuxuryDefinitionList = [];
+
         public Glossaries(
             string bioFile,
             string giantFile,
             string spiritFile,
             string eraFile,
             string projectFile,
-            string biomeFile
+            string biomeFile,
+            string luxuryFile
             )
         {
 
@@ -152,6 +156,24 @@ namespace Reus2Surveyor
                 if (pd.Hash is null || pd.Hash.Length == 0) continue;
                 else this.ProjectDefinitionByHash.Add(pd.Hash, pd);
             }
+
+            using (StreamReader luxSr = new StreamReader(luxuryFile))
+            {
+                string currentLine;
+                string headerLine = luxSr.ReadLine().Trim();
+                List<string> header = [.. headerLine.Split(",")];
+                while ((currentLine = luxSr.ReadLine()) != null)
+                {
+                    currentLine = currentLine.Trim();
+                    List<string> data = [.. currentLine.Split(",")];
+                    LuxuryDefinitionList.Add(new(header, data));
+                }
+            }
+            foreach (LuxuryDefinition pd in this.LuxuryDefinitionList)
+            {
+                if (pd.Hash is null || pd.Hash.Length == 0) continue;
+                else this.LuxuryDefinitionsByHash.Add(pd.Hash, pd);
+            }
         }
 
         public Glossaries(string folderPath)
@@ -161,7 +183,8 @@ namespace Reus2Surveyor
                   spiritFile: Path.Combine(folderPath, "Spirits.csv"),
                   eraFile: Path.Combine(folderPath, "Eras.csv"),
                   projectFile: Path.Combine(folderPath, "Projects.csv"),
-                  biomeFile: Path.Combine(folderPath, "Biomes.csv")
+                  biomeFile: Path.Combine(folderPath, "Biomes.csv"),
+                  luxuryFile: Path.Combine(folderPath, "Luxuries.csv")
                   )
         {
         }
@@ -171,9 +194,9 @@ namespace Reus2Surveyor
 
         public string BiomeNameFromHash(string def)
         {
-            if (BiomeNameByHash.ContainsKey(def))
+            if (BiomeNameByHash.TryGetValue(def, out string value))
             {
-                return BiomeNameByHash[def];
+                return value;
             }
             else
             {
@@ -183,55 +206,61 @@ namespace Reus2Surveyor
 
         public string BioticumNameFromHash(string def)
         {
-            if (BioticumDefinitionByHash.ContainsKey(def))
+            if (BioticumDefinitionByHash.TryGetValue(def, out BioticumDefinition value))
             {
-                return BioticumDefinitionByHash[def].Name;
+                return value.Name;
             }
             else return def;
         }
 
         public BioticumDefinition BioticumDefFromHash(string def)
         {
-            if (BioticumDefinitionByHash.ContainsKey(def))
+            if (BioticumDefinitionByHash.TryGetValue(def, out BioticumDefinition value))
             {
-                return BioticumDefinitionByHash[def];
+                return value;
             }
             else return null;
         }
 
         public string SpiritNameFromHash(string hash)
         {
-            if (this.SpiritNameByHash.ContainsKey(hash)) return this.SpiritNameByHash[hash];
+            if (this.SpiritNameByHash.TryGetValue(hash, out string value)) return value;
             else return hash;
         }
 
         public string EraNameFromHash(string hash)
         {
-            if (this.EraDefinitionByHash.ContainsKey(hash)) return this.EraDefinitionByHash[hash].Name;
+            if (this.EraDefinitionByHash.TryGetValue(hash, out EraDefinition value)) return value.Name;
             else return hash;
         }
 
         public EraDefinition TryEraDefinitionFromHash(string hash)
         {
-            if (this.EraDefinitionByHash.ContainsKey(hash)) return this.EraDefinitionByHash[hash];
+            if (this.EraDefinitionByHash.TryGetValue(hash, out EraDefinition value)) return value;
             else return new(hash);
         }
 
         public string GiantNameFromHash(string hash)
         {
-            if (this.GiantDefinitionByHash.ContainsKey(hash)) return this.GiantDefinitionByHash[hash].Name;
+            if (this.GiantDefinitionByHash.TryGetValue(hash, out GiantDefinition value)) return value.Name;
             else return hash;
         }
 
         public GiantDefinition TryGiantDefinitionFromHash(string hash)
         {
-            if (this.GiantDefinitionByHash.ContainsKey(hash)) return this.GiantDefinitionByHash[hash];
+            if (this.GiantDefinitionByHash.TryGetValue(hash, out GiantDefinition value)) return value;
             else return new(hash);
         }
 
         public CityProjectDefinition TrProjectDefinitionFromHash(string hash)
         {
-            if (this.ProjectDefinitionByHash.ContainsKey(hash)) return this.ProjectDefinitionByHash[hash];
+            if (this.ProjectDefinitionByHash.TryGetValue(hash, out CityProjectDefinition value)) return value;
+            else return new(hash);
+        }
+
+        public LuxuryDefinition TryLuxuryDefinitionFromHash(string hash)
+        {
+            if (this.LuxuryDefinitionsByHash.TryGetValue(hash, out LuxuryDefinition value)) return value;
             else return new(hash);
         }
 
@@ -373,6 +402,31 @@ namespace Reus2Surveyor
             {
                 this.Hash = hash;
                 this.DisplayName = hash;
+            }
+        }
+
+        public class LuxuryDefinition
+        {
+            public readonly string Name, Type, Hash;
+
+            public LuxuryDefinition(List<string> header, List<string> data)
+            {
+                int i = -1;
+                foreach (string d in data)
+                {
+                    i++;
+                    string thisCol = header[i];
+                    this.GetType().GetField(thisCol).SetValue(this, d);
+                }
+            }
+
+            // Empty constructor
+            // Use only when making blanks in StatCollector
+            public LuxuryDefinition(string hash)
+            {
+                this.Hash = hash;
+                this.Name = hash;
+                this.Type = "?";
             }
         }
 

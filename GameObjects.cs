@@ -42,6 +42,8 @@ namespace Reus2Surveyor
         public Dictionary<string, int> BiomePatchCounts = [];
         public Dictionary<int, (string biomeTypeName, double percentSize)> BiomeSizeMap = [];
 
+        public readonly List<GenericBuff> BuffList = [];
+
         private Glossaries glossaries;
 
         //public List<int?> patchCollection;
@@ -78,6 +80,9 @@ namespace Reus2Surveyor
             ];
         public readonly static List<string> gameplayControllerCheckKeys = [
             "aspectController", "gameplayShop", "masteredBiotica", "name",
+            ];
+        public readonly static List<string> genericBuffCheckKeys = [
+            "_type", "definition", "owner", "isActive", "name", "parent" 
             ];
 
         public Planet(List<object> referenceTokensList, string planetPath)
@@ -128,6 +133,12 @@ namespace Reus2Surveyor
                 if (refToken.TryGetValue("name", out object gcNameCheck) && (string)gcNameCheck == "GameplayController" && gameplayControllerCheckKeys.All(k => rtKeys.Contains(k)))
                 {
                     this.MasteredBioticaDefSet.UnionWith(DictHelper.TryGetStringList(refToken, ["masteredBiotica", "itemData"], "value"));
+                    continue;
+                }
+                if (refToken.TryGetValue("_type", out object buffTypeCheck) && (string)buffTypeCheck == "GenericBuff" && genericBuffCheckKeys.All(k => rtKeys.Contains(k)))
+                {
+                    this.BuffList.Add(new(refToken));
+                    continue;
                 }
             }
 
@@ -860,6 +871,22 @@ namespace Reus2Surveyor
                     ["value", "projects", "itemData"],
                     ["value", "projectDefinition", "value"]);
             }
+        }
+    }
+
+    public class GenericBuff
+    {
+        public readonly string definition;
+        public readonly int? owner;
+        public readonly bool? isActive;
+        public readonly string name;
+
+        public GenericBuff(Dictionary<string, object> subDict)
+        {
+            this.definition = DictHelper.TryGetString(subDict, ["definition", "value"]);
+            this.owner = DictHelper.TryGetInt(subDict, ["owner", "id"]);
+            this.isActive = DictHelper.TryGetBool(subDict, "isActive");
+            this.name = DictHelper.TryGetString(subDict, "name");
         }
     }
 }

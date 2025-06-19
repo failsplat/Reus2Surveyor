@@ -49,6 +49,9 @@
     <None Update="Glossaries\Giants.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Glossaries\Luxuries.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Glossaries\NonBiotica.csv">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
