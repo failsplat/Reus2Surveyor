@@ -90,24 +90,14 @@ namespace Reus2Surveyor
             // Make entries for active then archived then complete
             foreach (string activeDef in activeBioCounter.Keys)
             {
-                if (!BioticaStats.ContainsKey(activeDef))
-                {
-                    if (glossaryInstance.BioticumDefFromHash(activeDef) is null) BioticaStats[activeDef] = new BioticumStatEntry(activeDef, planet.number);
-                    else BioticaStats[activeDef] = new BioticumStatEntry(this.glossaryInstance.BioticumDefFromHash(activeDef), planet.number);
-
-                }
+                CheckBioticaStatEntry(activeDef, planet.number);
                 BioticaStats[activeDef].Final += activeBioCounter[activeDef];
                 BioDraftedOrPlacedInProfile.Add(activeDef);
                 draftedOrPlacedInSession.Add(activeDef);
             }
             foreach (string legacyDef in legacyBioCounter.Keys)
             {
-                if (!BioticaStats.ContainsKey(legacyDef))
-                {
-                    if (glossaryInstance.BioticumDefFromHash(legacyDef) is null) BioticaStats[legacyDef] = new BioticumStatEntry(legacyDef, planet.number);
-                    else BioticaStats[legacyDef] = new BioticumStatEntry(this.glossaryInstance.BioticumDefFromHash(legacyDef), planet.number);
-
-                }
+                CheckBioticaStatEntry(legacyDef, planet.number);
                 BioticaStats[legacyDef].Legacy += legacyBioCounter[legacyDef];
                 BioDraftedOrPlacedInProfile.Add(legacyDef);
                 draftedOrPlacedInSession.Add(legacyDef);
@@ -138,23 +128,13 @@ namespace Reus2Surveyor
 
             foreach (string draftDef in draftedOrPlacedInSession)
             {
-                if (!BioticaStats.ContainsKey(draftDef))
-                {
-                    if (glossaryInstance.BioticumDefFromHash(draftDef) is null) BioticaStats[draftDef] = new BioticumStatEntry(draftDef, planet.number);
-                    else BioticaStats[draftDef] = new BioticumStatEntry(this.glossaryInstance.BioticumDefFromHash(draftDef), planet.number);
-
-                }
+                CheckBioticaStatEntry(draftDef, planet.number);
                 BioticaStats[draftDef].Draft += 1;
             }
 
             foreach (string cDef in completeBioCounter.Keys)
             {
-                if (!BioticaStats.ContainsKey(cDef))
-                {
-                    if (glossaryInstance.BioticumDefFromHash(cDef) is null) BioticaStats[cDef] = new BioticumStatEntry(cDef, planet.number);
-                    else BioticaStats[cDef] = new BioticumStatEntry(this.glossaryInstance.BioticumDefFromHash(cDef), planet.number);
-
-                }
+                // CheckBioticaStatEntry(cDef, planet.number);
                 BioticaStats[cDef].Planets += 1;
                 BioticaStats[cDef].Total += completeBioCounter[cDef];
                 BioticaStats[cDef].PLast = planet.number;
@@ -673,6 +653,16 @@ namespace Reus2Surveyor
             {
                 LuxuryMainStats[luxHash].LeaderRatios = rkv;
             }
+        }
+
+        public void CheckBioticaStatEntry(string bioHash, int planetNum)
+        {
+            if (!BioticaStats.ContainsKey(bioHash))
+            {
+                if (this.glossaryInstance.BioticumDefFromHash(bioHash) is null) this.BioticaStats[bioHash] = new BioticumStatEntry(bioHash, planetNum);
+                else this.BioticaStats[bioHash] = new BioticumStatEntry(this.glossaryInstance.BioticumDefFromHash(bioHash), planetNum);
+            }
+                
         }
 
         public static void IncrementCounter<T>(Dictionary<T, int> dict, T key, int value)
