@@ -500,12 +500,12 @@ namespace Reus2Surveyor
             foreach (CitySummaryEntry ce in thisPlanetCitySummaries)
             {
                 string founderName = ce.Char;
-                if (!this.SpiritStats.ContainsKey(founderName)) 
-                { 
-                    this.SpiritStats[founderName] = new(founderName, this.glossaryInstance);
+                if (!this.SpiritStats.TryGetValue(founderName, out SpiritStatEntry se)) 
+                {
+                    se = new(founderName, this.glossaryInstance);
+                    this.SpiritStats[founderName] = se;
                 }
 
-                SpiritStatEntry se = this.SpiritStats[founderName];
                 se.Count += 1;
                 if (ce.CityN == 1)
                 {
@@ -648,11 +648,11 @@ namespace Reus2Surveyor
                 lse.CalculateStats(this.planetCount);
                 luxuryLeaderCounts[lse.Hash] = lse.LeaderCounts;
             }
-            OrderedDictionary<string, Dictionary<string, double>> luxuryLeaderRatios = NestedCounterToNestedRatioDictionary(luxuryLeaderCounts);
-            foreach((string luxHash, Dictionary<string,double> rkv) in luxuryLeaderRatios)
-            {
-                LuxuryMainStats[luxHash].LeaderRatios = rkv;
-            }
+            //OrderedDictionary<string, Dictionary<string, double>> luxuryLeaderRatios = NestedCounterToNestedRatioDictionary(luxuryLeaderCounts);
+            //foreach((string luxHash, Dictionary<string,double> rkv) in luxuryLeaderRatios)
+            //{
+            //    LuxuryMainStats[luxHash].LeaderRatios = rkv;
+            //}
         }
 
         public void CheckBioticaStatEntry(string bioHash, int planetNum)

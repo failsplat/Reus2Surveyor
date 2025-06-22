@@ -606,9 +606,9 @@ namespace Reus2Surveyor
             [UnpackToSpirits(defaultValue:(int)0)]
             public Dictionary<string, int> LeaderCounts = [];
 
-            [XLColumn(Order = 40)]
-            [UnpackToSpirits(defaultValue: (double)0, suffix:"Ra", numberFormat:"0.0000")]
-            public Dictionary<string, double> LeaderRatios = [];
+            //[XLColumn(Order = 40)]
+            //[UnpackToSpirits(defaultValue: (double)0, suffix:"Ra", numberFormat:"0.0000")]
+            //public Dictionary<string, double> LeaderRatios = [];
 
             private static Dictionary<string, List<string>> columnFormats = new() {
                 {"0.00%", new List<string> {
