@@ -3,6 +3,7 @@ using ClosedXML.Attributes;
 using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Wordprocessing;
+using MathNet.Numerics.LinearAlgebra.Factorization;
 using MathNet.Numerics.Statistics;
 using System;
 using System.Collections;
@@ -1056,12 +1057,14 @@ namespace Reus2Surveyor
                 var spiritTable = spiritWs.Cell("A1").InsertTable(spiritDataTable, "Spirits");
                 spiritTable.Theme = XLTableTheme.TableStyleMedium5;
                 ApplyTableNumberFormats(SpiritStatEntry.GetColumnFormats(), spiritTable);
+                spiritWs.SheetView.FreezeColumns(1);
 
                 var bioWs = wb.AddWorksheet("Biotica");
                 DataTable bioticaDataTable = ExpandToColumns(this.BioticaStats.Values, this.glossaryInstance);
                 var bioticaTable = bioWs.Cell("A1").InsertTable(bioticaDataTable, "Biotica");
                 bioticaTable.Theme = XLTableTheme.TableStyleMedium3;
                 ApplyTableNumberFormats(BioticumStatEntry.GetColumnFormats(), bioticaTable);
+                bioWs.SheetView.FreezeColumns(1);
 
                 var luxWs = wb.AddWorksheet("Luxuries");
                 DataTable luxuryDataTable = ExpandToColumns(this.LuxuryMainStats.Values, this.glossaryInstance);
@@ -1087,6 +1090,7 @@ namespace Reus2Surveyor
                 var luxuryTable = luxWs.Cell("A1").InsertTable(luxuryDataTable, "Luxuries");
                 luxuryTable.Theme = XLTableTheme.TableStyleMedium7;
                 ApplyTableNumberFormats(LuxuryStatEntry.GetColumnFormats(), luxuryTable);
+                luxWs.SheetView.FreezeColumns(1);
 
                 DataTable bioticaVsSpiritCountDataTable = NestDictToDataTable(this.BioticumVsSpiritCounter, "Bioticum");
                 var bioVsCharCountWs = wb.AddWorksheet("BioVsCharCounts");
