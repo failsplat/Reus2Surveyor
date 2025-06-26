@@ -40,6 +40,9 @@ namespace Reus2Surveyor
         public HashSet<string> inventionDefinitions = [];
         public Dictionary<string, string> inventionNamesByDef = [];
 
+        // Keyed to era def hash
+        public OrderedDictionary<string, EraStatEntry> EraStats { get; private set; } = [];
+
         public StatCollector(Glossaries g)
         {
             this.glossaryInstance = g;
@@ -161,6 +164,34 @@ namespace Reus2Surveyor
             if (planet.gameSession.turningPointPerformances.Count > 0)
             {
                 planetEntry.Score = (int)planet.gameSession.turningPointPerformances.Last().scoreTotal;
+
+                foreach (GameSession.TurningPointPerformance tpp in planet.gameSession.turningPointPerformances)
+                {
+                    Glossaries.EraDefinition eraDef = glossaryInstance.EraDefinitionByHash[tpp.turningPointDef];
+                    if (!this.EraStats.TryGetValue(eraDef.Hash, out EraStatEntry ese))
+                    {
+                        this.EraStats[eraDef.Hash] = new(eraDef);
+                    }
+                    ese = this.EraStats[eraDef.Hash];
+                    ese.Count += 1;
+                    ese.eraScores.Add((int)tpp.scoreTotal);
+
+                    switch (tpp.starRating)
+                    {
+                        case 3:
+                            ese.Star3 += 1;
+                            continue;
+                        case 2:
+                            ese.Star2 += 1;
+                            continue;
+                        case 1:
+                            ese.Star1 += 1;
+                            continue;
+                        case 0:
+                            ese.Star0 += 1;
+                            continue;
+                    }
+                }
             }
 
             planetEntry.Giant1 = planet.GiantNames[0];
@@ -692,6 +723,20 @@ namespace Reus2Surveyor
                     this.BioticaStats[bioDef.Hash].FavRatio = ratios.MaxBy(kv => kv.Value).Value;
                 }
             }
+
+            Dictionary<int, int> stageCounter = [];
+            for(int i = 0; i<5; i++)
+            {
+                stageCounter[i] = 0;
+            }
+            foreach (EraStatEntry ese in this.EraStats.Values)
+            {
+                stageCounter[ese.Era] += ese.Count;
+            }
+            foreach (EraStatEntry ese in this.EraStats.Values)
+            {
+                ese.CalculateStats(stageCounter[ese.Era]);
+            }
         }
 
         public void CheckBioticaStatEntry(string bioHash, int planetNum)
@@ -1141,6 +1186,11 @@ namespace Reus2Surveyor
                 {
                     col.Style.NumberFormat.Format = "0.0000";
                 }
+
+                var eraWs = wb.AddWorksheet("Era");
+                var eraTable = eraWs.Cell("A1").InsertTable(this.EraStats.Values);
+                ApplyTableNumberFormats(EraStatEntry.GetColumnFormats(), eraTable);
+                eraTable.Theme = XLTableTheme.TableStyleMedium6;
 
                 wb.SaveAs(dstPath);
             }

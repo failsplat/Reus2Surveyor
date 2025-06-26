@@ -64,7 +64,7 @@ namespace Reus2Surveyor
                 this.Starter = bioDef.Starter ? "Y" : null;
                 this.Apex = bioDef.Apex ? "☆" : null;
 
-                foreach((string biomeName, bool allowed) in bioDef.BiomesAllowed)
+                foreach ((string biomeName, bool allowed) in bioDef.BiomesAllowed)
                 {
                     this.biomesAllowed[biomeName] = allowed ? "Y" : null;
                 }
@@ -219,7 +219,7 @@ namespace Reus2Surveyor
             [XLColumn(Order = 150)] public int Sanctuaries = 0;
             [XLColumn(Order = 150)] public int MountainSlots = 0;
 
-            [XLColumn(Order = 160), UnpackToBiomes(defaultValue: (double)0, suffix: "P", numberFormat: "0.00%")] 
+            [XLColumn(Order = 160), UnpackToBiomes(defaultValue: (double)0, suffix: "P", numberFormat: "0.00%")]
             public Dictionary<string, double> biomePercents = [];
 
             private static Dictionary<string, List<string>> columnFormats = new() {
@@ -421,17 +421,17 @@ namespace Reus2Surveyor
             // Counts/percents of wild biome patches, per planet
             private Dictionary<string, int> biomeUsageCounts = [];
             [XLColumn(Order = 120)]
-            [UnpackToBiomes(defaultValue: (double)0, prefix: "Has", numberFormat: "0.00%")] 
+            [UnpackToBiomes(defaultValue: (double)0, prefix: "Has", numberFormat: "0.00%")]
             public Dictionary<string, double?> biomeUsagePercents = [];
 
             // Counts of wild patches in territory
             [XLColumn(Order = 130)]
             [UnpackToBiomes(defaultValue: (int)0, suffix: "Sz")]
-            public Dictionary<string,int> biomeSizes = [];
+            public Dictionary<string, int> biomeSizes = [];
 
             [XLColumn(Order = 140)]
             [UnpackToBiomes(defaultValue: (double)0, suffix: "P", numberFormat: "0.00%")]
-            public Dictionary<string,double?> biomeSizePercents = [];
+            public Dictionary<string, double?> biomeSizePercents = [];
 
             private static Dictionary<string, List<string>> columnFormats = new() {
                 {"0.00%", new List<string> {
@@ -516,7 +516,7 @@ namespace Reus2Surveyor
 
             public void InitializeBiomeCounters(Glossaries g)
             {
-                foreach(string bn in g.BiomeHashByName.Keys)
+                foreach (string bn in g.BiomeHashByName.Keys)
                 {
                     this.biomeUsageCounts[bn] = 0;
                     this.biomeSizes[bn] = 0;
@@ -608,7 +608,7 @@ namespace Reus2Surveyor
 
 
             [XLColumn(Order = 30)]
-            [UnpackToSpirits(defaultValue:(int)0)]
+            [UnpackToSpirits(defaultValue: (int)0)]
             public Dictionary<string, int> LeaderCounts = [];
 
             [XLColumn(Order = 40)]
@@ -638,7 +638,7 @@ namespace Reus2Surveyor
 
             public void InitializeLeaderSubtables(Glossaries gloss)
             {
-                foreach(string leaderName in gloss.SpiritHashByName.Keys)
+                foreach (string leaderName in gloss.SpiritHashByName.Keys)
                 {
                     LeaderCounts[leaderName] = 0;
                     LeaderCountsOri[leaderName] = 0;
@@ -659,6 +659,65 @@ namespace Reus2Surveyor
             {
                 if (columnFormats.TryGetValue(format, out List<string> columns)) columns.Add(column);
                 else columnFormats[format] = [column];
+            }
+        }
+
+        public class EraStatEntry
+        {
+            [XLColumn(Order = 0)] public readonly string Name;
+            [XLColumn(Order = 1)] public readonly int Era;
+            [XLColumn(Order = 2)] public readonly string Hash;
+
+            [XLColumn(Order = 10)] public int Count = 0;
+            [XLColumn(Order = 11)] public double? PickP;
+
+            [XLColumn(Ignore = true)] public List<int> eraScores = [];
+            [XLColumn(Order = 20)] public double? AvScore;
+            [XLColumn(Order = 21)] public int? HiScore;
+
+            [XLColumn(Order = 30, Header = "0Star")] public int Star0 = 0;
+            [XLColumn(Order = 31, Header = "1Star")] public int Star1 = 0;
+            [XLColumn(Order = 32, Header = "2Star")] public int Star2 = 0;
+            [XLColumn(Order = 33, Header = "3Star")] public int Star3 = 0;
+
+            [XLColumn(Order = 40, Header = "0StarP")] public double? Star0P;
+            [XLColumn(Order = 41, Header = "1StarP")] public double? Star1P;
+            [XLColumn(Order = 42, Header = "2StarP")] public double? Star2P;
+            [XLColumn(Order = 43, Header = "3StarP")] public double? Star3P;
+
+            public EraStatEntry(Glossaries.EraDefinition eraDef)
+            {
+                this.Name = eraDef.Name;
+                this.Era = eraDef.Era;
+                this.Hash = eraDef.Hash;
+            }
+
+            public void CalculateStats(int stageCount)
+            {
+                this.PickP = SafePercent(this.Count, stageCount);
+                if (this.eraScores.Count > 0)
+                {
+                    this.AvScore = this.eraScores.Average();
+                    this.HiScore = this.eraScores.Max();
+                }
+
+                this.Star0P = SafePercent(this.Star0, this.Count);
+                this.Star1P = SafePercent(this.Star1, this.Count);
+                this.Star2P = SafePercent(this.Star2, this.Count);
+                this.Star3P = SafePercent(this.Star3, this.Count);
+            }
+
+            private static Dictionary<string, List<string>> columnFormats = new() {
+                {"0.00%", new List<string> {
+                    "PickP", "0StarP", "1StarP", "2StarP", "3StarP",
+                } },
+                {"0.000", new List<string> {
+                    "AvScore",
+                } },
+                };
+            public static Dictionary<string, List<string>> GetColumnFormats()
+            {
+                return columnFormats;
             }
         }
     }
