@@ -298,9 +298,11 @@ namespace Reus2Surveyor
             this.PlanetSummaries.Add(planetEntry);
 
             // City Summary and Spirit Stats
-
             List<CitySummaryEntry> thisPlanetCitySummaries = [];
             List<City> citiesInOrder = [.. planet.cityDictionary.ToList().OrderBy(kv => kv.Key).Select(kv => kv.Value)];
+            Dictionary<int, City> citiesByLuxuryBuffHandler = [];
+            int? cannedSludgeCity = null;
+            string cannedSludgeHash = null;
             int cityN = 0;
             foreach (City city in citiesInOrder)
             {
@@ -349,7 +351,14 @@ namespace Reus2Surveyor
                     if (luxSlot.luxuryGood.originCityId == city.tokenIndex) this.LuxuryMainStats[luxHash].LeaderCountsOri[founderName] += 1;
                     this.LuxuryMainStats[luxHash].LeaderCounts[founderName] += 1;
                     luxuriesPresent.Add(luxHash);
+
+                    if (luxDef.Name == "Canned Sludge")
+                    {
+                        cannedSludgeCity = city.tokenIndex;
+                        cannedSludgeHash = luxHash;
+                    }
                 }
+                citiesByLuxuryBuffHandler[(int)city.CityLuxuryController.luxuryBuffControllerId] = city;
 
                 cityEntry.TPLead = city.initiatedTurningPointsDefs.Count();
                 foreach (string cityStartedEras in city.initiatedTurningPointsDefs)
@@ -583,11 +592,23 @@ namespace Reus2Surveyor
 
             this.CitySummaries.AddRange(thisPlanetCitySummaries);
 
-            // Luxury/Invention
+            // Generic buff checking
             foreach (GenericBuff buff in planet.BuffList)
             {
                 // for spading/debug
                 this.genericBuffNamesByDef.TryAdd(buff.definition, buff.name);
+                
+                if (buff.name == "Canned Sludge") {
+                    if (citiesByLuxuryBuffHandler.TryGetValue((int)buff.owner, out City buffCity))
+                    {
+                        string founderName = glossaryInstance.SpiritNameFromHash(buffCity.founderCharacterDef);
+                        if (buffCity.tokenIndex != cannedSludgeCity)
+                        {
+                            this.LuxuryMainStats[cannedSludgeHash].Count += 1;
+                            this.LuxuryMainStats[cannedSludgeHash].LeaderCounts[founderName] += 1;
+                        }
+                    }
+                }
             }
             foreach (string luxHash in luxuriesPresent)
             {

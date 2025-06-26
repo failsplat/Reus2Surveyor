@@ -682,8 +682,11 @@ namespace Reus2Surveyor
             public readonly List<LuxurySlot> luxurySlots = [];
             public readonly List<LuxurySlot> tradeSlots = [];
             public readonly List<int?> importAgreementIds = [];
+            public readonly int? luxuryBuffControllerId;
             public LuxuryController(Dictionary<string, object> refDict, List<object> referenceTokensList)
             {
+                this.luxuryBuffControllerId = DictHelper.TryGetInt(refDict, ["luxuryBuffs", "id"]);
+
                 List<object> luxurySlotSubdictList = (List<object>)DictHelper.DigValueAtKeys(refDict, ["luxurySlots", "itemData"]);
                 foreach (Dictionary<string, object> subdict in luxurySlotSubdictList)
                 {
