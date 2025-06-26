@@ -606,6 +606,10 @@ namespace Reus2Surveyor
             [UnpackToSpirits(defaultValue:(int)0)]
             public Dictionary<string, int> LeaderCounts = [];
 
+            [XLColumn(Order = 40)]
+            [UnpackToSpirits(defaultValue: (int)0, prefix: "From")]
+            public Dictionary<string, int> LeaderCountsOri = [];
+
             //[XLColumn(Order = 40)]
             //[UnpackToSpirits(defaultValue: (double)0, suffix:"Ra", numberFormat:"0.0000")]
             //public Dictionary<string, double> LeaderRatios = [];
@@ -632,6 +636,7 @@ namespace Reus2Surveyor
                 foreach(string leaderName in gloss.SpiritHashByName.Keys)
                 {
                     LeaderCounts[leaderName] = 0;
+                    LeaderCountsOri[leaderName] = 0;
                 }
             }
 

@@ -117,6 +117,7 @@ namespace Reus2Surveyor
                 if (cityCheckKeys.All(k => rtKeys.Contains(k)))
                 {
                     this.cityDictionary.Add(i, new City(refToken, referenceTokensList));
+                    this.cityDictionary[i].tokenIndex = i;
                     continue;
                 }
                 if (refToken.TryGetValue("name", out object sessionNameCheck) && (string)sessionNameCheck == "Session" && sessionCheckKeys.All(k => rtKeys.Contains(k)))
@@ -553,6 +554,8 @@ namespace Reus2Surveyor
         public readonly int? patchId;
         public readonly int? currentVisualStage;
         public readonly List<string?> initiatedTurningPointsDefs = [];
+
+        public int? tokenIndex = null;
 
         // Secondary Data
         public List<int> PatchIdsInTerritory { get; private set; } = [];

@@ -333,10 +333,10 @@ namespace Reus2Surveyor
                 cityEntry.Trades = city.CityLuxuryController.importAgreementIds.Count();
                 cityEntry.TerrPatches = city.PatchesInTerritory.Where(p => p.IsWildPatch()).Count();
 
-                foreach (City.LuxuryController.LuxurySlot lux in city.CityLuxuryController.luxurySlots)
+                foreach (City.LuxuryController.LuxurySlot luxSlot in city.CityLuxuryController.luxurySlots)
                 {
-                    if (lux.luxuryGood is null) continue;
-                    string luxHash = lux.luxuryGood.definition;
+                    if (luxSlot.luxuryGood is null) continue;
+                    string luxHash = luxSlot.luxuryGood.definition;
                     this.inventionDefinitions.Add(luxHash);
 
                     LuxuryDefinition luxDef = this.glossaryInstance.TryLuxuryDefinitionFromHash(luxHash);
@@ -346,6 +346,7 @@ namespace Reus2Surveyor
                         this.LuxuryMainStats.Add(luxHash, newEntry);
                     }
                     this.LuxuryMainStats[luxHash].Count += 1;
+                    if (luxSlot.luxuryGood.originCityId == city.tokenIndex) this.LuxuryMainStats[luxHash].LeaderCountsOri[founderName] += 1;
                     this.LuxuryMainStats[luxHash].LeaderCounts[founderName] += 1;
                     luxuriesPresent.Add(luxHash);
                 }
@@ -647,7 +648,7 @@ namespace Reus2Surveyor
             foreach (LuxuryStatEntry lse in this.LuxuryMainStats.Values)
             {
                 lse.CalculateStats(this.planetCount);
-                luxuryLeaderCounts[lse.Hash] = lse.LeaderCounts;
+                //luxuryLeaderCounts[lse.Hash] = lse.LeaderCounts;
             }
             //OrderedDictionary<string, Dictionary<string, double>> luxuryLeaderRatios = NestedCounterToNestedRatioDictionary(luxuryLeaderCounts);
             //foreach((string luxHash, Dictionary<string,double> rkv) in luxuryLeaderRatios)
