@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Intrinsics.X86;
 using static Reus2Surveyor.Glossaries;
 using static Reus2Surveyor.StatCollector;
 
@@ -666,16 +667,19 @@ namespace Reus2Surveyor
             this.inventionNamesByDef = this.genericBuffNamesByDef.Where(kv => this.inventionDefinitions.Contains(kv.Key)).ToDictionary();
             
             Dictionary<string, Dictionary<string,int>> luxuryLeaderCounts = [];
+            double spiritTotal = (double)this.SpiritStats.Values.Select((SpiritStatEntry sse) => sse.Count).Sum();
+            Dictionary<string, double> leaderPercents = this.SpiritStats.ToDictionary(kv => kv.Key, kv => (double)kv.Value.Count / spiritTotal);
             foreach (LuxuryStatEntry lse in this.LuxuryMainStats.Values)
             {
                 lse.CalculateStats(this.planetCount);
                 //luxuryLeaderCounts[lse.Hash] = lse.LeaderCounts;
+
+                lse.LeaderRatios = lse.LeaderCounts.ToDictionary(kv => kv.Key, 
+                    kv => leaderPercents.TryGetValue(kv.Key, out double leaderPerc) ? 
+                    ((double)kv.Value / (double)lse.Count) / leaderPerc : 
+                    0
+                    ); 
             }
-            //OrderedDictionary<string, Dictionary<string, double>> luxuryLeaderRatios = NestedCounterToNestedRatioDictionary(luxuryLeaderCounts);
-            //foreach((string luxHash, Dictionary<string,double> rkv) in luxuryLeaderRatios)
-            //{
-            //    LuxuryMainStats[luxHash].LeaderRatios = rkv;
-            //}
         }
 
         public void CheckBioticaStatEntry(string bioHash, int planetNum)
