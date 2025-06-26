@@ -41,6 +41,8 @@ namespace Reus2Surveyor
             [XLColumn(Order = 41)] public double? MultiP { get; private set; } = null;
             [XLColumn(Order = 42)] public int? MultiMx { get; private set; } = null;
             [XLColumn(Order = 43)] public double? MultiAv { get; private set; } = null;
+            [XLColumn(Order = 44)] public string FavSpirit { get; set; } = null;
+            [XLColumn(Order = 45)] public double? FavRatio { get; set; } = null;
 
             [XLColumn(Order = 50)] public int P1st { get; set; }
             [XLColumn(Order = 51)] public int PLast { get; set; }
@@ -48,7 +50,7 @@ namespace Reus2Surveyor
 
             private static Dictionary<string, List<string>> columnFormats = new() {
                 {"0.00%", new List<string> { "AvailP", "DraftP", "AUsageP", "DUsageP", "LegacyP", "FinalP", "MultiP", } },
-                {"0.000", new List<string> { "MultiAv", "AvRate", } },
+                {"0.000", new List<string> { "MultiAv", "AvRate", "FavRatio" } },
                 {"mm/dd/yyyy hh:mm", new List<string>{"TS", } },
                 {"mm/dd/yyyy", new List<string>{"ChTS", } },
                 };
@@ -601,6 +603,9 @@ namespace Reus2Surveyor
             [XLColumn(Order = 12)] public double PlanetP = 0;
 
             [XLColumn(Order = 20)] public readonly string Hash;
+            [XLColumn(Order = 21)] public string FavSpirit;
+            [XLColumn(Order = 22)] public double FavRatio;
+
 
             [XLColumn(Order = 30)]
             [UnpackToSpirits(defaultValue:(int)0)]
@@ -619,7 +624,7 @@ namespace Reus2Surveyor
                     "PlanetP",
                 } },
                 {"0.000", new List<string> {
-
+                    "FavRatio",
                 } },
                 };
 

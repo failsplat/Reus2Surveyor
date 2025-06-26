@@ -30,7 +30,7 @@ namespace Reus2Surveyor
         // First key is bioticum
         // Second key is spirit or character
 
-        public OrderedDictionary<string, LuxuryStatEntry> LuxuryMainStats { get; private set; } = [];
+        public OrderedDictionary<string, LuxuryStatEntry> LuxuryStats { get; private set; } = [];
 
         private int planetCount = 0;
         private HashSet<string> BioDraftedOrPlacedInProfile { get; set; } = [];
@@ -343,14 +343,14 @@ namespace Reus2Surveyor
                     this.inventionDefinitions.Add(luxHash);
 
                     LuxuryDefinition luxDef = this.glossaryInstance.TryLuxuryDefinitionFromHash(luxHash);
-                    if (!this.LuxuryMainStats.ContainsKey(luxHash))
+                    if (!this.LuxuryStats.ContainsKey(luxHash))
                     {
                         LuxuryStatEntry newEntry = new(luxDef, this.glossaryInstance);
-                        this.LuxuryMainStats.Add(luxHash, newEntry);
+                        this.LuxuryStats.Add(luxHash, newEntry);
                     }
-                    this.LuxuryMainStats[luxHash].Count += 1;
-                    if (luxSlot.luxuryGood.originCityId == city.tokenIndex) this.LuxuryMainStats[luxHash].LeaderCountsOri[founderName] += 1;
-                    this.LuxuryMainStats[luxHash].LeaderCounts[founderName] += 1;
+                    this.LuxuryStats[luxHash].Count += 1;
+                    if (luxSlot.luxuryGood.originCityId == city.tokenIndex) this.LuxuryStats[luxHash].LeaderCountsOri[founderName] += 1;
+                    this.LuxuryStats[luxHash].LeaderCounts[founderName] += 1;
                     luxuriesPresent.Add(luxHash);
 
                     if (luxDef.Name == "Canned Sludge")
@@ -605,15 +605,15 @@ namespace Reus2Surveyor
                         string founderName = glossaryInstance.SpiritNameFromHash(buffCity.founderCharacterDef);
                         if (buffCity.tokenIndex != cannedSludgeCity)
                         {
-                            this.LuxuryMainStats[cannedSludgeHash].Count += 1;
-                            this.LuxuryMainStats[cannedSludgeHash].LeaderCounts[founderName] += 1;
+                            this.LuxuryStats[cannedSludgeHash].Count += 1;
+                            this.LuxuryStats[cannedSludgeHash].LeaderCounts[founderName] += 1;
                         }
                     }
                 }
             }
             foreach (string luxHash in luxuriesPresent)
             {
-                this.LuxuryMainStats[luxHash].Planets += 1;
+                this.LuxuryStats[luxHash].Planets += 1;
             }
         }
 
@@ -669,7 +669,7 @@ namespace Reus2Surveyor
             Dictionary<string, Dictionary<string,int>> luxuryLeaderCounts = [];
             double spiritTotal = (double)this.SpiritStats.Values.Select((SpiritStatEntry sse) => sse.Count).Sum();
             Dictionary<string, double> leaderPercents = this.SpiritStats.ToDictionary(kv => kv.Key, kv => (double)kv.Value.Count / spiritTotal);
-            foreach (LuxuryStatEntry lse in this.LuxuryMainStats.Values)
+            foreach (LuxuryStatEntry lse in this.LuxuryStats.Values)
             {
                 lse.CalculateStats(this.planetCount);
                 //luxuryLeaderCounts[lse.Hash] = lse.LeaderCounts;
@@ -678,7 +678,19 @@ namespace Reus2Surveyor
                     kv => leaderPercents.TryGetValue(kv.Key, out double leaderPerc) ? 
                     ((double)kv.Value / (double)lse.Count) / leaderPerc : 
                     0
-                    ); 
+                    );
+
+                lse.FavSpirit = lse.LeaderRatios.MaxBy(kv => kv.Value).Key;
+                lse.FavRatio = lse.LeaderRatios.MaxBy(kv => kv.Value).Value;
+            }
+
+            foreach((string bioticumName, Dictionary<string,double> ratios) in this.BioticumVsSpiritRatios)
+            {
+                if (this.glossaryInstance.BioticumDefinitionByName.TryGetValue(bioticumName, out Glossaries.BioticumDefinition bioDef)) 
+                {
+                    this.BioticaStats[bioDef.Hash].FavSpirit = ratios.MaxBy(kv => kv.Value).Key;
+                    this.BioticaStats[bioDef.Hash].FavRatio = ratios.MaxBy(kv => kv.Value).Value;
+                }
             }
         }
 
@@ -1093,7 +1105,7 @@ namespace Reus2Surveyor
                 bioWs.SheetView.FreezeColumns(1);
 
                 var luxWs = wb.AddWorksheet("Luxuries");
-                DataTable luxuryDataTable = ExpandToColumns(this.LuxuryMainStats.Values, this.glossaryInstance);
+                DataTable luxuryDataTable = ExpandToColumns(this.LuxuryStats.Values, this.glossaryInstance);
                 {
                     List<MemberInfo> expandableColumns = [];
                     expandableColumns.AddRange(typeof(LuxuryStatEntry).GetFields());

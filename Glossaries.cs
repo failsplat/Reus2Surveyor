@@ -15,6 +15,7 @@ namespace Reus2Surveyor
         public readonly Dictionary<string, string> YieldHashByName = [], YieldNameByHash = [];
 
         public readonly Dictionary<string, BioticumDefinition> BioticumDefinitionByHash = [];
+        public readonly Dictionary<string, BioticumDefinition> BioticumDefinitionByName = [];
         public readonly List<BioticumDefinition> BioticumDefinitionList = [];
 
         public readonly Dictionary<string, GiantDefinition> GiantDefinitionByHash = [];
@@ -55,7 +56,11 @@ namespace Reus2Surveyor
             foreach (BioticumDefinition bd in this.BioticumDefinitionList)
             {
                 if (bd.Hash is null || bd.Hash.Length == 0) continue;
-                else this.BioticumDefinitionByHash.Add(bd.Hash, bd);
+                else
+                {
+                    this.BioticumDefinitionByHash.Add(bd.Hash, bd);
+                    this.BioticumDefinitionByName.Add(bd.Name, bd);
+                }
             }
 
             using (StreamReader gsr = new StreamReader(giantFile))
