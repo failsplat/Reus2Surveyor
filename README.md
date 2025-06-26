@@ -15,10 +15,11 @@ This program outputs an Excel workbook (.xlsx) file. It has the following sheets
 2. **Cities** - A listing of each city present on the planets. For each, there are prosperity stats, stats on biotica in borders, and buildings.
 3. **Spirits** - A sheet grouping city stats by leader.
 4. **Biotica** - Usage stats for each bioticum type.
-5. **BioticaVsChar** - A table showing how many of each bioticum were placed in the borders of each spirit's cities. 
+5. **Luxuries** - Counts inventions and luxuries, as well as which leaders invented/received them.
+6. **BioticaVsChar** - A table showing how many of each bioticum were placed in the borders of each spirit's cities.
+7. **BioticaVsCharRatios** - Similar to above, but shows relative usage ratios instead of counts. 
 ## To Do/WIP Features
 * Table for spirits v. buildings, eras
-* Stat table for Luxuries
 * Stat table for Eras
 * Misc. stat table
  * Biotica as pets
