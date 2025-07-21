@@ -16,6 +16,7 @@ namespace Reus2Surveyor
         {
             {"Botanist",  Properties.Resources.BotanistSquare},
             {"Diplomat",  Properties.Resources.DiplomatSquare},
+            {"Entomologist",  Properties.Resources.EntomologistSquare},
             {"General", Properties.Resources.GeneralSquare},
             {"Goddess", Properties.Resources.GoddessSquare},
             {"Huntress", Properties.Resources.HuntressSquare},
@@ -25,6 +26,8 @@ namespace Reus2Surveyor
             {"Painter",  Properties.Resources.PainterSquare},
             {"Pirate Queen",  Properties.Resources.PirateQueenSquare},
             {"Poet",  Properties.Resources.PoetSquare},
+            {"Ranger",  Properties.Resources.RangerSquare},
+            {"Romantic",  Properties.Resources.RomanticSquare},
             {"Sage",  Properties.Resources.SageSquare},
             {"Villain",  Properties.Resources.VillainSquare},
         };
@@ -33,6 +36,7 @@ namespace Reus2Surveyor
         {
             {"Satari", Properties.Resources.SatariSquare },
             {"Reginald", Properties.Resources.ReginaldSquare },
+            {"Wet Reginald", Properties.Resources.WetReginaldSquare },
 
             {"Khiton", Properties.Resources.KhitonSquare },
             {"Jangwa", Properties.Resources.JangwaSquare },
@@ -64,16 +68,26 @@ namespace Reus2Surveyor
             {"Savanna",  new MagickColor("#FFD752") },
             {"Taiga",  new MagickColor("#71CCBE") },*/
 
-            {"Desert", Color.ParseHex("FF9B59")},
-            {"Forest",  Color.ParseHex("59F704") },
-            {"IceAge",  Color.ParseHex("BFFFFF") },
-            {"Ocean",  Color.ParseHex("052DF8") },
-            {"Rainforest",  Color.ParseHex("00A571") },
-            {"Savanna",  Color.ParseHex("FFE108") },
-            {"Taiga",  Color.ParseHex("7CE2D1") },
+            {"Desert", Color.ParseHex("FFAA6D")},
+            {"Forest",  Color.ParseHex("00D001") },
+            {"IceAge",  Color.ParseHex("CBF4F4") },
+            {"Ocean",  Color.ParseHex("001EFF") },
+            {"Rainforest",  Color.ParseHex("648E09") },
+            {"Savanna",  Color.ParseHex("FFD038") },
+            {"Taiga",  Color.ParseHex("6CC9BD") },
+            {"Wetlands", Color.ParseHex("007237") },
         };
 
-        public static Image BiomeTypePercentsToMinimap(Dictionary<string, double> percents, int width = 100, int height = 24)
+        public static Color GetBiomeColor(string biomeName)
+        {
+            if (BiomeColors.TryGetValue(biomeName, out Color color))
+            {
+                return color;
+            }
+            else return Color.ParseHex("FF00FF");
+        }
+
+        public static Image BiomeTypePercentsToMinimap(Dictionary<string, double> percents, int width = 125, int height = 24)
         {
             Dictionary<string, int> biomeStripes = PercentsToWholeNumber(percents, width);
 
@@ -111,7 +125,7 @@ namespace Reus2Surveyor
             return output;
         }
 
-        public static Image BiomePositionalToMinimap(Dictionary<int, (string biomeTypeName, double percentSize)> biomeInfo, int width = 100, int height = 24)
+        public static Image BiomePositionalToMinimap(Dictionary<int, (string biomeTypeName, double percentSize)> biomeInfo, int width = 125, int height = 24)
         {
             Dictionary<int, (string biomeTypeName, int px)> biomeStripes = PositionalDictToWholeNumber(biomeInfo, width);
             List<int> anchorPatches = biomeStripes.Keys.ToList();
@@ -127,7 +141,7 @@ namespace Reus2Surveyor
                 int stripeWidth = biomeStripes[anchorPatch].px;
 
                 Rectangle biomeBar = new Rectangle(leftPos, 0, stripeWidth, height);
-                Brush fillBrush = new SolidBrush(BiomeColors[biomeName]);
+                Brush fillBrush = new SolidBrush(GetBiomeColor(biomeName));
                 image.Mutate(x => x.Fill(fillBrush, biomeBar));
 
                 leftPos += stripeWidth;

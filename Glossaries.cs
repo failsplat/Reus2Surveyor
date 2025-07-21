@@ -197,6 +197,12 @@ namespace Reus2Surveyor
         public Dictionary<int, string> BiomeNameByInt = [];
         public Dictionary<string, int> BiomeIntByName = [];
 
+        public string GetBiomeNameFromInt(int id)
+        {
+            if (BiomeNameByInt.TryGetValue(id, out string name)) return name;
+            else return $"UNKNOWN BIOME {12}";
+        }
+
         public string BiomeNameFromHash(string def)
         {
             if (BiomeNameByHash.TryGetValue(def, out string value))
@@ -321,6 +327,15 @@ namespace Reus2Surveyor
                     }
 
                 }
+            }
+
+            public bool IsBiomeAllowed(string biomeName)
+            {
+                if (this.BiomesAllowed.TryGetValue(biomeName, out bool allowed))
+                {
+                    return allowed;
+                }
+                else return false;
             }
         }
 

@@ -529,8 +529,11 @@ namespace Reus2Surveyor
                 {
                     int patches = BiomePatchCounts[bn];
                     this.Terr += patches;
-                    this.biomeUsageCounts[bn] += 1;
-                    this.biomeSizes[bn] += patches;
+                    if (this.biomeUsageCounts.ContainsKey(bn))
+                    {
+                        this.biomeUsageCounts[bn] += 1;
+                        this.biomeSizes[bn] += patches;
+                    }
                 }
             }
 

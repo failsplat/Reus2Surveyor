@@ -1,8 +1,9 @@
 # Reus 2 Planet Surveyor
 This fan-made desktop app reads the save files for completed Reus 2 planets and produces a spreadsheet of stats. It is written in C# and uses the .NET framework.
-(Not affiliated officially with Reus 2 or its developer and publisher.) Tested for Reus 2 v1.7.0 (Uluru Kata Tjuta) and up.
+(Not affiliated officially with Reus 2 or its developer and publisher.) Tested for save files produced in game version v1.3.0 (Atlantic Forest) up through v1.8 (Everglades).
 
-![UI Pic v3](https://github.com/user-attachments/assets/50b12e7c-2fac-4db8-b55a-aaf8e7417e6d)
+<img width="1127" height="760" alt="Untitled" src="https://github.com/user-attachments/assets/7e91a1a6-2e5f-4d4d-888f-9a923a390b8d" />
+
 ## Usage Instructions
 0. (If building from source code) Build the project. Make sure the output location contains named "Glossaries". The CSV files within that folder are used by the application to identify and name game objects.
 1. Locate your Reus 2 profile using the **\[Find Profile\]** button. The text box to the right of the button will have green text if the profile folder looks correct, and red if it does not. The table will populate with the planets it has found in `/profile_<#>/sessions`.
@@ -16,8 +17,9 @@ This program outputs an Excel workbook (.xlsx) file. It has the following sheets
 3. **Spirits** - A sheet grouping city stats by leader.
 4. **Biotica** - Usage stats for each bioticum type.
 5. **Luxuries** - Counts inventions and luxuries, as well as which leaders invented/received them.
-6. **BioticaVsChar** - A table showing how many of each bioticum were placed in the borders of each spirit's cities.
-7. **BioticaVsCharRatios** - Similar to above, but shows relative usage ratios instead of counts. 
+6. **Eras** - Basic stats on Turning Points, including score and star ratings
+7. **BioticaVsChar** - A table showing how many of each bioticum were placed in the borders of each spirit's cities.
+8. **BioticaVsCharRatios** - Similar to above, but shows relative usage ratios instead of counts. 
 ## To Do/WIP Features
 * Table for spirits v. buildings, eras
 * Stat table for Eras

@@ -130,6 +130,12 @@
   <data name="DiplomatSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\DiplomatSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="EntomologistSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\EntomologistSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="ErrorSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\ErrorSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="GeneralSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\GeneralSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
@@ -166,8 +172,14 @@
   <data name="PoetSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\PoetSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="RangerSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\RangerSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="ReginaldSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\ReginaldSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="RomanticSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\RomanticSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="SageSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\SageSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -177,5 +189,8 @@
   </data>
   <data name="VillainSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\VillainSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="WetReginaldSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\WetReginaldSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
 </root>

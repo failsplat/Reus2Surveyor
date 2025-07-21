@@ -274,7 +274,10 @@ namespace Reus2Surveyor
             foreach (Biome biome in this.biomeDictionary.Values)
             {
                 if (biome.anchorPatchId is null) continue;
-                if (biome.biomeTypeInt is not null) biome.biomeTypeName = this.glossaries.BiomeNameByInt[(int)biome.biomeTypeInt];
+                if (biome.biomeTypeInt is not null)
+                {
+                    biome.biomeTypeName = this.glossaries.GetBiomeNameFromInt((int)biome.biomeTypeInt);
+                }
                 string biomeType = biome.biomeTypeName;
 
                 if (!patchesPerBiomeType.ContainsKey(biomeType)) patchesPerBiomeType[biomeType] = 0;

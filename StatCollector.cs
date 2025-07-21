@@ -9,6 +9,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Intrinsics.X86;
@@ -114,11 +115,12 @@ namespace Reus2Surveyor
             HashSet<string> biomeMatchingBiotica = [];
             foreach (string giantHash in planet.gameSession.giantRosterDefs)
             {
-                Glossaries.GiantDefinition gd = this.glossaryInstance.GiantDefinitionByHash[giantHash];
+                Glossaries.GiantDefinition gd = this.glossaryInstance.TryGiantDefinitionFromHash(giantHash);
+                if (gd.Biome1 is null || gd.Biome2 is null) continue; // Unknown giant, don't calculate biome-matching biotica
                 foreach (Glossaries.BioticumDefinition bd in this.glossaryInstance.BioticumDefinitionList)
                 {
-                    bool b1match = bd.BiomesAllowed[gd.Biome1];
-                    bool b2match = bd.BiomesAllowed[gd.Biome2];
+                    bool b1match = bd.IsBiomeAllowed(gd.Biome1);
+                    bool b2match = bd.IsBiomeAllowed(gd.Biome2);
                     if (b1match || b2match)
                     {
                         biomeMatchingBiotica.Add(bd.Hash);
@@ -167,7 +169,7 @@ namespace Reus2Surveyor
 
                 foreach (GameSession.TurningPointPerformance tpp in planet.gameSession.turningPointPerformances)
                 {
-                    Glossaries.EraDefinition eraDef = glossaryInstance.EraDefinitionByHash[tpp.turningPointDef];
+                    Glossaries.EraDefinition eraDef = glossaryInstance.TryEraDefinitionFromHash(tpp.turningPointDef);
                     if (!this.EraStats.TryGetValue(eraDef.Hash, out EraStatEntry ese))
                     {
                         this.EraStats[eraDef.Hash] = new(eraDef);
@@ -380,8 +382,17 @@ namespace Reus2Surveyor
                         this.LuxuryStats.Add(luxHash, newEntry);
                     }
                     this.LuxuryStats[luxHash].Count += 1;
-                    if (luxSlot.luxuryGood.originCityId == city.tokenIndex) this.LuxuryStats[luxHash].LeaderCountsOri[founderName] += 1;
-                    this.LuxuryStats[luxHash].LeaderCounts[founderName] += 1;
+                    if (luxSlot.luxuryGood.originCityId == city.tokenIndex)
+                    {
+                        if (this.LuxuryStats[luxHash].LeaderCountsOri.ContainsKey(founderName))
+                        {
+                            this.LuxuryStats[luxHash].LeaderCountsOri[founderName] += 1;
+                        }
+                    }
+                    if (this.LuxuryStats[luxHash].LeaderCounts.ContainsKey(founderName))
+                    {
+                        this.LuxuryStats[luxHash].LeaderCounts[founderName] += 1;
+                    }
                     luxuriesPresent.Add(luxHash);
 
                     if (luxDef.Name == "Canned Sludge")
@@ -518,6 +529,9 @@ namespace Reus2Surveyor
                                 break;
                             case "Temple3":
                                 cityEntry.Temple3 = projectDef.DisplayName;
+                                break;
+                            default:
+                                Trace.TraceError($"Unknown project/project slot: {projectDef.DisplayName}");
                                 break;
                         }
                     }
@@ -1175,6 +1189,11 @@ namespace Reus2Surveyor
                 ApplyTableNumberFormats(LuxuryStatEntry.GetColumnFormats(), luxuryTable);
                 luxWs.SheetView.FreezeColumns(1);
 
+                var eraWs = wb.AddWorksheet("Era");
+                var eraTable = eraWs.Cell("A1").InsertTable(this.EraStats.Values);
+                ApplyTableNumberFormats(EraStatEntry.GetColumnFormats(), eraTable);
+                eraTable.Theme = XLTableTheme.TableStyleMedium6;
+
                 DataTable bioticaVsSpiritCountDataTable = NestDictToDataTable(this.BioticumVsSpiritCounter, "Bioticum");
                 var bioVsCharCountWs = wb.AddWorksheet("BioVsCharCounts");
                 var bioVsCharCountTable = bioVsCharCountWs.Cell("A1").InsertTable(bioticaVsSpiritCountDataTable);
@@ -1186,11 +1205,6 @@ namespace Reus2Surveyor
                 {
                     col.Style.NumberFormat.Format = "0.0000";
                 }
-
-                var eraWs = wb.AddWorksheet("Era");
-                var eraTable = eraWs.Cell("A1").InsertTable(this.EraStats.Values);
-                ApplyTableNumberFormats(EraStatEntry.GetColumnFormats(), eraTable);
-                eraTable.Theme = XLTableTheme.TableStyleMedium6;
 
                 wb.SaveAs(dstPath);
             }

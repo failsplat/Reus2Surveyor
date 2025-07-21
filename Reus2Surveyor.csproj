@@ -9,6 +9,7 @@
     <FileVersion></FileVersion>
     <PathMap>$(MSBuildProjectDirectory)\$(IntermediateOutputPath)=.</PathMap>
     <ApplicationIcon>Icons\icon.ico</ApplicationIcon>
+	<ForceDesignerDPIUnaware>true</ForceDesignerDPIUnaware>
   </PropertyGroup>
 
   <ItemGroup>

@@ -29,6 +29,7 @@ namespace Reus2Surveyor
         /// </summary>
         private void InitializeComponent()
         {
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
             findProfileButton = new System.Windows.Forms.Button();
             profileFolderTextBox = new System.Windows.Forms.TextBox();
@@ -75,9 +76,10 @@ namespace Reus2Surveyor
             // 
             // findProfileButton
             // 
-            findProfileButton.Location = new System.Drawing.Point(12, 3);
+            findProfileButton.Location = new System.Drawing.Point(14, 4);
+            findProfileButton.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             findProfileButton.Name = "findProfileButton";
-            findProfileButton.Size = new System.Drawing.Size(75, 23);
+            findProfileButton.Size = new System.Drawing.Size(121, 28);
             findProfileButton.TabIndex = 1;
             findProfileButton.Text = "Find Profile";
             findProfileButton.UseVisualStyleBackColor = true;
@@ -86,26 +88,28 @@ namespace Reus2Surveyor
             // profileFolderTextBox
             // 
             profileFolderTextBox.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            profileFolderTextBox.Location = new System.Drawing.Point(12, 30);
+            profileFolderTextBox.Location = new System.Drawing.Point(14, 36);
+            profileFolderTextBox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             profileFolderTextBox.Name = "profileFolderTextBox";
             profileFolderTextBox.ReadOnly = true;
-            profileFolderTextBox.Size = new System.Drawing.Size(760, 23);
+            profileFolderTextBox.Size = new System.Drawing.Size(956, 22);
             profileFolderTextBox.TabIndex = 2;
             // 
             // decodeReadyStatusLabel
             // 
             decodeReadyStatusLabel.AutoSize = true;
-            decodeReadyStatusLabel.Location = new System.Drawing.Point(11, 3);
+            decodeReadyStatusLabel.Location = new System.Drawing.Point(13, 4);
             decodeReadyStatusLabel.Name = "decodeReadyStatusLabel";
-            decodeReadyStatusLabel.Size = new System.Drawing.Size(62, 15);
+            decodeReadyStatusLabel.Size = new System.Drawing.Size(70, 14);
             decodeReadyStatusLabel.TabIndex = 3;
             decodeReadyStatusLabel.Text = "Not Ready";
             // 
             // decodeButton
             // 
-            decodeButton.Location = new System.Drawing.Point(11, 21);
+            decodeButton.Location = new System.Drawing.Point(13, 25);
+            decodeButton.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             decodeButton.Name = "decodeButton";
-            decodeButton.Size = new System.Drawing.Size(123, 23);
+            decodeButton.Size = new System.Drawing.Size(141, 28);
             decodeButton.TabIndex = 4;
             decodeButton.Text = "Decode Planets";
             decodeButton.UseVisualStyleBackColor = true;
@@ -114,17 +118,18 @@ namespace Reus2Surveyor
             // decodeProgressBar
             // 
             decodeProgressBar.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            decodeProgressBar.Location = new System.Drawing.Point(250, 20);
+            decodeProgressBar.Location = new System.Drawing.Point(286, 24);
+            decodeProgressBar.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             decodeProgressBar.Name = "decodeProgressBar";
-            decodeProgressBar.Size = new System.Drawing.Size(521, 23);
+            decodeProgressBar.Size = new System.Drawing.Size(683, 28);
             decodeProgressBar.TabIndex = 5;
             // 
             // decodeProgressLabel
             // 
             decodeProgressLabel.AutoSize = true;
-            decodeProgressLabel.Location = new System.Drawing.Point(250, 2);
+            decodeProgressLabel.Location = new System.Drawing.Point(286, 3);
             decodeProgressLabel.Name = "decodeProgressLabel";
-            decodeProgressLabel.Size = new System.Drawing.Size(37, 15);
+            decodeProgressLabel.Size = new System.Drawing.Size(49, 14);
             decodeProgressLabel.TabIndex = 6;
             decodeProgressLabel.Text = "------";
             decodeProgressLabel.Click += decodeProgressLabel_Click;
@@ -136,18 +141,26 @@ namespace Reus2Surveyor
             planetGridView.AllowUserToResizeColumns = false;
             planetGridView.AllowUserToResizeRows = false;
             planetGridView.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            planetGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            planetGridView.ColumnHeadersHeight = 30;
+            planetGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             planetGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] { NameCol, MinimapCol, ScoreCol, Giant1Col, Giant2Col, Giant3Col, SpiritCol, SpiritIconCol, CompletionCol, ReadOptionCol, ReadStatusCol });
             planetGridView.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
-            planetGridView.Location = new System.Drawing.Point(12, 32);
+            planetGridView.Location = new System.Drawing.Point(14, 39);
+            planetGridView.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             planetGridView.Name = "planetGridView";
-            planetGridView.Size = new System.Drawing.Size(759, 284);
+            planetGridView.RowHeadersWidth = 51;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
+            planetGridView.RowsDefaultCellStyle = dataGridViewCellStyle1;
+            planetGridView.RowTemplate.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            planetGridView.ShowEditingIcon = false;
+            planetGridView.Size = new System.Drawing.Size(955, 348);
             planetGridView.TabIndex = 7;
             // 
             // NameCol
             // 
             NameCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
             NameCol.HeaderText = "Name";
+            NameCol.MinimumWidth = 6;
             NameCol.Name = "NameCol";
             NameCol.ReadOnly = true;
             NameCol.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
@@ -156,21 +169,25 @@ namespace Reus2Surveyor
             // 
             MinimapCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
             MinimapCol.HeaderText = "Minimap";
+            MinimapCol.MinimumWidth = 6;
             MinimapCol.Name = "MinimapCol";
+            MinimapCol.Width = 125;
             // 
             // ScoreCol
             // 
             ScoreCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
             ScoreCol.HeaderText = "Score";
+            ScoreCol.MinimumWidth = 6;
             ScoreCol.Name = "ScoreCol";
             ScoreCol.ReadOnly = true;
             ScoreCol.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            ScoreCol.Width = 42;
+            ScoreCol.Width = 48;
             // 
             // Giant1Col
             // 
             Giant1Col.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
             Giant1Col.HeaderText = "G1";
+            Giant1Col.MinimumWidth = 6;
             Giant1Col.Name = "Giant1Col";
             Giant1Col.Width = 25;
             // 
@@ -178,6 +195,7 @@ namespace Reus2Surveyor
             // 
             Giant2Col.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
             Giant2Col.HeaderText = "G2";
+            Giant2Col.MinimumWidth = 6;
             Giant2Col.Name = "Giant2Col";
             Giant2Col.Width = 25;
             // 
@@ -185,6 +203,7 @@ namespace Reus2Surveyor
             // 
             Giant3Col.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
             Giant3Col.HeaderText = "G3";
+            Giant3Col.MinimumWidth = 6;
             Giant3Col.Name = "Giant3Col";
             Giant3Col.Width = 25;
             // 
@@ -192,15 +211,16 @@ namespace Reus2Surveyor
             // 
             SpiritCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
             SpiritCol.HeaderText = "Spirit";
+            SpiritCol.MinimumWidth = 6;
             SpiritCol.Name = "SpiritCol";
             SpiritCol.ReadOnly = true;
             SpiritCol.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            SpiritCol.Width = 60;
             // 
             // SpiritIconCol
             // 
             SpiritIconCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
             SpiritIconCol.HeaderText = "S";
+            SpiritIconCol.MinimumWidth = 6;
             SpiritIconCol.Name = "SpiritIconCol";
             SpiritIconCol.Width = 25;
             // 
@@ -208,36 +228,40 @@ namespace Reus2Surveyor
             // 
             CompletionCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
             CompletionCol.HeaderText = "SaveSlot";
+            CompletionCol.MinimumWidth = 6;
             CompletionCol.Name = "CompletionCol";
             CompletionCol.ReadOnly = true;
             CompletionCol.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             CompletionCol.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            CompletionCol.Width = 57;
+            CompletionCol.Width = 69;
             // 
             // ReadOptionCol
             // 
             ReadOptionCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
             ReadOptionCol.HeaderText = "Read?";
+            ReadOptionCol.MinimumWidth = 6;
             ReadOptionCol.Name = "ReadOptionCol";
-            ReadOptionCol.Width = 44;
+            ReadOptionCol.Width = 48;
             // 
             // ReadStatusCol
             // 
             ReadStatusCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
             ReadStatusCol.HeaderText = "Status";
+            ReadStatusCol.MinimumWidth = 6;
             ReadStatusCol.Name = "ReadStatusCol";
             ReadStatusCol.ReadOnly = true;
             ReadStatusCol.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             ReadStatusCol.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            ReadStatusCol.Width = 45;
+            ReadStatusCol.Width = 55;
             // 
             // exportStatsButton
             // 
             exportStatsButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
             exportStatsButton.Enabled = false;
-            exportStatsButton.Location = new System.Drawing.Point(11, 7);
+            exportStatsButton.Location = new System.Drawing.Point(13, 8);
+            exportStatsButton.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             exportStatsButton.Name = "exportStatsButton";
-            exportStatsButton.Size = new System.Drawing.Size(86, 23);
+            exportStatsButton.Size = new System.Drawing.Size(98, 28);
             exportStatsButton.TabIndex = 8;
             exportStatsButton.Text = "Export XLSX";
             exportStatsButton.UseVisualStyleBackColor = true;
@@ -247,18 +271,19 @@ namespace Reus2Surveyor
             // 
             exportReadyLabel.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
             exportReadyLabel.AutoSize = true;
-            exportReadyLabel.Location = new System.Drawing.Point(103, 10);
+            exportReadyLabel.Location = new System.Drawing.Point(118, 12);
             exportReadyLabel.Name = "exportReadyLabel";
-            exportReadyLabel.Size = new System.Drawing.Size(37, 15);
+            exportReadyLabel.Size = new System.Drawing.Size(49, 14);
             exportReadyLabel.TabIndex = 9;
             exportReadyLabel.Text = "------";
             // 
             // spotCheckButton
             // 
             spotCheckButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
-            spotCheckButton.Location = new System.Drawing.Point(92, 1);
+            spotCheckButton.Location = new System.Drawing.Point(108, 0);
+            spotCheckButton.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             spotCheckButton.Name = "spotCheckButton";
-            spotCheckButton.Size = new System.Drawing.Size(75, 23);
+            spotCheckButton.Size = new System.Drawing.Size(86, 28);
             spotCheckButton.TabIndex = 10;
             spotCheckButton.Text = "Spot Check";
             spotCheckButton.UseVisualStyleBackColor = true;
@@ -270,9 +295,10 @@ namespace Reus2Surveyor
             spotCheckWriteCheckBox.AutoSize = true;
             spotCheckWriteCheckBox.Checked = true;
             spotCheckWriteCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-            spotCheckWriteCheckBox.Location = new System.Drawing.Point(173, 3);
+            spotCheckWriteCheckBox.Location = new System.Drawing.Point(200, 8);
+            spotCheckWriteCheckBox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             spotCheckWriteCheckBox.Name = "spotCheckWriteCheckBox";
-            spotCheckWriteCheckBox.Size = new System.Drawing.Size(104, 19);
+            spotCheckWriteCheckBox.Size = new System.Drawing.Size(117, 18);
             spotCheckWriteCheckBox.TabIndex = 11;
             spotCheckWriteCheckBox.Text = "Write Decoded";
             spotCheckWriteCheckBox.UseVisualStyleBackColor = true;
@@ -281,9 +307,10 @@ namespace Reus2Surveyor
             // writeDecodedCheckBox
             // 
             writeDecodedCheckBox.AutoSize = true;
-            writeDecodedCheckBox.Location = new System.Drawing.Point(140, 24);
+            writeDecodedCheckBox.Location = new System.Drawing.Point(160, 29);
+            writeDecodedCheckBox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             writeDecodedCheckBox.Name = "writeDecodedCheckBox";
-            writeDecodedCheckBox.Size = new System.Drawing.Size(104, 19);
+            writeDecodedCheckBox.Size = new System.Drawing.Size(117, 18);
             writeDecodedCheckBox.TabIndex = 12;
             writeDecodedCheckBox.Text = "Write Decoded";
             writeDecodedCheckBox.UseVisualStyleBackColor = true;
@@ -293,9 +320,9 @@ namespace Reus2Surveyor
             // 
             label2.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
             label2.AutoSize = true;
-            label2.Location = new System.Drawing.Point(3, 5);
+            label2.Location = new System.Drawing.Point(3, -86);
             label2.Name = "label2";
-            label2.Size = new System.Drawing.Size(89, 15);
+            label2.Size = new System.Drawing.Size(105, 14);
             label2.TabIndex = 14;
             label2.Text = "For Debugging:";
             // 
@@ -309,9 +336,10 @@ namespace Reus2Surveyor
             // readAllButton
             // 
             readAllButton.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            readAllButton.Location = new System.Drawing.Point(605, 3);
+            readAllButton.Location = new System.Drawing.Point(779, 4);
+            readAllButton.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             readAllButton.Name = "readAllButton";
-            readAllButton.Size = new System.Drawing.Size(75, 23);
+            readAllButton.Size = new System.Drawing.Size(86, 28);
             readAllButton.TabIndex = 15;
             readAllButton.Text = "Check All";
             readAllButton.UseVisualStyleBackColor = true;
@@ -320,9 +348,10 @@ namespace Reus2Surveyor
             // readNoneButton
             // 
             readNoneButton.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            readNoneButton.Location = new System.Drawing.Point(686, 3);
+            readNoneButton.Location = new System.Drawing.Point(872, 4);
+            readNoneButton.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             readNoneButton.Name = "readNoneButton";
-            readNoneButton.Size = new System.Drawing.Size(86, 23);
+            readNoneButton.Size = new System.Drawing.Size(98, 28);
             readNoneButton.TabIndex = 16;
             readNoneButton.Text = "Check None";
             readNoneButton.UseVisualStyleBackColor = true;
@@ -334,9 +363,10 @@ namespace Reus2Surveyor
             debugPanel.Controls.Add(label2);
             debugPanel.Controls.Add(spotCheckButton);
             debugPanel.Controls.Add(spotCheckWriteCheckBox);
-            debugPanel.Location = new System.Drawing.Point(463, 432);
+            debugPanel.Location = new System.Drawing.Point(617, 525);
+            debugPanel.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             debugPanel.Name = "debugPanel";
-            debugPanel.Size = new System.Drawing.Size(280, 24);
+            debugPanel.Size = new System.Drawing.Size(320, 29);
             debugPanel.TabIndex = 17;
             debugPanel.Visible = false;
             // 
@@ -344,9 +374,10 @@ namespace Reus2Surveyor
             // 
             debugMenuButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
             debugMenuButton.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
-            debugMenuButton.Location = new System.Drawing.Point(749, 433);
+            debugMenuButton.Location = new System.Drawing.Point(944, 526);
+            debugMenuButton.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             debugMenuButton.Name = "debugMenuButton";
-            debugMenuButton.Size = new System.Drawing.Size(23, 23);
+            debugMenuButton.Size = new System.Drawing.Size(26, 28);
             debugMenuButton.TabIndex = 18;
             debugMenuButton.Text = "D";
             debugMenuButton.UseVisualStyleBackColor = true;
@@ -359,15 +390,17 @@ namespace Reus2Surveyor
             ProfilePanel.Controls.Add(findProfileButton);
             ProfilePanel.Controls.Add(profileFolderTextBox);
             ProfilePanel.Location = new System.Drawing.Point(0, 0);
+            ProfilePanel.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             ProfilePanel.Name = "ProfilePanel";
-            ProfilePanel.Size = new System.Drawing.Size(784, 57);
+            ProfilePanel.Size = new System.Drawing.Size(984, 68);
             ProfilePanel.TabIndex = 19;
             // 
             // resetProfileButton
             // 
-            resetProfileButton.Location = new System.Drawing.Point(93, 3);
+            resetProfileButton.Location = new System.Drawing.Point(141, 4);
+            resetProfileButton.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             resetProfileButton.Name = "resetProfileButton";
-            resetProfileButton.Size = new System.Drawing.Size(75, 23);
+            resetProfileButton.Size = new System.Drawing.Size(86, 28);
             resetProfileButton.TabIndex = 3;
             resetProfileButton.Text = "⟳ Reset";
             resetProfileButton.UseVisualStyleBackColor = true;
@@ -381,9 +414,10 @@ namespace Reus2Surveyor
             DecodePanel.Controls.Add(decodeProgressBar);
             DecodePanel.Controls.Add(decodeButton);
             DecodePanel.Controls.Add(decodeReadyStatusLabel);
-            DecodePanel.Location = new System.Drawing.Point(0, 56);
+            DecodePanel.Location = new System.Drawing.Point(0, 68);
+            DecodePanel.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             DecodePanel.Name = "DecodePanel";
-            DecodePanel.Size = new System.Drawing.Size(784, 49);
+            DecodePanel.Size = new System.Drawing.Size(984, 58);
             DecodePanel.TabIndex = 20;
             // 
             // planetGridPanel
@@ -393,17 +427,18 @@ namespace Reus2Surveyor
             planetGridPanel.Controls.Add(readNoneButton);
             planetGridPanel.Controls.Add(readAllButton);
             planetGridPanel.Controls.Add(planetGridView);
-            planetGridPanel.Location = new System.Drawing.Point(0, 104);
+            planetGridPanel.Location = new System.Drawing.Point(0, 125);
+            planetGridPanel.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             planetGridPanel.Name = "planetGridPanel";
-            planetGridPanel.Size = new System.Drawing.Size(784, 320);
+            planetGridPanel.Size = new System.Drawing.Size(984, 391);
             planetGridPanel.TabIndex = 21;
             // 
             // planetCountLabel
             // 
             planetCountLabel.AutoSize = true;
-            planetCountLabel.Location = new System.Drawing.Point(12, 11);
+            planetCountLabel.Location = new System.Drawing.Point(14, 14);
             planetCountLabel.Name = "planetCountLabel";
-            planetCountLabel.Size = new System.Drawing.Size(38, 15);
+            planetCountLabel.Size = new System.Drawing.Size(49, 14);
             planetCountLabel.TabIndex = 17;
             planetCountLabel.Text = "label1";
             // 
@@ -412,23 +447,26 @@ namespace Reus2Surveyor
             ExportPanel.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
             ExportPanel.Controls.Add(exportStatsButton);
             ExportPanel.Controls.Add(exportReadyLabel);
-            ExportPanel.Location = new System.Drawing.Point(0, 423);
+            ExportPanel.Location = new System.Drawing.Point(0, 515);
+            ExportPanel.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             ExportPanel.Name = "ExportPanel";
-            ExportPanel.Size = new System.Drawing.Size(322, 38);
+            ExportPanel.Size = new System.Drawing.Size(368, 46);
             ExportPanel.TabIndex = 22;
             // 
             // FormMain
             // 
-            AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            AutoScaleDimensions = new System.Drawing.SizeF(7F, 14F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            ClientSize = new System.Drawing.Size(784, 461);
+            ClientSize = new System.Drawing.Size(984, 561);
             Controls.Add(ExportPanel);
             Controls.Add(planetGridPanel);
             Controls.Add(DecodePanel);
             Controls.Add(ProfilePanel);
             Controls.Add(debugMenuButton);
             Controls.Add(debugPanel);
+            Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
             Icon = (System.Drawing.Icon)resources.GetObject("$this.Icon");
+            Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             Name = "FormMain";
             Text = "Reus 2 Planet Surveyor";
             Load += FormMain_Load;
@@ -463,6 +501,14 @@ namespace Reus2Surveyor
         private System.ComponentModel.BackgroundWorker planetLooperBackgroundWorker;
         private System.Windows.Forms.Button readAllButton;
         private System.Windows.Forms.Button readNoneButton;
+        private System.Windows.Forms.Panel debugPanel;
+        private System.Windows.Forms.Button debugMenuButton;
+        private System.Windows.Forms.Panel ProfilePanel;
+        private System.Windows.Forms.Panel DecodePanel;
+        private System.Windows.Forms.Panel planetGridPanel;
+        private System.Windows.Forms.Panel ExportPanel;
+        private System.Windows.Forms.Button resetProfileButton;
+        private System.Windows.Forms.Label planetCountLabel;
         private System.Windows.Forms.DataGridViewTextBoxColumn NameCol;
         private System.Windows.Forms.DataGridViewImageColumn MinimapCol;
         private System.Windows.Forms.DataGridViewTextBoxColumn ScoreCol;
@@ -474,14 +520,6 @@ namespace Reus2Surveyor
         private System.Windows.Forms.DataGridViewTextBoxColumn CompletionCol;
         private System.Windows.Forms.DataGridViewCheckBoxColumn ReadOptionCol;
         private System.Windows.Forms.DataGridViewTextBoxColumn ReadStatusCol;
-        private System.Windows.Forms.Panel debugPanel;
-        private System.Windows.Forms.Button debugMenuButton;
-        private System.Windows.Forms.Panel ProfilePanel;
-        private System.Windows.Forms.Panel DecodePanel;
-        private System.Windows.Forms.Panel planetGridPanel;
-        private System.Windows.Forms.Panel ExportPanel;
-        private System.Windows.Forms.Button resetProfileButton;
-        private System.Windows.Forms.Label planetCountLabel;
     }
 }
 

@@ -82,7 +82,7 @@ Coffee,Invention,f3d885db1afe1a842b173b19bf615301
 Majestic Rings,Invention,3cbba0548c530434d837e60af013990f
 Beast of Burden,Invention,beb881ffb6bf40646a6df62f62079b6b
 Toothpaste,Invention,510cc8ea58c80a94188051b300b3cb17
-Cheese,Invention,20d9574a1530f9b4bb7b2c564d6ef1b3
+ Cheese,Invention,20d9574a1530f9b4bb7b2c564d6ef1b3
 Guaraná,Invention,d6c7ee01c0761364f8ccfee40a335f80
 Luxurious Rings,Invention,365012a9f23364f4a83337c6cac51e0a
 Ice Cream,Invention,86397800b15252a4c85b432c05de2921
@@ -104,18 +104,24 @@ Bouquet,Invention,2c552d01340240041b58c62848789cb7
 Wool Clothes,Invention,7434b35707665d848885f7ec0c3f66a9
 Marijuana,Invention,9baf85af544b0f14babadb668bbcff51
 Rope,Invention,1bf12015ff20bf445975a2db91900981
-Cultural Exchage: Botanist,Exchange,27fae81d38eca9f4bb01ace40533a719
-Cultural Exchage: Diplomat,Exchange,f1c31344773953b4c94040996ca4c572
-Cultural Exchage: Inventor,Exchange,d21c6835098c15745b6be00b06382e26
-Cultural Exchage: Sage,Exchange,7558f4b4a5e3f3d44991d72b280f7000
-Cultural Exchage: Poet,Exchange,58dc3eff2dc1f7a47b4607682870d2f5
-Cultural Exchage: Merchant,Exchange,beec61ff9fd57994ba22bf39f3af455f
-Cultural Exchage: Painter,Exchange,ec40360ec6c9c81498554013ab0c86db
-Cultural Exchage: Pirate Queen,Exchange,0aaf11e167236b34bbf1e8cd1b1e2c49
-Cultural Exchage: Hunter,Exchange,38310c569d5646149b3340ec43563b2e
-Cultural Exchage: Miner,Exchange,6c618bcf37bcd9540aec38bb0427c457
-Cultural Exchage: General,Exchange,f07d5ae3c86f18c4881f3070c38e5eab
-Cultural Exchage: Goddess,Exchange,2c4d14217ef900f45a92ff313cd2fe1f
-Cultural Exchage: Villain,Exchange,a6d800c796202b54c9635c0267dbf67e
+Cultural Exchange: Botanist,Exchange,27fae81d38eca9f4bb01ace40533a719
+Cultural Exchange: Diplomat,Exchange,f1c31344773953b4c94040996ca4c572
+Cultural Exchange: Inventor,Exchange,d21c6835098c15745b6be00b06382e26
+Cultural Exchange: Sage,Exchange,7558f4b4a5e3f3d44991d72b280f7000
+Cultural Exchange: Poet,Exchange,58dc3eff2dc1f7a47b4607682870d2f5
+Cultural Exchange: Merchant,Exchange,beec61ff9fd57994ba22bf39f3af455f
+Cultural Exchange: Painter,Exchange,ec40360ec6c9c81498554013ab0c86db
+Cultural Exchange: Pirate Queen,Exchange,0aaf11e167236b34bbf1e8cd1b1e2c49
+Cultural Exchange: Hunter,Exchange,38310c569d5646149b3340ec43563b2e
+Cultural Exchange: Miner,Exchange,6c618bcf37bcd9540aec38bb0427c457
+Cultural Exchange: General,Exchange,f07d5ae3c86f18c4881f3070c38e5eab
+Cultural Exchange: Goddess,Exchange,2c4d14217ef900f45a92ff313cd2fe1f
+Cultural Exchange: Villain,Exchange,a6d800c796202b54c9635c0267dbf67e
 Red Dye,Invention,6e7fa3e5a01418c4dbe1fdb999df2e0f
 Didgereedoo,Invention,14d941374b43cea4bb6c2f49d225e439
+Cultural Exchange: Entomologist,Exchange,9e5558bce4cb4e94db2a1c15323571fc
+Cultural Exchange: Romantic,Exchange,bf2453252c9c86047ae8dc74ae970c02
+Cultural Exchange: Ranger,Exchange,bb53182a208f236429630d844cccf9b0
+Cultural Exchange: Revolutionary,Exchange,7e53d911d23b926468c493eeded4b98d
+Fireworks,Invention,be10f2d54ff24b74aa731ffecb4708ac
+Pizza,Invention,6e25a984c5dde9348ad9fa3d629c6119

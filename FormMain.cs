@@ -48,6 +48,7 @@ namespace Reus2Surveyor
         public FormMain()
         {
             InitializeComponent();
+            this.planetGridView.RowTemplate.Height = 25;
         }
 
         private void FormMain_Load(object sender, EventArgs e)
@@ -268,8 +269,21 @@ namespace Reus2Surveyor
                 if (this.WriteDecodedSetting)
                 {
                     string dst = Path.Combine(decodedDir, pathParts[1] + "." + pathParts[0] + ".json");
-                    string outputText = JsonConvert.SerializeObject(resAsDict, Formatting.Indented);
-                    File.WriteAllText(dst, outputText);
+                    string outputText;
+                    if (!File.Exists(dst)) {
+                        outputText = JsonConvert.SerializeObject(resAsDict, Formatting.Indented);
+                        File.WriteAllText(dst, outputText);
+                    }
+                    else
+                    {
+                        DateTime dstLastWrite = File.GetLastWriteTimeUtc(dst);
+                        DateTime srcLastWrite = File.GetLastWriteTimeUtc(path);
+                        if (srcLastWrite > dstLastWrite)
+                        {
+                            outputText = JsonConvert.SerializeObject(resAsDict, Formatting.Indented);
+                            File.WriteAllText(dst, outputText);
+                        }
+                    }
                 }
             }
             else
@@ -300,10 +314,15 @@ namespace Reus2Surveyor
             thisRow.Cells["ReadStatusCol"].Value = "OK";
 
             if (TableGraphics.spiritSquares.TryGetValue(spiritName, out byte[] spiritImage)) { thisRow.Cells["SpiritIconCol"].Value = spiritImage; }
+            else thisRow.Cells["SpiritIconCol"].Value = Properties.Resources.ErrorSquare;
+
 
             if (TableGraphics.giantSquares.TryGetValue(newPlanet.GiantNames[0], out byte[] giant1Image)) { thisRow.Cells["Giant1Col"].Value = giant1Image; }
+            else thisRow.Cells["Giant1Col"].Value = Properties.Resources.ErrorSquare;
             if (TableGraphics.giantSquares.TryGetValue(newPlanet.GiantNames[1], out byte[] giant2Image)) { thisRow.Cells["Giant2Col"].Value = giant2Image; }
+            else thisRow.Cells["Giant2Col"].Value = Properties.Resources.ErrorSquare;
             if (TableGraphics.giantSquares.TryGetValue(newPlanet.GiantNames[2], out byte[] giant3Image)) { thisRow.Cells["Giant3Col"].Value = giant3Image; }
+            else thisRow.Cells["Giant3Col"].Value = Properties.Resources.ErrorSquare;
 
             SixLabors.ImageSharp.Image miniMap = TableGraphics.BiomePositionalToMinimap(newPlanet.BiomeSizeMap);
             using MemoryStream ms = new MemoryStream();
@@ -513,5 +532,6 @@ namespace Reus2Surveyor
             this.ProfileDir = null;
             this.SetAndCheckProfilePath(temp);
         }
+
     }
 }
