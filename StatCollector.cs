@@ -570,6 +570,7 @@ namespace Reus2Surveyor
                     if (planet.gameSession.turningPointPerformances.Count > 0)
                     {
                         se.IncrementPlanetScoreTotalAsPrimary((int)planet.gameSession.turningPointPerformances.Last().scoreTotal);
+                        se.IncrementPlanetProsAverageAsPrimary(Statistics.Mean([.. cityProsList]));
                         se.PrScoreHi = Math.Max(se.PrScoreHi, (int)planet.gameSession.turningPointPerformances.Last().scoreTotal);
                     }
                 }

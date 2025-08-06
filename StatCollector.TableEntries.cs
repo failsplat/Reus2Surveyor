@@ -368,7 +368,9 @@ namespace Reus2Surveyor
             [XLColumn(Order = 10)] public double? AvScore = null;
 
             private int totalPlanetScorePrimary = 0;
-            [XLColumn(Order = 11)] public double? AvPrScore = null;
+            [XLColumn(Order = 11)] public double? AvPrTScore = null;
+            private double totalPlanetCityProsAverage = 0;
+            [XLColumn(Order = 12)] public double? AvPrAPros = null;
 
             private int prosTotal = 0;
             private int popTotal, techTotal, welTotal = 0;
@@ -441,7 +443,8 @@ namespace Reus2Surveyor
                     "PPlant", "PAnimal", "PMineral", "ApexP",
                 } },
                 {"0.000", new List<string> {
-                    "AvPros", "AvPop", "AvTech", "AvWel", "AvScore", "AvPrScore",
+                    "AvPros", "AvPop", "AvTech", "AvWel", "AvScore",
+                    "AvPrTScore", "AvPrAPros",
                     "AvRelPros", "AvRelPop", "AvRelTech", "AvRelWel",
                     "HiRelPros", "HiRelPop", "HiRelTech", "HiRelWel",
                     "InventAv", "TradeAv",
@@ -547,6 +550,11 @@ namespace Reus2Surveyor
                 this.totalPlanetScorePrimary += score;
             }
 
+            public void IncrementPlanetProsAverageAsPrimary(double avpros)
+            {
+                this.totalPlanetCityProsAverage += avpros;
+            }
+
             public void CalculateStats(int planetCount)
             {
                 this.P = SafePercent(this.Count, planetCount);
@@ -554,7 +562,8 @@ namespace Reus2Surveyor
                 this.MainP = SafePercent(this.Prime, planetCount);
 
                 this.AvScore = SafeDivide(this.totalPlanetScore, this.Count);
-                this.AvPrScore = SafeDivide(this.totalPlanetScorePrimary, this.Prime);
+                this.AvPrTScore = SafeDivide(this.totalPlanetScorePrimary, this.Prime);
+                this.AvPrAPros = SafeDivide(this.totalPlanetCityProsAverage, this.Prime);
 
                 this.AvPros = SafeDivide(this.prosTotal, this.Count);
                 this.AvPop = SafeDivide(this.popTotal, this.Count);
