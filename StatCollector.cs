@@ -210,7 +210,6 @@ namespace Reus2Surveyor
             HashSet<string> luxuriesPresent = [];
 
             planetEntry.Cities = planet.cityDictionary.Count;
-            planetEntry.Prjs = 0;
 
             int cityIndex = 0; // Starts at 1, increments at beginning of loop
             foreach (City city in planet.cityDictionary.Values)
@@ -218,7 +217,8 @@ namespace Reus2Surveyor
                 cityIndex += 1;
 
                 planetEntry.Prjs += city.CityProjectController.projects.Count;
-
+                planetEntry.Invent += city.CityLuxuryController.luxurySlots.Where(ls => ls.luxuryGoodId is not null).Count();
+                planetEntry.Trades += city.CityLuxuryController.importAgreementIds.Count();
 
                 cityProsList.Add((int)city.CivSummary.prosperity);
                 cityPopList.Add((int)city.CivSummary.population);
@@ -228,6 +228,10 @@ namespace Reus2Surveyor
                 string founderName = glossaryInstance.SpiritNameFromHash(city.founderCharacterDef);
                 typeof(PlanetSummaryEntry).GetField("Char" + cityIndex.ToString()).SetValue(planetEntry, founderName);
             }
+
+            planetEntry.PrjAv = SafeDivide(planetEntry.Prjs, planetEntry.Cities);
+            planetEntry.InventAv = SafeDivide(planetEntry.Invent, planetEntry.Cities);
+            planetEntry.TradeAv = SafeDivide(planetEntry.Trades, planetEntry.Cities);
 
             planetEntry.Pros = cityProsList.Sum();
             planetEntry.ProsMdn = Statistics.Median([.. cityProsList]);
