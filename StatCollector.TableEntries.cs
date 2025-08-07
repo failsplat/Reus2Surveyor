@@ -153,10 +153,12 @@ namespace Reus2Surveyor
             [XLColumn(Order = 14)] public string Giant3;
             [XLColumn(Order = 15)] public string Spirit;
 
-            [XLColumn(Order = 16)] public int Cities;
-            [XLColumn(Order = 17)] public int Prjs;
-
-            [XLColumn(Order = 20)] public string Char1, Char2, Char3, Char4, Char5;
+            [XLColumn(Order = 20)] public int Cities;
+            [XLColumn(Order = 21)] public string Char1;
+            [XLColumn(Order = 22)] public string Char2;
+            [XLColumn(Order = 23)] public string Char3;
+            [XLColumn(Order = 24)] public string Char4;
+            [XLColumn(Order = 25)] public string Char5;
 
             [XLColumn(Order = 30)] public string Era1Name;
             [XLColumn(Order = 31)] public int? Era1Star;
@@ -189,35 +191,42 @@ namespace Reus2Surveyor
             [XLColumn(Order = 101)] public double? AvTech;
             [XLColumn(Order = 102)] public double? AvWel;
 
-            [XLColumn(Order = 110)] public int? Biomes;
-            [XLColumn(Order = 111)] public int? CBiomes;
+            [XLColumn(Order = 110)] public int Prjs;
+            [XLColumn(Order = 111)] public int Invent = 0;
+            [XLColumn(Order = 112)] public int Trades = 0;
+            [XLColumn(Order = 110)] public double? PrjAv;
+            [XLColumn(Order = 111)] public double? InventAv;
+            [XLColumn(Order = 112)] public double? TradeAv;
 
-            [XLColumn(Order = 112)] public int SzT;
-            [XLColumn(Order = 113)] public int SzWld;
-            [XLColumn(Order = 114)] public int FilledSlots = 0;
-            [XLColumn(Order = 115)] public double? FillP;
+            [XLColumn(Order = 120)] public int? Biomes;
+            [XLColumn(Order = 121)] public int? CBiomes;
 
-            [XLColumn(Order = 120)] public int Biotica = 0;
-            [XLColumn(Order = 121)] public int Plants = 0;
-            [XLColumn(Order = 122)] public int Animals = 0;
-            [XLColumn(Order = 123)] public int Minerals = 0;
+            [XLColumn(Order = 122)] public int SzT;
+            [XLColumn(Order = 123)] public int SzWld;
+            [XLColumn(Order = 124)] public int FilledSlots = 0;
+            [XLColumn(Order = 125)] public double? FillP;
 
-            [XLColumn(Order = 130)] public int UqBiotica;
-            [XLColumn(Order = 131)] public int UqPlants;
-            [XLColumn(Order = 132)] public int UqAnimals;
-            [XLColumn(Order = 133)] public int UqMinerals;
-            [XLColumn(Order = 134)] public double? PPlant, PAnimal, PMineral;
+            [XLColumn(Order = 130)] public int Biotica = 0;
+            [XLColumn(Order = 131)] public int Plants = 0;
+            [XLColumn(Order = 132)] public int Animals = 0;
+            [XLColumn(Order = 133)] public int Minerals = 0;
 
-            [XLColumn(Order = 140)] public int Apex;
-            [XLColumn(Order = 141)] private int OccupiedSlotTotalLevel = 0;
-            [XLColumn(Order = 142)] public double? ApexP;
-            [XLColumn(Order = 143)] public double? AvFBioLv;
+            [XLColumn(Order = 140)] public int UqBiotica;
+            [XLColumn(Order = 141)] public int UqPlants;
+            [XLColumn(Order = 142)] public int UqAnimals;
+            [XLColumn(Order = 143)] public int UqMinerals;
+            [XLColumn(Order = 144)] public double? PPlant, PAnimal, PMineral;
 
-            [XLColumn(Order = 150)] public int Creeks = 0;
-            [XLColumn(Order = 150)] public int InvasiveSpots = 0;
-            [XLColumn(Order = 150)] public int Anomalies = 0;
-            [XLColumn(Order = 150)] public int Sanctuaries = 0;
-            [XLColumn(Order = 150)] public int MountainSlots = 0;
+            [XLColumn(Order = 150)] public int Apex;
+            [XLColumn(Order = 151)] private int OccupiedSlotTotalLevel = 0;
+            [XLColumn(Order = 152)] public double? ApexP;
+            [XLColumn(Order = 153)] public double? AvFBioLv;
+
+            [XLColumn(Order = 160)] public int Creeks = 0;
+            [XLColumn(Order = 161)] public int InvasiveSpots = 0;
+            [XLColumn(Order = 162)] public int Anomalies = 0;
+            [XLColumn(Order = 163)] public int Sanctuaries = 0;
+            [XLColumn(Order = 164)] public int MountainSlots = 0;
 
             [XLColumn(Order = 160), UnpackToBiomes(defaultValue: (double)0, suffix: "P", numberFormat: "0.00%")]
             public Dictionary<string, double> biomePercents = [];
@@ -226,7 +235,10 @@ namespace Reus2Surveyor
                 {"0.00%", new List<string> {
                     "PPop", "PTech", "PWel", "PPlant", "PAnimal", "PMineral", "ApexP", "FillP",
                 } },
-                {"0.000", new List<string> { "AvPros", "AvPop", "AvTech", "AvWel", "AvFBioLv" } },
+                {"0.000", new List<string> { 
+                    "AvPros", "AvPop", "AvTech", "AvWel", "AvFBioLv",
+                    "PrjAv", "InventAv", "TradeAv",
+                } },
                 {"0.0000", new List<string>  {"Gini"} },
                 };
 
