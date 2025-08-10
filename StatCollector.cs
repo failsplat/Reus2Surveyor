@@ -342,6 +342,7 @@ namespace Reus2Surveyor
             int? cannedSludgeCity = null;
             string cannedSludgeHash = null;
             int cityN = 0;
+            Dictionary<string, HashSet<string>> cityBioBySpiritName = [];
             foreach (City city in citiesInOrder)
             {
                 cityN++;
@@ -410,7 +411,7 @@ namespace Reus2Surveyor
                 cityEntry.TPLead = city.initiatedTurningPointsDefs.Count();
                 foreach (string cityStartedEras in city.initiatedTurningPointsDefs)
                 {
-                    EraDefinition thisEra = glossaryInstance.TryEraDefinitionFromHash(cityStartedEras);
+                    EraDefinition thisEra = this.glossaryInstance.TryEraDefinitionFromHash(cityStartedEras);
                     if (thisEra.Era == 0) continue;
                     string eraName = thisEra.Name;
                     switch (thisEra.Era)
@@ -442,14 +443,16 @@ namespace Reus2Surveyor
                 cityEntry.FillP = SafePercent(cityEntry.FilledSlots, slotCount);
 
                 cityEntry.Biotica = city.BioticaInTerritory.Count;
-                List<int> bioticaLevels = [];
+                List<int> bioticaLevels = []; // Ending levels, active bio only
+                HashSet<string> bioticaInCity = []; // All bio hashes
+
                 // Active biotica only!
                 foreach (NatureBioticum nb in city.BioticaInTerritory)
                 {
-                    if (glossaryInstance.BioticumDefinitionByHash.ContainsKey(nb.definition))
+                    if (glossaryInstance.BioticumDefinitionByHash.TryGetValue(nb.definition, out BioticumDefinition thisBio))
                     {
-                        BioticumDefinition thisBio = glossaryInstance.BioticumDefinitionByHash[nb.definition];
                         bioticaLevels.Add(thisBio.Tier);
+                        bioticaInCity.Add(thisBio.Hash);
                         switch (thisBio.Type)
                         {
                             case "Plant":
@@ -473,8 +476,9 @@ namespace Reus2Surveyor
                         BioticumSlot slot = planet.slotDictionary[slotIndex];
                         foreach (string abd in slot.archivedBioticaDefs)
                         {
-                            BioticumDefinition thisLegBio = glossaryInstance.BioticumDefFromHash(abd);
+                            BioticumDefinition thisLegBio = this.glossaryInstance.BioticumDefFromHash(abd);
                             if (thisLegBio is null) continue;
+                            bioticaInCity.Add(thisLegBio.Hash);
                             switch (thisLegBio.Type)
                             {
                                 case "Plant":
@@ -499,12 +503,33 @@ namespace Reus2Surveyor
                 cityEntry.PMineral = SafePercent(cityEntry.Minerals, cityEntry.Biotica);
                 cityEntry.ApexP = SafePercent(cityEntry.Apex, cityEntry.Biotica);
 
+                /*foreach (string bdic in bioticaInCity)
+                {
+                    BioticumDefinition cityBioDef = this.glossaryInstance.BioticumDefFromHash(bdic);
+                    if (cityBioDef is null) continue;
+                    switch (cityBioDef.Type)
+                    {
+                        case "Plant":
+                            cityEntry.UqPlant += 1;
+                            break;
+                        case "Animal":
+                            cityEntry.UqAnimal += 1;
+                            break;
+                        case "Mineral":
+                            cityEntry.UqMineral += 1;
+                            break;
+                    }
+                    if (cityBioDef.Apex) cityEntry.UqApex += 1;
+                }*/
+
+                cityBioBySpiritName[founderName] = bioticaInCity;
+
                 foreach (City.ProjectController.CityProject project in city.CityProjectController.projects)
                 {
                     cityEntry.Buildings += 1;
                     if (glossaryInstance.ProjectDefinitionByHash.ContainsKey(project.definition))
                     {
-                        CityProjectDefinition projectDef = glossaryInstance.TrProjectDefinitionFromHash(project.definition);
+                        CityProjectDefinition projectDef = this.glossaryInstance.TrProjectDefinitionFromHash(project.definition);
                         switch (projectDef.Slot)
                         {
                             case "Era1":
@@ -613,6 +638,8 @@ namespace Reus2Surveyor
                 //se.IncrementBioticaPercentTotals((double)ce.PPlant, (double)ce.PAnimal, (double)ce.PMineral, (double)ce.ApexP);
                 //se.IncrementBioticaPercentTotals((double)ce.ApexP);
                 se.Apex += ce.Apex;
+
+                se.AddBioUsed(cityBioBySpiritName[founderName]);
             }
 
             foreach (City city in planet.cityDictionary.Values)
@@ -711,7 +738,7 @@ namespace Reus2Surveyor
             }
             foreach (SpiritStatEntry sse in this.SpiritStats.Values)
             {
-                sse.CalculateStats(this.planetCount);
+                sse.CalculateStats(this.planetCount, this.glossaryInstance);
             }
             this.BioticumVsSpiritRatios = NestedCounterToNestedRatioDictionary(this.BioticumVsSpiritCounter);
             this.inventionNamesByDef = this.genericBuffNamesByDef.Where(kv => this.inventionDefinitions.Contains(kv.Key)).ToDictionary();

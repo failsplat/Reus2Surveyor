@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Reus2Surveyor.Glossaries;
 
 namespace Reus2Surveyor
 {
@@ -342,10 +343,15 @@ namespace Reus2Surveyor
             [XLColumn(Order = 102)] public int Minerals = 0;
             [XLColumn(Order = 103)] public int Apex = 0;
 
-            [XLColumn(Order = 110)] public double? PPlant = null;
-            [XLColumn(Order = 111)] public double? PAnimal = null;
-            [XLColumn(Order = 112)] public double? PMineral = null;
-            [XLColumn(Order = 113)] public double? ApexP = null;
+            [XLColumn(Order = 104)] public double? PPlant = null;
+            [XLColumn(Order = 105)] public double? PAnimal = null;
+            [XLColumn(Order = 106)] public double? PMineral = null;
+            [XLColumn(Order = 107)] public double? ApexP = null;
+
+            //[XLColumn(Order = 108)] public int UqPlant = 0;
+            //[XLColumn(Order = 109)] public int UqAnimal = 0;
+            //[XLColumn(Order = 110)] public int UqMineral = 0;
+            //[XLColumn(Order = 111)] public int UqApex = 0;
 
             [XLColumn(Order = 120)] public int Buildings = 0;
             [XLColumn(Order = 130)] public string Lv1B, Lv2B, Lv3B = null;
@@ -432,18 +438,24 @@ namespace Reus2Surveyor
             [XLColumn(Order = 117)] public int Apex = 0;
             [XLColumn(Order = 118)] public double? ApexP = null;
 
+            private HashSet<string> bioUsed = [];
+            [XLColumn(Order = 119)] public int UqPlant = 0;
+            [XLColumn(Order = 120)] public int UqAnimal = 0;
+            [XLColumn(Order = 121)] public int UqMineral = 0;
+            [XLColumn(Order = 122)] public int UqApex = 0;
+
             // Counts/percents of wild biome patches, per planet
             private Dictionary<string, int> biomeUsageCounts = [];
-            [XLColumn(Order = 120)]
+            [XLColumn(Order = 130)]
             [UnpackToBiomes(defaultValue: (double)0, prefix: "Has", numberFormat: "0.00%")]
             public Dictionary<string, double?> biomeUsagePercents = [];
 
             // Counts of wild patches in territory
-            [XLColumn(Order = 130)]
+            [XLColumn(Order = 140)]
             [UnpackToBiomes(defaultValue: (int)0, suffix: "Sz")]
             public Dictionary<string, int> biomeSizes = [];
 
-            [XLColumn(Order = 140)]
+            [XLColumn(Order = 150)]
             [UnpackToBiomes(defaultValue: (double)0, suffix: "P", numberFormat: "0.00%")]
             public Dictionary<string, double?> biomeSizePercents = [];
 
@@ -515,6 +527,11 @@ namespace Reus2Surveyor
                 //this.apexPercTotal += apexP;
             }*/
 
+            public void AddBioUsed(IEnumerable<string> bioInCity)
+            {
+                this.bioUsed.UnionWith(bioInCity);
+            }
+
             public void IncrementBioticaLevelTotal(int level)
             {
                 this.totalActiveBioLevel += level;
@@ -567,7 +584,7 @@ namespace Reus2Surveyor
                 this.totalPlanetCityProsAverage += avpros;
             }
 
-            public void CalculateStats(int planetCount)
+            public void CalculateStats(int planetCount, Glossaries glossaryInstance)
             {
                 this.P = SafePercent(this.Count, planetCount);
                 this.PrimeP = SafePercent(this.Prime, this.Count);
@@ -614,6 +631,25 @@ namespace Reus2Surveyor
 
                 this.biomeUsagePercents = this.biomeUsageCounts.ToDictionary(kv => kv.Key, kv => SafePercent(kv.Value, this.Count));
                 this.biomeSizePercents = this.biomeSizes.ToDictionary(kv => kv.Key, kv => SafePercent(kv.Value, this.Terr));
+
+                foreach (string bdic in bioUsed)
+                {
+                    BioticumDefinition cityBioDef = glossaryInstance.BioticumDefFromHash(bdic);
+                    if (cityBioDef is null) continue;
+                    switch (cityBioDef.Type)
+                    {
+                        case "Plant":
+                            this.UqPlant += 1;
+                            break;
+                        case "Animal":
+                            this.UqAnimal += 1;
+                            break;
+                        case "Mineral":
+                            this.UqMineral += 1;
+                            break;
+                    }
+                    if (cityBioDef.Apex) this.UqApex += 1;
+                }
             }
         }
 
