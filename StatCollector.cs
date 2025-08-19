@@ -627,7 +627,7 @@ namespace Reus2Surveyor
                 se.Trades += ce.Trades;
 
                 int upset = (int)ce.Upset;
-                se.IncrementUpsetTotal(upset, (int)ce.CityN == 1);
+                se.IncrementUpsetTotal(upset, (int)ce.CityN == 1, (int)ce.Rank == 1);
                 if (upset > 0) se.PosUpset += 1;
                 if (upset < 0) se.NegUpset += 1;
 

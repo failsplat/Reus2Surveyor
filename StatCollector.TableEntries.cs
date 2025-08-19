@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static Reus2Surveyor.Glossaries;
 
 namespace Reus2Surveyor
@@ -419,13 +417,15 @@ namespace Reus2Surveyor
             [XLColumn(Order = 91)] public double? TradeAv = null;
 
             private int upsetTotal = 0;
-            private int deposeCount = 0;
+            private int primaryDownCount = 0;
+            private int upToTopCount = 0;
             [XLColumn(Order = 100)] public double? UpsetAv = null;
             [XLColumn(Order = 101)] public int PosUpset = 0;
             [XLColumn(Order = 102)] public int NegUpset = 0;
             [XLColumn(Order = 103)] public double? PosUpsetP = null;
             [XLColumn(Order = 104)] public double? NegUpsetP = null;
-            [XLColumn(Order = 105)] public double? DeposeP = null;
+            [XLColumn(Order = 105)] public double? PrDownP = null;
+            [XLColumn(Order = 105)] public double? Over1stP = null;
 
             [XLColumn(Order = 110)] public int Plants = 0;
             [XLColumn(Order = 111)] public int Animals = 0;
@@ -465,7 +465,7 @@ namespace Reus2Surveyor
                 {"0.00%", new List<string> {
                     "P", "PrimeP", "MainP",
                     "AvPPop", "AvPTech", "AvPWel", "HiPPop", "HiPTech", "HiPWel",
-                    "PosUpsetP", "NegUpsetP", "DeposeP",
+                    "PosUpsetP", "NegUpsetP", "PrDownP", "Over1stP",
                     "PPlant", "PAnimal", "PMineral", "ApexP",
                 } },
                 {"0.000", new List<string> {
@@ -515,10 +515,11 @@ namespace Reus2Surveyor
                 this.welRelTotal += RelWel;
             }
 
-            public void IncrementUpsetTotal(int upset, bool isPrimary)
+            public void IncrementUpsetTotal(int upset, bool isPrimary, bool toTop)
             {
                 this.upsetTotal += upset;
-                if (isPrimary && upset < 0) { this.deposeCount++; } 
+                if (isPrimary && upset < 0) { this.primaryDownCount++; } 
+                if (toTop && upset > 0) { this.upToTopCount++; }
             }
 
             //public void IncrementBioticaPercentTotals(double PPlant, double PAnimal, double PMineral, double apexP)
@@ -618,7 +619,8 @@ namespace Reus2Surveyor
                 this.UpsetAv = SafeDivide(this.upsetTotal, this.Count);
                 this.PosUpsetP = SafeDivide(this.PosUpset, this.Count);
                 this.NegUpsetP = SafeDivide(this.NegUpset, this.Count);
-                this.DeposeP = SafeDivide(this.deposeCount, this.Count);
+                this.PrDownP = SafeDivide(this.primaryDownCount, this.Count);
+                this.Over1stP = SafeDivide(this.upToTopCount, this.Count);
 
                 int bioticaCount = this.Plants + this.Animals + this.Minerals;
                 this.AvFBioLv = SafeDivide(this.totalActiveBioLevel, this.activeBioticaCount);

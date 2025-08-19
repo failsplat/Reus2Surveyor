@@ -10,6 +10,7 @@
     <PathMap>$(MSBuildProjectDirectory)\$(IntermediateOutputPath)=.</PathMap>
     <ApplicationIcon>Icons\icon.ico</ApplicationIcon>
 	<ForceDesignerDPIUnaware>true</ForceDesignerDPIUnaware>
+	<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
   </PropertyGroup>
 
   <ItemGroup>
