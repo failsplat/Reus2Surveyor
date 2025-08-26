@@ -424,8 +424,8 @@ namespace Reus2Surveyor
             [XLColumn(Order = 102)] public int NegUpset = 0;
             [XLColumn(Order = 103)] public double? PosUpsetP = null;
             [XLColumn(Order = 104)] public double? NegUpsetP = null;
-            [XLColumn(Order = 105)] public double? PrDownP = null;
             [XLColumn(Order = 105)] public double? Over1stP = null;
+            [XLColumn(Order = 106)] public double? PrDownP = null;
 
             [XLColumn(Order = 110)] public int Plants = 0;
             [XLColumn(Order = 111)] public int Animals = 0;

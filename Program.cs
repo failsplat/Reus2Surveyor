@@ -13,7 +13,7 @@ namespace Reus2Surveyor
         /// </summary>
         /// 
 
-        public static Version programVersion = new(2, 15, 1);
+        public static Version programVersion = new(2, 15, 2);
 
         [STAThread]
         static void Main()

@@ -176,6 +176,7 @@ namespace Reus2Surveyor
         {
             if (this.profileDirOK)
             {
+                this.ResetPlanetList();
                 Dictionary<int, string> completedPlanetPaths = this.planetsInProfile.Where(kv => kv.Value.Complete.valid).Select(kv => new KeyValuePair<int, string>(kv.Key, kv.Value.Complete.path)).ToDictionary();
                 int completedPlanetCount = completedPlanetPaths.Count();
 
