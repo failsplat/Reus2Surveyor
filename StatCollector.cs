@@ -30,6 +30,8 @@ namespace Reus2Surveyor
         public OrderedDictionary<string, Dictionary<string, double>> BioticumVsSpiritRatios { get; private set; } = [];
         // First key is bioticum
         // Second key is spirit or character
+        public OrderedDictionary<string, Dictionary<string, int>> BioticumVsPrSpiritCounter { get; private set; } = [];
+        public OrderedDictionary<string, Dictionary<string, double>> BioticumVsPrSpiritRatios { get; private set; } = [];
 
         public OrderedDictionary<string, LuxuryStatEntry> LuxuryStats { get; private set; } = [];
 
@@ -54,7 +56,7 @@ namespace Reus2Surveyor
             if (planet is null) return;
             this.UpdateBioticaStats(planet, index);
             this.UpdateHumanityStats(planet, index);
-            this.CountBioticaVsSpirit(planet, index);
+            this.CountBioticaVsSpirit(planet, index, glossaryInstance.SpiritNameFromHash(planet.gameSession.selectedCharacterDef));
             this.planetCount++;
         }
 
@@ -694,7 +696,7 @@ namespace Reus2Surveyor
             }
         }
 
-        public void CountBioticaVsSpirit(Planet planet, int index)
+        public void CountBioticaVsSpirit(Planet planet, int index, string primarySpirit)
         {
             foreach (City city in planet.cityDictionary.Values)
             {
@@ -704,9 +706,7 @@ namespace Reus2Surveyor
                     if (glossaryInstance.BioticumDefinitionByHash.ContainsKey(nb.definition))
                     {
                         string activeBioName = glossaryInstance.BioticumNameFromHash(nb.definition);
-                        if (!BioticumVsSpiritCounter.ContainsKey(activeBioName)) this.BioticumVsSpiritCounter[activeBioName] = new();
-                        if (!BioticumVsSpiritCounter[activeBioName].ContainsKey(spirit)) this.BioticumVsSpiritCounter[activeBioName][spirit] = 0;
-                        this.BioticumVsSpiritCounter[activeBioName][spirit] += 1;
+                        this.IncrementSpiritVsBioticaCounters(activeBioName, spirit, primarySpirit);
                     }
                 }
                 foreach (int slotIndex in city.ListSlotIndicesInTerritory())
@@ -717,9 +717,7 @@ namespace Reus2Surveyor
                         if (glossaryInstance.BioticumDefinitionByHash.ContainsKey(legacyDef))
                         {
                             string legacyBioName = glossaryInstance.BioticumNameFromHash(legacyDef);
-                            if (!BioticumVsSpiritCounter.ContainsKey(legacyBioName)) this.BioticumVsSpiritCounter[legacyBioName] = new();
-                            if (!BioticumVsSpiritCounter[legacyBioName].ContainsKey(spirit)) this.BioticumVsSpiritCounter[legacyBioName][spirit] = 0;
-                            this.BioticumVsSpiritCounter[legacyBioName][spirit] += 1;
+                            this.IncrementSpiritVsBioticaCounters(legacyBioName, spirit, primarySpirit);
                         }
                     }
                 }
@@ -741,6 +739,7 @@ namespace Reus2Surveyor
                 sse.CalculateStats(this.planetCount, this.glossaryInstance);
             }
             this.BioticumVsSpiritRatios = NestedCounterToNestedRatioDictionary(this.BioticumVsSpiritCounter);
+            this.BioticumVsPrSpiritRatios = NestedCounterToNestedRatioDictionary(this.BioticumVsPrSpiritCounter);
             this.inventionNamesByDef = this.genericBuffNamesByDef.Where(kv => this.inventionDefinitions.Contains(kv.Key)).ToDictionary();
             
             Dictionary<string, Dictionary<string,int>> luxuryLeaderCounts = [];
@@ -1227,19 +1226,42 @@ namespace Reus2Surveyor
                 eraTable.Theme = XLTableTheme.TableStyleMedium6;
 
                 DataTable bioticaVsSpiritCountDataTable = NestDictToDataTable(this.BioticumVsSpiritCounter, "Bioticum");
-                var bioVsCharCountWs = wb.AddWorksheet("BioVsCharCounts");
+                var bioVsCharCountWs = wb.AddWorksheet("BioVsCharC");
                 var bioVsCharCountTable = bioVsCharCountWs.Cell("A1").InsertTable(bioticaVsSpiritCountDataTable);
 
                 DataTable bioticaVsSpiritRatioDataTable = NestDictToDataTable(this.BioticumVsSpiritRatios, "Bioticum");
-                var bioVsCharRatioWs = wb.AddWorksheet("BioVsCharRatios");
+                var bioVsCharRatioWs = wb.AddWorksheet("BioVsCharR");
                 var bioVsCharRatioTable = bioVsCharRatioWs.Cell("A1").InsertTable(bioticaVsSpiritRatioDataTable);
                 foreach (var col in bioVsCharRatioTable.Columns())
                 {
                     col.Style.NumberFormat.Format = "0.0000";
                 }
 
+                DataTable bioticaVsPrSpiritCountDataTable = NestDictToDataTable(this.BioticumVsPrSpiritCounter, "Bioticum");
+                var bioVsPrCharCountWs = wb.AddWorksheet("BioVsPSpC");
+                var bioVsPrCharCountTable = bioVsPrCharCountWs.Cell("A1").InsertTable(bioticaVsPrSpiritCountDataTable);
+
+                DataTable bioticaVsPrSpiritRatioDataTable = NestDictToDataTable(this.BioticumVsPrSpiritRatios, "Bioticum");
+                var bioVsPrCharRatioWs = wb.AddWorksheet("BioVsPSpR");
+                var bioVsPrCharRatioTable = bioVsPrCharRatioWs.Cell("A1").InsertTable(bioticaVsPrSpiritRatioDataTable);
+                foreach (var col in bioVsPrCharRatioTable.Columns())
+                {
+                    col.Style.NumberFormat.Format = "0.0000";
+                }
+
                 wb.SaveAs(dstPath);
             }
+        }
+
+        public void IncrementSpiritVsBioticaCounters(string bioName, string spiritName, string primarySpirit)
+        {
+            if (!BioticumVsSpiritCounter.ContainsKey(bioName)) this.BioticumVsSpiritCounter[bioName] = new();
+            if (!BioticumVsSpiritCounter[bioName].ContainsKey(spiritName)) this.BioticumVsSpiritCounter[bioName][spiritName] = 0;
+            this.BioticumVsSpiritCounter[bioName][spiritName] += 1;
+
+            if (!BioticumVsPrSpiritCounter.ContainsKey(bioName)) this.BioticumVsPrSpiritCounter[bioName] = new();
+            if (!BioticumVsPrSpiritCounter[bioName].ContainsKey(primarySpirit)) this.BioticumVsPrSpiritCounter[bioName][primarySpirit] = 0;
+            this.BioticumVsPrSpiritCounter[bioName][primarySpirit] += 1;
         }
 
         public static readonly Dictionary<int, string> TimedChallengeTypes = new()
