@@ -30,6 +30,8 @@ namespace Reus2Surveyor
         public readonly Dictionary<string, LuxuryDefinition> LuxuryDefinitionsByHash = [];
         public readonly List<LuxuryDefinition> LuxuryDefinitionList = [];
 
+        public readonly Dictionary<string, string> BiomeColors = [];
+        
         public Glossaries(
             string bioFile,
             string giantFile,
@@ -114,6 +116,7 @@ namespace Reus2Surveyor
                     string name = data[header.IndexOf("Name")];
                     string hash = data[header.IndexOf("Hash")];
                     string num = data[header.IndexOf("Num")];
+                    string color = data[header.IndexOf("Color")];
                     if (hash is null || hash.Length == 0)
                     {
                         continue;
@@ -123,6 +126,7 @@ namespace Reus2Surveyor
                     this.BiomeNameByHash[hash] = name;
                     this.BiomeNameByInt[Int32.Parse(num)] = name;
                     this.BiomeIntByName[name] = Int32.Parse(num);
+                    this.BiomeColors[name] = color;
                 }
             }
 
@@ -448,6 +452,14 @@ namespace Reus2Surveyor
                 this.Name = hash;
                 this.Type = "?";
             }
+        }
+        public string GetBiomeColor(string biomeName)
+        {
+            if (this.BiomeColors.TryGetValue(biomeName, out string hex))
+            {
+                return hex;
+            }
+            else return "FF00FF";
         }
 
         public enum SpecialNaturalFeatures
