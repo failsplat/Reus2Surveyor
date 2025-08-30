@@ -8,6 +8,11 @@ namespace Reus2Surveyor
 {
     public partial class StatCollector
     {
+        public interface IExpandableColumnFormatter
+        {
+            public abstract static void AddColumnFormat(string format, string column);
+        }
+
         public class BioticumStatEntry
         {
             private readonly Glossaries.BioticumDefinition Definition;
@@ -132,7 +137,7 @@ namespace Reus2Surveyor
 
         }
 
-        public class PlanetSummaryEntry
+        public class PlanetSummaryEntry : IExpandableColumnFormatter
         {
             [XLColumn(Order = 0)] public readonly int N;
             [XLColumn(Order = 1)] public readonly string Name;
@@ -371,7 +376,7 @@ namespace Reus2Surveyor
             }
         }
 
-        public class SpiritStatEntry
+        public class SpiritStatEntry : IExpandableColumnFormatter
         {
             [XLColumn(Order = 0)] public readonly string Name;
             [XLColumn(Order = 1)] public int Count = 0;
@@ -659,7 +664,7 @@ namespace Reus2Surveyor
             }
         }
 
-        public class LuxuryStatEntry
+        public class LuxuryStatEntry : IExpandableColumnFormatter
         {
             [XLColumn(Order = 0)] public readonly string Name;
             [XLColumn(Order = 1)] public readonly string Type;
@@ -784,6 +789,62 @@ namespace Reus2Surveyor
             public static Dictionary<string, List<string>> GetColumnFormats()
             {
                 return columnFormats;
+            }
+        }
+
+        public class ProjectStatEntry : IExpandableColumnFormatter
+        {
+            [XLColumn(Order = 0)] public readonly string Name;
+            [XLColumn(Order = 1)] public readonly string Slot;
+            [XLColumn(Order = 2)] public readonly string Hash;
+            [XLColumn(Order = 3)] public readonly string InName;
+
+            [XLColumn(Order = 10)] public int Count = 0;
+            [XLColumn(Order = 11)] public double? SlotP;
+
+            [XLColumn(Order = 20)]
+            [UnpackToSpirits(defaultValue: (int)0)]
+            public Dictionary<string, int> LeaderCounts = [];
+
+            public ProjectStatEntry(Glossaries.CityProjectDefinition projectDef, Glossaries gloss)
+            {
+                this.Name = projectDef.DisplayName;
+                this.Slot = projectDef.Slot;
+                this.Hash = projectDef.Hash;
+                this.InName = projectDef.InternalName;
+                this.InitializeLeaderSubtables(gloss);
+            }
+
+            public void InitializeLeaderSubtables(Glossaries gloss)
+            {
+                foreach (string leaderName in gloss.SpiritHashByName.Keys)
+                {
+                    LeaderCounts[leaderName] = 0;
+                }
+            }
+
+            private static Dictionary<string, List<string>> columnFormats = new() {
+                {"0.00%", new List<string> {
+                    "SlotP",
+                } },
+                };
+            public static Dictionary<string, List<string>> GetColumnFormats()
+            {
+                return columnFormats;
+            }
+            public static void AddColumnFormat(string format, string column)
+            {
+                if (columnFormats.TryGetValue(format, out List<string> columns)) columns.Add(column);
+                else columnFormats[format] = [column];
+            }
+
+            public void CalculateStats(Dictionary<string, int> slotCounts)
+            {
+                if (slotCounts.TryGetValue(this.Slot, out int slotUses))
+                {
+                    this.SlotP = SafePercent(this.Count, slotUses);
+                }
+                else this.SlotP = null;
             }
         }
     }

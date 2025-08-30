@@ -46,6 +46,10 @@ namespace Reus2Surveyor
         // Keyed to era def hash
         public OrderedDictionary<string, EraStatEntry> EraStats { get; private set; } = [];
 
+        // Keyed to project def hash
+        public OrderedDictionary<string, ProjectStatEntry> ProjectStats { get; private set; } = [];
+        private Dictionary<string, int> ProjectSlotCount = [];
+
         public StatCollector(Glossaries g)
         {
             this.glossaryInstance = g;
@@ -532,6 +536,17 @@ namespace Reus2Surveyor
                     if (glossaryInstance.ProjectDefinitionByHash.ContainsKey(project.definition))
                     {
                         CityProjectDefinition projectDef = this.glossaryInstance.TrProjectDefinitionFromHash(project.definition);
+                        if (!ProjectStats.TryGetValue(projectDef.Hash, out ProjectStatEntry pse)) {
+                            pse = new(projectDef, this.glossaryInstance);
+                            this.ProjectStats[projectDef.Hash] = pse;
+                        }
+
+                        pse.Count += 1;
+                        pse.LeaderCounts[founderName] += 1;
+
+                        if (!this.ProjectSlotCount.ContainsKey(projectDef.Slot)) this.ProjectSlotCount[projectDef.Slot] = 0;
+                        this.ProjectSlotCount[projectDef.Slot] += 1;
+
                         switch (projectDef.Slot)
                         {
                             case "Era1":
@@ -781,6 +796,18 @@ namespace Reus2Surveyor
             foreach (EraStatEntry ese in this.EraStats.Values)
             {
                 ese.CalculateStats(stageCounter[ese.Era]);
+            }
+
+            Dictionary<string,int> projectSlotCounter = this.glossaryInstance.ProjectDefinitionList
+                .Select(d => d.Slot).Distinct()
+                .ToDictionary(k => k, k => 0);
+            foreach (ProjectStatEntry pse in this.ProjectStats.Values)
+            {
+                projectSlotCounter[pse.Slot] += pse.Count;
+            }
+            foreach (ProjectStatEntry pse in this.ProjectStats.Values)
+            {
+                pse.CalculateStats(projectSlotCounter);
             }
         }
 
@@ -1133,25 +1160,7 @@ namespace Reus2Surveyor
             {
                 var planetSummWs = wb.AddWorksheet("Planets");
                 DataTable planetDataTable = ExpandToColumns(this.PlanetSummaries, this.glossaryInstance);
-                {
-                    List<MemberInfo> expandableColumns = [];
-                    expandableColumns.AddRange(typeof(PlanetSummaryEntry).GetFields());
-                    expandableColumns.AddRange(typeof(PlanetSummaryEntry).GetProperties());
-                    foreach(MemberInfo mi in expandableColumns)
-                    {
-                        UnpackToBiomesAttribute biomeAttr = mi.GetCustomAttribute<UnpackToBiomesAttribute>();
-                        if (biomeAttr is null) continue;
-                        if (biomeAttr.NumberFormat is not null)
-                        {
-                            foreach (string biomeName in this.glossaryInstance.BiomeHashByName.Keys)
-                            {
-                                string subheader = biomeAttr.Prefix + biomeName + biomeAttr.Suffix;
-                                PlanetSummaryEntry.AddColumnFormat(biomeAttr.NumberFormat, subheader);
-                            }
-                        }
-                        
-                    }
-                }
+                AddExpandableNumberFormats<PlanetSummaryEntry>(this.glossaryInstance);
                 var planetTable = planetSummWs.Cell("A1").InsertTable(planetDataTable, "Planets");
                 planetTable.Theme = XLTableTheme.TableStyleMedium4;
                 ApplyTableNumberFormats(PlanetSummaryEntry.GetColumnFormats(), planetTable);
@@ -1163,25 +1172,7 @@ namespace Reus2Surveyor
 
                 var spiritWs = wb.AddWorksheet("Spirits");
                 DataTable spiritDataTable = ExpandToColumns(this.SpiritStats.Values, this.glossaryInstance);
-                {
-                    List<MemberInfo> expandableColumns = [];
-                    expandableColumns.AddRange(typeof(SpiritStatEntry).GetFields());
-                    expandableColumns.AddRange(typeof(SpiritStatEntry).GetProperties());
-                    foreach (MemberInfo mi in expandableColumns)
-                    {
-                        UnpackToBiomesAttribute biomeAttr = mi.GetCustomAttribute<UnpackToBiomesAttribute>();
-                        if (biomeAttr is null) continue;
-                        if (biomeAttr.NumberFormat is not null)
-                        {
-                            foreach (string biomeName in this.glossaryInstance.BiomeHashByName.Keys)
-                            {
-                                string subheader = biomeAttr.Prefix + biomeName + biomeAttr.Suffix;
-                                SpiritStatEntry.AddColumnFormat(biomeAttr.NumberFormat, subheader);
-                            }
-                        }
-
-                    }
-                }
+                AddExpandableNumberFormats<SpiritStatEntry>(this.glossaryInstance);
                 var spiritTable = spiritWs.Cell("A1").InsertTable(spiritDataTable, "Spirits");
                 spiritTable.Theme = XLTableTheme.TableStyleMedium5;
                 ApplyTableNumberFormats(SpiritStatEntry.GetColumnFormats(), spiritTable);
@@ -1196,25 +1187,7 @@ namespace Reus2Surveyor
 
                 var luxWs = wb.AddWorksheet("Luxuries");
                 DataTable luxuryDataTable = ExpandToColumns(this.LuxuryStats.Values, this.glossaryInstance);
-                {
-                    List<MemberInfo> expandableColumns = [];
-                    expandableColumns.AddRange(typeof(LuxuryStatEntry).GetFields());
-                    expandableColumns.AddRange(typeof(LuxuryStatEntry).GetProperties());
-                    foreach (MemberInfo mi in expandableColumns)
-                    {
-                        UnpackToSpiritsAttribute spiritAttr = mi.GetCustomAttribute<UnpackToSpiritsAttribute>();
-                        if (spiritAttr is null) continue;
-                        if (spiritAttr.NumberFormat is not null)
-                        {
-                            foreach (string spiritName in this.glossaryInstance.SpiritHashByName.Keys)
-                            {
-                                string subheader = spiritAttr.Prefix + spiritName + spiritAttr.Suffix;
-                                LuxuryStatEntry.AddColumnFormat(spiritAttr.NumberFormat, subheader);
-                            }
-                        }
-
-                    }
-                }
+                AddExpandableNumberFormats<LuxuryStatEntry>(this.glossaryInstance);
                 var luxuryTable = luxWs.Cell("A1").InsertTable(luxuryDataTable, "Luxuries");
                 luxuryTable.Theme = XLTableTheme.TableStyleMedium7;
                 ApplyTableNumberFormats(LuxuryStatEntry.GetColumnFormats(), luxuryTable);
@@ -1224,6 +1197,12 @@ namespace Reus2Surveyor
                 var eraTable = eraWs.Cell("A1").InsertTable(this.EraStats.Values);
                 ApplyTableNumberFormats(EraStatEntry.GetColumnFormats(), eraTable);
                 eraTable.Theme = XLTableTheme.TableStyleMedium6;
+
+                var projectWs = wb.AddWorksheet("Projects");
+                DataTable projectDataTable = ExpandToColumns(this.ProjectStats.Values, this.glossaryInstance);
+                AddExpandableNumberFormats<ProjectStatEntry>(this.glossaryInstance);
+                var projectTable = projectWs.Cell("A1").InsertTable(projectDataTable, "Projects");
+                ApplyTableNumberFormats(ProjectStatEntry.GetColumnFormats(), projectTable);
 
                 DataTable bioticaVsSpiritCountDataTable = NestDictToDataTable(this.BioticumVsSpiritCounter, "Bioticum");
                 var bioVsCharCountWs = wb.AddWorksheet("BioVsCharC");
@@ -1347,6 +1326,36 @@ namespace Reus2Surveyor
                     }
                     catch { }
                 }
+            }
+        }
+
+        public static void AddExpandableNumberFormats<T>(Glossaries glossaryInstance) where T : IExpandableColumnFormatter
+        {
+            List<MemberInfo> expandableColumns = [];
+            expandableColumns.AddRange(typeof(T).GetFields());
+            expandableColumns.AddRange(typeof(T).GetProperties());
+            foreach (MemberInfo mi in expandableColumns)
+            {
+                UnpackToBiomesAttribute biomeAttr = mi.GetCustomAttribute<UnpackToBiomesAttribute>();
+                if (biomeAttr is not null && biomeAttr.NumberFormat is not null)
+                {
+                    foreach (string biomeName in glossaryInstance.BiomeHashByName.Keys)
+                    {
+                        string subheader = biomeAttr.Prefix + biomeName + biomeAttr.Suffix;
+                        T.AddColumnFormat(biomeAttr.NumberFormat, subheader);
+                    }
+                }
+
+                UnpackToSpiritsAttribute spiritAttr = mi.GetCustomAttribute<UnpackToSpiritsAttribute>();
+                if (spiritAttr is not null && spiritAttr.NumberFormat is not null)
+                {
+                    foreach (string spiritName in glossaryInstance.SpiritHashByName.Keys)
+                    {
+                        string subheader = spiritAttr.Prefix + spiritName + spiritAttr.Suffix;
+                        T.AddColumnFormat(spiritAttr.NumberFormat, subheader);
+                    }
+                }
+
             }
         }
     }

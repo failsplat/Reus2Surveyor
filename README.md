@@ -16,10 +16,15 @@ This program outputs an Excel workbook (.xlsx) file. It has the following sheets
 4. **Biotica** - Usage stats for each bioticum type.
 5. **Luxuries** - Counts inventions and luxuries, as well as which leaders invented/received them.
 6. **Eras** - Basic stats on Turning Points, including score and star ratings
-7. **BioticaVsChar** - A table showing how many of each bioticum were placed in the borders of each spirit's cities.
-8. **BioticaVsCharRatios** - Similar to above, but shows relative usage ratios instead of counts. 
+7. **Projects** - Basic stats on city projects (buildings)
+8. **BioVsCharC** - A table showing how many of each bioticum were placed in the borders of each spirit's cities.
+9. **BioVsCharR** - Similar to above, but shows relative usage ratios instead of counts. 
+10. **BioVsPSpC** - Table showing counts of each bioticum on planets led by each spirit
+11. **BioVsPSpR** - Relative usage ratios of above
 ## To Do/WIP Features
 * Table for spirits v. buildings
+* Track traded copies of luxuries
+* Biomes per city
 * Misc. stat table
  * Biotica as pets
  * Biotica used as inspiration for original characters
