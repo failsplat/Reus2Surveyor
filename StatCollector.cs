@@ -541,8 +541,7 @@ namespace Reus2Surveyor
                             this.ProjectStats[projectDef.Hash] = pse;
                         }
 
-                        pse.Count += 1;
-                        pse.LeaderCounts[founderName] += 1;
+                        pse.IncrementCounts(founderName);
 
                         if (!this.ProjectSlotCount.ContainsKey(projectDef.Slot)) this.ProjectSlotCount[projectDef.Slot] = 0;
                         this.ProjectSlotCount[projectDef.Slot] += 1;
@@ -798,16 +797,30 @@ namespace Reus2Surveyor
                 ese.CalculateStats(stageCounter[ese.Era]);
             }
 
-            Dictionary<string,int> projectSlotCounter = this.glossaryInstance.ProjectDefinitionList
-                .Select(d => d.Slot).Distinct()
-                .ToDictionary(k => k, k => 0);
+            // Preparing counters to gather project slot usage
+            List<string> distinctProjectSlots = [..this.glossaryInstance.ProjectDefinitionList
+                .Select(d => d.Slot).Distinct()];
+            Dictionary<string,int> projectSlotCounter = distinctProjectSlots.ToDictionary(k => k, k => 0);
+            Dictionary<(string, string), int> projectSlotCountByLeader = [];
+            foreach (string leaderName in this.glossaryInstance.SpiritHashByName.Keys)
+            {
+                foreach (string projectSlot in distinctProjectSlots)
+                {
+                    projectSlotCountByLeader[(leaderName, projectSlot)] = 0;
+                }
+            }
+
             foreach (ProjectStatEntry pse in this.ProjectStats.Values)
             {
                 projectSlotCounter[pse.Slot] += pse.Count;
+                foreach (string leader in pse.LeaderCounts.Keys)
+                {
+                    projectSlotCountByLeader[(leader, pse.Slot)] += pse.LeaderCounts[leader];
+                }
             }
             foreach (ProjectStatEntry pse in this.ProjectStats.Values)
             {
-                pse.CalculateStats(projectSlotCounter);
+                pse.CalculateStats(projectSlotCounter, projectSlotCountByLeader);
             }
         }
 

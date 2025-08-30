@@ -22,7 +22,6 @@ This program outputs an Excel workbook (.xlsx) file. It has the following sheets
 10. **BioVsPSpC** - Table showing counts of each bioticum on planets led by each spirit
 11. **BioVsPSpR** - Relative usage ratios of above
 ## To Do/WIP Features
-* Table for spirits v. buildings
 * Track traded copies of luxuries
 * Biomes per city
 * Misc. stat table

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Intrinsics.X86;
 using static Reus2Surveyor.Glossaries;
 
 namespace Reus2Surveyor
@@ -806,6 +807,10 @@ namespace Reus2Surveyor
             [UnpackToSpirits(defaultValue: (int)0)]
             public Dictionary<string, int> LeaderCounts = [];
 
+            [XLColumn(Order = 30)]
+            [UnpackToSpirits(defaultValue: (double)0, prefix: "P", numberFormat: "0.00%", nullOnZeroOrBlank: true)]
+            public Dictionary<string, double?> LeaderPickRates = [];
+
             public ProjectStatEntry(Glossaries.CityProjectDefinition projectDef, Glossaries gloss)
             {
                 this.Name = projectDef.DisplayName;
@@ -820,6 +825,7 @@ namespace Reus2Surveyor
                 foreach (string leaderName in gloss.SpiritHashByName.Keys)
                 {
                     LeaderCounts[leaderName] = 0;
+                    LeaderPickRates[leaderName] = 0;
                 }
             }
 
@@ -838,13 +844,38 @@ namespace Reus2Surveyor
                 else columnFormats[format] = [column];
             }
 
-            public void CalculateStats(Dictionary<string, int> slotCounts)
+            public void CalculateStats(Dictionary<string, int> slotCounts, Dictionary<(string,string), int> slotCountsByLeader)
             {
                 if (slotCounts.TryGetValue(this.Slot, out int slotUses))
                 {
                     this.SlotP = SafePercent(this.Count, slotUses);
                 }
                 else this.SlotP = null;
+
+                foreach (string leader in this.LeaderPickRates.Keys)
+                {
+                    if (slotCountsByLeader.TryGetValue((leader, this.Slot), out int leaderSlotUse))
+                        {
+                        if (this.LeaderCounts[leader] > 0)
+                        {
+                            this.LeaderPickRates[leader] = SafePercent(this.LeaderCounts[leader], leaderSlotUse);
+                        }
+                        else
+                        {
+                            this.LeaderPickRates[leader] = 0;
+                        }
+                    }
+                    else
+                    {
+                        this.LeaderPickRates[leader] = 0;
+                    }
+                }
+            }
+
+            public void IncrementCounts(string spiritName)
+            {
+                this.Count += 1;
+                this.LeaderCounts[spiritName] += 1;
             }
         }
     }
