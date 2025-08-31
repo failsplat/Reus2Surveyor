@@ -501,7 +501,13 @@ namespace Reus2Surveyor
                             cityEntry.Biotica += 1;
                         }
                     }
+
+                    if (this.glossaryInstance.BiomeNameByHash.TryGetValue(patch.biomeDefinition, out string patchBiome))
+                    {
+                        cityEntry.IncrementPatchBiomeCounter(patchBiome);
+                    }
                 }
+                cityEntry.CalculateBiomePercentages(city.PatchesInTerritory.Count());
 
                 cityEntry.AvFBioLv = bioticaLevels.Count > 0 ? bioticaLevels.Average() : 0;
                 cityEntry.PPlant = SafePercent(cityEntry.Plants, cityEntry.Biotica);
@@ -1179,7 +1185,9 @@ namespace Reus2Surveyor
                 ApplyTableNumberFormats(PlanetSummaryEntry.GetColumnFormats(), planetTable);
 
                 var cityWs = wb.AddWorksheet("Cities");
-                var cityTable = cityWs.Cell("A1").InsertTable(this.CitySummaries, "Cities");
+                DataTable cityDataTable = ExpandToColumns(this.CitySummaries, this.glossaryInstance);
+                AddExpandableNumberFormats<CitySummaryEntry>(this.glossaryInstance);
+                var cityTable = cityWs.Cell("A1").InsertTable(cityDataTable, "Cities");
                 cityTable.Theme = XLTableTheme.TableStyleLight1;
                 ApplyTableNumberFormats(CitySummaryEntry.GetColumnFormats(), cityTable);
 
@@ -1322,12 +1330,12 @@ namespace Reus2Surveyor
             return GiniCoeff(castValues);
         }
 
-        public static void ApplyTableNumberFormats(Dictionary<string, List<string>> columnFormats, IXLTable table)
+        public static void ApplyTableNumberFormats(Dictionary<string, HashSet<string>> columnFormats, IXLTable table)
         {
-            foreach (KeyValuePair<string, List<string>> kv in columnFormats)
+            foreach (KeyValuePair<string, HashSet<string>> kv in columnFormats)
             {
                 string format = kv.Key;
-                List<string> columns = kv.Value;
+                HashSet<string> columns = [..kv.Value];
 
                 foreach (string colName in columns)
                 {
