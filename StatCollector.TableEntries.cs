@@ -706,18 +706,17 @@ namespace Reus2Surveyor
             [XLColumn(Order = 21)] public string FavSpirit;
             [XLColumn(Order = 22)] public double FavRatio;
 
-
             [XLColumn(Order = 30)]
-            [UnpackToSpirits(defaultValue: (int)0)]
-            public Dictionary<string, int> LeaderCounts = [];
+            [UnpackToSpirits(defaultValue: (int)0, prefix: "From")]
+            public Dictionary<string, int> LeaderCountsOri = [];
 
             [XLColumn(Order = 40)]
             [UnpackToSpirits(defaultValue: (double)0, suffix: "Ra", numberFormat: "0.0000")]
             public Dictionary<string, double> LeaderRatios = [];
 
             [XLColumn(Order = 50)]
-            [UnpackToSpirits(defaultValue: (int)0, prefix: "From")]
-            public Dictionary<string, int> LeaderCountsOri = [];
+            [UnpackToSpirits(defaultValue: (int)0)]
+            public Dictionary<string, int> LeaderCounts = [];
 
             private static Dictionary<string, HashSet<string>> columnFormats = new() {
                 {"0.00%", new HashSet<string> {

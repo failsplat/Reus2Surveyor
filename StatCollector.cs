@@ -387,12 +387,14 @@ namespace Reus2Surveyor
                     this.inventionDefinitions.Add(luxHash);
 
                     LuxuryDefinition luxDef = this.glossaryInstance.TryLuxuryDefinitionFromHash(luxHash);
-                    if (!this.LuxuryStats.ContainsKey(luxHash))
+                    if (!this.LuxuryStats.TryGetValue(luxHash, out LuxuryStatEntry lse))
                     {
                         LuxuryStatEntry newEntry = new(luxDef, this.glossaryInstance);
-                        this.LuxuryStats.Add(luxHash, newEntry);
+                        lse = newEntry;
+                        this.LuxuryStats.Add(luxHash, lse);
                     }
-                    this.LuxuryStats[luxHash].Count += 1;
+
+                    lse.Count += 1;
                     if (luxSlot.luxuryGood.originCityId == city.tokenIndex)
                     {
                         if (this.LuxuryStats[luxHash].LeaderCountsOri.ContainsKey(founderName))
@@ -400,9 +402,9 @@ namespace Reus2Surveyor
                             this.LuxuryStats[luxHash].LeaderCountsOri[founderName] += 1;
                         }
                     }
-                    if (this.LuxuryStats[luxHash].LeaderCounts.ContainsKey(founderName))
+                    if (lse.LeaderCounts.ContainsKey(founderName))
                     {
-                        this.LuxuryStats[luxHash].LeaderCounts[founderName] += 1;
+                        lse.LeaderCounts[founderName] += 1;
                     }
                     luxuriesPresent.Add(luxHash);
 
@@ -413,8 +415,28 @@ namespace Reus2Surveyor
                     }
                 }
                 citiesByLuxuryBuffHandler[(int)city.CityLuxuryController.luxuryBuffControllerId] = city;
+                foreach (City.LuxuryController.LuxurySlot tradeSlot in city.CityLuxuryController.tradeSlots)
+                {
+                    if (tradeSlot == null) continue;
+                    if (tradeSlot.luxuryGood == null) continue; // Empty trade slot
+                    string importHash = tradeSlot.luxuryGood.definition;
+                    LuxuryDefinition importDef = this.glossaryInstance.TryLuxuryDefinitionFromHash(importHash);
 
-                cityEntry.TPLead = city.initiatedTurningPointsDefs.Count();
+                    if (!this.LuxuryStats.TryGetValue(importHash, out LuxuryStatEntry lse))
+                    {
+                        LuxuryStatEntry newEntry = new(importDef, this.glossaryInstance);
+                        lse = newEntry;
+                        this.LuxuryStats.Add(importHash, lse);
+                    }
+
+                    lse.Count += 1;
+                    if (lse.LeaderCounts.ContainsKey(founderName))
+                    {
+                        lse.LeaderCounts[founderName] += 1;
+                    }
+                }
+
+                cityEntry.TPLead = city.initiatedTurningPointsDefs.Count;
                 foreach (string cityStartedEras in city.initiatedTurningPointsDefs)
                 {
                     EraDefinition thisEra = this.glossaryInstance.TryEraDefinitionFromHash(cityStartedEras);
@@ -770,7 +792,7 @@ namespace Reus2Surveyor
                 lse.CalculateStats(this.planetCount);
                 //luxuryLeaderCounts[lse.Hash] = lse.LeaderCounts;
 
-                lse.LeaderRatios = lse.LeaderCounts.ToDictionary(kv => kv.Key, 
+                lse.LeaderRatios = lse.LeaderCountsOri.ToDictionary(kv => kv.Key, 
                     kv => leaderPercents.TryGetValue(kv.Key, out double leaderPerc) ? 
                     ((double)kv.Value / (double)lse.Count) / leaderPerc : 
                     0
