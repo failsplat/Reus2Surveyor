@@ -2,12 +2,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.Intrinsics.X86;
 using static Reus2Surveyor.Glossaries;
 
 namespace Reus2Surveyor
 {
     public partial class StatCollector
     {
+        public interface IExpandableColumnFormatter
+        {
+            public abstract static void AddColumnFormat(string format, string column);
+        }
+
         public class BioticumStatEntry
         {
             private readonly Glossaries.BioticumDefinition Definition;
@@ -42,16 +49,17 @@ namespace Reus2Surveyor
             [XLColumn(Order = 43)] public double? MultiAv { get; private set; } = null;
             [XLColumn(Order = 44)] public string FavSpirit { get; set; } = null;
             [XLColumn(Order = 45)] public double? FavRatio { get; set; } = null;
+            [XLColumn(Order = 46)] public int Inventions { get; set; } = 0;
 
             [XLColumn(Order = 50)] public int P1st { get; set; }
             [XLColumn(Order = 51)] public int PLast { get; set; }
 
 
-            private static Dictionary<string, List<string>> columnFormats = new() {
-                {"0.00%", new List<string> { "AvailP", "DraftP", "AUsageP", "DUsageP", "LegacyP", "FinalP", "MultiP", } },
-                {"0.000", new List<string> { "MultiAv", "AvRate", "FavRatio" } },
-                {"mm/dd/yyyy hh:mm", new List<string>{"TS", } },
-                {"mm/dd/yyyy", new List<string>{"ChTS", } },
+            private static Dictionary<string, HashSet<string>> columnFormats = new() {
+                {"0.00%", new HashSet<string> { "AvailP", "DraftP", "AUsageP", "DUsageP", "LegacyP", "FinalP", "MultiP", } },
+                {"0.000", new HashSet<string> { "MultiAv", "AvRate", "FavRatio" } },
+                {"mm/dd/yyyy hh:mm", new HashSet<string>{"TS", } },
+                {"mm/dd/yyyy", new HashSet<string>{"ChTS", } },
                 };
 
             public BioticumStatEntry(Glossaries.BioticumDefinition bioDef, int p1)
@@ -125,14 +133,14 @@ namespace Reus2Surveyor
                 this.MicroPercent = SafeDivide(this.Micro, this.Total);*/
             }
 
-            public static Dictionary<string, List<string>> GetColumnFormats()
+            public static Dictionary<string, HashSet<string>> GetColumnFormats()
             {
                 return columnFormats;
             }
 
         }
 
-        public class PlanetSummaryEntry
+        public class PlanetSummaryEntry : IExpandableColumnFormatter
         {
             [XLColumn(Order = 0)] public readonly int N;
             [XLColumn(Order = 1)] public readonly string Name;
@@ -230,15 +238,15 @@ namespace Reus2Surveyor
             [XLColumn(Order = 160), UnpackToBiomes(defaultValue: (double)0, suffix: "P", numberFormat: "0.00%")]
             public Dictionary<string, double> biomePercents = [];
 
-            private static Dictionary<string, List<string>> columnFormats = new() {
-                {"0.00%", new List<string> {
+            private static Dictionary<string, HashSet<string>> columnFormats = new() {
+                {"0.00%", new HashSet<string> {
                     "PPop", "PTech", "PWel", "PPlant", "PAnimal", "PMineral", "ApexP", "FillP",
                 } },
-                {"0.000", new List<string> { 
+                {"0.000", new HashSet<string> { 
                     "AvPros", "AvPop", "AvTech", "AvWel", "AvFBioLv",
                     "PrjAv", "InventAv", "TradeAv",
                 } },
-                {"0.0000", new List<string>  {"Gini"} },
+                {"0.0000", new HashSet<string>  {"Gini"} },
                 };
 
             public PlanetSummaryEntry(Planet planet)
@@ -289,19 +297,19 @@ namespace Reus2Surveyor
                 this.ApexP = SafePercent(this.Apex, this.Biotica);
             }
 
-            public static Dictionary<string, List<string>> GetColumnFormats()
+            public static Dictionary<string, HashSet<string>> GetColumnFormats()
             {
                 return columnFormats;
             }
 
             public static void AddColumnFormat(string format, string column)
             {
-                if (columnFormats.TryGetValue(format, out List<string> columns)) columns.Add(column);
+                if (columnFormats.TryGetValue(format, out HashSet<string> columns)) columns.Add(column);
                 else columnFormats[format] = [column];
             }
         }
 
-        public class CitySummaryEntry
+        public class CitySummaryEntry : IExpandableColumnFormatter
         {
             [XLColumn(Order = 0)] public readonly int PlanetN;
             [XLColumn(Order = 1)] public readonly int CityN;
@@ -356,12 +364,22 @@ namespace Reus2Surveyor
             [XLColumn(Order = 140)] public string Era1B, Era2B, Era3B = null;
             [XLColumn(Order = 150)] public string Temple1, Temple2, Temple3 = null;
 
-            private static Dictionary<string, List<string>> columnFormats = new() {
-                {"0.00%", new List<string> { "PPop", "PTech", "PWel", "FillP", "PPlant", "PAnimal", "PMineral", "ApexP"} },
-                {"0.000", new List<string> { "RelPros", "RelPop", "RelTech", "RelWel", "AvFBioLv" } },
+            [XLColumn(Order = 160)]
+            [UnpackToBiomes(defaultValue: (double)0, suffix: "P", numberFormat: "0.00%")]
+            public Dictionary<string, double> BiomePercents = [];
+            private Dictionary<string, int> biomePatchCounts = [];
+
+            private static Dictionary<string, HashSet<string>> columnFormats = new() {
+                {"0.00%", new HashSet<string> { "PPop", "PTech", "PWel", "FillP", "PPlant", "PAnimal", "PMineral", "ApexP"} },
+                {"0.000", new HashSet<string> { "RelPros", "RelPop", "RelTech", "RelWel", "AvFBioLv" } },
                 };
 
-            public static Dictionary<string, List<string>> GetColumnFormats() { return columnFormats; }
+            public static Dictionary<string, HashSet<string>> GetColumnFormats() { return columnFormats; }
+            public static void AddColumnFormat(string format, string column)
+            {
+                if (columnFormats.TryGetValue(format, out HashSet<string> columns)) columns.Add(column);
+                else columnFormats[format] = [column];
+            }
 
             public CitySummaryEntry(int planetN, int cityN, string name)
             {
@@ -369,9 +387,26 @@ namespace Reus2Surveyor
                 this.CityN = cityN;
                 this.Name = name;
             }
+
+            public void IncrementPatchBiomeCounter(string biomeName)
+            {
+                if (!biomePatchCounts.ContainsKey(biomeName))
+                {
+                    this.biomePatchCounts[biomeName] = 0;
+                }
+                this.biomePatchCounts[biomeName]++;
+            }
+
+            public void CalculateBiomePercentages(int terrSize)
+            {
+                foreach((string biomeName, int count) in this.biomePatchCounts) 
+                {
+                    this.BiomePercents[biomeName] = (double)count / (double)terrSize;
+                }
+            }
         }
 
-        public class SpiritStatEntry
+        public class SpiritStatEntry : IExpandableColumnFormatter
         {
             [XLColumn(Order = 0)] public readonly string Name;
             [XLColumn(Order = 1)] public int Count = 0;
@@ -461,14 +496,14 @@ namespace Reus2Surveyor
             [UnpackToBiomes(defaultValue: (double)0, suffix: "P", numberFormat: "0.00%")]
             public Dictionary<string, double?> biomeSizePercents = [];
 
-            private static Dictionary<string, List<string>> columnFormats = new() {
-                {"0.00%", new List<string> {
+            private static Dictionary<string, HashSet<string>> columnFormats = new() {
+                {"0.00%", new HashSet<string> {
                     "P", "PrimeP", "MainP",
                     "AvPPop", "AvPTech", "AvPWel", "HiPPop", "HiPTech", "HiPWel",
                     "PosUpsetP", "NegUpsetP", "PrDownP", "Over1stP",
                     "PPlant", "PAnimal", "PMineral", "ApexP",
                 } },
-                {"0.000", new List<string> {
+                {"0.000", new HashSet<string> {
                     "AvPros", "AvPop", "AvTech", "AvWel", "AvScore",
                     "AvPrTScore", "AvPrAPros",
                     "AvRelPros", "AvRelPop", "AvRelTech", "AvRelWel",
@@ -478,11 +513,11 @@ namespace Reus2Surveyor
                 } },
                 };
 
-            public static Dictionary<string, List<string>> GetColumnFormats() { return columnFormats; }
+            public static Dictionary<string, HashSet<string>> GetColumnFormats() { return columnFormats; }
 
             public static void AddColumnFormat(string format, string column)
             {
-                if (columnFormats.TryGetValue(format, out List<string> columns)) columns.Add(column);
+                if (columnFormats.TryGetValue(format, out HashSet<string> columns)) columns.Add(column);
                 else columnFormats[format] = [column];
             }
 
@@ -659,7 +694,7 @@ namespace Reus2Surveyor
             }
         }
 
-        public class LuxuryStatEntry
+        public class LuxuryStatEntry : IExpandableColumnFormatter
         {
             [XLColumn(Order = 0)] public readonly string Name;
             [XLColumn(Order = 1)] public readonly string Type;
@@ -672,24 +707,23 @@ namespace Reus2Surveyor
             [XLColumn(Order = 21)] public string FavSpirit;
             [XLColumn(Order = 22)] public double FavRatio;
 
-
             [XLColumn(Order = 30)]
-            [UnpackToSpirits(defaultValue: (int)0)]
-            public Dictionary<string, int> LeaderCounts = [];
+            [UnpackToSpirits(defaultValue: (int)0, prefix: "From")]
+            public Dictionary<string, int> LeaderCountsOri = [];
 
             [XLColumn(Order = 40)]
             [UnpackToSpirits(defaultValue: (double)0, suffix: "Ra", numberFormat: "0.0000")]
             public Dictionary<string, double> LeaderRatios = [];
 
             [XLColumn(Order = 50)]
-            [UnpackToSpirits(defaultValue: (int)0, prefix: "From")]
-            public Dictionary<string, int> LeaderCountsOri = [];
+            [UnpackToSpirits(defaultValue: (int)0)]
+            public Dictionary<string, int> LeaderCounts = [];
 
-            private static Dictionary<string, List<string>> columnFormats = new() {
-                {"0.00%", new List<string> {
+            private static Dictionary<string, HashSet<string>> columnFormats = new() {
+                {"0.00%", new HashSet<string> {
                     "PlanetP",
                 } },
-                {"0.000", new List<string> {
+                {"0.000", new HashSet<string> {
                     "FavRatio",
                 } },
                 };
@@ -716,14 +750,14 @@ namespace Reus2Surveyor
                 this.PlanetP = (double)SafePercent(this.Planets, planetCount);
             }
 
-            public static Dictionary<string, List<string>> GetColumnFormats()
+            public static Dictionary<string, HashSet<string>> GetColumnFormats()
             {
                 return columnFormats;
             }
 
             public static void AddColumnFormat(string format, string column)
             {
-                if (columnFormats.TryGetValue(format, out List<string> columns)) columns.Add(column);
+                if (columnFormats.TryGetValue(format, out HashSet<string> columns)) columns.Add(column);
                 else columnFormats[format] = [column];
             }
         }
@@ -773,17 +807,103 @@ namespace Reus2Surveyor
                 this.Star3P = SafePercent(this.Star3, this.Count);
             }
 
-            private static Dictionary<string, List<string>> columnFormats = new() {
-                {"0.00%", new List<string> {
+            private static Dictionary<string, HashSet<string>> columnFormats = new() {
+                {"0.00%", new HashSet<string> {
                     "PickP", "0StarP", "1StarP", "2StarP", "3StarP",
                 } },
-                {"0.000", new List<string> {
+                {"0.000", new HashSet<string> {
                     "AvScore",
                 } },
                 };
-            public static Dictionary<string, List<string>> GetColumnFormats()
+            public static Dictionary<string, HashSet<string>> GetColumnFormats()
             {
                 return columnFormats;
+            }
+        }
+
+        public class ProjectStatEntry : IExpandableColumnFormatter
+        {
+            [XLColumn(Order = 0)] public readonly string Name;
+            [XLColumn(Order = 1)] public readonly string Slot;
+            [XLColumn(Order = 2)] public readonly string Hash;
+            [XLColumn(Order = 3)] public readonly string InName;
+
+            [XLColumn(Order = 10)] public int Count = 0;
+            [XLColumn(Order = 11)] public double? SlotP;
+
+            [XLColumn(Order = 20)]
+            [UnpackToSpirits(defaultValue: (int)0)]
+            public Dictionary<string, int> LeaderCounts = [];
+
+            [XLColumn(Order = 30)]
+            [UnpackToSpirits(defaultValue: (double)0, prefix: "P", numberFormat: "0.00%", nullOnZeroOrBlank: true)]
+            public Dictionary<string, double?> LeaderPickRates = [];
+
+            public ProjectStatEntry(Glossaries.CityProjectDefinition projectDef, Glossaries gloss)
+            {
+                this.Name = projectDef.DisplayName;
+                this.Slot = projectDef.Slot;
+                this.Hash = projectDef.Hash;
+                this.InName = projectDef.InternalName;
+                this.InitializeLeaderSubtables(gloss);
+            }
+
+            public void InitializeLeaderSubtables(Glossaries gloss)
+            {
+                foreach (string leaderName in gloss.SpiritHashByName.Keys)
+                {
+                    LeaderCounts[leaderName] = 0;
+                    LeaderPickRates[leaderName] = 0;
+                }
+            }
+
+            private static Dictionary<string, HashSet<string>> columnFormats = new() {
+                {"0.00%", new HashSet<string> {
+                    "SlotP",
+                } },
+                };
+            public static Dictionary<string, HashSet<string>> GetColumnFormats()
+            {
+                return columnFormats;
+            }
+            public static void AddColumnFormat(string format, string column)
+            {
+                if (columnFormats.TryGetValue(format, out HashSet<string> columns)) columns.Add(column);
+                else columnFormats[format] = [column];
+            }
+
+            public void CalculateStats(Dictionary<string, int> slotCounts, Dictionary<(string,string), int> slotCountsByLeader)
+            {
+                if (slotCounts.TryGetValue(this.Slot, out int slotUses))
+                {
+                    this.SlotP = SafePercent(this.Count, slotUses);
+                }
+                else this.SlotP = null;
+
+                foreach (string leader in this.LeaderPickRates.Keys)
+                {
+                    if (slotCountsByLeader.TryGetValue((leader, this.Slot), out int leaderSlotUse))
+                        {
+                        if (this.LeaderCounts[leader] > 0)
+                        {
+                            this.LeaderPickRates[leader] = SafePercent(this.LeaderCounts[leader], leaderSlotUse);
+                        }
+                        else
+                        {
+                            this.LeaderPickRates[leader] = 0;
+                        }
+                    }
+                    else
+                    {
+                        this.LeaderPickRates[leader] = 0;
+                    }
+                }
+            }
+
+            public void IncrementCounts(string spiritName)
+            {
+                this.Count += 1;
+                this.LeaderCounts[spiritName] += 1;
             }
         }
     }

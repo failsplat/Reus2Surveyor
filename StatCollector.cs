@@ -30,6 +30,8 @@ namespace Reus2Surveyor
         public OrderedDictionary<string, Dictionary<string, double>> BioticumVsSpiritRatios { get; private set; } = [];
         // First key is bioticum
         // Second key is spirit or character
+        public OrderedDictionary<string, Dictionary<string, int>> BioticumVsPrSpiritCounter { get; private set; } = [];
+        public OrderedDictionary<string, Dictionary<string, double>> BioticumVsPrSpiritRatios { get; private set; } = [];
 
         public OrderedDictionary<string, LuxuryStatEntry> LuxuryStats { get; private set; } = [];
 
@@ -44,6 +46,10 @@ namespace Reus2Surveyor
         // Keyed to era def hash
         public OrderedDictionary<string, EraStatEntry> EraStats { get; private set; } = [];
 
+        // Keyed to project def hash
+        public OrderedDictionary<string, ProjectStatEntry> ProjectStats { get; private set; } = [];
+        private Dictionary<string, int> ProjectSlotCount = [];
+
         public StatCollector(Glossaries g)
         {
             this.glossaryInstance = g;
@@ -54,7 +60,7 @@ namespace Reus2Surveyor
             if (planet is null) return;
             this.UpdateBioticaStats(planet, index);
             this.UpdateHumanityStats(planet, index);
-            this.CountBioticaVsSpirit(planet, index);
+            this.CountBioticaVsSpirit(planet, index, glossaryInstance.SpiritNameFromHash(planet.gameSession.selectedCharacterDef));
             this.planetCount++;
         }
 
@@ -381,12 +387,14 @@ namespace Reus2Surveyor
                     this.inventionDefinitions.Add(luxHash);
 
                     LuxuryDefinition luxDef = this.glossaryInstance.TryLuxuryDefinitionFromHash(luxHash);
-                    if (!this.LuxuryStats.ContainsKey(luxHash))
+                    if (!this.LuxuryStats.TryGetValue(luxHash, out LuxuryStatEntry lse))
                     {
                         LuxuryStatEntry newEntry = new(luxDef, this.glossaryInstance);
-                        this.LuxuryStats.Add(luxHash, newEntry);
+                        lse = newEntry;
+                        this.LuxuryStats.Add(luxHash, lse);
                     }
-                    this.LuxuryStats[luxHash].Count += 1;
+
+                    lse.Count += 1;
                     if (luxSlot.luxuryGood.originCityId == city.tokenIndex)
                     {
                         if (this.LuxuryStats[luxHash].LeaderCountsOri.ContainsKey(founderName))
@@ -394,9 +402,9 @@ namespace Reus2Surveyor
                             this.LuxuryStats[luxHash].LeaderCountsOri[founderName] += 1;
                         }
                     }
-                    if (this.LuxuryStats[luxHash].LeaderCounts.ContainsKey(founderName))
+                    if (lse.LeaderCounts.ContainsKey(founderName))
                     {
-                        this.LuxuryStats[luxHash].LeaderCounts[founderName] += 1;
+                        lse.LeaderCounts[founderName] += 1;
                     }
                     luxuriesPresent.Add(luxHash);
 
@@ -405,10 +413,37 @@ namespace Reus2Surveyor
                         cannedSludgeCity = city.tokenIndex;
                         cannedSludgeHash = luxHash;
                     }
+
+                    string inspiringBio = luxSlot.luxuryGood.originalBioticumDef;
+                    if (inspiringBio is not null)
+                    {
+                        CheckBioticaStatEntry(inspiringBio, index);
+                        this.BioticaStats[inspiringBio].Inventions += 1;
+                    }
                 }
                 citiesByLuxuryBuffHandler[(int)city.CityLuxuryController.luxuryBuffControllerId] = city;
+                foreach (City.LuxuryController.LuxurySlot tradeSlot in city.CityLuxuryController.tradeSlots)
+                {
+                    if (tradeSlot == null) continue;
+                    if (tradeSlot.luxuryGood == null) continue; // Empty trade slot
+                    string importHash = tradeSlot.luxuryGood.definition;
+                    LuxuryDefinition importDef = this.glossaryInstance.TryLuxuryDefinitionFromHash(importHash);
 
-                cityEntry.TPLead = city.initiatedTurningPointsDefs.Count();
+                    if (!this.LuxuryStats.TryGetValue(importHash, out LuxuryStatEntry lse))
+                    {
+                        LuxuryStatEntry newEntry = new(importDef, this.glossaryInstance);
+                        lse = newEntry;
+                        this.LuxuryStats.Add(importHash, lse);
+                    }
+
+                    lse.Count += 1;
+                    if (lse.LeaderCounts.ContainsKey(founderName))
+                    {
+                        lse.LeaderCounts[founderName] += 1;
+                    }
+                }
+
+                cityEntry.TPLead = city.initiatedTurningPointsDefs.Count;
                 foreach (string cityStartedEras in city.initiatedTurningPointsDefs)
                 {
                     EraDefinition thisEra = this.glossaryInstance.TryEraDefinitionFromHash(cityStartedEras);
@@ -495,7 +530,13 @@ namespace Reus2Surveyor
                             cityEntry.Biotica += 1;
                         }
                     }
+
+                    if (this.glossaryInstance.BiomeNameByHash.TryGetValue(patch.biomeDefinition, out string patchBiome))
+                    {
+                        cityEntry.IncrementPatchBiomeCounter(patchBiome);
+                    }
                 }
+                cityEntry.CalculateBiomePercentages(city.PatchesInTerritory.Count());
 
                 cityEntry.AvFBioLv = bioticaLevels.Count > 0 ? bioticaLevels.Average() : 0;
                 cityEntry.PPlant = SafePercent(cityEntry.Plants, cityEntry.Biotica);
@@ -530,6 +571,16 @@ namespace Reus2Surveyor
                     if (glossaryInstance.ProjectDefinitionByHash.ContainsKey(project.definition))
                     {
                         CityProjectDefinition projectDef = this.glossaryInstance.TrProjectDefinitionFromHash(project.definition);
+                        if (!ProjectStats.TryGetValue(projectDef.Hash, out ProjectStatEntry pse)) {
+                            pse = new(projectDef, this.glossaryInstance);
+                            this.ProjectStats[projectDef.Hash] = pse;
+                        }
+
+                        pse.IncrementCounts(founderName);
+
+                        if (!this.ProjectSlotCount.ContainsKey(projectDef.Slot)) this.ProjectSlotCount[projectDef.Slot] = 0;
+                        this.ProjectSlotCount[projectDef.Slot] += 1;
+
                         switch (projectDef.Slot)
                         {
                             case "Era1":
@@ -694,7 +745,7 @@ namespace Reus2Surveyor
             }
         }
 
-        public void CountBioticaVsSpirit(Planet planet, int index)
+        public void CountBioticaVsSpirit(Planet planet, int index, string primarySpirit)
         {
             foreach (City city in planet.cityDictionary.Values)
             {
@@ -704,9 +755,7 @@ namespace Reus2Surveyor
                     if (glossaryInstance.BioticumDefinitionByHash.ContainsKey(nb.definition))
                     {
                         string activeBioName = glossaryInstance.BioticumNameFromHash(nb.definition);
-                        if (!BioticumVsSpiritCounter.ContainsKey(activeBioName)) this.BioticumVsSpiritCounter[activeBioName] = new();
-                        if (!BioticumVsSpiritCounter[activeBioName].ContainsKey(spirit)) this.BioticumVsSpiritCounter[activeBioName][spirit] = 0;
-                        this.BioticumVsSpiritCounter[activeBioName][spirit] += 1;
+                        this.IncrementSpiritVsBioticaCounters(activeBioName, spirit, primarySpirit);
                     }
                 }
                 foreach (int slotIndex in city.ListSlotIndicesInTerritory())
@@ -717,9 +766,7 @@ namespace Reus2Surveyor
                         if (glossaryInstance.BioticumDefinitionByHash.ContainsKey(legacyDef))
                         {
                             string legacyBioName = glossaryInstance.BioticumNameFromHash(legacyDef);
-                            if (!BioticumVsSpiritCounter.ContainsKey(legacyBioName)) this.BioticumVsSpiritCounter[legacyBioName] = new();
-                            if (!BioticumVsSpiritCounter[legacyBioName].ContainsKey(spirit)) this.BioticumVsSpiritCounter[legacyBioName][spirit] = 0;
-                            this.BioticumVsSpiritCounter[legacyBioName][spirit] += 1;
+                            this.IncrementSpiritVsBioticaCounters(legacyBioName, spirit, primarySpirit);
                         }
                     }
                 }
@@ -741,6 +788,7 @@ namespace Reus2Surveyor
                 sse.CalculateStats(this.planetCount, this.glossaryInstance);
             }
             this.BioticumVsSpiritRatios = NestedCounterToNestedRatioDictionary(this.BioticumVsSpiritCounter);
+            this.BioticumVsPrSpiritRatios = NestedCounterToNestedRatioDictionary(this.BioticumVsPrSpiritCounter);
             this.inventionNamesByDef = this.genericBuffNamesByDef.Where(kv => this.inventionDefinitions.Contains(kv.Key)).ToDictionary();
             
             Dictionary<string, Dictionary<string,int>> luxuryLeaderCounts = [];
@@ -751,7 +799,7 @@ namespace Reus2Surveyor
                 lse.CalculateStats(this.planetCount);
                 //luxuryLeaderCounts[lse.Hash] = lse.LeaderCounts;
 
-                lse.LeaderRatios = lse.LeaderCounts.ToDictionary(kv => kv.Key, 
+                lse.LeaderRatios = lse.LeaderCountsOri.ToDictionary(kv => kv.Key, 
                     kv => leaderPercents.TryGetValue(kv.Key, out double leaderPerc) ? 
                     ((double)kv.Value / (double)lse.Count) / leaderPerc : 
                     0
@@ -782,6 +830,32 @@ namespace Reus2Surveyor
             foreach (EraStatEntry ese in this.EraStats.Values)
             {
                 ese.CalculateStats(stageCounter[ese.Era]);
+            }
+
+            // Preparing counters to gather project slot usage
+            List<string> distinctProjectSlots = [..this.glossaryInstance.ProjectDefinitionList
+                .Select(d => d.Slot).Distinct()];
+            Dictionary<string,int> projectSlotCounter = distinctProjectSlots.ToDictionary(k => k, k => 0);
+            Dictionary<(string, string), int> projectSlotCountByLeader = [];
+            foreach (string leaderName in this.glossaryInstance.SpiritHashByName.Keys)
+            {
+                foreach (string projectSlot in distinctProjectSlots)
+                {
+                    projectSlotCountByLeader[(leaderName, projectSlot)] = 0;
+                }
+            }
+
+            foreach (ProjectStatEntry pse in this.ProjectStats.Values)
+            {
+                projectSlotCounter[pse.Slot] += pse.Count;
+                foreach (string leader in pse.LeaderCounts.Keys)
+                {
+                    projectSlotCountByLeader[(leader, pse.Slot)] += pse.LeaderCounts[leader];
+                }
+            }
+            foreach (ProjectStatEntry pse in this.ProjectStats.Values)
+            {
+                pse.CalculateStats(projectSlotCounter, projectSlotCountByLeader);
             }
         }
 
@@ -1134,55 +1208,21 @@ namespace Reus2Surveyor
             {
                 var planetSummWs = wb.AddWorksheet("Planets");
                 DataTable planetDataTable = ExpandToColumns(this.PlanetSummaries, this.glossaryInstance);
-                {
-                    List<MemberInfo> expandableColumns = [];
-                    expandableColumns.AddRange(typeof(PlanetSummaryEntry).GetFields());
-                    expandableColumns.AddRange(typeof(PlanetSummaryEntry).GetProperties());
-                    foreach(MemberInfo mi in expandableColumns)
-                    {
-                        UnpackToBiomesAttribute biomeAttr = mi.GetCustomAttribute<UnpackToBiomesAttribute>();
-                        if (biomeAttr is null) continue;
-                        if (biomeAttr.NumberFormat is not null)
-                        {
-                            foreach (string biomeName in this.glossaryInstance.BiomeHashByName.Keys)
-                            {
-                                string subheader = biomeAttr.Prefix + biomeName + biomeAttr.Suffix;
-                                PlanetSummaryEntry.AddColumnFormat(biomeAttr.NumberFormat, subheader);
-                            }
-                        }
-                        
-                    }
-                }
+                AddExpandableNumberFormats<PlanetSummaryEntry>(this.glossaryInstance);
                 var planetTable = planetSummWs.Cell("A1").InsertTable(planetDataTable, "Planets");
                 planetTable.Theme = XLTableTheme.TableStyleMedium4;
                 ApplyTableNumberFormats(PlanetSummaryEntry.GetColumnFormats(), planetTable);
 
                 var cityWs = wb.AddWorksheet("Cities");
-                var cityTable = cityWs.Cell("A1").InsertTable(this.CitySummaries, "Cities");
+                DataTable cityDataTable = ExpandToColumns(this.CitySummaries, this.glossaryInstance);
+                AddExpandableNumberFormats<CitySummaryEntry>(this.glossaryInstance);
+                var cityTable = cityWs.Cell("A1").InsertTable(cityDataTable, "Cities");
                 cityTable.Theme = XLTableTheme.TableStyleLight1;
                 ApplyTableNumberFormats(CitySummaryEntry.GetColumnFormats(), cityTable);
 
                 var spiritWs = wb.AddWorksheet("Spirits");
                 DataTable spiritDataTable = ExpandToColumns(this.SpiritStats.Values, this.glossaryInstance);
-                {
-                    List<MemberInfo> expandableColumns = [];
-                    expandableColumns.AddRange(typeof(SpiritStatEntry).GetFields());
-                    expandableColumns.AddRange(typeof(SpiritStatEntry).GetProperties());
-                    foreach (MemberInfo mi in expandableColumns)
-                    {
-                        UnpackToBiomesAttribute biomeAttr = mi.GetCustomAttribute<UnpackToBiomesAttribute>();
-                        if (biomeAttr is null) continue;
-                        if (biomeAttr.NumberFormat is not null)
-                        {
-                            foreach (string biomeName in this.glossaryInstance.BiomeHashByName.Keys)
-                            {
-                                string subheader = biomeAttr.Prefix + biomeName + biomeAttr.Suffix;
-                                SpiritStatEntry.AddColumnFormat(biomeAttr.NumberFormat, subheader);
-                            }
-                        }
-
-                    }
-                }
+                AddExpandableNumberFormats<SpiritStatEntry>(this.glossaryInstance);
                 var spiritTable = spiritWs.Cell("A1").InsertTable(spiritDataTable, "Spirits");
                 spiritTable.Theme = XLTableTheme.TableStyleMedium5;
                 ApplyTableNumberFormats(SpiritStatEntry.GetColumnFormats(), spiritTable);
@@ -1197,25 +1237,7 @@ namespace Reus2Surveyor
 
                 var luxWs = wb.AddWorksheet("Luxuries");
                 DataTable luxuryDataTable = ExpandToColumns(this.LuxuryStats.Values, this.glossaryInstance);
-                {
-                    List<MemberInfo> expandableColumns = [];
-                    expandableColumns.AddRange(typeof(LuxuryStatEntry).GetFields());
-                    expandableColumns.AddRange(typeof(LuxuryStatEntry).GetProperties());
-                    foreach (MemberInfo mi in expandableColumns)
-                    {
-                        UnpackToSpiritsAttribute spiritAttr = mi.GetCustomAttribute<UnpackToSpiritsAttribute>();
-                        if (spiritAttr is null) continue;
-                        if (spiritAttr.NumberFormat is not null)
-                        {
-                            foreach (string spiritName in this.glossaryInstance.SpiritHashByName.Keys)
-                            {
-                                string subheader = spiritAttr.Prefix + spiritName + spiritAttr.Suffix;
-                                LuxuryStatEntry.AddColumnFormat(spiritAttr.NumberFormat, subheader);
-                            }
-                        }
-
-                    }
-                }
+                AddExpandableNumberFormats<LuxuryStatEntry>(this.glossaryInstance);
                 var luxuryTable = luxWs.Cell("A1").InsertTable(luxuryDataTable, "Luxuries");
                 luxuryTable.Theme = XLTableTheme.TableStyleMedium7;
                 ApplyTableNumberFormats(LuxuryStatEntry.GetColumnFormats(), luxuryTable);
@@ -1226,20 +1248,49 @@ namespace Reus2Surveyor
                 ApplyTableNumberFormats(EraStatEntry.GetColumnFormats(), eraTable);
                 eraTable.Theme = XLTableTheme.TableStyleMedium6;
 
+                var projectWs = wb.AddWorksheet("Projects");
+                DataTable projectDataTable = ExpandToColumns(this.ProjectStats.Values, this.glossaryInstance);
+                AddExpandableNumberFormats<ProjectStatEntry>(this.glossaryInstance);
+                var projectTable = projectWs.Cell("A1").InsertTable(projectDataTable, "Projects");
+                ApplyTableNumberFormats(ProjectStatEntry.GetColumnFormats(), projectTable);
+
                 DataTable bioticaVsSpiritCountDataTable = NestDictToDataTable(this.BioticumVsSpiritCounter, "Bioticum");
-                var bioVsCharCountWs = wb.AddWorksheet("BioVsCharCounts");
+                var bioVsCharCountWs = wb.AddWorksheet("BioVsCharC");
                 var bioVsCharCountTable = bioVsCharCountWs.Cell("A1").InsertTable(bioticaVsSpiritCountDataTable);
 
                 DataTable bioticaVsSpiritRatioDataTable = NestDictToDataTable(this.BioticumVsSpiritRatios, "Bioticum");
-                var bioVsCharRatioWs = wb.AddWorksheet("BioVsCharRatios");
+                var bioVsCharRatioWs = wb.AddWorksheet("BioVsCharR");
                 var bioVsCharRatioTable = bioVsCharRatioWs.Cell("A1").InsertTable(bioticaVsSpiritRatioDataTable);
                 foreach (var col in bioVsCharRatioTable.Columns())
                 {
                     col.Style.NumberFormat.Format = "0.0000";
                 }
 
+                DataTable bioticaVsPrSpiritCountDataTable = NestDictToDataTable(this.BioticumVsPrSpiritCounter, "Bioticum");
+                var bioVsPrCharCountWs = wb.AddWorksheet("BioVsPSpC");
+                var bioVsPrCharCountTable = bioVsPrCharCountWs.Cell("A1").InsertTable(bioticaVsPrSpiritCountDataTable);
+
+                DataTable bioticaVsPrSpiritRatioDataTable = NestDictToDataTable(this.BioticumVsPrSpiritRatios, "Bioticum");
+                var bioVsPrCharRatioWs = wb.AddWorksheet("BioVsPSpR");
+                var bioVsPrCharRatioTable = bioVsPrCharRatioWs.Cell("A1").InsertTable(bioticaVsPrSpiritRatioDataTable);
+                foreach (var col in bioVsPrCharRatioTable.Columns())
+                {
+                    col.Style.NumberFormat.Format = "0.0000";
+                }
+
                 wb.SaveAs(dstPath);
             }
+        }
+
+        public void IncrementSpiritVsBioticaCounters(string bioName, string spiritName, string primarySpirit)
+        {
+            if (!BioticumVsSpiritCounter.ContainsKey(bioName)) this.BioticumVsSpiritCounter[bioName] = new();
+            if (!BioticumVsSpiritCounter[bioName].ContainsKey(spiritName)) this.BioticumVsSpiritCounter[bioName][spiritName] = 0;
+            this.BioticumVsSpiritCounter[bioName][spiritName] += 1;
+
+            if (!BioticumVsPrSpiritCounter.ContainsKey(bioName)) this.BioticumVsPrSpiritCounter[bioName] = new();
+            if (!BioticumVsPrSpiritCounter[bioName].ContainsKey(primarySpirit)) this.BioticumVsPrSpiritCounter[bioName][primarySpirit] = 0;
+            this.BioticumVsPrSpiritCounter[bioName][primarySpirit] += 1;
         }
 
         public static readonly Dictionary<int, string> TimedChallengeTypes = new()
@@ -1308,12 +1359,12 @@ namespace Reus2Surveyor
             return GiniCoeff(castValues);
         }
 
-        public static void ApplyTableNumberFormats(Dictionary<string, List<string>> columnFormats, IXLTable table)
+        public static void ApplyTableNumberFormats(Dictionary<string, HashSet<string>> columnFormats, IXLTable table)
         {
-            foreach (KeyValuePair<string, List<string>> kv in columnFormats)
+            foreach (KeyValuePair<string, HashSet<string>> kv in columnFormats)
             {
                 string format = kv.Key;
-                List<string> columns = kv.Value;
+                HashSet<string> columns = [..kv.Value];
 
                 foreach (string colName in columns)
                 {
@@ -1325,6 +1376,36 @@ namespace Reus2Surveyor
                     }
                     catch { }
                 }
+            }
+        }
+
+        public static void AddExpandableNumberFormats<T>(Glossaries glossaryInstance) where T : IExpandableColumnFormatter
+        {
+            List<MemberInfo> expandableColumns = [];
+            expandableColumns.AddRange(typeof(T).GetFields());
+            expandableColumns.AddRange(typeof(T).GetProperties());
+            foreach (MemberInfo mi in expandableColumns)
+            {
+                UnpackToBiomesAttribute biomeAttr = mi.GetCustomAttribute<UnpackToBiomesAttribute>();
+                if (biomeAttr is not null && biomeAttr.NumberFormat is not null)
+                {
+                    foreach (string biomeName in glossaryInstance.BiomeHashByName.Keys)
+                    {
+                        string subheader = biomeAttr.Prefix + biomeName + biomeAttr.Suffix;
+                        T.AddColumnFormat(biomeAttr.NumberFormat, subheader);
+                    }
+                }
+
+                UnpackToSpiritsAttribute spiritAttr = mi.GetCustomAttribute<UnpackToSpiritsAttribute>();
+                if (spiritAttr is not null && spiritAttr.NumberFormat is not null)
+                {
+                    foreach (string spiritName in glossaryInstance.SpiritHashByName.Keys)
+                    {
+                        string subheader = spiritAttr.Prefix + spiritName + spiritAttr.Suffix;
+                        T.AddColumnFormat(spiritAttr.NumberFormat, subheader);
+                    }
+                }
+
             }
         }
     }

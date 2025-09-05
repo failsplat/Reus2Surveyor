@@ -29,6 +29,7 @@ namespace Reus2Surveyor
             }
         }
 
+        [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
         public class UnpackToSpiritsAttribute : System.Attribute
         {
             public string Prefix { get; } = "";

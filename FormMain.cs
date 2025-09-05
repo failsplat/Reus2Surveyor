@@ -325,7 +325,7 @@ namespace Reus2Surveyor
             if (TableGraphics.giantSquares.TryGetValue(newPlanet.GiantNames[2], out byte[] giant3Image)) { thisRow.Cells["Giant3Col"].Value = giant3Image; }
             else thisRow.Cells["Giant3Col"].Value = Properties.Resources.ErrorSquare;
 
-            SixLabors.ImageSharp.Image miniMap = TableGraphics.BiomePositionalToMinimap(newPlanet.BiomeSizeMap);
+            SixLabors.ImageSharp.Image miniMap = TableGraphics.BiomePositionalToMinimap(newPlanet.BiomeSizeMap, GameGlossaries);
             using MemoryStream ms = new MemoryStream();
             miniMap.SaveAsPng(ms, new SixLabors.ImageSharp.Formats.Png.PngEncoder());
             thisRow.Cells["MinimapCol"].Value = ms.ToArray();
