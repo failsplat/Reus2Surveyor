@@ -413,6 +413,13 @@ namespace Reus2Surveyor
                         cannedSludgeCity = city.tokenIndex;
                         cannedSludgeHash = luxHash;
                     }
+
+                    string inspiringBio = luxSlot.luxuryGood.originalBioticumDef;
+                    if (inspiringBio is not null)
+                    {
+                        CheckBioticaStatEntry(inspiringBio, index);
+                        this.BioticaStats[inspiringBio].Inventions += 1;
+                    }
                 }
                 citiesByLuxuryBuffHandler[(int)city.CityLuxuryController.luxuryBuffControllerId] = city;
                 foreach (City.LuxuryController.LuxurySlot tradeSlot in city.CityLuxuryController.tradeSlots)

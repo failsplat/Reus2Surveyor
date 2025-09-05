@@ -49,6 +49,7 @@ namespace Reus2Surveyor
             [XLColumn(Order = 43)] public double? MultiAv { get; private set; } = null;
             [XLColumn(Order = 44)] public string FavSpirit { get; set; } = null;
             [XLColumn(Order = 45)] public double? FavRatio { get; set; } = null;
+            [XLColumn(Order = 46)] public int Inventions { get; set; } = 0;
 
             [XLColumn(Order = 50)] public int P1st { get; set; }
             [XLColumn(Order = 51)] public int PLast { get; set; }
