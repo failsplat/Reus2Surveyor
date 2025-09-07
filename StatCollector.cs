@@ -1253,6 +1253,7 @@ namespace Reus2Surveyor
                 AddExpandableNumberFormats<ProjectStatEntry>(this.glossaryInstance);
                 var projectTable = projectWs.Cell("A1").InsertTable(projectDataTable, "Projects");
                 ApplyTableNumberFormats(ProjectStatEntry.GetColumnFormats(), projectTable);
+                projectWs.SheetView.FreezeColumns(1);
 
                 DataTable bioticaVsSpiritCountDataTable = NestDictToDataTable(this.BioticumVsSpiritCounter, "Bioticum");
                 var bioVsCharCountWs = wb.AddWorksheet("BioVsCharC");

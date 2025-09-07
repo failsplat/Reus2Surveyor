@@ -830,6 +830,7 @@ namespace Reus2Surveyor
 
             [XLColumn(Order = 10)] public int Count = 0;
             [XLColumn(Order = 11)] public double? SlotP;
+            [XLColumn(Order = 12)] public double? ASlotP;
 
             [XLColumn(Order = 20)]
             [UnpackToSpirits(defaultValue: (int)0)]
@@ -859,7 +860,7 @@ namespace Reus2Surveyor
 
             private static Dictionary<string, HashSet<string>> columnFormats = new() {
                 {"0.00%", new HashSet<string> {
-                    "SlotP",
+                    "SlotP", "ASlotP",
                 } },
                 };
             public static Dictionary<string, HashSet<string>> GetColumnFormats()
@@ -880,12 +881,14 @@ namespace Reus2Surveyor
                 }
                 else this.SlotP = null;
 
+                int leaderSlotUseTotal = 0;
                 foreach (string leader in this.LeaderPickRates.Keys)
                 {
                     if (slotCountsByLeader.TryGetValue((leader, this.Slot), out int leaderSlotUse))
-                        {
+                    {
                         if (this.LeaderCounts[leader] > 0)
                         {
+                            leaderSlotUseTotal += leaderSlotUse;
                             this.LeaderPickRates[leader] = SafePercent(this.LeaderCounts[leader], leaderSlotUse);
                         }
                         else
@@ -898,6 +901,7 @@ namespace Reus2Surveyor
                         this.LeaderPickRates[leader] = 0;
                     }
                 }
+                this.ASlotP = SafePercent(Count, leaderSlotUseTotal);
             }
 
             public void IncrementCounts(string spiritName)
