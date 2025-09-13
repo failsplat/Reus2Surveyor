@@ -159,13 +159,13 @@ Mudpool,Mineral,1,,,,,1,,,1,,,719ce31427b970941b8078041345dff2
 Labradorite,Mineral,1,,,,,1,,,,1,,07b860d920d7ede4a8da0e8d3f8af17e
 Primal Flint,Mineral,1,1,,,,1,,,,,,1316fbdd92928114c8a49e0a69cc2b7b
 Arsenic,Mineral,2,,,,,1,,,1,,,2646248c961cfb6478f3d55d7c42cb4a
-Jet,Mineral,2,,,,,1,,,1,,1,bc7e3c317625cf543bbe0345723acdc5
+Jet,Mineral,2,,,,,1,,,,,1,bc7e3c317625cf543bbe0345723acdc5
 Permafrost,Mineral,2,1,,,,1,,,,,,e48eccdf69fa87644acf64f01476b8b3
 Primal Hematite,Mineral,2,1,,,,1,,,,,,6205ad174ed33f34283493f7af15a54a
 Primal Obsidian,Mineral,2,1,,,,1,,,,,,c07413438aef3d84a902cb70d0eea6a9
 Sakhalin Amber,Mineral,2,1,,,,1,,,,,,8cdc745eff3c4054aaff70172ffbbc93
-Glacial Erratics,Mineral,3,,,,,1,,,1,,,3e04da0b04b59cf4287fe0676be3b57f
-Kettle Lake,Mineral,3,,,,,1,,,1,,,8e4ad93b90838c44399855a84d7d8d18
+Glacial Erratics,Mineral,3,,,,,1,,,,,,3e04da0b04b59cf4287fe0676be3b57f
+Kettle Lake,Mineral,3,,,,,1,,,,,,8e4ad93b90838c44399855a84d7d8d18
 Geyser,Mineral,3,1,,,,1,,,,,,2d68dc6a2e089734b825e82f5264ef4d
 Glacier,Mineral,3,1,,,,1,,,,,,f1d3f9143546e3a45b3694f16384ea2e
 Ochre,Mineral,3,1,,,,1,,,,,,1686997a76cc18c4f916683610585193
@@ -373,7 +373,7 @@ Platinum (Taiga),Mineral,3,1,,,,,,,,1,,1072b961cd75e8e429ffa3cbf222a886
 Titanite,Mineral,3,1,,,,,,,,1,,920b32df26402544995d1818290dd600
 Uranium,Mineral,3,1,,,,,,,,1,,db1f929d88b982a4ca24aaee6ef46e22
 Emu,Animal,2,,,1,,,,,,,,135ec2af45a0e8746af25bd5678674b0
-Smokey Quartz,Mineral,2,,,1,,1,,,,,,d85582e893b99cd44b62a48d7a1cdee4
+Smokey Quartz,Mineral,2,,,1,,,,,,,,d85582e893b99cd44b62a48d7a1cdee4
 Kookaburra,Animal,2,1,,1,,,,,,,,b07d4a1b47b88a340bded035651a0ef8
 Prickly Pear,Plant,2,1,,1,,,,,,,,e04cb00390323a146aa982b2eefd0af2
 King Brown Snake,Animal,3,,,1,,,,,,,,e491bee30b6f277458f787e94c670f86
@@ -396,7 +396,7 @@ Starfruit,Plant,2,,,,,,,,,,1,641e4f6363e862849be658b8ae6b9bda
 Blue Flag Iris,Plant,2,1,,,,,,,,,1,d39deab8a9ad1414687aaaee34d4d7d0
 Bromelia,Plant,2,1,,,,,,,,,1,a8e67390e5bade34cb0a88551181f6b1
 Watermelon,Plant,2,1,,,,,,,,,1,b7522b11bfddd254eb6464747e818ca6
-Black Mangrove,Plant,3,,,,,,1,,,,1,776ce6aa6618f9741ae7a22635145728
+Black Mangrove,Plant,3,,,,,,,,,,1,776ce6aa6618f9741ae7a22635145728
 Buttonbush,Plant,3,,,,,,,,,,1,45d6b868afd2b9a40962bd4ad0588b3c
 Cinnamon,Plant,3,,,,,,,,,,1,240dd74f25ff6434ca4af9dd001cf7d1
 Grapefruit,Plant,3,,,,,,,,,,1,f300f30363d729b42a7512ef7a99928c
@@ -407,7 +407,7 @@ Bluegill,Animal,1,,1,,,,,,,,1,bce9749706bb07b4ba219f2e9225c2c5
 Opossum,Animal,1,,1,,,,,,,,1,3732129bdad1de54da8dddae34655bc3
 Catfish,Animal,1,,,,,,,,,,1,51c48fc01f344d244b0a83f204273ed3
 Key Deer,Animal,1,,,,,,,,,,1,bafbc925997b0934aa1c73f5ee812011
-Sea Horse,Animal,1,,,,,,1,,,,1,83c25e50c52291f49aa77b0069330782
+Sea Horse,Animal,1,,,,,,,,,,1,83c25e50c52291f49aa77b0069330782
 Snail Kite,Animal,1,,,,,,,,,,1,c029bbf546f95674e8503c9b64ce1c8c
 Terrapin,Animal,1,,,,,,,,,,1,ff8eebb8672cb06409d8c0a79c8665c0
 Flamingo,Animal,1,1,,,,,,,,,1,d19584b2de1d9574d8c630726201757b
@@ -418,8 +418,8 @@ Anaconda,Animal,2,1,,,,,,,,,1,480f910d031d18a4bb11111e6c8b37c5
 Anole,Animal,2,1,,,,,,,,,1,9c0e86969770d41479e47eb76b511462
 Raccoon,Animal,2,1,,,,,,,,,1,576a4b133551ed54e8e6de1dfe54ce57
 Spoonbill,Animal,2,1,,,,,,,,,1,edb4f8ef3d1f2904891def62fa2c3b59
-Balloonfish,Animal,3,,,,,,1,,,,1,ad0d2c2c82831144184a8badeb8cc5b8
-Barracuda,Animal,3,,,,,,1,,,,1,0d494a90c287a0643b3ab8994853a960
+Balloonfish,Animal,3,,,,,,,,,,1,ad0d2c2c82831144184a8badeb8cc5b8
+Barracuda,Animal,3,,,,,,,,,,1,0d494a90c287a0643b3ab8994853a960
 Hoatzin,Animal,3,,,,,,,,,,1,0162f93caee7367438a59b71fc3cef47
 Kingsnake,Animal,3,,,,,,,,,,1,9b8d6b2a35b3abe40be8afce9a90ad96
 Alligator,Animal,3,1,,,,,,,,,1,0cca03048fd252847912813e1fab9745
@@ -440,3 +440,9 @@ Alexandrite,Mineral,3,1,,,,,,,,,1,4f0cd9c8f760a5c4da73cb46d0b708a2
 Alunite,Mineral,3,1,,,,,,,,,1,8575f91427d91d84a8da8a09fa3b8ce7
 Celestine,Mineral,3,1,,,,,,,,,1,09f56f5708c5b8649bb20cfffaf3811c
 Fuller's Earth,Mineral,3,1,,,,,,,,,1,0b5d7c0d8c481e4498f2089c3b159e71
+Pygmy Falcon,Animal,2,,,,,,,,1,,,21650085ac443954988261b24d23735a
+Hoopoe,Animal,3,,,,,,,,1,,,7f92c90aee5a2dc4da8ec5a42a8fd887
+Shepherd Tree,Plant,3,,,,,,,,1,,,19efb3ec61a9c664c8769b945b2980ae
+Termite Mound,Mineral,3,,,,,,,,1,,,1661abbecbf46b24da22502e37d5ff7c
+Hamadryas Baboon,Animal,3,1,,,,,,,1,,,2994f2ca23646eb47a971f31b16dedd4
+Meerkat,Animal,3,1,,,,,,,1,,,bbbc21d4cbac7a04a9739b56c132d863
