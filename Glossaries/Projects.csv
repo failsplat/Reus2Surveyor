@@ -1,5 +1,5 @@
 ﻿InternalName,DisplayName,Slot,Hash
-UC_Pyramid,Construction Site,Era1,a795f7ab8340f134ab11fdbecb853dce
+UC_Pyramid,Pyramid Construction Site,Era1,a795f7ab8340f134ab11fdbecb853dce
 Great Forge,Great Forge,Era1,39addab01cf822c419313256f4a09077
 Great Hall,Great Hall,Era1,100da027aa7b5ad4e8af598ee2bfc783
 COM_Oracle,Oracle,Era1,d9e07fc4b796edf478738c0a24d61544
@@ -102,3 +102,8 @@ Bug Statue,Bug Statue,Era1,f787a879a28811f44bbf7c54bb0ec855
 Pathfinders Club,Pathfinder's Club,Era2,bcd40ce507ac5fb45b6b6c84abbe898d
 COM_Satalite,Brainwave Satellite Dish,Era3,1d9d9f7a3bf7c254996a76b1093b4dc1
 T. Swamp Temple (Wetlands),Temple of Reginald (Wet),Temple1,10543eceda6f01b4bbd8f65a58de48ad
+Interpretation Center UC,Uncompleted Interpretation Center,Era3,ea1d786a63d77bc4c8a95e7ee8150747
+Interpretation Center,Interpretation Center,Era3,cfac48d02e452c54982485099e7cba74
+UC_Skyscraper,Skyscraper Under Construction,Era3,0f1b77a80bbe5124f8a0461671dec29c
+UC_SludgeFactory,Inactive Sludge Factory,Era3,f4e14b610c831c841a716cfad6e6ea24
+[UC] Sacrifice Altar,Waiting Sacrifice Altar,Era3,d545c546aced2b74e8d4ccf42aefed61

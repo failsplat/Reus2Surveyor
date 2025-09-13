@@ -226,10 +226,13 @@ namespace Reus2Surveyor
                 planetEntry.Invent += city.CityLuxuryController.luxurySlots.Where(ls => ls.luxuryGoodId is not null).Count();
                 planetEntry.Trades += city.CityLuxuryController.importAgreementIds.Count();
 
-                cityProsList.Add((int)city.CivSummary.prosperity);
-                cityPopList.Add((int)city.CivSummary.population);
-                cityTechList.Add((int)city.CivSummary.innovation);
-                cityWelList.Add((int)city.CivSummary.wealth);
+                if (city.CivSummary is not null)
+                {
+                    cityProsList.Add((int)city.CivSummary.prosperity);
+                    cityPopList.Add((int)city.CivSummary.population);
+                    cityTechList.Add((int)city.CivSummary.innovation);
+                    cityWelList.Add((int)city.CivSummary.wealth);
+                }
 
                 string founderName = glossaryInstance.SpiritNameFromHash(city.founderCharacterDef);
                 typeof(PlanetSummaryEntry).GetField("Char" + cityIndex.ToString()).SetValue(planetEntry, founderName);
