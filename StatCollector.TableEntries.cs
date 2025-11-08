@@ -10,11 +10,6 @@ namespace Reus2Surveyor
 {
     public partial class StatCollector
     {
-        public interface IExpandableColumnFormatter
-        {
-            public abstract static void AddColumnFormat(string format, string column);
-        }
-
         public class BioticumStatEntry
         {
             private readonly Glossaries.BioticumDefinition Definition;
@@ -24,43 +19,35 @@ namespace Reus2Surveyor
             [XLColumn(Order = 3)] public readonly string Starter;
             [XLColumn(Order = 4)] public readonly string Apex;
 
-            [XLColumn(Order = 10), UnpackToBiomes(defaultValue: "")] public readonly Dictionary<string, string> biomesAllowed = [];
+            [XLColumn(Order = 10)][UnpackToBiomes(defaultValue: "")] public readonly Dictionary<string, string> biomesAllowed = [];
 
             [XLColumn(Order = 20)] public readonly string Hash;
             [XLColumn(Order = 21)] public int Total { get; set; } = 0;
             [XLColumn(Order = 22)] public int Planets { get; set; } = 0;
-            [XLColumn(Order = 23)] public double? DUsageP { get; private set; } = null;
-            [XLColumn(Order = 24)] public double? AUsageP { get; private set; } = null;
+            [XLColumn(Order = 23)][ColumnFormat("0.00%")] public double? DUsageP { get; private set; } = null;
+            [XLColumn(Order = 24)][ColumnFormat("0.00%")] public double? AUsageP { get; private set; } = null;
             [XLColumn(Order = 25)] public int Draft { get; set; } = 0;
-            [XLColumn(Order = 26)] public double? DraftP { get; set; } = null;
+            [XLColumn(Order = 26)][ColumnFormat("0.00%")] public double? DraftP { get; set; } = null;
             [XLColumn(Order = 27)] public int Avail { get; set; } = 0;
-            [XLColumn(Order = 27)] public double? AvRate { get; set; } = null;
-            [XLColumn(Order = 28)] public double? AvailP { get; set; } = null;
+            [XLColumn(Order = 27)][ColumnFormat("0.000")] public double? AvRate { get; set; } = null;
+            [XLColumn(Order = 28)][ColumnFormat("0.00%")] public double? AvailP { get; set; } = null;
 
             [XLColumn(Order = 30)] public int Legacy { get; set; } = 0;
-            [XLColumn(Order = 31)] public double? LegacyP { get; private set; } = null;
+            [XLColumn(Order = 31)][ColumnFormat("0.00%")] public double? LegacyP { get; private set; } = null;
             [XLColumn(Order = 32)] public int Final { get; set; } = 0;
-            [XLColumn(Order = 33)] public double? FinalP { get; private set; } = null;
+            [XLColumn(Order = 33)][ColumnFormat("0.00%")] public double? FinalP { get; private set; } = null;
 
             private List<int> MultiNumberList = [];
             [XLColumn(Order = 40)] public int? Multi { get; set; } = null;
-            [XLColumn(Order = 41)] public double? MultiP { get; private set; } = null;
+            [XLColumn(Order = 41)][ColumnFormat("0.00%")] public double? MultiP { get; private set; } = null;
             [XLColumn(Order = 42)] public int? MultiMx { get; private set; } = null;
-            [XLColumn(Order = 43)] public double? MultiAv { get; private set; } = null;
+            [XLColumn(Order = 43)][ColumnFormat("0.000")] public double? MultiAv { get; private set; } = null;
             [XLColumn(Order = 44)] public string FavSpirit { get; set; } = null;
-            [XLColumn(Order = 45)] public double? FavRatio { get; set; } = null;
+            [XLColumn(Order = 45)][ColumnFormat("0.000")] public double? FavRatio { get; set; } = null;
             [XLColumn(Order = 46)] public int Inventions { get; set; } = 0;
 
             [XLColumn(Order = 50)] public int P1st { get; set; }
             [XLColumn(Order = 51)] public int PLast { get; set; }
-
-
-            private static Dictionary<string, HashSet<string>> columnFormats = new() {
-                {"0.00%", new HashSet<string> { "AvailP", "DraftP", "AUsageP", "DUsageP", "LegacyP", "FinalP", "MultiP", } },
-                {"0.000", new HashSet<string> { "MultiAv", "AvRate", "FavRatio" } },
-                {"mm/dd/yyyy hh:mm", new HashSet<string>{"TS", } },
-                {"mm/dd/yyyy", new HashSet<string>{"ChTS", } },
-                };
 
             public BioticumStatEntry(Glossaries.BioticumDefinition bioDef, int p1)
             {
@@ -132,15 +119,9 @@ namespace Reus2Surveyor
                 this.MountainPercent = SafeDivide(this.Mountain, this.Total);
                 this.MicroPercent = SafeDivide(this.Micro, this.Total);*/
             }
-
-            public static Dictionary<string, HashSet<string>> GetColumnFormats()
-            {
-                return columnFormats;
-            }
-
         }
 
-        public class PlanetSummaryEntry : IExpandableColumnFormatter
+        public class PlanetSummaryEntry
         {
             [XLColumn(Order = 0)] public readonly int N;
             [XLColumn(Order = 1)] public readonly string Name;
@@ -179,31 +160,31 @@ namespace Reus2Surveyor
 
             [XLColumn(Order = 50)] public int HiPros;
             [XLColumn(Order = 51)] public double? ProsMdn;
-            [XLColumn(Order = 52)] public double? AvPros;
-            [XLColumn(Order = 53)] public double? Gini;
+            [XLColumn(Order = 52)][ColumnFormat("0.000")] public double? AvPros;
+            [XLColumn(Order = 53)][ColumnFormat("0.000")] public double? Gini;
 
             [XLColumn(Order = 60)] public int Pop;
             [XLColumn(Order = 61)] public int Tech;
             [XLColumn(Order = 62)] public int Wel;
-            [XLColumn(Order = 70)] public double? PPop;
-            [XLColumn(Order = 71)] public double? PTech;
-            [XLColumn(Order = 72)] public double? PWel;
+            [XLColumn(Order = 70)][ColumnFormat("0.00%")] public double? PPop;
+            [XLColumn(Order = 71)][ColumnFormat("0.00%")] public double? PTech;
+            [XLColumn(Order = 72)][ColumnFormat("0.00%")] public double? PWel;
             [XLColumn(Order = 80)] public int HiPop;
             [XLColumn(Order = 81)] public int HiTech;
             [XLColumn(Order = 82)] public int HiWel;
             [XLColumn(Order = 90)] public double? MdnPop;
             [XLColumn(Order = 91)] public double? MdnTech;
             [XLColumn(Order = 92)] public double? MdnWel;
-            [XLColumn(Order = 100)] public double? AvPop;
-            [XLColumn(Order = 101)] public double? AvTech;
-            [XLColumn(Order = 102)] public double? AvWel;
+            [XLColumn(Order = 100)][ColumnFormat("0.000")] public double? AvPop;
+            [XLColumn(Order = 101)][ColumnFormat("0.000")] public double? AvTech;
+            [XLColumn(Order = 102)][ColumnFormat("0.000")] public double? AvWel;
 
             [XLColumn(Order = 110)] public int Prjs;
-            [XLColumn(Order = 111)] public double? PrjAv;
+            [XLColumn(Order = 111)][ColumnFormat("0.000")] public double? PrjAv;
             [XLColumn(Order = 112)] public int Invent = 0;
-            [XLColumn(Order = 113)] public double? InventAv;
+            [XLColumn(Order = 113)][ColumnFormat("0.000")] public double? InventAv;
             [XLColumn(Order = 114)] public int Trades = 0;
-            [XLColumn(Order = 115)] public double? TradeAv;
+            [XLColumn(Order = 115)][ColumnFormat("0.000")] public double? TradeAv;
 
             [XLColumn(Order = 120)] public int? Biomes;
             [XLColumn(Order = 121)] public int? CBiomes;
@@ -211,7 +192,7 @@ namespace Reus2Surveyor
             [XLColumn(Order = 122)] public int SzT;
             [XLColumn(Order = 123)] public int SzWld;
             [XLColumn(Order = 124)] public int FilledSlots = 0;
-            [XLColumn(Order = 125)] public double? FillP;
+            [XLColumn(Order = 125)][ColumnFormat("0.00%")] public double? FillP;
 
             [XLColumn(Order = 130)] public int Biotica = 0;
             [XLColumn(Order = 131)] public int Plants = 0;
@@ -222,12 +203,14 @@ namespace Reus2Surveyor
             [XLColumn(Order = 141)] public int UqPlants;
             [XLColumn(Order = 142)] public int UqAnimals;
             [XLColumn(Order = 143)] public int UqMinerals;
-            [XLColumn(Order = 144)] public double? PPlant, PAnimal, PMineral;
+            [XLColumn(Order = 144)][ColumnFormat("0.00%")] public double? PPlant;
+            [XLColumn(Order = 144)][ColumnFormat("0.00%")] public double? PAnimal;
+            [XLColumn(Order = 144)][ColumnFormat("0.00%")] public double? PMineral;
 
             [XLColumn(Order = 150)] public int Apex;
             [XLColumn(Order = 151)] private int OccupiedSlotTotalLevel = 0;
-            [XLColumn(Order = 152)] public double? ApexP;
-            [XLColumn(Order = 153)] public double? AvFBioLv;
+            [XLColumn(Order = 152)][ColumnFormat("0.00%")] public double? ApexP;
+            [XLColumn(Order = 153)][ColumnFormat("0.000")] public double? AvFBioLv;
 
             [XLColumn(Order = 160)] public int Creeks = 0;
             [XLColumn(Order = 161)] public int InvasiveSpots = 0;
@@ -237,17 +220,6 @@ namespace Reus2Surveyor
 
             [XLColumn(Order = 160), UnpackToBiomes(defaultValue: (double)0, suffix: "P", numberFormat: "0.00%")]
             public Dictionary<string, double> biomePercents = [];
-
-            private static Dictionary<string, HashSet<string>> columnFormats = new() {
-                {"0.00%", new HashSet<string> {
-                    "PPop", "PTech", "PWel", "PPlant", "PAnimal", "PMineral", "ApexP", "FillP",
-                } },
-                {"0.000", new HashSet<string> { 
-                    "AvPros", "AvPop", "AvTech", "AvWel", "AvFBioLv",
-                    "PrjAv", "InventAv", "TradeAv",
-                } },
-                {"0.0000", new HashSet<string>  {"Gini"} },
-                };
 
             public PlanetSummaryEntry(Planet planet)
             {
@@ -296,20 +268,9 @@ namespace Reus2Surveyor
                 this.PMineral = SafePercent(this.Minerals, this.Biotica);
                 this.ApexP = SafePercent(this.Apex, this.Biotica);
             }
-
-            public static Dictionary<string, HashSet<string>> GetColumnFormats()
-            {
-                return columnFormats;
-            }
-
-            public static void AddColumnFormat(string format, string column)
-            {
-                if (columnFormats.TryGetValue(format, out HashSet<string> columns)) columns.Add(column);
-                else columnFormats[format] = [column];
-            }
         }
 
-        public class CitySummaryEntry : IExpandableColumnFormatter
+        public class CitySummaryEntry
         {
             [XLColumn(Order = 0)] public readonly int PlanetN;
             [XLColumn(Order = 1)] public readonly int CityN;
@@ -326,10 +287,10 @@ namespace Reus2Surveyor
             [XLColumn(Order = 30)] public int? Rank = null;
             [XLColumn(Order = 31)] public int? Upset = null;
 
-            [XLColumn(Order = 40)] public double? PPop, PTech, PWel = null;
+            [XLColumn(Order = 40)][ColumnFormat("0.00%")] public double? PPop, PTech, PWel = null;
 
-            [XLColumn(Order = 50)] public double? RelPros = null;
-            [XLColumn(Order = 51)] public double? RelPop, RelTech, RelWel = null;
+            [XLColumn(Order = 50)][ColumnFormat("0.000")] public double? RelPros = null;
+            [XLColumn(Order = 51)][ColumnFormat("0.000")] public double? RelPop, RelTech, RelWel = null;
 
             [XLColumn(Order = 60)] public int Invent = 0;
             [XLColumn(Order = 61)] public int Trades = 0;
@@ -340,19 +301,19 @@ namespace Reus2Surveyor
             [XLColumn(Order = 81)] public string TP1, TP2, TP3 = null;
 
             [XLColumn(Order = 90)] public int Biotica = 0;
-            [XLColumn(Order = 91)] public double? AvFBioLv = null;
+            [XLColumn(Order = 91)][ColumnFormat("0.000")] public double? AvFBioLv = null;
             [XLColumn(Order = 92)] public int FilledSlots = 0;
-            [XLColumn(Order = 93)] public double? FillP = null;
+            [XLColumn(Order = 93)][ColumnFormat("0.00%")] public double? FillP = null;
 
             [XLColumn(Order = 100)] public int Plants = 0;
             [XLColumn(Order = 101)] public int Animals = 0;
             [XLColumn(Order = 102)] public int Minerals = 0;
             [XLColumn(Order = 103)] public int Apex = 0;
 
-            [XLColumn(Order = 104)] public double? PPlant = null;
-            [XLColumn(Order = 105)] public double? PAnimal = null;
-            [XLColumn(Order = 106)] public double? PMineral = null;
-            [XLColumn(Order = 107)] public double? ApexP = null;
+            [XLColumn(Order = 104)][ColumnFormat("0.00%")] public double? PPlant = null;
+            [XLColumn(Order = 105)][ColumnFormat("0.00%")] public double? PAnimal = null;
+            [XLColumn(Order = 106)][ColumnFormat("0.00%")] public double? PMineral = null;
+            [XLColumn(Order = 107)][ColumnFormat("0.00%")] public double? ApexP = null;
 
             //[XLColumn(Order = 108)] public int UqPlant = 0;
             //[XLColumn(Order = 109)] public int UqAnimal = 0;
@@ -368,18 +329,6 @@ namespace Reus2Surveyor
             [UnpackToBiomes(defaultValue: (double)0, suffix: "P", numberFormat: "0.00%")]
             public Dictionary<string, double> BiomePercents = [];
             private Dictionary<string, int> biomePatchCounts = [];
-
-            private static Dictionary<string, HashSet<string>> columnFormats = new() {
-                {"0.00%", new HashSet<string> { "PPop", "PTech", "PWel", "FillP", "PPlant", "PAnimal", "PMineral", "ApexP"} },
-                {"0.000", new HashSet<string> { "RelPros", "RelPop", "RelTech", "RelWel", "AvFBioLv" } },
-                };
-
-            public static Dictionary<string, HashSet<string>> GetColumnFormats() { return columnFormats; }
-            public static void AddColumnFormat(string format, string column)
-            {
-                if (columnFormats.TryGetValue(format, out HashSet<string> columns)) columns.Add(column);
-                else columnFormats[format] = [column];
-            }
 
             public CitySummaryEntry(int planetN, int cityN, string name)
             {
@@ -406,22 +355,22 @@ namespace Reus2Surveyor
             }
         }
 
-        public class SpiritStatEntry : IExpandableColumnFormatter
+        public class SpiritStatEntry
         {
             [XLColumn(Order = 0)] public readonly string Name;
             [XLColumn(Order = 1)] public int Count = 0;
-            [XLColumn(Order = 2)] public double? P = null;
+            [XLColumn(Order = 2)][ColumnFormat("0.00%")] public double? P = null;
             [XLColumn(Order = 3)] public int Prime = 0;
-            [XLColumn(Order = 4)] public double? MainP = null;
-            [XLColumn(Order = 5)] public double? PrimeP = null;
+            [XLColumn(Order = 4)][ColumnFormat("0.00%")] public double? MainP = null;
+            [XLColumn(Order = 5)][ColumnFormat("0.00%")] public double? PrimeP = null;
 
             private int totalPlanetScore = 0;
-            [XLColumn(Order = 10)] public double? AvScore = null;
+            [XLColumn(Order = 10)][ColumnFormat("0.000")] public double? AvScore = null;
 
             private int totalPlanetScorePrimary = 0;
-            [XLColumn(Order = 11)] public double? AvPrTScore = null;
+            [XLColumn(Order = 11)][ColumnFormat("0.000")] public double? AvPrTScore = null;
             private double totalPlanetCityProsAverage = 0;
-            [XLColumn(Order = 12)] public double? AvPrAPros = null;
+            [XLColumn(Order = 12)][ColumnFormat("0.000")] public double? AvPrAPros = null;
 
             private int prosTotal = 0;
             private int popTotal, techTotal, welTotal = 0;
@@ -430,50 +379,50 @@ namespace Reus2Surveyor
             private double prosRelTotal = 0;
             private double popRelTotal, techRelTotal, welRelTotal = 0;
 
-            [XLColumn(Order = 20)] public double? AvPros = null;
-            [XLColumn(Order = 21)] public double? AvPop, AvTech, AvWel = null;
-            [XLColumn(Order = 22)] public int PrScoreHi = 0;
+            [XLColumn(Order = 20)][ColumnFormat("0.000")] public double? AvPros = null;
+            [XLColumn(Order = 21)][ColumnFormat("0.000")] public double? AvPop, AvTech, AvWel = null;
+            [XLColumn(Order = 22)] public int HiPrScore = 0;
             [XLColumn(Order = 23)] public int HiPros = 0;
             [XLColumn(Order = 24)] public int HiPop, HiTech, HiWel = 0;
 
-            [XLColumn(Order = 30)] public double? AvPPop, AvPTech, AvPWel = null;
-            [XLColumn(Order = 40)] public double HiPPop, HiPTech, HiPWel = 0;
+            [XLColumn(Order = 30)][ColumnFormat("0.000")] public double? AvPPop, AvPTech, AvPWel = null;
+            [XLColumn(Order = 40)][ColumnFormat("0.00%")] public double HiPPop, HiPTech, HiPWel = 0;
 
-            [XLColumn(Order = 50)] public double? AvRelPros = null;
-            [XLColumn(Order = 51)] public double? AvRelPop, AvRelTech, AvRelWel = null;
-            [XLColumn(Order = 60)] public double HiRelPros = 0;
-            [XLColumn(Order = 61)] public double HiRelPop, HiRelTech, HiRelWel = 0;
+            [XLColumn(Order = 50)][ColumnFormat("0.000")] public double? AvRelPros = null;
+            [XLColumn(Order = 51)][ColumnFormat("0.000")] public double? AvRelPop, AvRelTech, AvRelWel = null;
+            [XLColumn(Order = 60)][ColumnFormat("0.000")] public double HiRelPros = 0;
+            [XLColumn(Order = 61)][ColumnFormat("0.000")] public double HiRelPop, HiRelTech, HiRelWel = 0;
 
             [XLColumn(Order = 70)] public int Terr = 0;
-            [XLColumn(Order = 71)] public double? TerrAv = null;
+            [XLColumn(Order = 71)][ColumnFormat("0.000")] public double? TerrAv = null;
             [XLColumn(Order = 80)] public int Invent = 0;
-            [XLColumn(Order = 81)] public double? InventAv = null;
+            [XLColumn(Order = 81)][ColumnFormat("0.000")] public double? InventAv = null;
             [XLColumn(Order = 90)] public int Trades = 0;
-            [XLColumn(Order = 91)] public double? TradeAv = null;
+            [XLColumn(Order = 91)][ColumnFormat("0.000")] public double? TradeAv = null;
 
             private int upsetTotal = 0;
             private int primaryDownCount = 0;
             private int upToTopCount = 0;
-            [XLColumn(Order = 100)] public double? UpsetAv = null;
+            [XLColumn(Order = 100)][ColumnFormat("0.000")] public double? UpsetAv = null;
             [XLColumn(Order = 101)] public int PosUpset = 0;
             [XLColumn(Order = 102)] public int NegUpset = 0;
-            [XLColumn(Order = 103)] public double? PosUpsetP = null;
-            [XLColumn(Order = 104)] public double? NegUpsetP = null;
-            [XLColumn(Order = 105)] public double? Over1stP = null;
-            [XLColumn(Order = 106)] public double? PrDownP = null;
+            [XLColumn(Order = 103)][ColumnFormat("0.00%")] public double? PosUpsetP = null;
+            [XLColumn(Order = 104)][ColumnFormat("0.00%")] public double? NegUpsetP = null;
+            [XLColumn(Order = 105)][ColumnFormat("0.00%")] public double? Over1stP = null;
+            [XLColumn(Order = 106)][ColumnFormat("0.00%")] public double? PrDownP = null;
 
             [XLColumn(Order = 110)] public int Plants = 0;
             [XLColumn(Order = 111)] public int Animals = 0;
             [XLColumn(Order = 112)] public int Minerals = 0;
             private int activeBioticaCount = 0;
             private int totalActiveBioLevel = 0;
-            [XLColumn(Order = 113)] public double? AvFBioLv = null;
-            [XLColumn(Order = 114)] public double? PPlant = null;
-            [XLColumn(Order = 115)] public double? PAnimal = null;
-            [XLColumn(Order = 116)] public double? PMineral = null;
+            [XLColumn(Order = 113)][ColumnFormat("0.000")] public double? AvFBioLv = null;
+            [XLColumn(Order = 114)][ColumnFormat("0.00%")] public double? PPlant = null;
+            [XLColumn(Order = 115)][ColumnFormat("0.00%")] public double? PAnimal = null;
+            [XLColumn(Order = 116)][ColumnFormat("0.00%")] public double? PMineral = null;
 
             [XLColumn(Order = 117)] public int Apex = 0;
-            [XLColumn(Order = 118)] public double? ApexP = null;
+            [XLColumn(Order = 118)][ColumnFormat("0.00%")] public double? ApexP = null;
 
             private HashSet<string> bioUsed = [];
             [XLColumn(Order = 119)] public int UqPlant = 0;
@@ -495,31 +444,6 @@ namespace Reus2Surveyor
             [XLColumn(Order = 150)]
             [UnpackToBiomes(defaultValue: (double)0, suffix: "P", numberFormat: "0.00%")]
             public Dictionary<string, double?> biomeSizePercents = [];
-
-            private static Dictionary<string, HashSet<string>> columnFormats = new() {
-                {"0.00%", new HashSet<string> {
-                    "P", "PrimeP", "MainP",
-                    "AvPPop", "AvPTech", "AvPWel", "HiPPop", "HiPTech", "HiPWel",
-                    "PosUpsetP", "NegUpsetP", "PrDownP", "Over1stP",
-                    "PPlant", "PAnimal", "PMineral", "ApexP",
-                } },
-                {"0.000", new HashSet<string> {
-                    "AvPros", "AvPop", "AvTech", "AvWel", "AvScore",
-                    "AvPrTScore", "AvPrAPros",
-                    "AvRelPros", "AvRelPop", "AvRelTech", "AvRelWel",
-                    "HiRelPros", "HiRelPop", "HiRelTech", "HiRelWel",
-                    "InventAv", "TradeAv",
-                    "UpsetAv", "AvFBioLv", "TerrAv"
-                } },
-                };
-
-            public static Dictionary<string, HashSet<string>> GetColumnFormats() { return columnFormats; }
-
-            public static void AddColumnFormat(string format, string column)
-            {
-                if (columnFormats.TryGetValue(format, out HashSet<string> columns)) columns.Add(column);
-                else columnFormats[format] = [column];
-            }
 
             public SpiritStatEntry(string spiritName, Glossaries glosInstance)
             {
@@ -694,18 +618,18 @@ namespace Reus2Surveyor
             }
         }
 
-        public class LuxuryStatEntry : IExpandableColumnFormatter
+        public class LuxuryStatEntry
         {
             [XLColumn(Order = 0)] public readonly string Name;
             [XLColumn(Order = 1)] public readonly string Type;
 
             [XLColumn(Order = 10)] public int Count = 0;
             [XLColumn(Order = 11)] public int Planets = 0;
-            [XLColumn(Order = 12)] public double PlanetP = 0;
+            [XLColumn(Order = 12)][ColumnFormat("0.00%")] public double PlanetP = 0;
 
             [XLColumn(Order = 20)] public readonly string Hash;
             [XLColumn(Order = 21)] public string FavSpirit;
-            [XLColumn(Order = 22)] public double FavRatio;
+            [XLColumn(Order = 22)][ColumnFormat("0.000")] public double FavRatio;
 
             [XLColumn(Order = 30)]
             [UnpackToSpirits(defaultValue: (int)0, prefix: "From")]
@@ -718,15 +642,6 @@ namespace Reus2Surveyor
             [XLColumn(Order = 50)]
             [UnpackToSpirits(defaultValue: (int)0)]
             public Dictionary<string, int> LeaderCounts = [];
-
-            private static Dictionary<string, HashSet<string>> columnFormats = new() {
-                {"0.00%", new HashSet<string> {
-                    "PlanetP",
-                } },
-                {"0.000", new HashSet<string> {
-                    "FavRatio",
-                } },
-                };
 
             public LuxuryStatEntry(Glossaries.LuxuryDefinition luxDef, Glossaries gloss)
             {
@@ -749,17 +664,6 @@ namespace Reus2Surveyor
             {
                 this.PlanetP = (double)SafePercent(this.Planets, planetCount);
             }
-
-            public static Dictionary<string, HashSet<string>> GetColumnFormats()
-            {
-                return columnFormats;
-            }
-
-            public static void AddColumnFormat(string format, string column)
-            {
-                if (columnFormats.TryGetValue(format, out HashSet<string> columns)) columns.Add(column);
-                else columnFormats[format] = [column];
-            }
         }
 
         public class EraStatEntry
@@ -769,10 +673,10 @@ namespace Reus2Surveyor
             [XLColumn(Order = 2)] public readonly string Hash;
 
             [XLColumn(Order = 10)] public int Count = 0;
-            [XLColumn(Order = 11)] public double? PickP;
+            [XLColumn(Order = 11)][ColumnFormat("0.00%")] public double? PickP;
 
             [XLColumn(Ignore = true)] public List<int> eraScores = [];
-            [XLColumn(Order = 20)] public double? AvScore;
+            [XLColumn(Order = 20)][ColumnFormat("0.000")] public double? AvScore;
             [XLColumn(Order = 21)] public int? HiScore;
 
             [XLColumn(Order = 30, Header = "0Star")] public int Star0 = 0;
@@ -780,10 +684,10 @@ namespace Reus2Surveyor
             [XLColumn(Order = 32, Header = "2Star")] public int Star2 = 0;
             [XLColumn(Order = 33, Header = "3Star")] public int Star3 = 0;
 
-            [XLColumn(Order = 40, Header = "0StarP")] public double? Star0P;
-            [XLColumn(Order = 41, Header = "1StarP")] public double? Star1P;
-            [XLColumn(Order = 42, Header = "2StarP")] public double? Star2P;
-            [XLColumn(Order = 43, Header = "3StarP")] public double? Star3P;
+            [XLColumn(Order = 40, Header = "0StarP")][ColumnFormat("0.00%")] public double? Star0P;
+            [XLColumn(Order = 41, Header = "1StarP")][ColumnFormat("0.00%")] public double? Star1P;
+            [XLColumn(Order = 42, Header = "2StarP")][ColumnFormat("0.00%")] public double? Star2P;
+            [XLColumn(Order = 43, Header = "3StarP")][ColumnFormat("0.00%")] public double? Star3P;
 
             public EraStatEntry(Glossaries.EraDefinition eraDef)
             {
@@ -806,22 +710,9 @@ namespace Reus2Surveyor
                 this.Star2P = SafePercent(this.Star2, this.Count);
                 this.Star3P = SafePercent(this.Star3, this.Count);
             }
-
-            private static Dictionary<string, HashSet<string>> columnFormats = new() {
-                {"0.00%", new HashSet<string> {
-                    "PickP", "0StarP", "1StarP", "2StarP", "3StarP",
-                } },
-                {"0.000", new HashSet<string> {
-                    "AvScore",
-                } },
-                };
-            public static Dictionary<string, HashSet<string>> GetColumnFormats()
-            {
-                return columnFormats;
-            }
         }
 
-        public class ProjectStatEntry : IExpandableColumnFormatter
+        public class ProjectStatEntry
         {
             [XLColumn(Order = 0)] public readonly string Name;
             [XLColumn(Order = 1)] public readonly string Slot;
@@ -829,8 +720,8 @@ namespace Reus2Surveyor
             [XLColumn(Order = 3)] public readonly string InName;
 
             [XLColumn(Order = 10)] public int Count = 0;
-            [XLColumn(Order = 11)] public double? SlotP;
-            [XLColumn(Order = 12)] public double? ASlotP;
+            [XLColumn(Order = 11)][ColumnFormat("0.00%")] public double? SlotP;
+            [XLColumn(Order = 12)][ColumnFormat("0.00%")] public double? ASlotP;
 
             [XLColumn(Order = 20)]
             [UnpackToSpirits(defaultValue: (int)0)]
@@ -856,21 +747,6 @@ namespace Reus2Surveyor
                     LeaderCounts[leaderName] = 0;
                     LeaderPickRates[leaderName] = 0;
                 }
-            }
-
-            private static Dictionary<string, HashSet<string>> columnFormats = new() {
-                {"0.00%", new HashSet<string> {
-                    "SlotP", "ASlotP",
-                } },
-                };
-            public static Dictionary<string, HashSet<string>> GetColumnFormats()
-            {
-                return columnFormats;
-            }
-            public static void AddColumnFormat(string format, string column)
-            {
-                if (columnFormats.TryGetValue(format, out HashSet<string> columns)) columns.Add(column);
-                else columnFormats[format] = [column];
             }
 
             public void CalculateStats(Dictionary<string, int> slotCounts, Dictionary<(string,string), int> slotCountsByLeader)

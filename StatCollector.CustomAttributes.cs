@@ -48,5 +48,15 @@ namespace Reus2Surveyor
                 NullOnZeroOrBlank = nullOnZeroOrBlank;
             }
         }
+
+        [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
+        public class ColumnFormatAttribute : System.Attribute 
+        {
+            public string Fmt { get; } = "0";
+            public ColumnFormatAttribute(string format = "0") 
+            {
+                this.Fmt = format;
+            }
+        }
     }
 }

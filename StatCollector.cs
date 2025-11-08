@@ -654,7 +654,7 @@ namespace Reus2Surveyor
                     {
                         se.IncrementPlanetScoreTotalAsPrimary((int)planet.gameSession.turningPointPerformances.Last().scoreTotal);
                         se.IncrementPlanetProsAverageAsPrimary(Statistics.Mean([.. cityProsList]));
-                        se.PrScoreHi = Math.Max(se.PrScoreHi, (int)planet.gameSession.turningPointPerformances.Last().scoreTotal);
+                        se.HiPrScore = Math.Max(se.HiPrScore, (int)planet.gameSession.turningPointPerformances.Last().scoreTotal);
                     }
                 }
                 if (planet.gameSession.turningPointPerformances.Count > 0) se.IncrementPlanetScoreTotal((int)planet.gameSession.turningPointPerformances.Last().scoreTotal);
@@ -953,10 +953,8 @@ namespace Reus2Surveyor
             columnMembers.AddRange(thisType.GetFields());
             columnMembers.AddRange(thisType.GetProperties());
 
-            columnMembers.Where(mi => mi.GetCustomAttribute<XLColumnAttribute>() is not null ? !mi.GetCustomAttribute<XLColumnAttribute>().Ignore : true);
-            columnMembers.OrderBy(mi =>
-                mi.GetCustomAttribute<XLColumnAttribute>().Order
-                );
+            columnMembers = [..columnMembers.Where(mi => !(mi.GetCustomAttribute<XLColumnAttribute>() is null || mi.GetCustomAttribute<XLColumnAttribute>().Ignore))];
+            columnMembers = [..columnMembers.OrderBy(mi => mi.GetCustomAttribute<XLColumnAttribute>().Order )];
 
             // Build table headers
             foreach (MemberInfo mi in columnMembers)
@@ -1211,51 +1209,46 @@ namespace Reus2Surveyor
             {
                 var planetSummWs = wb.AddWorksheet("Planets");
                 DataTable planetDataTable = ExpandToColumns(this.PlanetSummaries, this.glossaryInstance);
-                AddExpandableNumberFormats<PlanetSummaryEntry>(this.glossaryInstance);
                 var planetTable = planetSummWs.Cell("A1").InsertTable(planetDataTable, "Planets");
                 planetTable.Theme = XLTableTheme.TableStyleMedium4;
-                ApplyTableNumberFormats(PlanetSummaryEntry.GetColumnFormats(), planetTable);
+                ApplyTableNumberFormats(GetColumnFormats(typeof(PlanetSummaryEntry), this.glossaryInstance), planetTable);
 
                 var cityWs = wb.AddWorksheet("Cities");
                 DataTable cityDataTable = ExpandToColumns(this.CitySummaries, this.glossaryInstance);
-                AddExpandableNumberFormats<CitySummaryEntry>(this.glossaryInstance);
                 var cityTable = cityWs.Cell("A1").InsertTable(cityDataTable, "Cities");
                 cityTable.Theme = XLTableTheme.TableStyleLight1;
-                ApplyTableNumberFormats(CitySummaryEntry.GetColumnFormats(), cityTable);
+                ApplyTableNumberFormats(GetColumnFormats(typeof(CitySummaryEntry), this.glossaryInstance), cityTable);
 
                 var spiritWs = wb.AddWorksheet("Spirits");
                 DataTable spiritDataTable = ExpandToColumns(this.SpiritStats.Values, this.glossaryInstance);
-                AddExpandableNumberFormats<SpiritStatEntry>(this.glossaryInstance);
                 var spiritTable = spiritWs.Cell("A1").InsertTable(spiritDataTable, "Spirits");
                 spiritTable.Theme = XLTableTheme.TableStyleMedium5;
-                ApplyTableNumberFormats(SpiritStatEntry.GetColumnFormats(), spiritTable);
+                ApplyTableNumberFormats(GetColumnFormats(typeof(SpiritStatEntry), this.glossaryInstance), spiritTable);
                 spiritWs.SheetView.FreezeColumns(1);
 
                 var bioWs = wb.AddWorksheet("Biotica");
                 DataTable bioticaDataTable = ExpandToColumns(this.BioticaStats.Values, this.glossaryInstance);
                 var bioticaTable = bioWs.Cell("A1").InsertTable(bioticaDataTable, "Biotica");
                 bioticaTable.Theme = XLTableTheme.TableStyleMedium3;
-                ApplyTableNumberFormats(BioticumStatEntry.GetColumnFormats(), bioticaTable);
+                ApplyTableNumberFormats(GetColumnFormats(typeof(BioticumStatEntry), this.glossaryInstance), bioticaTable);
                 bioWs.SheetView.FreezeColumns(1);
 
                 var luxWs = wb.AddWorksheet("Luxuries");
                 DataTable luxuryDataTable = ExpandToColumns(this.LuxuryStats.Values, this.glossaryInstance);
-                AddExpandableNumberFormats<LuxuryStatEntry>(this.glossaryInstance);
                 var luxuryTable = luxWs.Cell("A1").InsertTable(luxuryDataTable, "Luxuries");
                 luxuryTable.Theme = XLTableTheme.TableStyleMedium7;
-                ApplyTableNumberFormats(LuxuryStatEntry.GetColumnFormats(), luxuryTable);
+                ApplyTableNumberFormats(GetColumnFormats(typeof(LuxuryStatEntry), this.glossaryInstance), luxuryTable);
                 luxWs.SheetView.FreezeColumns(1);
 
                 var eraWs = wb.AddWorksheet("Era");
                 var eraTable = eraWs.Cell("A1").InsertTable(this.EraStats.Values);
-                ApplyTableNumberFormats(EraStatEntry.GetColumnFormats(), eraTable);
+                ApplyTableNumberFormats(GetColumnFormats(typeof(EraStatEntry), this.glossaryInstance), eraTable);
                 eraTable.Theme = XLTableTheme.TableStyleMedium6;
 
                 var projectWs = wb.AddWorksheet("Projects");
                 DataTable projectDataTable = ExpandToColumns(this.ProjectStats.Values, this.glossaryInstance);
-                AddExpandableNumberFormats<ProjectStatEntry>(this.glossaryInstance);
                 var projectTable = projectWs.Cell("A1").InsertTable(projectDataTable, "Projects");
-                ApplyTableNumberFormats(ProjectStatEntry.GetColumnFormats(), projectTable);
+                ApplyTableNumberFormats(GetColumnFormats(typeof(ProjectStatEntry), this.glossaryInstance), projectTable);
                 projectWs.SheetView.FreezeColumns(1);
 
                 DataTable bioticaVsSpiritCountDataTable = NestDictToDataTable(this.BioticumVsSpiritCounter, "Bioticum");
@@ -1383,12 +1376,14 @@ namespace Reus2Surveyor
             }
         }
 
-        public static void AddExpandableNumberFormats<T>(Glossaries glossaryInstance) where T : IExpandableColumnFormatter
+        public static Dictionary<string, HashSet<string>> GetColumnFormats(Type T, Glossaries glossaryInstance)
         {
-            List<MemberInfo> expandableColumns = [];
-            expandableColumns.AddRange(typeof(T).GetFields());
-            expandableColumns.AddRange(typeof(T).GetProperties());
-            foreach (MemberInfo mi in expandableColumns)
+            List<MemberInfo> allMembers = [];
+            allMembers.AddRange(T.GetFields());
+            allMembers.AddRange(T.GetProperties());
+            Dictionary<string, HashSet<string>> formats = [];
+
+            foreach (MemberInfo mi in allMembers)
             {
                 UnpackToBiomesAttribute biomeAttr = mi.GetCustomAttribute<UnpackToBiomesAttribute>();
                 if (biomeAttr is not null && biomeAttr.NumberFormat is not null)
@@ -1396,8 +1391,9 @@ namespace Reus2Surveyor
                     foreach (string biomeName in glossaryInstance.BiomeHashByName.Keys)
                     {
                         string subheader = biomeAttr.Prefix + biomeName + biomeAttr.Suffix;
-                        T.AddColumnFormat(biomeAttr.NumberFormat, subheader);
+                        AddColumnFormat(ref formats, biomeAttr.NumberFormat, subheader);
                     }
+                    continue;
                 }
 
                 UnpackToSpiritsAttribute spiritAttr = mi.GetCustomAttribute<UnpackToSpiritsAttribute>();
@@ -1406,10 +1402,40 @@ namespace Reus2Surveyor
                     foreach (string spiritName in glossaryInstance.SpiritHashByName.Keys)
                     {
                         string subheader = spiritAttr.Prefix + spiritName + spiritAttr.Suffix;
-                        T.AddColumnFormat(spiritAttr.NumberFormat, subheader);
+                        AddColumnFormat(ref formats, spiritAttr.NumberFormat, subheader);
                     }
+                    continue;
                 }
 
+                ColumnFormatAttribute colFormatAttr = mi.GetCustomAttribute<ColumnFormatAttribute>();
+                XLColumnAttribute xlColAttr = mi.GetCustomAttribute<XLColumnAttribute>();
+                if (colFormatAttr is not null)
+                {
+                    if (xlColAttr is not null && xlColAttr.Header is not null) 
+                    {
+                        AddColumnFormat(ref formats, colFormatAttr.Fmt, xlColAttr.Header);
+                        continue;
+                    }
+                    else
+                    {
+                        AddColumnFormat(ref formats, colFormatAttr.Fmt, mi.Name);
+                        continue;
+                    }
+
+                }
+            }
+            return formats;
+        }
+
+        private static void AddColumnFormat(ref Dictionary<string, HashSet<string>> formatDictionary, string format, string header)
+        {
+            if (formatDictionary.TryGetValue(format, out HashSet<string> columns))
+            {
+                columns.Add(header);
+            }
+            else
+            {
+                formatDictionary.Add(format, [header]);
             }
         }
     }
