@@ -178,8 +178,7 @@ namespace Reus2Surveyor
             {
                 this.ResetPlanetList();
                 Dictionary<int, string> completedPlanetPaths = this.planetsInProfile.Where(kv => kv.Value.Complete.valid).Select(kv => new KeyValuePair<int, string>(kv.Key, kv.Value.Complete.path)).ToDictionary();
-                int completedPlanetCount = completedPlanetPaths.Count();
-
+                
                 List<int> readOptionOff = [];
                 foreach (DataGridViewRow r in this.planetGridView.Rows)
                 {
@@ -205,6 +204,7 @@ namespace Reus2Surveyor
                     this.planetGridView.Rows[ro].Cells["SpiritCol"].Value = "Skipped";
                     this.planetGridView.Rows[ro].Cells["ScoreCol"].Value = "Skipped";
                 }
+                int completedPlanetCount = completedPlanetPaths.Count();
 
                 this.decodeProgressBar.Maximum = completedPlanetCount;
                 this.decodeStartTime = DateTime.Now;
