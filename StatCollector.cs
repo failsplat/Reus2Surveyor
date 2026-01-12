@@ -1,9 +1,5 @@
-﻿using ClosedXML;
-using ClosedXML.Attributes;
+﻿using ClosedXML.Attributes;
 using ClosedXML.Excel;
-using DocumentFormat.OpenXml.Bibliography;
-using DocumentFormat.OpenXml.Wordprocessing;
-using MathNet.Numerics.LinearAlgebra.Factorization;
 using MathNet.Numerics.Statistics;
 using System;
 using System.Collections;
@@ -12,9 +8,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Intrinsics.X86;
 using static Reus2Surveyor.Glossaries;
-using static Reus2Surveyor.StatCollector;
 
 namespace Reus2Surveyor
 {
@@ -39,7 +33,7 @@ namespace Reus2Surveyor
         private HashSet<string> BioDraftedOrPlacedInProfile { get; set; } = [];
 
         // Debugging/Spading for inventions
-        public Dictionary<string, string> genericBuffNamesByDef= []; // def:name
+        public Dictionary<string, string> genericBuffNamesByDef = []; // def:name
         public HashSet<string> inventionDefinitions = [];
         public Dictionary<string, string> inventionNamesByDef = [];
 
@@ -155,7 +149,7 @@ namespace Reus2Surveyor
             }
 
             HashSet<string> missedDraft = [.. draftedOrPlacedInSession.Except(biomeMatchingBiotica)];
-            HashSet<string> availBiotica = [..biomeMatchingBiotica.Intersect(BioDraftedOrPlacedInProfile)];
+            HashSet<string> availBiotica = [.. biomeMatchingBiotica.Intersect(BioDraftedOrPlacedInProfile)];
             foreach (string availDef in availBiotica)
             {
                 if (BioDraftedOrPlacedInProfile.Contains(availDef))
@@ -320,7 +314,7 @@ namespace Reus2Surveyor
             foreach (BioticumSlot slot in planet.slotDictionary.Values)
             {
                 if (slot.bioticumId is null) continue;
-                if (slot.isInvasiveSlot ?? false) planetEntry.InvasiveSpots += 1; 
+                if (slot.isInvasiveSlot ?? false) planetEntry.InvasiveSpots += 1;
                 if (planet.natureBioticumDictionary.ContainsKey((int)slot.bioticumId))
                 {
                     planetEntry.FilledSlots += 1;
@@ -471,7 +465,7 @@ namespace Reus2Surveyor
                 int slotCount = 0;
                 foreach (Patch wildPatch in city.PatchesInTerritory.Where(p => p.IsWildPatch()))
                 {
-                    foreach(int slotIndex in wildPatch.GetActiveSlotIndices())
+                    foreach (int slotIndex in wildPatch.GetActiveSlotIndices())
                     {
                         BioticumSlot slot = planet.slotDictionary[slotIndex];
                         slotCount += 1;
@@ -574,7 +568,8 @@ namespace Reus2Surveyor
                     if (glossaryInstance.ProjectDefinitionByHash.ContainsKey(project.definition))
                     {
                         CityProjectDefinition projectDef = this.glossaryInstance.TrProjectDefinitionFromHash(project.definition);
-                        if (!ProjectStats.TryGetValue(projectDef.Hash, out ProjectStatEntry pse)) {
+                        if (!ProjectStats.TryGetValue(projectDef.Hash, out ProjectStatEntry pse))
+                        {
                             pse = new(projectDef, this.glossaryInstance);
                             this.ProjectStats[projectDef.Hash] = pse;
                         }
@@ -640,7 +635,7 @@ namespace Reus2Surveyor
             foreach (CitySummaryEntry ce in thisPlanetCitySummaries)
             {
                 string founderName = ce.Char;
-                if (!this.SpiritStats.TryGetValue(founderName, out SpiritStatEntry se)) 
+                if (!this.SpiritStats.TryGetValue(founderName, out SpiritStatEntry se))
                 {
                     se = new(founderName, this.glossaryInstance);
                     this.SpiritStats[founderName] = se;
@@ -729,8 +724,9 @@ namespace Reus2Surveyor
             {
                 // for spading/debug
                 this.genericBuffNamesByDef.TryAdd(buff.definition, buff.name);
-                
-                if (buff.name == "Canned Sludge") {
+
+                if (buff.name == "Canned Sludge")
+                {
                     if (citiesByLuxuryBuffHandler.TryGetValue((int)buff.owner, out City buffCity))
                     {
                         string founderName = glossaryInstance.SpiritNameFromHash(buffCity.founderCharacterDef);
@@ -793,8 +789,8 @@ namespace Reus2Surveyor
             this.BioticumVsSpiritRatios = NestedCounterToNestedRatioDictionary(this.BioticumVsSpiritCounter);
             this.BioticumVsPrSpiritRatios = NestedCounterToNestedRatioDictionary(this.BioticumVsPrSpiritCounter);
             this.inventionNamesByDef = this.genericBuffNamesByDef.Where(kv => this.inventionDefinitions.Contains(kv.Key)).ToDictionary();
-            
-            Dictionary<string, Dictionary<string,int>> luxuryLeaderCounts = [];
+
+            Dictionary<string, Dictionary<string, int>> luxuryLeaderCounts = [];
             double spiritTotal = (double)this.SpiritStats.Values.Select((SpiritStatEntry sse) => sse.Count).Sum();
             Dictionary<string, double> leaderPercents = this.SpiritStats.ToDictionary(kv => kv.Key, kv => (double)kv.Value.Count / spiritTotal);
             foreach (LuxuryStatEntry lse in this.LuxuryStats.Values)
@@ -802,9 +798,9 @@ namespace Reus2Surveyor
                 lse.CalculateStats(this.planetCount);
                 //luxuryLeaderCounts[lse.Hash] = lse.LeaderCounts;
 
-                lse.LeaderRatios = lse.LeaderCountsOri.ToDictionary(kv => kv.Key, 
-                    kv => leaderPercents.TryGetValue(kv.Key, out double leaderPerc) ? 
-                    ((double)kv.Value / (double)lse.Count) / leaderPerc : 
+                lse.LeaderRatios = lse.LeaderCountsOri.ToDictionary(kv => kv.Key,
+                    kv => leaderPercents.TryGetValue(kv.Key, out double leaderPerc) ?
+                    ((double)kv.Value / (double)lse.Count) / leaderPerc :
                     0
                     );
 
@@ -812,9 +808,9 @@ namespace Reus2Surveyor
                 lse.FavRatio = lse.LeaderRatios.MaxBy(kv => kv.Value).Value;
             }
 
-            foreach((string bioticumName, Dictionary<string,double> ratios) in this.BioticumVsSpiritRatios)
+            foreach ((string bioticumName, Dictionary<string, double> ratios) in this.BioticumVsSpiritRatios)
             {
-                if (this.glossaryInstance.BioticumDefinitionByName.TryGetValue(bioticumName, out Glossaries.BioticumDefinition bioDef)) 
+                if (this.glossaryInstance.BioticumDefinitionByName.TryGetValue(bioticumName, out Glossaries.BioticumDefinition bioDef))
                 {
                     this.BioticaStats[bioDef.Hash].FavSpirit = ratios.MaxBy(kv => kv.Value).Key;
                     this.BioticaStats[bioDef.Hash].FavRatio = ratios.MaxBy(kv => kv.Value).Value;
@@ -822,7 +818,7 @@ namespace Reus2Surveyor
             }
 
             Dictionary<int, int> stageCounter = [];
-            for(int i = 0; i<5; i++)
+            for (int i = 0; i < 5; i++)
             {
                 stageCounter[i] = 0;
             }
@@ -838,7 +834,7 @@ namespace Reus2Surveyor
             // Preparing counters to gather project slot usage
             List<string> distinctProjectSlots = [..this.glossaryInstance.ProjectDefinitionList
                 .Select(d => d.Slot).Distinct()];
-            Dictionary<string,int> projectSlotCounter = distinctProjectSlots.ToDictionary(k => k, k => 0);
+            Dictionary<string, int> projectSlotCounter = distinctProjectSlots.ToDictionary(k => k, k => 0);
             Dictionary<(string, string), int> projectSlotCountByLeader = [];
             foreach (string leaderName in this.glossaryInstance.SpiritHashByName.Keys)
             {
@@ -869,7 +865,7 @@ namespace Reus2Surveyor
                 if (this.glossaryInstance.BioticumDefFromHash(bioHash) is null) this.BioticaStats[bioHash] = new BioticumStatEntry(bioHash, planetNum);
                 else this.BioticaStats[bioHash] = new BioticumStatEntry(this.glossaryInstance.BioticumDefFromHash(bioHash), planetNum);
             }
-                
+
         }
 
         public static void IncrementCounter<T>(Dictionary<T, int> dict, T key, int value)
@@ -915,10 +911,10 @@ namespace Reus2Surveyor
         {
             OrderedDictionary<TKey, Dictionary<TKey, double>> output = [];
 
-            List<KeyValuePair<TKey, int>> flattened = [..input.SelectMany(kv1 => kv1.Value.ToList())];
+            List<KeyValuePair<TKey, int>> flattened = [.. input.SelectMany(kv1 => kv1.Value.ToList())];
             int total = flattened.Select(kv => kv.Value).Sum();
             Dictionary<TKey, int> columnTotals = [];
-            List<TKey> columns = [..flattened.Select(kv => kv.Key).Distinct()];
+            List<TKey> columns = [.. flattened.Select(kv => kv.Key).Distinct()];
             foreach (TKey c in columns) columnTotals[c] = 0;
             foreach (KeyValuePair<TKey, int> f in flattened)
             {
@@ -934,7 +930,7 @@ namespace Reus2Surveyor
                     if (Double.IsNaN(value)) value = 0;
                     output[rowKey][colKey] = value;
                 }
-                List<TKey> missingCols = [..columns.Except(row.Keys)];
+                List<TKey> missingCols = [.. columns.Except(row.Keys)];
                 foreach (TKey missingCol in missingCols)
                 {
                     output[rowKey][missingCol] = 0;
@@ -953,8 +949,8 @@ namespace Reus2Surveyor
             columnMembers.AddRange(thisType.GetFields());
             columnMembers.AddRange(thisType.GetProperties());
 
-            columnMembers = [..columnMembers.Where(mi => !(mi.GetCustomAttribute<XLColumnAttribute>() is null || mi.GetCustomAttribute<XLColumnAttribute>().Ignore))];
-            columnMembers = [..columnMembers.OrderBy(mi => mi.GetCustomAttribute<XLColumnAttribute>().Order )];
+            columnMembers = [.. columnMembers.Where(mi => !(mi.GetCustomAttribute<XLColumnAttribute>() is null || mi.GetCustomAttribute<XLColumnAttribute>().Ignore))];
+            columnMembers = [.. columnMembers.OrderBy(mi => mi.GetCustomAttribute<XLColumnAttribute>().Order)];
 
             // Build table headers
             foreach (MemberInfo mi in columnMembers)
@@ -1041,7 +1037,7 @@ namespace Reus2Surveyor
                             case MemberTypes.Field:
                                 IDictionary fieldDict = ((FieldInfo)mi).GetValue(entry) as IDictionary;
                                 List<string> fieldKeys = [];
-                                foreach(DictionaryEntry de in fieldDict)
+                                foreach (DictionaryEntry de in fieldDict)
                                 {
                                     fieldKeys.Add((string)de.Key);
                                 }
@@ -1361,7 +1357,7 @@ namespace Reus2Surveyor
             foreach (KeyValuePair<string, HashSet<string>> kv in columnFormats)
             {
                 string format = kv.Key;
-                HashSet<string> columns = [..kv.Value];
+                HashSet<string> columns = [.. kv.Value];
 
                 foreach (string colName in columns)
                 {
@@ -1411,7 +1407,7 @@ namespace Reus2Surveyor
                 XLColumnAttribute xlColAttr = mi.GetCustomAttribute<XLColumnAttribute>();
                 if (colFormatAttr is not null)
                 {
-                    if (xlColAttr is not null && xlColAttr.Header is not null) 
+                    if (xlColAttr is not null && xlColAttr.Header is not null)
                     {
                         AddColumnFormat(ref formats, colFormatAttr.Fmt, xlColAttr.Header);
                         continue;

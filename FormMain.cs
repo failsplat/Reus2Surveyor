@@ -6,12 +6,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace Reus2Surveyor
 {
@@ -178,7 +176,7 @@ namespace Reus2Surveyor
             {
                 this.ResetPlanetList();
                 Dictionary<int, string> completedPlanetPaths = this.planetsInProfile.Where(kv => kv.Value.Complete.valid).Select(kv => new KeyValuePair<int, string>(kv.Key, kv.Value.Complete.path)).ToDictionary();
-                
+
                 List<int> readOptionOff = [];
                 foreach (DataGridViewRow r in this.planetGridView.Rows)
                 {
@@ -271,7 +269,8 @@ namespace Reus2Surveyor
                 {
                     string dst = Path.Combine(decodedDir, pathParts[1] + "." + pathParts[0] + ".json");
                     string outputText;
-                    if (!File.Exists(dst)) {
+                    if (!File.Exists(dst))
+                    {
                         outputText = JsonConvert.SerializeObject(resAsDict, Formatting.Indented);
                         File.WriteAllText(dst, outputText);
                     }

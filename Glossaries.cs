@@ -31,7 +31,7 @@ namespace Reus2Surveyor
         public readonly List<LuxuryDefinition> LuxuryDefinitionList = [];
 
         public readonly Dictionary<string, string> BiomeColors = [];
-        
+
         public Glossaries(
             string bioFile,
             string giantFile,
