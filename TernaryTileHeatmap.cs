@@ -122,7 +122,7 @@ namespace Reus2Surveyor
             // Titles and labels
             Font fontTitle = drawingFont.CreateFont(32, FontStyle.Bold);
             Font fontLabel = drawingFont.CreateFont(24, FontStyle.Regular);
-            image.Mutate(x => x.DrawText(title, fontTitle, Color.Black, new PointF(8,0)));
+            image.Mutate(x => x.DrawText(title, fontTitle, Color.Black, new PointF(8, 0)));
             image.Mutate(x => x.DrawText(labelA, fontLabel, Color.Black, new Point(280, 84)));
             image.Mutate(x => x.DrawText(labelB, fontLabel, Color.Black, new Point(400, 408)));
             image.Mutate(x => x.DrawText(labelC, fontLabel, Color.Black, new Point(20, 408)));

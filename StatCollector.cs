@@ -1,15 +1,11 @@
-﻿using ClosedXML.Attributes;
-using ClosedXML.Excel;
+﻿using ClosedXML.Excel;
 using MathNet.Numerics.Statistics;
 using SixLabors.ImageSharp;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using static Reus2Surveyor.Glossaries;
 
 namespace Reus2Surveyor
@@ -951,89 +947,6 @@ namespace Reus2Surveyor
         {
             List<double> castValues = [.. values.Select(v => (double)v)];
             return GiniCoeff(castValues);
-        }
-
-        public static void ApplyTableNumberFormats(Dictionary<string, HashSet<string>> columnFormats, IXLTable table)
-        {
-            foreach (KeyValuePair<string, HashSet<string>> kv in columnFormats)
-            {
-                string format = kv.Key;
-                HashSet<string> columns = [.. kv.Value];
-
-                foreach (string colName in columns)
-                {
-                    try
-                    {
-                        var col = table.FindColumn(c => c.FirstCell().Value.ToString() == colName);
-                        if (col is null) continue;
-                        col.Style.NumberFormat.Format = format;
-                    }
-                    catch { }
-                }
-            }
-        }
-
-        public static Dictionary<string, HashSet<string>> GetColumnFormats(Type T, Glossaries glossaryInstance)
-        {
-            List<MemberInfo> allMembers = [];
-            allMembers.AddRange(T.GetFields());
-            allMembers.AddRange(T.GetProperties());
-            Dictionary<string, HashSet<string>> formats = [];
-
-            foreach (MemberInfo mi in allMembers)
-            {
-                UnpackToBiomesAttribute biomeAttr = mi.GetCustomAttribute<UnpackToBiomesAttribute>();
-                if (biomeAttr is not null && biomeAttr.NumberFormat is not null)
-                {
-                    foreach (string biomeName in glossaryInstance.BiomeHashByName.Keys)
-                    {
-                        string subheader = biomeAttr.Prefix + biomeName + biomeAttr.Suffix;
-                        AddColumnFormat(ref formats, biomeAttr.NumberFormat, subheader);
-                    }
-                    continue;
-                }
-
-                UnpackToSpiritsAttribute spiritAttr = mi.GetCustomAttribute<UnpackToSpiritsAttribute>();
-                if (spiritAttr is not null && spiritAttr.NumberFormat is not null)
-                {
-                    foreach (string spiritName in glossaryInstance.SpiritHashByName.Keys)
-                    {
-                        string subheader = spiritAttr.Prefix + spiritName + spiritAttr.Suffix;
-                        AddColumnFormat(ref formats, spiritAttr.NumberFormat, subheader);
-                    }
-                    continue;
-                }
-
-                ColumnFormatAttribute colFormatAttr = mi.GetCustomAttribute<ColumnFormatAttribute>();
-                XLColumnAttribute xlColAttr = mi.GetCustomAttribute<XLColumnAttribute>();
-                if (colFormatAttr is not null)
-                {
-                    if (xlColAttr is not null && xlColAttr.Header is not null)
-                    {
-                        AddColumnFormat(ref formats, colFormatAttr.Fmt, xlColAttr.Header);
-                        continue;
-                    }
-                    else
-                    {
-                        AddColumnFormat(ref formats, colFormatAttr.Fmt, mi.Name);
-                        continue;
-                    }
-
-                }
-            }
-            return formats;
-        }
-
-        private static void AddColumnFormat(ref Dictionary<string, HashSet<string>> formatDictionary, string format, string header)
-        {
-            if (formatDictionary.TryGetValue(format, out HashSet<string> columns))
-            {
-                columns.Add(header);
-            }
-            else
-            {
-                formatDictionary.Add(format, [header]);
-            }
         }
     }
 }

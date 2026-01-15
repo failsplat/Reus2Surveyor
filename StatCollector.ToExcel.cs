@@ -1,16 +1,13 @@
 ﻿using ClosedXML.Attributes;
 using ClosedXML.Excel;
-using MathNet.Numerics.Statistics;
 using SixLabors.ImageSharp;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using static Reus2Surveyor.Glossaries;
 
 namespace Reus2Surveyor
 {

@@ -549,7 +549,7 @@ namespace Reus2Surveyor
         {
             int steps = 10;
             TernaryTileHeatmap tpBlank = new(steps, []);
-            TernaryTileHeatmap tp = new(steps, [..tpBlank.TileCounts.Keys]);
+            TernaryTileHeatmap tp = new(steps, [.. tpBlank.TileCounts.Keys]);
             Func<double, double, (int, int, int), Color> simpleShader = TernaryTileHeatmap.MakeSimpleShader(Color.DarkMagenta);
             Func<double, double, (int, int, int), Color> cymShader = TernaryTileHeatmap.MakeCompositionShader(Color.Cyan, Color.Yellow, Color.Magenta);
             Func<double, double, (int, int, int), Color> rgbShader = TernaryTileHeatmap.MakeCompositionShader(Color.Red, Color.Lime, Color.Blue);
