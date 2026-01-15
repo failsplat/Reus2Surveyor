@@ -366,11 +366,23 @@ namespace Reus2Surveyor
             this.PlanetStatCollector.FinalizeStats();
 
             string dst = Path.Combine(outputDir, "Reus 2 Stats " + DateTime.Now.ToString("yyyyMMdd HHmm") + ".xlsx");
-            this.PlanetStatCollector.WriteToExcel(dst);
+            this.PlanetStatCollector.WriteToExcel(dst, this.heatmapCheckbox.Checked);
             exportStatsButton.Enabled = true;
             string timeMsg = $"({((DateTime.Now - exportStart).TotalSeconds):N2} s)";
             this.exportReadyLabel.Text = "Export Complete " + timeMsg;
             this.exportReadyLabel.ForeColor = System.Drawing.Color.Green;
+
+            // Ternary plot testing
+            //List<(double, double, double)> dataSet = [.. this.PlanetStatCollector.PlanetSummaries.Select(ps => (ps.PPlant ?? 0, ps.PAnimal ?? 0, ps.PMineral ?? 0))];
+            //TernaryTileHeatmap tp = new(10, dataSet);
+            //Func<double, double, (int, int, int), Color> shader = TernaryTileHeatmap.MakeSimpleShader(Color.DarkMagenta);
+            //Image im = tp.DrawStandardPlot(Color.White, shader,
+            //    title: "Biotica Types\nAll Planets",
+            //    labelA: "Plant",
+            //    labelB: "Animal",
+            //    labelC: "Mineral"
+            //    );
+            //im.SaveAsPng("testImage.png");
 
             // Invention/Luxury spading/debugging
             //File.WriteAllLines("Invention Names.csv", this.PlanetStatCollector.inventionNamesByDef.Select(kv => String.Join(",", [kv.Key, kv.Value])));
@@ -533,5 +545,55 @@ namespace Reus2Surveyor
             this.SetAndCheckProfilePath(temp);
         }
 
+        private void genericTestButton_Click(object sender, EventArgs e)
+        {
+            int steps = 10;
+            TernaryTileHeatmap tpBlank = new(steps, []);
+            TernaryTileHeatmap tp = new(steps, [..tpBlank.TileCounts.Keys]);
+            Func<double, double, (int, int, int), Color> simpleShader = TernaryTileHeatmap.MakeSimpleShader(Color.DarkMagenta);
+            Func<double, double, (int, int, int), Color> cymShader = TernaryTileHeatmap.MakeCompositionShader(Color.Cyan, Color.Yellow, Color.Magenta);
+            Func<double, double, (int, int, int), Color> rgbShader = TernaryTileHeatmap.MakeCompositionShader(Color.Red, Color.Lime, Color.Blue);
+            Func<double, double, (int, int, int), Color> rybShader = TernaryTileHeatmap.MakeCompositionShader(Color.Red, Color.Yellow, Color.Blue);
+
+            //Func<double, double, (int, int, int), Color> degenShader = TernaryTileHeatmap.MakeCompositionShader(Color.Blue, Color.Blue, Color.Blue);
+
+            Image imSimple = tp.DrawStandardPlot(Color.White, simpleShader,
+                title: "Shader Test\nSimple Shader DarkMagenta",
+                labelA: "A",
+                labelB: "B",
+                labelC: "C",
+                blurMult: 0
+                );
+            imSimple.SaveAsPng("testSimpleShader.png");
+
+            Image imCym = tp.DrawStandardPlot(Color.White, cymShader,
+                title: "Shader Test\nCYM Shader",
+                labelA: "Cyan",
+                labelB: "Yellow",
+                labelC: "Magenta",
+                blurMult: 0
+                );
+            imCym.SaveAsPng("testCymShader.png");
+
+            Image imRgb = tp.DrawStandardPlot(Color.White, rgbShader,
+                title: "Shader Test\nRGB Shader",
+                labelA: "Red",
+                labelB: "Green",
+                labelC: "Blue",
+                blurMult: 0
+                );
+            imRgb.SaveAsPng("testRgbShader.png");
+
+            Image imRyb = tp.DrawStandardPlot(Color.White, rybShader,
+                title: "Shader Test\nRYB Shader",
+                labelA: "Red",
+                labelB: "Yellow",
+                labelC: "Blue",
+                blurMult: 0
+                );
+            imRyb.SaveAsPng("testRybShader.png");
+
+            //Image imDegen = tp.DrawStandardPlot(Color.White, degenShader, title: "a");
+        }
     }
 }

@@ -4,7 +4,6 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace Reus2Surveyor
@@ -84,7 +83,6 @@ namespace Reus2Surveyor
             List<int> anchorPatches = biomeStripes.Keys.ToList();
             anchorPatches.Sort();
 
-            using MemoryStream s = new();
             Image image = new Image<Rgb24>(width, height);
 
             int leftPos = 0;
