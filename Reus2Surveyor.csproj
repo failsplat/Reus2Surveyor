@@ -63,6 +63,15 @@
     <None Update="Glossaries\Spirits.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="LICENSE">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Font\NotoSans-VariableFont_wdth,wght.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Font\OFL.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -70,6 +79,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Font\" />
     <Folder Include="Properties\DataSources\" />
   </ItemGroup>
 

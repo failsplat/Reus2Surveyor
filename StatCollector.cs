@@ -1201,7 +1201,7 @@ namespace Reus2Surveyor
             return output;
         }
 
-        public void WriteToExcel(string dstPath)
+        public void WriteToExcel(string dstPath, bool heatmaps = false)
         {
             using (XLWorkbook wb = new())
             {
@@ -1271,6 +1271,138 @@ namespace Reus2Surveyor
                 foreach (var col in bioVsPrCharRatioTable.Columns())
                 {
                     col.Style.NumberFormat.Format = "0.0000";
+                }
+
+                if (heatmaps)
+                {
+                    var heatmapWs = wb.AddWorksheet("Heatmaps");
+                    int xPos = 0; int yPos = 0;
+                    int width; int height;
+
+                    // Column 1: Biotica types by planet
+                    Func<double, double, (int a, int b, int c), Color> biotypeShader = TernaryTileHeatmap.MakeCompositionShader(Color.Lime, Color.Red, Color.Blue);
+                    List<(double p, double a, double m)> bioTypePercentsAll = [.. this.PlanetSummaries
+                        .Select(ps => (ps.PPlant ?? 0, ps.PAnimal ?? 0, ps.PMineral ?? 0))
+                        .Where(p => (p.Item1 + p.Item2 + p.Item3 > 0))];
+
+                    using (MemoryStream ms = new MemoryStream())
+                    using (Image im = new TernaryTileHeatmap(10, bioTypePercentsAll).DrawStandardPlot(Color.White, biotypeShader, "Planet Biotica Types\nAll Planets",
+                        labelA: "Plant", labelB: "Animal", labelC: "Mineral"))
+                    {
+                        im.SaveAsPng(ms);
+                        var pic = heatmapWs.AddPicture(ms);
+                        pic.MoveTo(xPos, yPos);
+
+                        width = pic.Width;
+                        height = pic.Height;
+
+                        yPos += height;
+                    }
+
+                    foreach (string spiritName in this.glossaryInstance.SpiritHashByName.Keys)
+                    {
+                        List<(double p, double a, double m)> bioTypePercents = [.. this.PlanetSummaries
+                            .Where(ps => ps.Spirit == spiritName)
+                            .Select(ps => (ps.PPlant ?? 0, ps.PAnimal ?? 0, ps.PMineral ?? 0))
+                            .Where(p => (p.Item1 + p.Item2 + p.Item3 > 0))];
+                        Image im = new TernaryTileHeatmap(10, bioTypePercents).DrawStandardPlot(Color.White, biotypeShader, $"Planet Biotica Types\n{spiritName}",
+                        labelA: "Plant", labelB: "Animal", labelC: "Mineral");
+                        using (MemoryStream ms = new MemoryStream())
+                        {
+                            im.SaveAsPng(ms);
+                            var pic = heatmapWs.AddPicture(ms);
+                            pic.MoveTo(xPos, yPos);
+
+                            yPos += height;
+                        }
+                    }
+
+                    // Column 2: Biotica types in borders
+                    xPos += width;
+                    yPos = height;
+                    foreach (string spiritName in this.glossaryInstance.SpiritHashByName.Keys)
+                    {
+                        List<(double p, double a, double m)> bioTypePercents = [..
+                            this.CitySummaries
+                            .Where(cs => cs.Char == spiritName)
+                            .Select(cs => (cs.PPlant ?? 0, cs.PAnimal ?? 0, cs.PMineral ?? 0))
+                            .Where(p => (p.Item1 + p.Item2 + p.Item3 > 0))
+                            ];
+                        Image im = new TernaryTileHeatmap(10, bioTypePercents).DrawStandardPlot(Color.White, biotypeShader, $"Biotica Types in Borders\n{spiritName}",
+                        labelA: "Plant", labelB: "Animal", labelC: "Mineral");
+                        using (MemoryStream ms = new MemoryStream())
+                        {
+                            im.SaveAsPng(ms);
+                            var pic = heatmapWs.AddPicture(ms);
+                            pic.MoveTo(xPos, yPos);
+
+                            yPos += height;
+                        }
+                    }
+
+                    // Column 3: Prosperity composition by planet
+                    xPos += width;
+                    yPos = 0;
+
+                    Func<double, double, (int a, int b, int c), Color> prosCompositionShader = TernaryTileHeatmap.MakeCompositionShader(Color.Red, Color.Blue, Color.Yellow);
+                    List<(double pop, double tech, double wel)> prosPercentsAll = [..
+                        this.PlanetSummaries
+                        .Select(ps => (ps.PPop ?? 0, ps.PTech ?? 0, ps.PWel ?? 0))
+                        ];
+
+                    using (MemoryStream ms = new MemoryStream())
+                    using (Image im = new TernaryTileHeatmap(10, prosPercentsAll).DrawStandardPlot(Color.White, prosCompositionShader, "Planet Prosperity Composition\nAll Planets",
+                        labelA: "Pop", labelB: "Tech", labelC: "Wealth"))
+                    {
+                        im.SaveAsPng(ms);
+                        var pic = heatmapWs.AddPicture(ms);
+                        pic.MoveTo(xPos, yPos);
+
+                        yPos += height;
+                    }
+
+                    foreach (string spiritName in this.glossaryInstance.SpiritHashByName.Keys)
+                    {
+                        List<(double pop, double tech, double wel)> prosPercents = [..
+                            this.PlanetSummaries
+                            .Where(ps => ps.Spirit == spiritName)
+                            .Select(ps => (ps.PPop ?? 0, ps.PTech ?? 0, ps.PWel ?? 0))
+                            .Where(p => (p.Item1 + p.Item2 + p.Item3 > 0))
+                            ];
+                        Image im = new TernaryTileHeatmap(10, prosPercents).DrawStandardPlot(Color.White, prosCompositionShader, $"Planet Prosperity Composition\n{spiritName}",
+                            labelA: "Pop", labelB: "Tech", labelC: "Wealth");
+                        using (MemoryStream ms = new MemoryStream())
+                        {
+                            im.SaveAsPng(ms);
+                            var pic = heatmapWs.AddPicture(ms);
+                            pic.MoveTo(xPos, yPos);
+
+                            yPos += height;
+                        }
+                    }
+
+                    // Column 4: City prosperity composition
+                    xPos += width;
+                    yPos = height;
+                    foreach (string spiritName in this.glossaryInstance.SpiritHashByName.Keys)
+                    {
+                        List<(double p, double a, double m)> prosPercents = [..
+                            this.CitySummaries
+                            .Where(cs => cs.Char == spiritName)
+                            .Select(ps => (ps.PPop ?? 0, ps.PTech ?? 0, ps.PWel ?? 0))
+                            .Where(p => (p.Item1 + p.Item2 + p.Item3 > 0))
+                            ];
+                        Image im = new TernaryTileHeatmap(10, prosPercents).DrawStandardPlot(Color.White, prosCompositionShader, $"City Prosperity Composition\n{spiritName}",
+                            labelA: "Pop", labelB: "Tech", labelC: "Wealth");
+                        using (MemoryStream ms = new MemoryStream())
+                        {
+                            im.SaveAsPng(ms);
+                            var pic = heatmapWs.AddPicture(ms);
+                            pic.MoveTo(xPos, yPos);
+
+                            yPos += height;
+                        }
+                    }
                 }
 
                 wb.SaveAs(dstPath);
