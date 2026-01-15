@@ -409,6 +409,7 @@ namespace Reus2Surveyor
                     var heatmapWs = wb.AddWorksheet("Heatmaps");
                     int xPos = 0; int yPos = 0;
                     int width; int height;
+                    int tileSteps = 13;
 
                     // Column 1: Biotica types by planet
                     Func<double, double, (int a, int b, int c), Color> biotypeShader = TernaryTileHeatmap.MakeCompositionShader(Color.Lime, Color.Red, Color.Blue);
@@ -417,7 +418,7 @@ namespace Reus2Surveyor
                         .Where(p => (p.Item1 + p.Item2 + p.Item3 > 0))];
 
                     using (MemoryStream ms = new MemoryStream())
-                    using (Image im = new TernaryTileHeatmap(10, bioTypePercentsAll).DrawStandardPlot(Color.White, biotypeShader, "Planet Biotica Types\nAll Planets",
+                    using (Image im = new TernaryTileHeatmap(tileSteps, bioTypePercentsAll).DrawStandardPlot(Color.White, biotypeShader, "Planet Biotica Types\nAll Planets",
                         labelA: "Plant", labelB: "Animal", labelC: "Mineral"))
                     {
                         im.SaveAsPng(ms);
@@ -436,7 +437,7 @@ namespace Reus2Surveyor
                             .Where(ps => ps.Spirit == spiritName)
                             .Select(ps => (ps.PPlant ?? 0, ps.PAnimal ?? 0, ps.PMineral ?? 0))
                             .Where(p => (p.Item1 + p.Item2 + p.Item3 > 0))];
-                        Image im = new TernaryTileHeatmap(10, bioTypePercents).DrawStandardPlot(Color.White, biotypeShader, $"Planet Biotica Types\n{spiritName}",
+                        Image im = new TernaryTileHeatmap(tileSteps, bioTypePercents).DrawStandardPlot(Color.White, biotypeShader, $"Planet Biotica Types\n{spiritName}",
                         labelA: "Plant", labelB: "Animal", labelC: "Mineral");
                         using (MemoryStream ms = new MemoryStream())
                         {
@@ -459,7 +460,7 @@ namespace Reus2Surveyor
                             .Select(cs => (cs.PPlant ?? 0, cs.PAnimal ?? 0, cs.PMineral ?? 0))
                             .Where(p => (p.Item1 + p.Item2 + p.Item3 > 0))
                             ];
-                        Image im = new TernaryTileHeatmap(10, bioTypePercents).DrawStandardPlot(Color.White, biotypeShader, $"Biotica Types in Borders\n{spiritName}",
+                        Image im = new TernaryTileHeatmap(tileSteps, bioTypePercents).DrawStandardPlot(Color.White, biotypeShader, $"Biotica Types in Borders\n{spiritName}",
                         labelA: "Plant", labelB: "Animal", labelC: "Mineral");
                         using (MemoryStream ms = new MemoryStream())
                         {
@@ -482,7 +483,7 @@ namespace Reus2Surveyor
                         ];
 
                     using (MemoryStream ms = new MemoryStream())
-                    using (Image im = new TernaryTileHeatmap(10, prosPercentsAll).DrawStandardPlot(Color.White, prosCompositionShader, "Planet Prosperity Composition\nAll Planets",
+                    using (Image im = new TernaryTileHeatmap(tileSteps, prosPercentsAll).DrawStandardPlot(Color.White, prosCompositionShader, "Planet Prosperity Composition\nAll Planets",
                         labelA: "Pop", labelB: "Tech", labelC: "Wealth"))
                     {
                         im.SaveAsPng(ms);
@@ -500,7 +501,7 @@ namespace Reus2Surveyor
                             .Select(ps => (ps.PPop ?? 0, ps.PTech ?? 0, ps.PWel ?? 0))
                             .Where(p => (p.Item1 + p.Item2 + p.Item3 > 0))
                             ];
-                        Image im = new TernaryTileHeatmap(10, prosPercents).DrawStandardPlot(Color.White, prosCompositionShader, $"Planet Prosperity Composition\n{spiritName}",
+                        Image im = new TernaryTileHeatmap(tileSteps, prosPercents).DrawStandardPlot(Color.White, prosCompositionShader, $"Planet Prosperity Composition\n{spiritName}",
                             labelA: "Pop", labelB: "Tech", labelC: "Wealth");
                         using (MemoryStream ms = new MemoryStream())
                         {
@@ -523,7 +524,7 @@ namespace Reus2Surveyor
                             .Select(ps => (ps.PPop ?? 0, ps.PTech ?? 0, ps.PWel ?? 0))
                             .Where(p => (p.Item1 + p.Item2 + p.Item3 > 0))
                             ];
-                        Image im = new TernaryTileHeatmap(10, prosPercents).DrawStandardPlot(Color.White, prosCompositionShader, $"City Prosperity Composition\n{spiritName}",
+                        Image im = new TernaryTileHeatmap(tileSteps, prosPercents).DrawStandardPlot(Color.White, prosCompositionShader, $"City Prosperity Composition\n{spiritName}",
                             labelA: "Pop", labelB: "Tech", labelC: "Wealth");
                         using (MemoryStream ms = new MemoryStream())
                         {

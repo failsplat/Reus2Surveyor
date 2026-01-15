@@ -21,6 +21,7 @@ namespace Reus2Surveyor
         public readonly int Steps;
         public readonly int Points;
         public readonly List<(double a, double b, double c)> PercentPoints;
+        public readonly (double a, double b, double c)? Mean;
         public readonly List<(int a, int b, int c)> TilePoints;
         public Dictionary<(int a, int b, int c), int> TileCounts { get; private set; } = [];
         public Dictionary<(int a, int b, int c), double> TilePercents { get; private set; } = [];
@@ -56,6 +57,19 @@ namespace Reus2Surveyor
             this.InitializeTiles();
 
             this.PercentPoints = [.. data.Select(s => Normalize3Tuple(s))];
+            if (this.PercentPoints.Count > 0) 
+            {
+                double avgA, avgB, avgC;
+                avgA = this.PercentPoints.Select(p => p.a).Average();
+                avgB = this.PercentPoints.Select(p => p.b).Average();
+                avgC = this.PercentPoints.Select(p => p.c).Average();
+                this.Mean = (avgA, avgB, avgC);
+            }
+            else
+            {
+                //this.Mean = Normalize3Tuple((1, 1, 1));
+            }
+
             this.TilePoints = [.. this.PercentPoints.Select(p => PercentToTile(p, this.Steps))];
             foreach ((int a, int b, int c) p in this.TilePoints)
             {
@@ -118,6 +132,20 @@ namespace Reus2Surveyor
                 }
             }
             FillAndOutlinePolygon(ref image, mainTriangle, Color.Transparent, Color.Black, 3);
+
+            // Draw points
+            foreach ((double a, double b, double c) p in this.PercentPoints)
+            {
+                PointF point = TernaryCompositionToPointF(p, sideLength) + plotOrigin;
+                FillPolygon(ref image, new EllipsePolygon(point, 1.0f), Color.Red);
+            }
+
+            // Circle for the centroid
+            if (this.Mean is not null)
+            {
+                PointF center = TernaryCompositionToPointF(this.Mean ?? (1, 1, 1), sideLength) + plotOrigin;
+                FillAndOutlinePolygon(ref image, new EllipsePolygon(center, 2), Color.Transparent, Color.Red, 1);
+            }
 
             // Titles and labels
             Font fontTitle = drawingFont.CreateFont(32, FontStyle.Bold);
