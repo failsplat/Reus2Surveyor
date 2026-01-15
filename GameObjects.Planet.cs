@@ -82,7 +82,7 @@ namespace Reus2Surveyor
             "aspectController", "gameplayShop", "masteredBiotica", "name",
             ];
         public readonly static List<string> genericBuffCheckKeys = [
-            "_type", "definition", "owner", "isActive", "name", "parent" 
+            "_type", "definition", "owner", "isActive", "name", "parent"
             ];
 
         public Planet(List<object> referenceTokensList, string planetPath)

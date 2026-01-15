@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.Intrinsics.X86;
 using static Reus2Surveyor.Glossaries;
 
 namespace Reus2Surveyor
@@ -348,7 +346,7 @@ namespace Reus2Surveyor
 
             public void CalculateBiomePercentages(int terrSize)
             {
-                foreach((string biomeName, int count) in this.biomePatchCounts) 
+                foreach ((string biomeName, int count) in this.biomePatchCounts)
                 {
                     this.BiomePercents[biomeName] = (double)count / (double)terrSize;
                 }
@@ -477,7 +475,7 @@ namespace Reus2Surveyor
             public void IncrementUpsetTotal(int upset, bool isPrimary, bool toTop)
             {
                 this.upsetTotal += upset;
-                if (isPrimary && upset < 0) { this.primaryDownCount++; } 
+                if (isPrimary && upset < 0) { this.primaryDownCount++; }
                 if (toTop && upset > 0) { this.upToTopCount++; }
             }
 
@@ -749,7 +747,7 @@ namespace Reus2Surveyor
                 }
             }
 
-            public void CalculateStats(Dictionary<string, int> slotCounts, Dictionary<(string,string), int> slotCountsByLeader)
+            public void CalculateStats(Dictionary<string, int> slotCounts, Dictionary<(string, string), int> slotCountsByLeader)
             {
                 if (slotCounts.TryGetValue(this.Slot, out int slotUses))
                 {
