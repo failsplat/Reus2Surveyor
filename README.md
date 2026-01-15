@@ -1,7 +1,8 @@
 # Reus 2 Planet Surveyor
 This fan-made desktop app reads the save files for completed Reus 2 planets and produces a spreadsheet of stats. It is written in C# and uses the .NET framework.
-(Not affiliated officially with Reus 2 or its developer and publisher.) Tested for save files produced in game version v1.3.0 (Atlantic Forest) up through v1.8 (Everglades).
-<img width="1127" height="760" alt="Untitled" src="https://github.com/user-attachments/assets/7e91a1a6-2e5f-4d4d-888f-9a923a390b8d" />
+(Not affiliated officially with Reus 2 or its developer and publisher.) Tested for save files produced in game version v1.3.0 (Atlantic Forest) up through v1.10.3 (Nikko).
+<img width="1127" height="839" alt="image" src="https://github.com/user-attachments/assets/42958e5e-893a-44b1-b226-31b63463c539" />
+
 ## Usage Instructions
 0. (If building from source code) Build the project. Make sure the output location contains named "Glossaries". The CSV files within that folder are used by the application to identify and name game objects.
 1. Locate your Reus 2 profile using the **\[Find Profile\]** button. The text box to the right of the button will have green text if the profile folder looks correct, and red if it does not. The table will populate with the planets it has found in `/profile_<#>/sessions`.
@@ -21,7 +22,6 @@ This program outputs an Excel workbook (.xlsx) file. It has the following sheets
 9. **BioVsCharR** - Similar to above, but shows relative usage ratios instead of counts. 
 10. **BioVsPSpC** - Table showing counts of each bioticum on planets led by each spirit
 11. **BioVsPSpR** - Relative usage ratios of above
+12. **Heatmaps** - Added only if the "Include Heatmaps" checkbox is selected. Heatmap ternary plots. Biotica type percentages (plant/animal/mineral), by planet spirits and within borders of leaders. Prospery composition (population/tech/wealth) by planet spirit and by leaders' cities.
 ## To Do/WIP Features
 * Misc. stat table
- * Biotica as pets
- * Biotica used as inspiration for original characters
