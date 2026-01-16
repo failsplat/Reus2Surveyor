@@ -7,6 +7,7 @@ using SixLabors.ImageSharp.Processing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Channels;
 
 namespace Reus2Surveyor
 {
@@ -25,6 +26,7 @@ namespace Reus2Surveyor
         public readonly List<(int a, int b, int c)> TilePoints;
         public Dictionary<(int a, int b, int c), int> TileCounts { get; private set; } = [];
         public Dictionary<(int a, int b, int c), double> TilePercents { get; private set; } = [];
+        public Dictionary<(int a, int b, int c), double> TileKernelValues { get; private set; } = [];
 
         private void InitializeTiles()
         {
@@ -70,19 +72,35 @@ namespace Reus2Surveyor
                 //this.Mean = Normalize3Tuple((1, 1, 1));
             }
 
+            
             this.TilePoints = [.. this.PercentPoints.Select(p => PercentToTile(p, this.Steps))];
-            foreach ((int a, int b, int c) p in this.TilePoints)
+            foreach ((int a, int b, int c) t in this.TilePoints)
             {
-                this.TileCounts[p]++;
+                this.TileCounts[t]++;
             }
             this.TilePercents = this.TileCounts.ToDictionary(kv => kv.Key, kv => (double)kv.Value / (double)this.Points);
+
+            //Func<double, double> kernelFunc = d => ParabolicKernel(d, 1.75 / this.Steps);
+            Func<double, double> kernelFunc = d => GuassianKernel(d, 1.0 / this.Steps, 2.0 / this.Steps);
+            foreach ((int a, int b, int c) t in this.TileCounts.Keys)
+            {
+                PointF tileCenter = this.GetTileCenter(t);
+                this.TileKernelValues[t] = 0;
+                foreach ((double a, double b, double c) p in this.PercentPoints)
+                {
+                    PointF point = TernaryCompositionToPointF(p, 1);
+                    double dist = Math.Sqrt(Math.Pow(point.X - tileCenter.X,2) + Math.Pow(point.Y - tileCenter.Y,2));
+                    double k = kernelFunc(dist);
+                    this.TileKernelValues[t] += kernelFunc(dist);
+                }
+            }
         }
 
         public static FontCollection drawingFontCollection = new();
         public static FontFamily drawingFont = drawingFontCollection.Add("Font/NotoSans-VariableFont_wdth,wght.ttf");
 
         public Image DrawStandardPlot(Color bg, Func<double, double, (int a, int b, int c), Color> shader,
-            string title, string labelA = "A", string labelB = "B", string labelC = "A", float blurMult = 1f
+            string title, string labelA = "A", string labelB = "B", string labelC = "A", float blurMult = 1.0f
             )
         {
             int width = 500;
@@ -92,29 +110,16 @@ namespace Reus2Surveyor
             int sideLength = 360;
 
             // Draw smaller triangles
-            double pMax = this.TilePercents.Values.Max();
+            double kMax = this.TileKernelValues.Values.Max();
             foreach ((int a, int b, int c) t in this.TileCounts.Keys)
             {
-                PointF vA, vB, vC;
-                if (t.a + t.b + t.c == this.Steps - 1)
-                {
-                    vA = TernaryTileToPointF((t.a + 1, t.b, t.c), sideLength, this.Steps) + plotOrigin;
-                    vB = TernaryTileToPointF((t.a, t.b + 1, t.c), sideLength, this.Steps) + plotOrigin;
-                    vC = TernaryTileToPointF((t.a, t.b, t.c + 1), sideLength, this.Steps) + plotOrigin;
-                }
-                else if (t.a + t.b + t.c == this.Steps - 2)
-                {
-                    vA = TernaryTileToPointF((t.a, t.b + 1, t.c + 1), sideLength, this.Steps) + plotOrigin;
-                    vB = TernaryTileToPointF((t.a + 1, t.b, t.c + 1), sideLength, this.Steps) + plotOrigin;
-                    vC = TernaryTileToPointF((t.a + 1, t.b + 1, t.c), sideLength, this.Steps) + plotOrigin;
-                }
-                else
-                {
-                    throw new Exception("Something messed up finding the vertices of the triangle.");
-                }
+                (PointF vA, PointF vB, PointF vC) = GetTileVertices(t);
+                vA = vA * sideLength + plotOrigin;
+                vB = vB * sideLength + plotOrigin;
+                vC = vC * sideLength + plotOrigin;
                 Polygon subTriangle = new([vA, vB, vC]);
-                Color fillColor = shader(this.TilePercents[t], pMax, t);
-                FillPolygon(ref image, subTriangle, fillColor);
+                double k = this.TileKernelValues[t];
+                FillPolygon(ref image, subTriangle, shader(k, kMax, t));
             }
 
             // Gaussian blur the triangle
@@ -137,14 +142,14 @@ namespace Reus2Surveyor
             foreach ((double a, double b, double c) p in this.PercentPoints)
             {
                 PointF point = TernaryCompositionToPointF(p, sideLength) + plotOrigin;
-                FillPolygon(ref image, new EllipsePolygon(point, 1.0f), Color.Red);
+                FillPolygon(ref image, new EllipsePolygon(point, 1.0f), Color.DarkRed);
             }
 
             // Circle for the centroid
             if (this.Mean is not null)
             {
                 PointF center = TernaryCompositionToPointF(this.Mean ?? (1, 1, 1), sideLength) + plotOrigin;
-                FillAndOutlinePolygon(ref image, new EllipsePolygon(center, 2), Color.Transparent, Color.Red, 1);
+                FillAndOutlinePolygon(ref image, new EllipsePolygon(center, 2), Color.White, Color.Black, 1);
             }
 
             // Titles and labels
@@ -161,64 +166,33 @@ namespace Reus2Surveyor
             return image;
         }
 
-        public static Color SimpleShaderBase(double p, double pMax, (int a, int b, int c) t, Color stopColor)
+        public (PointF vA, PointF vB, PointF vC) GetTileVertices((int a, int b, int c) t)
         {
-            return stopColor.WithAlpha((float)(p / pMax));
+            PointF vA, vB, vC;
+            if (t.a + t.b + t.c == this.Steps - 1)
+            {
+                vA = TernaryTileToPointF((t.a + 1, t.b, t.c), 1, this.Steps);
+                vB = TernaryTileToPointF((t.a, t.b + 1, t.c), 1, this.Steps);
+                vC = TernaryTileToPointF((t.a, t.b, t.c + 1), 1, this.Steps);
+            }
+            else if (t.a + t.b + t.c == this.Steps - 2)
+            {
+                vA = TernaryTileToPointF((t.a, t.b + 1, t.c + 1), 1, this.Steps);
+                vB = TernaryTileToPointF((t.a + 1, t.b, t.c + 1), 1, this.Steps);
+                vC = TernaryTileToPointF((t.a + 1, t.b + 1, t.c), 1, this.Steps);
+            }
+            else 
+            {
+                throw new ArgumentException($"Invalid tile coordinates ({t.a},{t.b},{t.c}) given");
+            }
+            return (vA, vB, vC);
         }
-
-        public static Func<double, double, (int a, int b, int c), Color> MakeSimpleShader(Color stopColor)
+        
+        public PointF GetTileCenter((int a, int b, int c) t)
         {
-            Func<double, double, (int a, int b, int c), Color> f = (double p, double pMax, (int a, int b, int c) s) => SimpleShaderBase(p, pMax, s, stopColor);
-            return f;
-        }
-
-        public static Color CompositionShaderBase(double p, double pMax, (int a, int b, int c) t, Color colorA, Color colorB, Color colorC)
-        {
-            (double a, double b, double c) tn = Normalize3Tuple(((double)t.a, (double)t.b, (double)t.c));
-            (float h, float s, float l) hslA = ColorSystemConversion.RgbToHsl(colorA);
-            (float h, float s, float l) hslB = ColorSystemConversion.RgbToHsl(colorB);
-            (float h, float s, float l) hslC = ColorSystemConversion.RgbToHsl(colorC);
-
-            // Mix S and L simply
-            float finalS = (float)(hslA.s * tn.a + hslB.s * tn.b + hslC.s * tn.c);
-            float finalL = (float)(hslA.l * tn.a + hslB.l * tn.b + hslC.l * tn.c);
-
-            // Mix H as a vector
-            double hx = tn.a * Math.Cos(hslA.h * Math.PI / 180) + tn.b * Math.Cos(hslB.h * Math.PI / 180) + tn.c * Math.Cos(hslC.h * Math.PI / 180);
-            double hy = tn.a * Math.Sin(hslA.h * Math.PI / 180) + tn.b * Math.Sin(hslB.h * Math.PI / 180) + tn.c * Math.Sin(hslC.h * Math.PI / 180);
-            if (hx == 0 && hy == 0) return ColorSystemConversion.HslToRgb((0, 0, finalL));
-            float finalH = (float)(Math.Atan2(hy, hx) * 180 / Math.PI);
-            if (finalH < 0) finalH += 360;
-
-            Color finalColor = ColorSystemConversion.HslToRgb((finalH, finalS, finalL));
-            (float h, float s, float l) hslCheck = ColorSystemConversion.RgbToHsl(finalColor);
-            return finalColor.WithAlpha((float)(p / pMax));
-        }
-
-        public static Func<double, double, (int a, int b, int c), Color> MakeCompositionShader(Color colorA, Color colorB, Color colorC)
-        {
-            Func<double, double, (int a, int b, int c), Color> f = (double p, double pMax, (int a, int b, int c) s) => CompositionShaderBase(p, pMax, s, colorA, colorB, colorC);
-            return f;
-        }
-
-        internal static void FillAndOutlinePolygon(ref Image image, IPath polygon, Color fillColor, Color outlineColor, float outlineWidth)
-        {
-            Brush fillBrush = new SolidBrush(fillColor);
-            Pen outlinePen = new SolidPen(outlineColor, outlineWidth);
-            image.Mutate(x => x.Fill(fillBrush, polygon).Draw(outlinePen, polygon));
-        }
-
-        internal static void FillAndOutlinePolygon(ref Image image, Rectangle rectangle, Color fillColor, Color outlineColor, float outlineWidth)
-        {
-            Brush fillBrush = new SolidBrush(fillColor);
-            Pen outlinePen = new SolidPen(outlineColor, outlineWidth);
-            image.Mutate(x => x.Fill(fillBrush, rectangle).Draw(outlinePen, rectangle));
-        }
-
-        internal static void FillPolygon(ref Image image, IPath polygon, Color fillColor)
-        {
-            Brush fillBrush = new SolidBrush(fillColor);
-            image.Mutate(x => x.Fill(fillBrush, polygon));
+            (PointF vA, PointF vB, PointF vC) = GetTileVertices(t);
+            PointF center = (vA + vB + vC) / 3;
+            return center;
         }
 
         internal static (double a, double b, double c) Normalize3Tuple((double a, double b, double c) r)
@@ -319,6 +293,98 @@ namespace Reus2Surveyor
         {
             (double x, double y) xy = TernaryTileToCartesian(t, sideLength, steps, degA, degB);
             return new((float)xy.x, (float)xy.y);
+        }
+
+        public static double BoundedQuarticKernel(double dist, double bound)
+        {
+            if (dist < 0) throw new ArgumentException($"Kernel function distance {dist} must not be negative.");
+            if (bound <= 0) throw new ArgumentException($"Kernel function bound {bound} must be positive.");
+            double u = dist / bound;
+            if (u > 1) return 0;
+            double k = Math.Pow(1 - Math.Pow(u, 2), 2);
+            return k;
+        }
+
+        public static double ParabolicKernel(double dist, double bound)
+        {
+            if (dist < 0) throw new ArgumentException($"Kernel function distance {dist} must not be negative.");
+            if (bound <= 0) throw new ArgumentException($"Kernel function bound {bound} must be positive.");
+            double u = dist / bound;
+            if (u > 1) return 0;
+            double k = (1 - Math.Pow(u, 2));
+            return Math.Max(0, k);
+        }
+
+        public static double GuassianKernel(double dist, double scale, double bound)
+        {
+            if (dist < 0) throw new ArgumentException($"Kernel function distance {dist} must not be negative.");
+            if (scale <= 0) throw new ArgumentException($"Kernel function scale {scale} must be positive.");
+            if (bound <= 0) throw new ArgumentException($"Kernel function bound {bound} must be positive.");
+
+            if (dist > bound) return 0; 
+            double u = dist / scale;
+            double k = Math.Pow(Math.E, -0.5 * Math.Pow(u, 2));
+            return Math.Max(0, k);
+        }
+
+        public static Color SimpleShaderBase(double p, double pMax, (int a, int b, int c) t, Color stopColor)
+        {
+            return stopColor.WithAlpha((float)(p / pMax));
+        }
+
+        public static Func<double, double, (int a, int b, int c), Color> MakeSimpleShader(Color stopColor)
+        {
+            Func<double, double, (int a, int b, int c), Color> f = (double p, double pMax, (int a, int b, int c) s) => SimpleShaderBase(p, pMax, s, stopColor);
+            return f;
+        }
+
+        public static Color CompositionShaderBase(double p, double pMax, (int a, int b, int c) t, Color colorA, Color colorB, Color colorC)
+        {
+            (double a, double b, double c) tn = Normalize3Tuple(((double)t.a, (double)t.b, (double)t.c));
+            (float h, float s, float l) hslA = ColorSystemConversion.RgbToHsl(colorA);
+            (float h, float s, float l) hslB = ColorSystemConversion.RgbToHsl(colorB);
+            (float h, float s, float l) hslC = ColorSystemConversion.RgbToHsl(colorC);
+
+            // Mix S and L simply
+            float finalS = (float)(hslA.s * tn.a + hslB.s * tn.b + hslC.s * tn.c);
+            float finalL = (float)(hslA.l * tn.a + hslB.l * tn.b + hslC.l * tn.c);
+
+            // Mix H as a vector
+            double hx = tn.a * Math.Cos(hslA.h * Math.PI / 180) + tn.b * Math.Cos(hslB.h * Math.PI / 180) + tn.c * Math.Cos(hslC.h * Math.PI / 180);
+            double hy = tn.a * Math.Sin(hslA.h * Math.PI / 180) + tn.b * Math.Sin(hslB.h * Math.PI / 180) + tn.c * Math.Sin(hslC.h * Math.PI / 180);
+            if (hx == 0 && hy == 0) return ColorSystemConversion.HslToRgb((0, 0, finalL));
+            float finalH = (float)(Math.Atan2(hy, hx) * 180 / Math.PI);
+            if (finalH < 0) finalH += 360;
+
+            Color finalColor = ColorSystemConversion.HslToRgb((finalH, finalS, finalL));
+            (float h, float s, float l) hslCheck = ColorSystemConversion.RgbToHsl(finalColor);
+            return finalColor.WithAlpha((float)(p / pMax));
+        }
+
+        public static Func<double, double, (int a, int b, int c), Color> MakeCompositionShader(Color colorA, Color colorB, Color colorC)
+        {
+            Func<double, double, (int a, int b, int c), Color> f = (double p, double pMax, (int a, int b, int c) s) => CompositionShaderBase(p, pMax, s, colorA, colorB, colorC);
+            return f;
+        }
+
+        internal static void FillAndOutlinePolygon(ref Image image, IPath polygon, Color fillColor, Color outlineColor, float outlineWidth)
+        {
+            Brush fillBrush = new SolidBrush(fillColor);
+            Pen outlinePen = new SolidPen(outlineColor, outlineWidth);
+            image.Mutate(x => x.Fill(fillBrush, polygon).Draw(outlinePen, polygon));
+        }
+
+        internal static void FillAndOutlinePolygon(ref Image image, Rectangle rectangle, Color fillColor, Color outlineColor, float outlineWidth)
+        {
+            Brush fillBrush = new SolidBrush(fillColor);
+            Pen outlinePen = new SolidPen(outlineColor, outlineWidth);
+            image.Mutate(x => x.Fill(fillBrush, rectangle).Draw(outlinePen, rectangle));
+        }
+
+        internal static void FillPolygon(ref Image image, IPath polygon, Color fillColor)
+        {
+            Brush fillBrush = new SolidBrush(fillColor);
+            image.Mutate(x => x.Fill(fillBrush, polygon));
         }
     }
 }
