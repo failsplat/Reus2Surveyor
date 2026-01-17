@@ -628,16 +628,18 @@ namespace Reus2Surveyor
             [XLColumn(Order = 20)] public readonly string Hash;
             [XLColumn(Order = 21)] public string FavSpirit;
             [XLColumn(Order = 22)][ColumnFormat("0.000")] public double FavRatio;
+            [XLColumn(Order = 23, Header = "HiBioSrc")] public string BioticaModalSource;
+            [XLColumn(Ignore = true)] public Dictionary<string,int> BioticaSourceCounts = [];
 
             [XLColumn(Order = 30)]
             [UnpackToSpirits(defaultValue: (int)0, prefix: "From")]
             public Dictionary<string, int> LeaderCountsOri = [];
 
-            [XLColumn(Order = 40)]
+            [XLColumn(Order = 31)]
             [UnpackToSpirits(defaultValue: (double)0, suffix: "Ra", numberFormat: "0.0000")]
             public Dictionary<string, double> LeaderRatios = [];
 
-            [XLColumn(Order = 50)]
+            [XLColumn(Order = 32)]
             [UnpackToSpirits(defaultValue: (int)0)]
             public Dictionary<string, int> LeaderCounts = [];
 
@@ -661,6 +663,7 @@ namespace Reus2Surveyor
             public void CalculateStats(int planetCount)
             {
                 this.PlanetP = (double)SafePercent(this.Planets, planetCount);
+                if (this.BioticaSourceCounts.Count > 0) this.BioticaModalSource = this.BioticaSourceCounts.OrderBy(kv => -kv.Value).First().Key;
             }
         }
 

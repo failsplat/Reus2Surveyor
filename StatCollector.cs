@@ -396,6 +396,12 @@ namespace Reus2Surveyor
                         {
                             this.LuxuryStats[luxHash].LeaderCountsOri[founderName] += 1;
                         }
+
+                        if (luxSlot.luxuryGood.originalBioticumDef is not null && this.glossaryInstance.BioticumDefinitionByHash.TryGetValue(luxSlot.luxuryGood.originalBioticumDef, out BioticumDefinition luxSrcBioDef))
+                        {
+                            if (this.LuxuryStats[luxHash].BioticaSourceCounts.ContainsKey(luxSrcBioDef.Name)) this.LuxuryStats[luxHash].BioticaSourceCounts[luxSrcBioDef.Name] += 1;
+                            else this.LuxuryStats[luxHash].BioticaSourceCounts[luxSrcBioDef.Name] = 1;
+                        }
                     }
                     if (lse.LeaderCounts.ContainsKey(founderName))
                     {

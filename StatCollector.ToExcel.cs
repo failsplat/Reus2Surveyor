@@ -129,7 +129,7 @@ namespace Reus2Surveyor
                 }
                 else
                 {
-                    output.Columns.Add(mi.Name);
+                    output.Columns.Add(headerName);
                     Type memberType;
                     switch (mi.MemberType)
                     {
@@ -143,8 +143,8 @@ namespace Reus2Surveyor
                             throw new NotImplementedException();
                     }
                     Type underlyingType = Nullable.GetUnderlyingType(memberType);
-                    if (underlyingType is null) output.Columns[mi.Name].DataType = memberType;
-                    else output.Columns[mi.Name].DataType = underlyingType;
+                    if (underlyingType is null) output.Columns[headerName].DataType = memberType;
+                    else output.Columns[headerName].DataType = underlyingType;
                 }
             }
 
@@ -380,30 +380,6 @@ namespace Reus2Surveyor
                 ApplyTableNumberFormats(GetColumnFormats(typeof(ProjectStatEntry), this.glossaryInstance), projectTable);
                 projectWs.SheetView.FreezeColumns(1);
 
-                DataTable bioticaVsSpiritCountDataTable = NestDictToDataTable(this.BioticumVsSpiritCounter, "Bioticum");
-                var bioVsCharCountWs = wb.AddWorksheet("BioVsCharC");
-                var bioVsCharCountTable = bioVsCharCountWs.Cell("A1").InsertTable(bioticaVsSpiritCountDataTable);
-
-                DataTable bioticaVsSpiritRatioDataTable = NestDictToDataTable(this.BioticumVsSpiritRatios, "Bioticum");
-                var bioVsCharRatioWs = wb.AddWorksheet("BioVsCharR");
-                var bioVsCharRatioTable = bioVsCharRatioWs.Cell("A1").InsertTable(bioticaVsSpiritRatioDataTable);
-                foreach (var col in bioVsCharRatioTable.Columns())
-                {
-                    col.Style.NumberFormat.Format = "0.0000";
-                }
-
-                DataTable bioticaVsPrSpiritCountDataTable = NestDictToDataTable(this.BioticumVsPrSpiritCounter, "Bioticum");
-                var bioVsPrCharCountWs = wb.AddWorksheet("BioVsPSpC");
-                var bioVsPrCharCountTable = bioVsPrCharCountWs.Cell("A1").InsertTable(bioticaVsPrSpiritCountDataTable);
-
-                DataTable bioticaVsPrSpiritRatioDataTable = NestDictToDataTable(this.BioticumVsPrSpiritRatios, "Bioticum");
-                var bioVsPrCharRatioWs = wb.AddWorksheet("BioVsPSpR");
-                var bioVsPrCharRatioTable = bioVsPrCharRatioWs.Cell("A1").InsertTable(bioticaVsPrSpiritRatioDataTable);
-                foreach (var col in bioVsPrCharRatioTable.Columns())
-                {
-                    col.Style.NumberFormat.Format = "0.0000";
-                }
-
                 if (heatmaps)
                 {
                     var heatmapWs = wb.AddWorksheet("Heatmaps");
@@ -413,12 +389,12 @@ namespace Reus2Surveyor
 
                     // Column 1: Biotica types by planet
                     Func<double, double, (int a, int b, int c), Color> biotypeShader = TernaryTileHeatmap.MakeCompositionShader(Color.Lime, Color.Red, Color.Blue);
-                    List<(double p, double a, double m)> bioTypePercentsAll = [.. this.PlanetSummaries
+                    List<(double p, double a, double m)> bioTypesOnPlanetAll = [.. this.PlanetSummaries
                         .Select(ps => (ps.PPlant ?? 0, ps.PAnimal ?? 0, ps.PMineral ?? 0))
                         .Where(p => (p.Item1 + p.Item2 + p.Item3 > 0))];
 
                     using (MemoryStream ms = new MemoryStream())
-                    using (Image im = new TernaryTileHeatmap(tileSteps, bioTypePercentsAll).DrawStandardPlot(Color.White, biotypeShader, "Planet Biotica Types\nAll Planets",
+                    using (Image im = new TernaryTileHeatmap(tileSteps, bioTypesOnPlanetAll).DrawStandardPlot(Color.White, biotypeShader, "Planet Biotica Types\nAll Planets",
                         labelA: "Plant", labelB: "Animal", labelC: "Mineral"))
                     {
                         im.SaveAsPng(ms);
@@ -451,7 +427,25 @@ namespace Reus2Surveyor
 
                     // Column 2: Biotica types in borders
                     xPos += width;
-                    yPos = height;
+                    yPos = 0;
+
+                    List<(double p, double a, double m)> bioTypeInBordersAll = [..
+                            this.CitySummaries
+                            .Select(cs => (cs.PPlant ?? 0, cs.PAnimal ?? 0, cs.PMineral ?? 0))
+                            .Where(p => (p.Item1 + p.Item2 + p.Item3 > 0))
+                            ];
+
+                    using (MemoryStream ms = new MemoryStream())
+                    using (Image im = new TernaryTileHeatmap(tileSteps, bioTypeInBordersAll).DrawStandardPlot(Color.White, biotypeShader, "Biotica Types in Borders\nAll Cities",
+                        labelA: "Plant", labelB: "Animal", labelC: "Mineral", plotDots: true))
+                    {
+                        im.SaveAsPng(ms);
+                        var pic = heatmapWs.AddPicture(ms);
+                        pic.MoveTo(xPos, yPos);
+
+                        yPos += height;
+                    }
+
                     foreach (string spiritName in this.glossaryInstance.SpiritHashByName.Keys)
                     {
                         List<(double p, double a, double m)> bioTypePercents = [..
@@ -477,13 +471,13 @@ namespace Reus2Surveyor
                     yPos = 0;
 
                     Func<double, double, (int a, int b, int c), Color> prosCompositionShader = TernaryTileHeatmap.MakeCompositionShader(Color.Red, Color.Blue, Color.Yellow);
-                    List<(double pop, double tech, double wel)> prosPercentsAll = [..
+                    List<(double pop, double tech, double wel)> planetProsPercentsAll = [..
                         this.PlanetSummaries
                         .Select(ps => (ps.PPop ?? 0, ps.PTech ?? 0, ps.PWel ?? 0))
                         ];
 
                     using (MemoryStream ms = new MemoryStream())
-                    using (Image im = new TernaryTileHeatmap(tileSteps, prosPercentsAll).DrawStandardPlot(Color.White, prosCompositionShader, "Planet Prosperity Composition\nAll Planets",
+                    using (Image im = new TernaryTileHeatmap(tileSteps, planetProsPercentsAll).DrawStandardPlot(Color.White, prosCompositionShader, "Planet Prosperity Composition\nAll Planets",
                         labelA: "Pop", labelB: "Tech", labelC: "Wealth"))
                     {
                         im.SaveAsPng(ms);
@@ -515,7 +509,25 @@ namespace Reus2Surveyor
 
                     // Column 4: City prosperity composition
                     xPos += width;
-                    yPos = height;
+                    yPos = 0;
+
+                    List<(double p, double a, double m)> cityProsPercentsAll = [..
+                            this.CitySummaries
+                            .Select(ps => (ps.PPop ?? 0, ps.PTech ?? 0, ps.PWel ?? 0))
+                            .Where(p => (p.Item1 + p.Item2 + p.Item3 > 0))
+                            ];
+
+                    using (MemoryStream ms = new MemoryStream())
+                    using (Image im = new TernaryTileHeatmap(tileSteps, cityProsPercentsAll).DrawStandardPlot(Color.White, prosCompositionShader, "City Prosperity Composition\nAll Cities",
+                        labelA: "Pop", labelB: "Tech", labelC: "Wealth", plotDots: true))
+                    {
+                        im.SaveAsPng(ms);
+                        var pic = heatmapWs.AddPicture(ms);
+                        pic.MoveTo(xPos, yPos);
+
+                        yPos += height;
+                    }
+
                     foreach (string spiritName in this.glossaryInstance.SpiritHashByName.Keys)
                     {
                         List<(double p, double a, double m)> prosPercents = [..
@@ -535,6 +547,30 @@ namespace Reus2Surveyor
                             yPos += height;
                         }
                     }
+                }
+
+                DataTable bioticaVsSpiritCountDataTable = NestDictToDataTable(this.BioticumVsSpiritCounter, "Bioticum");
+                var bioVsCharCountWs = wb.AddWorksheet("BioVsCharC");
+                var bioVsCharCountTable = bioVsCharCountWs.Cell("A1").InsertTable(bioticaVsSpiritCountDataTable);
+
+                DataTable bioticaVsSpiritRatioDataTable = NestDictToDataTable(this.BioticumVsSpiritRatios, "Bioticum");
+                var bioVsCharRatioWs = wb.AddWorksheet("BioVsCharR");
+                var bioVsCharRatioTable = bioVsCharRatioWs.Cell("A1").InsertTable(bioticaVsSpiritRatioDataTable);
+                foreach (var col in bioVsCharRatioTable.Columns())
+                {
+                    col.Style.NumberFormat.Format = "0.0000";
+                }
+
+                DataTable bioticaVsPrSpiritCountDataTable = NestDictToDataTable(this.BioticumVsPrSpiritCounter, "Bioticum");
+                var bioVsPrCharCountWs = wb.AddWorksheet("BioVsPSpC");
+                var bioVsPrCharCountTable = bioVsPrCharCountWs.Cell("A1").InsertTable(bioticaVsPrSpiritCountDataTable);
+
+                DataTable bioticaVsPrSpiritRatioDataTable = NestDictToDataTable(this.BioticumVsPrSpiritRatios, "Bioticum");
+                var bioVsPrCharRatioWs = wb.AddWorksheet("BioVsPSpR");
+                var bioVsPrCharRatioTable = bioVsPrCharRatioWs.Cell("A1").InsertTable(bioticaVsPrSpiritRatioDataTable);
+                foreach (var col in bioVsPrCharRatioTable.Columns())
+                {
+                    col.Style.NumberFormat.Format = "0.0000";
                 }
 
                 wb.SaveAs(dstPath);

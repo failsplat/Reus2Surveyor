@@ -100,7 +100,7 @@ namespace Reus2Surveyor
         public static FontFamily drawingFont = drawingFontCollection.Add("Font/NotoSans-VariableFont_wdth,wght.ttf");
 
         public Image DrawStandardPlot(Color bg, Func<double, double, (int a, int b, int c), Color> shader,
-            string title, string labelA = "A", string labelB = "B", string labelC = "A", float blurMult = 1.0f
+            string title, string labelA = "A", string labelB = "B", string labelC = "A", float blurMult = 1.0f, bool plotDots = true
             )
         {
             int width = 500;
@@ -139,17 +139,32 @@ namespace Reus2Surveyor
             FillAndOutlinePolygon(ref image, mainTriangle, Color.Transparent, Color.Black, 3);
 
             // Draw points
-            foreach ((double a, double b, double c) p in this.PercentPoints)
+            if (plotDots)
             {
-                PointF point = TernaryCompositionToPointF(p, sideLength) + plotOrigin;
-                FillPolygon(ref image, new EllipsePolygon(point, 1.0f), Color.DarkRed);
+                foreach ((double a, double b, double c) p in this.PercentPoints)
+                {
+                    PointF point = TernaryCompositionToPointF(p, sideLength) + plotOrigin;
+                    FillPolygon(ref image, new EllipsePolygon(point, 1.0f), Color.DarkRed);
+                }
             }
+
+            // Rule lines
+            Pen rulePen = new PatternPen(Color.FromRgba(0, 84, 127, 96), 1, [3f, 3f]);
+            PointF plotCenter = TernaryCompositionToPointF((1, 1, 1), sideLength) + plotOrigin;
+            PointF midpointAC = TernaryCompositionToPointF((1,0,1), sideLength) + plotOrigin;
+            PointF midpointAB = TernaryCompositionToPointF((1,1,0), sideLength) + plotOrigin;
+            PointF midpointBC = TernaryCompositionToPointF((0,1,1), sideLength) + plotOrigin;
+            image.Mutate(x => x
+            .Draw(rulePen, new Path([midpointAB, plotCenter]))
+            .Draw(rulePen, new Path([midpointBC, plotCenter]))
+            .Draw(rulePen, new Path([midpointAC, plotCenter]))
+            );
 
             // Circle for the centroid
             if (this.Mean is not null)
             {
-                PointF center = TernaryCompositionToPointF(this.Mean ?? (1, 1, 1), sideLength) + plotOrigin;
-                FillAndOutlinePolygon(ref image, new EllipsePolygon(center, 2), Color.White, Color.Black, 1);
+                PointF densityCenter = TernaryCompositionToPointF(this.Mean ?? (1, 1, 1), sideLength) + plotOrigin;
+                FillAndOutlinePolygon(ref image, new EllipsePolygon(densityCenter, 2), Color.White, Color.Black, 1);
             }
 
             // Titles and labels
