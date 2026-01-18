@@ -385,7 +385,7 @@ namespace Reus2Surveyor
                     var heatmapWs = wb.AddWorksheet("Heatmaps");
                     int xPos = 0; int yPos = 0;
                     int width; int height;
-                    int tileSteps = 25;
+                    int tileSteps = 35;
 
                     // Column 1: Biotica types by planet
                     Func<double, double, (int a, int b, int c), Color> biotypeShader = TernaryTileHeatmap.MakeCompositionShader(Color.Lime, Color.Red, Color.Blue);

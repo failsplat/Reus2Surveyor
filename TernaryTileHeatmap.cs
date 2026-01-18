@@ -81,7 +81,7 @@ namespace Reus2Surveyor
             this.TilePercents = this.TileCounts.ToDictionary(kv => kv.Key, kv => (double)kv.Value / (double)this.Points);
 
             //Func<double, double> kernelFunc = d => ParabolicKernel(d, 1.75 / this.Steps);
-            Func<double, double> kernelFunc = d => GuassianKernel(d, 1.0 / this.Steps, 2.0 / this.Steps);
+            Func<double, double> kernelFunc = d => GuassianKernel(d, 1.0 / 25.0, 2.0 / 25.0); // Fixed characteristic length based on 1/25th tiles
             foreach ((int a, int b, int c) t in this.TileCounts.Keys)
             {
                 PointF tileCenter = this.GetTileCenter(t);
@@ -123,7 +123,6 @@ namespace Reus2Surveyor
             }
 
             // Gaussian blur the triangle
-            // Then draw outline of plot
             PointF plotVertA = TernaryTileToPointF((this.Steps, 0, 0), sideLength, this.Steps) + plotOrigin;
             PointF plotVertB = TernaryTileToPointF((0, this.Steps, 0), sideLength, this.Steps) + plotOrigin;
             Polygon mainTriangle = new([plotVertA, plotVertB, plotOrigin]);
@@ -137,6 +136,9 @@ namespace Reus2Surveyor
                 }
             }
             FillAndOutlinePolygon(ref image, mainTriangle, Color.Transparent, Color.Black, 3);
+
+            // Outer border
+            FillAndOutlinePolygon(ref image, new Rectangle(0, 0, width, height), Color.Transparent, Color.Black, 5);
 
             // Draw points
             if (plotDots)
@@ -174,9 +176,6 @@ namespace Reus2Surveyor
             image.Mutate(x => x.DrawText(labelA, fontLabel, Color.Black, new Point(280, 84)));
             image.Mutate(x => x.DrawText(labelB, fontLabel, Color.Black, new Point(400, 408)));
             image.Mutate(x => x.DrawText(labelC, fontLabel, Color.Black, new Point(20, 408)));
-
-            // Outer border
-            FillAndOutlinePolygon(ref image, new Rectangle(0, 0, width, height), Color.Transparent, Color.Black, 5);
 
             return image;
         }
