@@ -370,7 +370,7 @@ namespace Reus2Surveyor
                 luxWs.SheetView.FreezeColumns(1);
 
                 var eraWs = wb.AddWorksheet("Era");
-                var eraTable = eraWs.Cell("A1").InsertTable(this.EraStats.Values);
+                var eraTable = eraWs.Cell("A1").InsertTable(this.EraStats.Values.OrderBy(ese => (ese.Era, -ese.Count)));
                 ApplyTableNumberFormats(GetColumnFormats(typeof(EraStatEntry), this.glossaryInstance), eraTable);
                 eraTable.Theme = XLTableTheme.TableStyleMedium6;
 
