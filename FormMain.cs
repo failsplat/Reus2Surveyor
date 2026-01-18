@@ -1,5 +1,6 @@
 ﻿
 using Newtonsoft.Json;
+using Newtonsoft.Json.Bson;
 using SixLabors.ImageSharp;
 using System;
 using System.Collections.Generic;
@@ -36,6 +37,9 @@ namespace Reus2Surveyor
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool SpotCheckWriteSetting { get; private set; } = true;
+
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool HeatmapsEnabledSetting { get; private set; } = false;
 
         public StatCollector PlanetStatCollector;
 
@@ -134,6 +138,12 @@ namespace Reus2Surveyor
         {
             this.SpotCheckWriteSetting = value;
             this.spotCheckWriteCheckBox.Checked = value;
+        }
+
+        public void SetHeatmapsEnabledSetting(bool value)
+        {
+            this.HeatmapsEnabledSetting = value;
+            this.heatmapCheckbox.Checked = value;
         }
 
         public void GetPlanetsInProfile()
@@ -473,6 +483,11 @@ namespace Reus2Surveyor
         private void writeDecodedCheckBox_CheckStateChanged(object sender, EventArgs e)
         {
             this.WriteDecodedSetting = this.writeDecodedCheckBox.Checked;
+        }
+
+        private void heatmapCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            this.HeatmapsEnabledSetting = this.heatmapCheckbox.Checked;
         }
 
         private void planetLooperBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)

@@ -474,6 +474,7 @@ namespace Reus2Surveyor
             heatmapCheckbox.TabIndex = 10;
             heatmapCheckbox.Text = "Include Heatmaps";
             heatmapCheckbox.UseVisualStyleBackColor = true;
+            heatmapCheckbox.CheckedChanged += heatmapCheckbox_CheckedChanged;
             // 
             // FormMain
             // 
