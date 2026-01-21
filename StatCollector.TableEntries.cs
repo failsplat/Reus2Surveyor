@@ -216,7 +216,7 @@ namespace Reus2Surveyor
             [XLColumn(Order = 163)] public int Sanctuaries = 0;
             [XLColumn(Order = 164)] public int MountainSlots = 0;
 
-            [XLColumn(Order = 160), UnpackToBiomes(defaultValue: (double)0, suffix: "P", numberFormat: "0.00%")]
+            [XLColumn(Order = 170), UnpackToBiomes(defaultValue: (double)0, suffix: "P", numberFormat: "0.00%")]
             public Dictionary<string, double> biomePercents = [];
 
             public PlanetSummaryEntry(Planet planet)
@@ -627,9 +627,10 @@ namespace Reus2Surveyor
 
             [XLColumn(Order = 20)] public readonly string Hash;
             [XLColumn(Order = 21)] public string FavSpirit;
-            [XLColumn(Order = 22)][ColumnFormat("0.000")] public double FavRatio;
-            [XLColumn(Order = 23, Header = "HiBioSrc")] public string BioticaModalSource;
-            [XLColumn(Ignore = true)] public Dictionary<string,int> BioticaSourceCounts = [];
+            [XLColumn(Order = 22)][ColumnFormat("0.000")] public double FavSpRatio;
+            [XLColumn(Order = 23, Header = "FavBio")] public string FavSourceBioticum;
+            [XLColumn(Ignore = true)] public Dictionary<string, int> BioticaSourceCounts = [];
+            [XLColumn(Order = 24, Header = "FavBioR")][ColumnFormat("0.000")] public double FavBioRatio;
 
             [XLColumn(Order = 30)]
             [UnpackToSpirits(defaultValue: (int)0, prefix: "From")]
@@ -663,7 +664,7 @@ namespace Reus2Surveyor
             public void CalculateStats(int planetCount)
             {
                 this.PlanetP = (double)SafePercent(this.Planets, planetCount);
-                if (this.BioticaSourceCounts.Count > 0) this.BioticaModalSource = this.BioticaSourceCounts.OrderBy(kv => -kv.Value).First().Key;
+                if (this.BioticaSourceCounts.Count > 0) this.FavSourceBioticum = this.BioticaSourceCounts.OrderBy(kv => -kv.Value).First().Key;
             }
         }
 

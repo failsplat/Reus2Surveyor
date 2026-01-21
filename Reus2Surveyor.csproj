@@ -39,6 +39,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Font\Noto\NotoSans-VariableFont_wdth,wght.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Glossaries\Biomes.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

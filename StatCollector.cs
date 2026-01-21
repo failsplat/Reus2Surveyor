@@ -799,9 +799,7 @@ namespace Reus2Surveyor
             Dictionary<string, double> leaderPercents = this.SpiritStats.ToDictionary(kv => kv.Key, kv => (double)kv.Value.Count / spiritTotal);
             foreach (LuxuryStatEntry lse in this.LuxuryStats.Values)
             {
-                lse.CalculateStats(this.planetCount);
                 //luxuryLeaderCounts[lse.Hash] = lse.LeaderCounts;
-
                 lse.LeaderRatios = lse.LeaderCountsOri.ToDictionary(kv => kv.Key,
                     kv => leaderPercents.TryGetValue(kv.Key, out double leaderPerc) ?
                     ((double)kv.Value / (double)lse.Count) / leaderPerc :
@@ -809,7 +807,23 @@ namespace Reus2Surveyor
                     );
 
                 lse.FavSpirit = lse.LeaderRatios.MaxBy(kv => kv.Value).Key;
-                lse.FavRatio = lse.LeaderRatios.MaxBy(kv => kv.Value).Value;
+                lse.FavSpRatio = lse.LeaderRatios.MaxBy(kv => kv.Value).Value;
+
+                Dictionary<string, double> srcBioRatios = [];
+                foreach (string srcBioName in lse.BioticaSourceCounts.Keys)
+                {
+                    if (this.glossaryInstance.BioticumDefinitionByName.TryGetValue(srcBioName, out BioticumDefinition srcBioDef))
+                    {
+                        srcBioRatios[srcBioName] = (double)this.BioticaStats[srcBioDef.Hash].Total / lse.BioticaSourceCounts[srcBioName];
+                    }
+                }
+                if (srcBioRatios.Count > 0)
+                {
+                    lse.FavSourceBioticum = srcBioRatios.MaxBy(kv => kv.Value).Key;
+                    lse.FavBioRatio = srcBioRatios.MaxBy(kv => kv.Value).Value;
+                }
+
+                lse.CalculateStats(this.planetCount);
             }
 
             foreach ((string bioticumName, Dictionary<string, double> ratios) in this.BioticumVsSpiritRatios)

@@ -97,7 +97,7 @@ namespace Reus2Surveyor
         }
 
         public static FontCollection drawingFontCollection = new();
-        public static FontFamily drawingFont = drawingFontCollection.Add("Font/NotoSans-VariableFont_wdth,wght.ttf");
+        public static FontFamily drawingFont = drawingFontCollection.Add("Font/Noto/NotoSans-VariableFont_wdth,wght.ttf");
 
         public Image DrawStandardPlot(Color bg, Func<double, double, (int a, int b, int c), Color> shader,
             string title, string labelA = "A", string labelB = "B", string labelC = "A", float blurMult = 1.0f, bool plotDots = true
