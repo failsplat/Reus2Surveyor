@@ -388,7 +388,7 @@ namespace Reus2Surveyor
                     int tileSteps = 35;
 
                     // Column 1: Biotica types by planet
-                    Func<double, double, (int a, int b, int c), Color> biotypeShader = TernaryTileHeatmap.MakeCompositionShader(Color.Lime, Color.Red, Color.Blue);
+                    Func<double, double, (int a, int b, int c), Color> biotypeShader = TernaryTileHeatmap.MakeTernaryCompositionShader(Color.Lime, Color.Red, Color.Blue);
                     List<(double p, double a, double m)> bioTypesOnPlanetAll = [.. this.PlanetSummaries
                         .Select(ps => (ps.PPlant ?? 0, ps.PAnimal ?? 0, ps.PMineral ?? 0))
                         .Where(p => (p.Item1 + p.Item2 + p.Item3 > 0))];
@@ -470,8 +470,15 @@ namespace Reus2Surveyor
                     xPos += width;
                     yPos = 0;
 
-                    Func<double, double, (int a, int b, int c), Color> prosCompositionShader = TernaryTileHeatmap.MakeCompositionShader(Color.Red, Color.Blue, Color.Yellow);
-                    List<(double pop, double tech, double wel)> planetProsPercentsAll = [..
+                    //Func<double, double, (int a, int b, int c), Color> prosCompositionShader = TernaryTileHeatmap.MakeTernaryCompositionShader(
+                    //    Color.FromRgb(0xFF, 0x00, 0x54), // Red
+                    //    Color.FromRgb(0x00, 0x55, 0xFF), // Blue
+                    //    Color.FromRgb(0x54, 0xFF, 0x00));// Green
+                    Func<double, double, (int a, int b, int c), Color> prosCompositionShader = TernaryTileHeatmap.MakeTernaryCompositionShader(
+                        Color.Magenta,
+                        Color.Cyan, 
+                        Color.Yellow);
+                    List < (double pop, double tech, double wel)> planetProsPercentsAll = [..
                         this.PlanetSummaries
                         .Select(ps => (ps.PPop ?? 0, ps.PTech ?? 0, ps.PWel ?? 0))
                         ];

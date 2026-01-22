@@ -7,7 +7,6 @@ using SixLabors.ImageSharp.Processing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Channels;
 
 namespace Reus2Surveyor
 {
@@ -352,7 +351,7 @@ namespace Reus2Surveyor
             return f;
         }
 
-        public static Color CompositionShaderBase(double p, double pMax, (int a, int b, int c) t, Color colorA, Color colorB, Color colorC)
+        public static Color TernaryCompositionShaderBase(double p, double pMax, (int a, int b, int c) t, Color colorA, Color colorB, Color colorC)
         {
             (double a, double b, double c) tn = Normalize3Tuple(((double)t.a, (double)t.b, (double)t.c));
             (float h, float s, float l) hslA = ColorSystemConversion.RgbToHsl(colorA);
@@ -364,20 +363,66 @@ namespace Reus2Surveyor
             float finalL = (float)(hslA.l * tn.a + hslB.l * tn.b + hslC.l * tn.c);
 
             // Mix H as a vector
-            double hx = tn.a * Math.Cos(hslA.h * Math.PI / 180) + tn.b * Math.Cos(hslB.h * Math.PI / 180) + tn.c * Math.Cos(hslC.h * Math.PI / 180);
-            double hy = tn.a * Math.Sin(hslA.h * Math.PI / 180) + tn.b * Math.Sin(hslB.h * Math.PI / 180) + tn.c * Math.Sin(hslC.h * Math.PI / 180);
-            if (hx == 0 && hy == 0) return ColorSystemConversion.HslToRgb((0, 0, finalL));
-            float finalH = (float)(Math.Atan2(hy, hx) * 180 / Math.PI);
-            if (finalH < 0) finalH += 360;
+            float finalH = MixAngularHues([hslA.h, hslB.h, hslC.h], [(float)tn.a, (float)tn.b, (float)tn.c]);
+            if (float.IsNaN(finalH)) return ColorSystemConversion.HslToRgb((0, 0, finalL));
 
             Color finalColor = ColorSystemConversion.HslToRgb((finalH, finalS, finalL));
             (float h, float s, float l) hslCheck = ColorSystemConversion.RgbToHsl(finalColor);
             return finalColor.WithAlpha((float)(p / pMax));
         }
 
-        public static Func<double, double, (int a, int b, int c), Color> MakeCompositionShader(Color colorA, Color colorB, Color colorC)
+        public static Func<double, double, (int a, int b, int c), Color> MakeTernaryCompositionShader(Color colorA, Color colorB, Color colorC)
         {
-            Func<double, double, (int a, int b, int c), Color> f = (double p, double pMax, (int a, int b, int c) s) => CompositionShaderBase(p, pMax, s, colorA, colorB, colorC);
+            Func<double, double, (int a, int b, int c), Color> f = (double p, double pMax, (int a, int b, int c) s) => TernaryCompositionShaderBase(p, pMax, s, colorA, colorB, colorC);
+            return f;
+        }
+
+        public static Color TentCompositionShaderBase(double p, double pMax, (int a, int b, int c) t, Color colorA, Color colorB, Color colorC, Color colorP)
+        {
+            (double a, double b, double c) tn = Normalize3Tuple(((double)t.a, (double)t.b, (double)t.c));
+
+            double pv = 3 * Math.Min(Math.Min(tn.a, tn.b), tn.c); // "Center Value", 1 at center and 0 at edges, Min(a,b,c) / (1/n)
+
+            (float h, float s, float l) hslA = ColorSystemConversion.RgbToHsl(colorA);
+            (float h, float s, float l) hslB = ColorSystemConversion.RgbToHsl(colorB);
+            (float h, float s, float l) hslC = ColorSystemConversion.RgbToHsl(colorC);
+            (float h, float s, float l) hslP = ColorSystemConversion.RgbToHsl(colorP);
+
+            // Mix S and L simply
+            float finalS = (float)(hslA.s * tn.a + hslB.s * tn.b + hslC.s * tn.c);
+            //finalS = (float)(finalS * (1 - desatStrength * Math.Pow(pv,2)));
+            float finalL = (float)(hslA.l * tn.a + hslB.l * tn.b + hslC.l * tn.c);
+
+            // Mix H as a vector
+            float finalH = MixAngularHues([hslA.h, hslB.h, hslC.h], [(float)tn.a, (float)tn.b, (float)tn.c]);
+            if (float.IsNaN(finalH)) finalH = hslP.h;
+
+            finalH = MixAngularHues([finalH, hslP.h], [(float)(1 - Math.Pow(pv,2)), (float)Math.Pow(pv, 2)]);
+            if (float.IsNaN(finalH)) return ColorSystemConversion.HslToRgb((0, 0, finalL));
+
+            Color finalColor = ColorSystemConversion.HslToRgb((finalH, finalS, finalL));
+            (float h, float s, float l) hslCheck = ColorSystemConversion.RgbToHsl(finalColor);
+            return finalColor.WithAlpha((float)(p / pMax));
+        }
+
+        public static float MixAngularHues(float[] hues, float[] weights)
+        {
+            double hx = 0;
+            double hy = 0;
+            foreach ((float h, float w) in hues.Zip(weights))
+            {
+                hx += w * Math.Cos(h * Math.PI / 180);
+                hy += w * Math.Sin(h * Math.PI / 180);
+            }
+            if (hx == 0 && hy == 0) return float.NaN;
+            float finalH = (float)(Math.Atan2(hy, hx) * 180 / Math.PI);
+            if (finalH < 0) finalH += 360;
+            return finalH;
+        }
+
+        public static Func<double, double, (int a, int b, int c), Color> MakeTentCompositionShader(Color colorA, Color colorB, Color colorC, Color colorP)
+        {
+            Func<double, double, (int a, int b, int c), Color> f = (double p, double pMax, (int a, int b, int c) s) => TentCompositionShaderBase(p, pMax, s, colorA, colorB, colorC, colorP);
             return f;
         }
 
