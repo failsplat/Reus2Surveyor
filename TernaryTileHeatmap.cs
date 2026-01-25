@@ -145,7 +145,7 @@ namespace Reus2Surveyor
                 foreach ((double a, double b, double c) p in this.PercentPoints)
                 {
                     PointF point = TernaryCompositionToPointF(p, sideLength) + plotOrigin;
-                    FillPolygon(ref image, new EllipsePolygon(point, 1.0f), Color.DarkRed);
+                    FillPolygon(ref image, new EllipsePolygon(point, 1.0f), Color.FromRgba(0x8B, 0, 0, 64));
                 }
             }
 
@@ -171,7 +171,7 @@ namespace Reus2Surveyor
             // Titles and labels
             Font fontTitle = drawingFont.CreateFont(32, FontStyle.Bold);
             Font fontLabel = drawingFont.CreateFont(24, FontStyle.Regular);
-            image.Mutate(x => x.DrawText(title, fontTitle, Color.Black, new PointF(8, 0)));
+            image.Mutate(x => x.DrawText(title, fontTitle, Color.Black, new PointF(8, 8)));
             image.Mutate(x => x.DrawText(labelA, fontLabel, Color.Black, new Point(280, 84)));
             image.Mutate(x => x.DrawText(labelB, fontLabel, Color.Black, new Point(400, 408)));
             image.Mutate(x => x.DrawText(labelC, fontLabel, Color.Black, new Point(20, 408)));
@@ -371,9 +371,36 @@ namespace Reus2Surveyor
             return finalColor.WithAlpha((float)(p / pMax));
         }
 
+        public static Color TernarySquaredCompositionShaderBase(double p, double pMax, (int a, int b, int c) t, Color colorA, Color colorB, Color colorC)
+        {
+            (double a, double b, double c) tnl = Normalize3Tuple(((double)t.a, (double)t.b, (double)t.c));
+            (double a, double b, double c) tns = Normalize3Tuple((Math.Pow(tnl.a, 2), Math.Pow(tnl.b, 2), Math.Pow(tnl.c, 2)));
+            (float h, float s, float l) hslA = ColorSystemConversion.RgbToHsl(colorA);
+            (float h, float s, float l) hslB = ColorSystemConversion.RgbToHsl(colorB);
+            (float h, float s, float l) hslC = ColorSystemConversion.RgbToHsl(colorC);
+
+            // Mix S and L simply
+            float finalS = (float)(hslA.s * tns.a + hslB.s * tns.b + hslC.s * tns.c);
+            float finalL = (float)(hslA.l * tns.a + hslB.l * tns.b + hslC.l * tns.c);
+
+            // Mix H as a vector
+            float finalH = MixAngularHues([hslA.h, hslB.h, hslC.h], [(float)tns.a, (float)tns.b, (float)tns.c]);
+            if (float.IsNaN(finalH)) return ColorSystemConversion.HslToRgb((0, 0, finalL));
+
+            Color finalColor = ColorSystemConversion.HslToRgb((finalH, finalS, finalL));
+            (float h, float s, float l) hslCheck = ColorSystemConversion.RgbToHsl(finalColor);
+            return finalColor.WithAlpha((float)(p / pMax));
+        }
+
         public static Func<double, double, (int a, int b, int c), Color> MakeTernaryCompositionShader(Color colorA, Color colorB, Color colorC)
         {
             Func<double, double, (int a, int b, int c), Color> f = (double p, double pMax, (int a, int b, int c) s) => TernaryCompositionShaderBase(p, pMax, s, colorA, colorB, colorC);
+            return f;
+        }
+
+        public static Func<double, double, (int a, int b, int c), Color> MakeTernarySquaredCompositionShader(Color colorA, Color colorB, Color colorC)
+        {
+            Func<double, double, (int a, int b, int c), Color> f = (double p, double pMax, (int a, int b, int c) s) => TernarySquaredCompositionShaderBase(p, pMax, s, colorA, colorB, colorC);
             return f;
         }
 

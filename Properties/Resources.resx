@@ -121,11 +121,17 @@
   <data name="AegirSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\AegirSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="ArchitectSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\ArchitectSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="AtlasSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\AtlasSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="BotanistSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\BotanistSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="CultistSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\CultistSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="DiplomatSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\DiplomatSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -135,6 +141,12 @@
   </data>
   <data name="ErrorSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\ErrorSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="FarmerSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\FarmerSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="FluffyJangwaSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\FluffyJangwaSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="GeneralSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\GeneralSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -186,6 +198,9 @@
   </data>
   <data name="SatariSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\SatariSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="StargazerSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icons\StargazerSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="VillainSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\VillainSquare.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>

@@ -241,10 +241,13 @@ namespace Reus2Surveyor
                 city.CountTerritoryBiotica(this.slotDictionary, this.natureBioticumDictionary);
             }
 
-            List<ValueTuple<City, GameSession.CivSummary>> CitySummaryPairs = [.. this.cityDictionary.Values.Zip(this.gameSession.civSummaries).ToList()];
-            foreach (ValueTuple<City, GameSession.CivSummary> cc in CitySummaryPairs)
+            if (this.gameSession is not null) 
             {
-                cc.Item1.AttachCivSummary(cc.Item2);
+                List<ValueTuple<City, GameSession.CivSummary>> CitySummaryPairs = [.. this.cityDictionary.Values.Zip(this.gameSession.civSummaries).ToList()];
+                foreach (ValueTuple<City, GameSession.CivSummary> cc in CitySummaryPairs)
+                {
+                    cc.Item1.AttachCivSummary(cc.Item2);
+                }
             }
         }
 

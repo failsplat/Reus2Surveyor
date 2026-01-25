@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -204,7 +205,7 @@ namespace Reus2Surveyor
         public string GetBiomeNameFromInt(int id)
         {
             if (BiomeNameByInt.TryGetValue(id, out string name)) return name;
-            else return $"UNKNOWN BIOME {12}";
+            else return $"UNKNOWN BIOME {id}";
         }
 
         public string BiomeNameFromHash(string def)
@@ -271,6 +272,11 @@ namespace Reus2Surveyor
         {
             if (this.ProjectDefinitionByHash.TryGetValue(hash, out CityProjectDefinition value)) return value;
             else return new(hash);
+        }
+        public CityProjectDefinition TrProjectDefinitionFromHash(string hash, string name)
+        {
+            if (this.ProjectDefinitionByHash.TryGetValue(hash, out CityProjectDefinition value)) return value;
+            else return new(hash, name);
         }
 
         public LuxuryDefinition TryLuxuryDefinitionFromHash(string hash)
@@ -426,6 +432,13 @@ namespace Reus2Surveyor
             {
                 this.Hash = hash;
                 this.DisplayName = hash;
+                this.InternalName = hash;
+            }
+            public CityProjectDefinition(string hash, string name)
+            {
+                this.Hash = hash;
+                this.DisplayName = name;
+                this.InternalName = name;
             }
         }
 

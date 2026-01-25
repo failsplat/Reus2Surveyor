@@ -148,6 +148,20 @@ namespace Reus2Surveyor
 
             HashSet<string> missedDraft = [.. draftedOrPlacedInSession.Except(biomeMatchingBiotica)];
             HashSet<string> availBiotica = [.. biomeMatchingBiotica.Intersect(BioDraftedOrPlacedInProfile)];
+
+            // Special case: The Farmer's Frontier Farm special biotica
+            // Marked with -1 in all land biomes
+            bool farmBioOk = glossaryInstance.BioticumDefinitionByName.TryGetValue("Frontier Farm", out BioticumDefinition farmBioDef);
+            
+            if (glossaryInstance.SpiritNameFromHash(planet.gameSession.selectedCharacterDef) == "Farmer" && farmBioOk)
+            {
+                availBiotica.Add(farmBioDef.Hash);
+            } 
+            else if (farmBioOk)
+            {
+                availBiotica.Remove(farmBioDef.Hash);
+            }
+
             foreach (string availDef in availBiotica)
             {
                 if (BioDraftedOrPlacedInProfile.Contains(availDef))
@@ -612,10 +626,24 @@ namespace Reus2Surveyor
                             case "Temple3":
                                 cityEntry.Temple3 = projectDef.DisplayName;
                                 break;
+                            case "Special":
+                                cityEntry.SpecialProject = projectDef.DisplayName;
+                                break;
                             default:
                                 Trace.TraceError($"Unknown project/project slot: {projectDef.DisplayName}");
                                 break;
                         }
+                    }
+                    else
+                    {
+                        CityProjectDefinition projectDef = this.glossaryInstance.TrProjectDefinitionFromHash(project.definition, project.name);
+                        if (!ProjectStats.TryGetValue(projectDef.Hash, out ProjectStatEntry pse))
+                        {
+                            pse = new(projectDef, this.glossaryInstance);
+                            this.ProjectStats[projectDef.Hash] = pse;
+                        }
+
+                        pse.IncrementCounts(founderName);
                     }
                 }
 
@@ -864,10 +892,13 @@ namespace Reus2Surveyor
 
             foreach (ProjectStatEntry pse in this.ProjectStats.Values)
             {
-                projectSlotCounter[pse.Slot] += pse.Count;
-                foreach (string leader in pse.LeaderCounts.Keys)
+                if (pse.Slot is not null) 
                 {
-                    projectSlotCountByLeader[(leader, pse.Slot)] += pse.LeaderCounts[leader];
+                    projectSlotCounter[pse.Slot] += pse.Count;
+                    foreach (string leader in pse.LeaderCounts.Keys)
+                    {
+                        projectSlotCountByLeader[(leader, pse.Slot)] += pse.LeaderCounts[leader];
+                    }
                 }
             }
             foreach (ProjectStatEntry pse in this.ProjectStats.Values)

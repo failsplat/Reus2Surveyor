@@ -322,6 +322,7 @@ namespace Reus2Surveyor
             [XLColumn(Order = 130)] public string Lv1B, Lv2B, Lv3B = null;
             [XLColumn(Order = 140)] public string Era1B, Era2B, Era3B = null;
             [XLColumn(Order = 150)] public string Temple1, Temple2, Temple3 = null;
+            [XLColumn(Order = 151, Header = "SpecPrj")] public string SpecialProject = null;
 
             [XLColumn(Order = 160)]
             [UnpackToBiomes(defaultValue: (double)0, suffix: "P", numberFormat: "0.00%")]
@@ -753,7 +754,7 @@ namespace Reus2Surveyor
 
             public void CalculateStats(Dictionary<string, int> slotCounts, Dictionary<(string, string), int> slotCountsByLeader)
             {
-                if (slotCounts.TryGetValue(this.Slot, out int slotUses))
+                if (this.Slot is not null && slotCounts.TryGetValue(this.Slot, out int slotUses))
                 {
                     this.SlotP = SafePercent(this.Count, slotUses);
                 }
@@ -785,7 +786,7 @@ namespace Reus2Surveyor
             public void IncrementCounts(string spiritName)
             {
                 this.Count += 1;
-                this.LeaderCounts[spiritName] += 1;
+                if (this.LeaderCounts.ContainsKey(spiritName)) this.LeaderCounts[spiritName] += 1;
             }
         }
     }

@@ -28,6 +28,11 @@ namespace Reus2Surveyor
             {"Romantic",  Properties.Resources.RomanticSquare},
             {"Sage",  Properties.Resources.SageSquare},
             {"Villain",  Properties.Resources.VillainSquare},
+
+            {"Architect", Properties.Resources.ArchitectSquare },
+            {"Cultist", Properties.Resources.CultistSquare },
+            {"Farmer", Properties.Resources.FarmerSquare },
+            {"Stargazer", Properties.Resources.StargazerSquare },
         };
 
         public static Dictionary<string, byte[]> giantSquares = new()
@@ -38,6 +43,7 @@ namespace Reus2Surveyor
 
             {"Khiton", Properties.Resources.KhitonSquare },
             {"Jangwa", Properties.Resources.JangwaSquare },
+            {"Fluffy Jangwa", Properties.Resources.FluffyJangwaSquare },
 
             {"Atlas", Properties.Resources.AtlasSquare },
             {"Aegir", Properties.Resources.AegirSquare },
