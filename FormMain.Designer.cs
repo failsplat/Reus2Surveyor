@@ -64,6 +64,7 @@ namespace Reus2Surveyor
             ProfilePanel = new System.Windows.Forms.Panel();
             resetProfileButton = new System.Windows.Forms.Button();
             DecodePanel = new System.Windows.Forms.Panel();
+            newFileDetectionLabel = new System.Windows.Forms.Label();
             planetGridPanel = new System.Windows.Forms.Panel();
             planetCountLabel = new System.Windows.Forms.Label();
             ExportPanel = new System.Windows.Forms.Panel();
@@ -430,9 +431,21 @@ namespace Reus2Surveyor
             DecodePanel.Size = new System.Drawing.Size(984, 69);
             DecodePanel.TabIndex = 20;
             // 
+            // newFileDetectionLabel
+            // 
+            newFileDetectionLabel.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            newFileDetectionLabel.AutoSize = true;
+            newFileDetectionLabel.Location = new System.Drawing.Point(286, 11);
+            newFileDetectionLabel.Name = "newFileDetectionLabel";
+            newFileDetectionLabel.Size = new System.Drawing.Size(49, 14);
+            newFileDetectionLabel.TabIndex = 13;
+            newFileDetectionLabel.Text = "------";
+            newFileDetectionLabel.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
             // planetGridPanel
             // 
             planetGridPanel.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            planetGridPanel.Controls.Add(newFileDetectionLabel);
             planetGridPanel.Controls.Add(planetCountLabel);
             planetGridPanel.Controls.Add(readNoneButton);
             planetGridPanel.Controls.Add(readAllButton);
@@ -545,6 +558,7 @@ namespace Reus2Surveyor
         private System.Windows.Forms.DataGridViewTextBoxColumn ReadStatusCol;
         private System.Windows.Forms.Button genericTestButton;
         private System.Windows.Forms.CheckBox heatmapCheckbox;
+        private System.Windows.Forms.Label newFileDetectionLabel;
     }
 }
 

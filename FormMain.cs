@@ -97,6 +97,7 @@ namespace Reus2Surveyor
                 this.decodeReadyStatusLabel.Text = "Ready";
                 this.GetPlanetsInProfile();
                 this.InitializePlanetGridView();
+                this.CheckPreviouslyDecoded();
             }
             else
             {
@@ -153,6 +154,42 @@ namespace Reus2Surveyor
             List<PlanetFileUtil.SaveSlotManager> availablePlanetSaves = [.. allPlanetPaths.Select(x => new PlanetFileUtil.SaveSlotManager(x))];
             this.planetsInProfile = availablePlanetSaves.Select((x, ind) => new { x, ind }).ToDictionary(x => x.ind, x => x.x);
             this.planetCountLabel.Text = this.planetsInProfile.Count.ToString();
+            this.CheckPreviouslyDecoded();
+        }
+
+        public void CheckPreviouslyDecoded()
+        {
+            List<string> allPlanetPaths = [.. Directory.GetDirectories(Path.Combine(this.ProfileDir, "sessions"))];
+            allPlanetPaths.Sort();
+            List<string> completePlanets = [.. allPlanetPaths
+                .Select(x => new PlanetFileUtil.SaveSlotManager(x))
+                .Where(ssm => ssm.Complete.valid)
+                .Select(ssm => ssm.Complete.path)];
+
+            int oldplanets = 0;
+            int newplanets = 0;
+
+            foreach (string path in completePlanets)
+            {
+                List<string> pathParts = [.. path.Split(Path.DirectorySeparatorChar)];
+                pathParts.Reverse();
+
+                string dst = Path.Combine(decodedDir, pathParts[1] + "." + pathParts[0] + ".json");
+
+                if (Path.Exists(dst)) oldplanets++;
+                else newplanets++;
+            }
+
+            if (newplanets > 0)
+            {
+                this.newFileDetectionLabel.Text = $"{newplanets} planet(s) not in Decoded";
+                this.newFileDetectionLabel.ForeColor = System.Drawing.Color.Red;
+            }
+            else
+            {
+                this.newFileDetectionLabel.Text = "";
+                this.newFileDetectionLabel.ForeColor = System.Drawing.Color.Blue;
+            }
         }
 
         public void InitializePlanetGridView()
@@ -185,6 +222,11 @@ namespace Reus2Surveyor
             if (this.profileDirOK)
             {
                 this.ResetPlanetList();
+
+                this.newFileDetectionLabel.Text = "";
+                this.newFileDetectionLabel.ForeColor = System.Drawing.Color.Black;
+
+
                 Dictionary<int, string> completedPlanetPaths = this.planetsInProfile.Where(kv => kv.Value.Complete.valid).Select(kv => new KeyValuePair<int, string>(kv.Key, kv.Value.Complete.path)).ToDictionary();
 
                 List<int> readOptionOff = [];
@@ -358,6 +400,8 @@ namespace Reus2Surveyor
                 double decodeSeconds = (DateTime.Now - this.decodeStartTime).TotalSeconds;
                 this.decodeProgressLabel.Text += $" ({decodeSeconds:N2} s)";
                 this.decodeProgressLabel.ForeColor = System.Drawing.Color.Green;
+
+                this.CheckPreviouslyDecoded();
             }
         }
 
