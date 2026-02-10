@@ -403,12 +403,14 @@ namespace Reus2Surveyor
             private int primaryDownCount = 0;
             private int upToTopCount = 0;
             [XLColumn(Order = 100)][ColumnFormat("0.000")] public double? UpsetAv = null;
-            [XLColumn(Order = 101)] public int PosUpset = 0;
-            [XLColumn(Order = 102)] public int NegUpset = 0;
-            [XLColumn(Order = 103)][ColumnFormat("0.00%")] public double? PosUpsetP = null;
-            [XLColumn(Order = 104)][ColumnFormat("0.00%")] public double? NegUpsetP = null;
-            [XLColumn(Order = 105)][ColumnFormat("0.00%")] public double? Over1stP = null;
-            [XLColumn(Order = 106)][ColumnFormat("0.00%")] public double? PrDownP = null;
+            [XLColumn(Order = 101)][ColumnFormat("0.000")] public double? AvUpset = null;
+            [XLColumn(Order = 102)] public int PosUpset = 0;
+            [XLColumn(Order = 103)] public int NegUpset = 0;
+            [XLColumn(Order = 104)][ColumnFormat("0.00%")] public double? PosUpsetP = null;
+            [XLColumn(Order = 105)][ColumnFormat("0.00%")] public double? NegUpsetP = null;
+            [XLColumn(Order = 106)][ColumnFormat("0.00%")] public double? Over1stP = null;
+            [XLColumn(Order = 107)][ColumnFormat("0.00%")] public double? PrDownP = null;
+            [XLColumn(Order = 108)][ColumnFormat("0.000")] public double? BtWeight = null;
 
             [XLColumn(Order = 110)] public int Plants = 0;
             [XLColumn(Order = 111)] public int Animals = 0;
@@ -575,6 +577,7 @@ namespace Reus2Surveyor
                 this.TradeAv = SafeDivide(this.Trades, this.Count);
 
                 this.UpsetAv = SafeDivide(this.upsetTotal, this.Count);
+                this.AvUpset = SafeDivide(this.upsetTotal, this.PosUpset + this.NegUpset);
                 this.PosUpsetP = SafeDivide(this.PosUpset, this.Count);
                 this.NegUpsetP = SafeDivide(this.NegUpset, this.Count);
                 this.PrDownP = SafeDivide(this.primaryDownCount, this.Count);

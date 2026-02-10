@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using static Reus2Surveyor.Glossaries;
 
 namespace Reus2Surveyor
@@ -13,10 +14,10 @@ namespace Reus2Surveyor
     public partial class StatCollector
     {
         private Glossaries glossaryInstance;
-        public OrderedDictionary<string, BioticumStatEntry> BioticaStats { get; private set; } = [];
+        public OrderedDictionary<string, BioticumStatEntry> BioticaStats { get; private set; } = []; // keyed to definition hash
         public List<PlanetSummaryEntry> PlanetSummaries { get; private set; } = [];
         public List<CitySummaryEntry> CitySummaries { get; private set; } = [];
-        public OrderedDictionary<string, SpiritStatEntry> SpiritStats { get; private set; } = [];
+        public OrderedDictionary<string, SpiritStatEntry> SpiritStats { get; private set; } = []; // keyed to spirit name
 
         public OrderedDictionary<string, Dictionary<string, int>> BioticumVsSpiritCounter { get; private set; } = [];
         public OrderedDictionary<string, Dictionary<string, double>> BioticumVsSpiritRatios { get; private set; } = [];
@@ -25,7 +26,7 @@ namespace Reus2Surveyor
         public OrderedDictionary<string, Dictionary<string, int>> BioticumVsPrSpiritCounter { get; private set; } = [];
         public OrderedDictionary<string, Dictionary<string, double>> BioticumVsPrSpiritRatios { get; private set; } = [];
 
-        public OrderedDictionary<string, LuxuryStatEntry> LuxuryStats { get; private set; } = [];
+        public OrderedDictionary<string, LuxuryStatEntry> LuxuryStats { get; private set; } = []; // keyed to definition hash
 
         private int planetCount = 0;
         private HashSet<string> BioDraftedOrPlacedInProfile { get; set; } = [];
@@ -152,14 +153,17 @@ namespace Reus2Surveyor
             // Special case: The Farmer's Frontier Farm special biotica
             // Marked with -1 in all land biomes
             bool farmBioOk = glossaryInstance.BioticumDefinitionByName.TryGetValue("Frontier Farm", out BioticumDefinition farmBioDef);
-            
+            bool aqFarmBioOk = glossaryInstance.BioticumDefinitionByName.TryGetValue("Aquatic Frontier Farm", out BioticumDefinition aqFarmBioDef);
+
             if (glossaryInstance.SpiritNameFromHash(planet.gameSession.selectedCharacterDef) == "Farmer" && farmBioOk)
             {
                 availBiotica.Add(farmBioDef.Hash);
+                availBiotica.Add(aqFarmBioDef.Hash);
             } 
             else if (farmBioOk)
             {
                 availBiotica.Remove(farmBioDef.Hash);
+                availBiotica.Remove(aqFarmBioDef.Hash);
             }
 
             foreach (string availDef in availBiotica)
@@ -904,6 +908,100 @@ namespace Reus2Surveyor
             foreach (ProjectStatEntry pse in this.ProjectStats.Values)
             {
                 pse.CalculateStats(projectSlotCounter, projectSlotCountByLeader);
+            }
+
+            // Bradley-Terry for spirit rankings
+
+            // Count overtakes
+            Dictionary<(string, string), int> btSpiritMatchups = [];
+            foreach (string spiritName1 in this.glossaryInstance.SpiritHashByName.Keys)
+            {
+                foreach (string spiritName2 in this.glossaryInstance.SpiritHashByName.Keys)
+                {
+                    if (spiritName1 != spiritName2)
+                    {
+                        btSpiritMatchups[(spiritName1, spiritName2)] = 0;
+                    }
+                }
+            }
+
+            HashSet<string> btHasDefeat = [];
+            foreach (IGrouping<int,CitySummaryEntry> planetCities in this.CitySummaries.GroupBy(cs => cs.PlanetN))
+            {
+                List<CitySummaryEntry> citiesInOrder = [..planetCities.ToList().OrderBy(cs => cs.CityN)];
+                for (int cnA = 0; cnA < citiesInOrder.Count; cnA++)
+                {
+                    for (int cnB = 0; cnB < cnA; cnB++)
+                    {
+                        CitySummaryEntry cityA = citiesInOrder[cnA];
+                        CitySummaryEntry cityB = citiesInOrder[cnB];
+
+                        if ((cityA.CityN > cityB.CityN) && (cityA.Rank < cityB.Rank)) 
+                        {
+                            btSpiritMatchups[(cityA.Char, cityB.Char)] += 1;
+                            btHasDefeat.Add(cityB.Char);
+                        }
+                    }
+                }
+            }
+
+            // Iteration fails for any undefeated spirits
+            // Ok to have no-wins (weight goes to 0)
+            Dictionary<string, double> btWeights = [];
+            foreach (string defeatedSpirit in btHasDefeat)
+            {
+                btWeights[defeatedSpirit] = 1;
+            }
+
+            // Iterate until weight changes small enough
+            double convergenceLimit = 0.01;
+            double lastDevSquared = 1;
+            int btIterCount = 0;
+            List<string> btSpirits = [.. btHasDefeat]; // change to list to make sure iteration order is same every time
+            while (lastDevSquared > convergenceLimit && btIterCount < 100)
+            {
+                btIterCount++;
+                Dictionary<string, double> newWeights = btWeights.ToDictionary();
+
+                foreach (string spiritI in btSpirits)
+                {
+                    double numer = 0;
+                    double denom = 0;
+
+                    double pI = newWeights[spiritI];
+
+                    foreach (string spiritJ in btSpirits)
+                    {
+                        if (spiritI == spiritJ) continue;
+
+                        int winsIJ = btSpiritMatchups[(spiritI, spiritJ)];
+                        int winsJI = btSpiritMatchups[(spiritJ, spiritI)];
+
+                        // if both pI and pJ are zero (both have 0 wins), the formula fails
+                        // skip this matchup, leave numerator zero
+
+                        double pJ = newWeights[spiritJ];
+                        if ((pI + pJ) == 0) continue;
+                        numer += (winsIJ * pJ) / (pI + pJ);
+                        denom += winsJI / (pI + pJ);
+                    }
+
+                    if (denom > 0) newWeights[spiritI] = numer / denom;
+                    else if (numer == 0 && denom == 0) newWeights[spiritI] = 0;
+                }
+
+                lastDevSquared = 0;
+                foreach (string sp in btSpirits)
+                {
+                    lastDevSquared += Math.Pow((newWeights[sp] - btWeights[sp]), 2);
+                }
+
+                btWeights = newWeights;
+            }
+
+            foreach (string sp in btWeights.Keys)
+            {
+                if (!Double.IsNaN(btWeights[sp])) this.SpiritStats[sp].BtWeight = btWeights[sp];
             }
         }
 
