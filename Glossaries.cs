@@ -33,6 +33,9 @@ namespace Reus2Surveyor
 
         public readonly Dictionary<string, string> BiomeColors = [];
 
+        public readonly Dictionary<string, MicroDefinition> MicroDefinitionsByHash = [];
+        public readonly List<MicroDefinition> MicroDefinitionList = [];
+
         public Glossaries(
             string bioFile,
             string giantFile,
@@ -40,7 +43,8 @@ namespace Reus2Surveyor
             string eraFile,
             string projectFile,
             string biomeFile,
-            string luxuryFile
+            string luxuryFile,
+            string microFile
             )
         {
 
@@ -184,6 +188,24 @@ namespace Reus2Surveyor
                 if (pd.Hash is null || pd.Hash.Length == 0) continue;
                 else this.LuxuryDefinitionsByHash.Add(pd.Hash, pd);
             }
+
+            using (StreamReader microSr = new StreamReader(microFile))
+            {
+                string currentLine;
+                string headerLine = microSr.ReadLine().Trim();
+                List<string> header = [.. headerLine.Split(",")];
+                while ((currentLine = microSr.ReadLine()) != null)
+                {
+                    currentLine = currentLine.Trim();
+                    List<string> data = [.. currentLine.Split(",")];
+                    MicroDefinitionList.Add(new(header, data));
+                }
+            }
+            foreach (MicroDefinition md in this.MicroDefinitionList)
+            {
+                if (md.Hash is null || md.Hash.Length == 0) continue;
+                else this.MicroDefinitionsByHash.Add(md.Hash, md);
+            }
         }
 
         public Glossaries(string folderPath)
@@ -194,7 +216,8 @@ namespace Reus2Surveyor
                   eraFile: Path.Combine(folderPath, "Eras.csv"),
                   projectFile: Path.Combine(folderPath, "Projects.csv"),
                   biomeFile: Path.Combine(folderPath, "Biomes.csv"),
-                  luxuryFile: Path.Combine(folderPath, "Luxuries.csv")
+                  luxuryFile: Path.Combine(folderPath, "Luxuries.csv"),
+                  microFile: Path.Combine(folderPath, "Micros.csv")
                   )
         {
         }
@@ -283,6 +306,12 @@ namespace Reus2Surveyor
         {
             if (this.LuxuryDefinitionsByHash.TryGetValue(hash, out LuxuryDefinition value)) return value;
             else return new(hash);
+        }
+
+        public string MicroNameFromHash(string hash)
+        {
+            if (this.MicroDefinitionsByHash.TryGetValue(hash, out MicroDefinition value)) return value.Name;
+            else return hash;
         }
 
         public static bool InterpretEntryBool(string d)
@@ -466,6 +495,43 @@ namespace Reus2Surveyor
                 this.Type = "?";
             }
         }
+
+        public class MicroDefinition
+        {
+            public readonly string Name;
+            public readonly string Hash;
+            public readonly string Tier;
+            public readonly string? Biome;
+            public readonly int BaseCost = 0;
+            public readonly double ScalingCost = 0;
+
+            public MicroDefinition(List<string> header, List<string> data)
+            {
+                int i = -1;
+                foreach (string d in data)
+                {
+                    i++;
+                    string thisCol = header[i];
+
+                    switch (thisCol) 
+                    {
+                        case "Biome":
+                            this.Biome = d.Length > 0 ? d : null;
+                            break;
+                        case "BaseCost":
+                            if (d.Length > 0) this.BaseCost = System.Convert.ToInt32(d);
+                            break;
+                        case "ScalingCost":
+                            if (d.Length > 0) this.ScalingCost = System.Convert.ToDouble(d);
+                            break;
+                        default:
+                            this.GetType().GetField(thisCol).SetValue(this, d);
+                            break;
+                    }
+                }
+            }
+        }
+
         public string GetBiomeColor(string biomeName)
         {
             if (this.BiomeColors.TryGetValue(biomeName, out string hex))

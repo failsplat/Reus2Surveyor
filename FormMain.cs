@@ -486,7 +486,7 @@ namespace Reus2Surveyor
                 if (planetOK)
                 {
                     // Counting biotica
-                    // For getting definition strings for biotica
+                    // For getting definition hashes for biotica
                     Dictionary<string, int> bioticaCounter = [];
                     foreach (NatureBioticum nb in testPlanet.natureBioticumDictionary.Values)
                     {
@@ -498,13 +498,35 @@ namespace Reus2Surveyor
                     List<string> dualBiotica = [.. bioticaCounter.Where(kv => kv.Value == 2).Select(kv => kv.Key)];
                     List<string> tripleBiotica = [.. bioticaCounter.Where(kv => kv.Value == 3).Select(kv => kv.Key)];
                     string bio1, bio2, bio3;
-                    bio1 = singleBiotica.Count > 0 ? singleBiotica[0] : null;
-                    bio2 = dualBiotica.Count > 0 ? dualBiotica[0] : null;
-                    bio3 = tripleBiotica.Count > 0 ? tripleBiotica[0] : null;
+                    bio1 = singleBiotica.Count == 1 ? singleBiotica[0] : null;
+                    bio2 = dualBiotica.Count == 1 ? dualBiotica[0] : null;
+                    bio3 = tripleBiotica.Count == 1 ? tripleBiotica[0] : null;
                     string bio123;
                     if (bio1 is not null && bio2 is not null && bio3 is not null)
                     {
                         bio123 = String.Join('\n', [bio1, bio2, bio3]);
+                    }
+
+                    // Counting micros
+                    // For getting definition hashes for micros
+                    Dictionary<string, int> microCounter = [];
+                    foreach (PlacedMicro pm in testPlanet.PlacedMicroBySlot.Values)
+                    {
+                        string microName = GameGlossaries.MicroNameFromHash(pm.definition);
+                        if (microCounter.ContainsKey(microName)) microCounter[microName] += 1;
+                        else microCounter[microName] = 1;
+                    }
+                    List<string> singleMicro = [.. microCounter.Where(kv => kv.Value == 1).Select(kv => kv.Key)];
+                    List<string> dualMicro = [.. microCounter.Where(kv => kv.Value == 2).Select(kv => kv.Key)];
+                    List<string> tripleMicro = [.. microCounter.Where(kv => kv.Value == 3).Select(kv => kv.Key)];
+                    string micro1, micro2, micro3;
+                    micro1 = singleMicro.Count == 1 ? singleMicro[0] : null;
+                    micro2 = dualMicro.Count == 1 ? dualMicro[0] : null;
+                    micro3 = tripleMicro.Count == 1 ? tripleMicro[0] : null;
+                    string micro123;
+                    if (micro1 is not null && micro2 is not null && micro3 is not null) 
+                    { 
+                        micro123 = String.Join('\n', [micro1, micro2, micro3]); 
                     }
 
                     sc = new(GameGlossaries);

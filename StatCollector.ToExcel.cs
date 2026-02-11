@@ -380,6 +380,12 @@ namespace Reus2Surveyor
                 ApplyTableNumberFormats(GetColumnFormats(typeof(ProjectStatEntry), this.glossaryInstance), projectTable);
                 projectWs.SheetView.FreezeColumns(1);
 
+                var topBioWs = wb.AddWorksheet("TopBio");
+                DataTable topBioDataTable = ExpandToColumns(this.TopBioticumSummaries, this.glossaryInstance);
+                var topBioTable = topBioWs.Cell("A1").InsertTable(topBioDataTable, "TopBio");
+                ApplyTableNumberFormats(GetColumnFormats(typeof(TopBioticumSummary), this.glossaryInstance), topBioTable);
+                topBioTable.Theme = XLTableTheme.TableStyleDark11;
+
                 if (heatmaps)
                 {
                     var heatmapWs = wb.AddWorksheet("Heatmaps");

@@ -42,6 +42,11 @@ namespace Reus2Surveyor
         public Dictionary<string, int> BiomePatchCounts = [];
         public Dictionary<int, (string biomeTypeName, double percentSize)> BiomeSizeMap = [];
 
+        public Dictionary<int, MicroSlot> MicroSlots = [];
+        public Dictionary<int, PlacedMicro> PlacedMicroBySlot = [];
+        // Collected after read
+        public Dictionary<int, List<PlacedMicro>> PlacedMicroByBioticum = [];
+
         public readonly List<GenericBuff> BuffList = [];
 
         private Glossaries glossaries;
@@ -145,6 +150,17 @@ namespace Reus2Surveyor
                     this.BuffList.Add(new(refToken));
                     continue;
                 }
+                if (nameCheckOk && (string)nameString == "BioticumAspectSlot")
+                {
+                    MicroSlot ms = new(refToken);
+                    this.MicroSlots.Add(i, ms);
+                    continue;
+                }
+                if (nameCheckOk && (string)nameString == "BioticumAspect")
+                {
+                    this.PlacedMicroBySlot.Add(i, new(refToken));
+                    continue;
+                }
             }
 
             this.path = planetPath;
@@ -170,21 +186,17 @@ namespace Reus2Surveyor
                 b.BuildPatchInfo(this.patchIdMap, this.patchDictionary);
             }
 
-            // Remove biotica with ID 0
-            /*List<int> inactiveBiotica = [];
-            foreach (KeyValuePair<int,NatureBioticum> kv in this.natureBioticumDictionary)
+            foreach ((int slotId, PlacedMicro pm) in this.PlacedMicroBySlot)
             {
-                if (!kv.Value.IsActive())
+                if (this.MicroSlots.TryGetValue(slotId, out MicroSlot ms))
                 {
-                    inactiveBiotica.Add(kv.Key);
-                    //if (this.glossaries is not null) kv.Value.CheckName(this.glossaries);
+                    if (ms.parent is not null)
+                    {
+                        if (!this.PlacedMicroByBioticum.ContainsKey((int)ms.parent)) this.PlacedMicroByBioticum[(int)ms.parent] = [];
+                        this.PlacedMicroByBioticum[(int)ms.parent].Add(pm);
+                    }
                 }
             }
-            foreach(int removeIndex in inactiveBiotica)
-            {
-                this.natureBioticumDictionary.Remove(removeIndex);
-            }*/
-
 
             // Remove any biotica on futureSlots
             foreach (BioticumSlot bs in this.slotDictionary.Values)

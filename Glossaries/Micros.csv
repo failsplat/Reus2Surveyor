@@ -1,0 +1,42 @@
+﻿Name,Hash,Tier,Biome,BaseCost,ScalingCost
+Agaricus Bisporus,43a6664b39009ff488da0155d9a46601,Basic,,2,
+Centipede,281c8df74eae7a54589e0b95c2c187ef,Basic,,2,
+Drone Beetle,8018d05b90669284297a0a77dada48ca,Basic,,2,
+Fly Agaric,fcb92730d1d216841a8dc28747e16fc1,Basic,,1,
+Jeweled Beetle,03396072a86407d46b5a0858dfb6e07e,Basic,,1,
+Mantis,44799504adae6c44eb5925d0f8358bcf,Basic,,1,
+Sphagnum Moss,f860e90a6b468fa4db05a300fef9d7f1,Basic,,1,
+Wooly Moth Caterpillar,f2b3ba0f2daccaf40b681bbda8048bf4,Basic,,1,
+Worm,78928cc629bf16e4ca2d5bda7ab1d5dc,Basic,,1,
+Chanterelle,f05845c0a4ef6074e921c996c2756d91,First,,2,
+Emperor Butterfly,e8a7b95bfa4a80240ab2d11fa5756820,First,,2,
+Walking Stick,9e824c315fc5b794f9e2d94617788016,First,,2,
+Antlion,b788bf01e9daf9c4da5ddc0312dcd7b4,First,Desert,1,1
+Bullfrog,33aaff318c73c804da9a855239b69496,First,Savanna,2,
+Grasshopper,19596421cdc3f844cbf4fd1202ddb70d,First,Grasslands,2,
+Honey Mushroom,7ce780b486230ce46941fd884b2e45b0,First,IceAge,1,1
+Krill,bda0ba55d837c42499234c39ecea065f,First,Ocean,1,
+Luna Moth,e5694fb03d9bef145a4537b4e5db8b8c,First,Taiga,2,
+Mosquito,0377a741c65d9c244bd391e187a48f94,First,Wetlands,1,0.2
+Poison Dart Frog,aee1929685846b546ac5167ca229fa32,First,Rainforest,2,1
+Rainbow Stag,531501a1f0796074ba0b42cbcb270b72,First,Forest,2,1
+Assassin Bug,eec40c180770d1c4baaa211bd28ffc47,Second,,2,1
+Bee,f135d63c4235ca347bd5bc1968dc2c97,Second,,2,1
+Fruit Bat,03f1311ffd1ebe9409e96525f95479c7,Second,,2,1
+Golden Stag Beetle,140ec5b9d7583da4ea402b98696a312b,Second,,2,1
+Octopus Stinkhorn,52c6f1536efb739488d27a1c206e0a0d,Second,,2,1
+Orchid Mantis,dd7dbde6d3b04c747ba01546da49a9a1,Second,,2,1
+Stag Beetle,2b586112a2c3e434baf73aa2178db279,Second,,2,1
+Termites,45ddb3b2b1d2ea24bbd42bcfbed76f93,Second,,2,1
+Black Truffle,a3485404175abe5448797d159d59e041,Third,,3,1
+Dragonfly,6907c46ef86466447b11c95dc48156fc,Third,,3,1
+Ghost Fungus,494ec54714e639947aff212eb9694e5d,Third,,3,1
+Ladybug,2e4ccdcc8103cf0459b74dc3ed395934,Third,,3,1
+Monarch Butterfly,307e583e67fc1ca4aac3cf191d96dfbf,Third,,3,1
+Scarab,bf5bfa32ab6f7614894d5e3a2f36f0cc,Third,,3,1
+Tarantula,d6a8e721ab8be494da1146c39e9f8584,Third,,3,1
+Fly,37d533cd82bcd104c97442fcc74ff152,Bioticum,,1,
+Anole,e241ea760f39e04468ccf879e478cddb,Bioticum,,,
+Huntsman Spider,b7535a3ef0231ae49ba3217afcc52bab,Bioticum,,,
+Warbler,822b991df71735a428c44f6cae20ed87,Bioticum,,1,0.5
+Muckfish,a26143ea1277dc545a7c881a2ae22dd2,Bioticum,,1,

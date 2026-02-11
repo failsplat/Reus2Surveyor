@@ -23,6 +23,7 @@ namespace Reus2Surveyor
         // sessionSummary:humanitySummary2
         public readonly List<CivSummary> civSummaries = [];
         public readonly int? coolBiomes;
+        public readonly List<TopBioticaEntry> topBiotica = [];
 
         public readonly bool? pacifismMode, planetIsLost;
 
@@ -75,6 +76,15 @@ namespace Reus2Surveyor
                 this.civSummaries.Add(new CivSummary(cd));
             }
 
+            List<object> topBioDicts = (List<object>)DictHelper.DigValueAtKeys(refDict, ["sessionSummary", "topBiotica", "itemData"]);
+            if (topBioDicts is not null) 
+            {
+                foreach (Dictionary<string, object> cd in topBioDicts)
+                {
+                    this.topBiotica.Add(new TopBioticaEntry(cd));
+                }
+            }
+            
         }
 
         public class TurningPointPerformance
@@ -127,6 +137,30 @@ namespace Reus2Surveyor
                 this.projectDefs = DictHelper.TryGetStringList(subDict,
                     ["value", "projects", "itemData"],
                     ["value", "projectDefinition", "value"]);
+            }
+        }
+
+        public class TopBioticaEntry
+        {
+            public string? bioticumType;
+            public float? food, valuables, curio, mystery;
+            public float totalValue;
+            public List<string?> aspects;
+
+            public TopBioticaEntry(Dictionary<string, object> subDict)
+            {
+                this.bioticumType = DictHelper.TryGetString(subDict, ["value", "bioticumType", "value"]);
+
+                this.food = DictHelper.TryGetFloat(subDict, ["value", "food"]);
+                this.valuables = DictHelper.TryGetFloat(subDict, ["value", "valuables"]);
+                this.curio = DictHelper.TryGetFloat(subDict, ["value", "curio"]);
+                this.mystery = DictHelper.TryGetFloat(subDict, ["value", "mystery"]);
+
+                this.totalValue = (this.food ?? 0) + (this.valuables ?? 0) + (this.curio ?? 0) + 5 * (this.mystery ?? 0);
+
+                this.aspects = DictHelper.TryGetStringList(subDict,
+                    ["value", "aspects", "itemData"],
+                    "value");
             }
         }
     }

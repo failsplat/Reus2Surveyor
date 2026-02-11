@@ -34,6 +34,7 @@ namespace Reus2Surveyor
             [XLColumn(Order = 31)][ColumnFormat("0.00%")] public double? LegacyP { get; private set; } = null;
             [XLColumn(Order = 32)] public int Final { get; set; } = 0;
             [XLColumn(Order = 33)][ColumnFormat("0.00%")] public double? FinalP { get; private set; } = null;
+            [XLColumn(Order = 34)] public int Top5 { get; set; } = 0;
 
             private List<int> MultiNumberList = [];
             [XLColumn(Order = 40)] public int? Multi { get; set; } = null;
@@ -791,6 +792,51 @@ namespace Reus2Surveyor
                 this.Count += 1;
                 if (this.LeaderCounts.ContainsKey(spiritName)) this.LeaderCounts[spiritName] += 1;
             }
+        }
+
+        public class TopBioticumSummary
+        {
+            [XLColumn(Order = 0)] public int Planet;
+            [XLColumn(Order = 1)] public int Rank;
+            [XLColumn(Order = 2)] public string? Name;
+
+            [XLColumn(Order = 10, Header = "Value")][ColumnFormat("0")] public double TotalValue;
+            [XLColumn(Order = 11, Header = "Food")][ColumnFormat("0")] public double? Food;
+            [XLColumn(Order = 12, Header = "Gold")][ColumnFormat("0")] public double? Valuebles;
+            [XLColumn(Order = 13, Header = "Curio")][ColumnFormat("0")] public double? Curio;
+            [XLColumn(Order = 14, Header = "Mystery")][ColumnFormat("0")] public double? Mystery;
+
+            [XLColumn(Order = 21)] public string? Micro1;
+            [XLColumn(Order = 22)] public string? Micro2;
+            [XLColumn(Order = 23)] public string? Micro3;
+            [XLColumn(Order = 24)] public string? Micro4;
+            [XLColumn(Order = 25)] public string? Micro5;
+            [XLColumn(Order = 26)] public string? Micro6;
+
+            public TopBioticumSummary(int planet, int rank, GameSession.TopBioticaEntry tbe, Glossaries gloss)
+            {
+                this.Planet = planet;
+                this.Rank = rank;
+
+                this.Name = tbe.bioticumType is not null ? gloss.BioticumNameFromHash(tbe.bioticumType) : null;
+                this.TotalValue = tbe.totalValue;
+                this.Food = tbe.food;
+                this.Valuebles = tbe.valuables;
+                this.Curio = tbe.curio;
+                this.Mystery = tbe.mystery;
+
+                int microIndex = -1;
+                foreach (string microDef in tbe.aspects)
+                {
+                    microIndex++;
+                    if (microIndex >= 6) break; // Max 6 micros per bioticum
+
+                    string thisMicro = gloss.MicroNameFromHash(microDef);
+                    typeof(TopBioticumSummary).GetField("Micro" + (microIndex+1).ToString()).SetValue(this, thisMicro);
+                }
+            }
+
+            public void SetRank(int rank) { this.Rank = rank; }
         }
     }
 }

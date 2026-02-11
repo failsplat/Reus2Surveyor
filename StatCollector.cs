@@ -43,6 +43,8 @@ namespace Reus2Surveyor
         public OrderedDictionary<string, ProjectStatEntry> ProjectStats { get; private set; } = [];
         private Dictionary<string, int> ProjectSlotCount = [];
 
+        public List<TopBioticumSummary> TopBioticumSummaries { get; private set; } = [];
+
         public StatCollector(Glossaries g)
         {
             this.glossaryInstance = g;
@@ -173,6 +175,23 @@ namespace Reus2Surveyor
                     BioticaStats[availDef].Avail += 1;
                 }
             }
+
+
+            List<TopBioticumSummary> planetTopBio = [];
+            foreach (GameSession.TopBioticaEntry tbe in planet.gameSession.topBiotica)
+            {
+                planetTopBio.Add(new TopBioticumSummary(index, 0, tbe, this.glossaryInstance));
+                this.BioticaStats[tbe.bioticumType].Top5 += 1;
+            }
+            planetTopBio = [.. planetTopBio.OrderBy(tbe => -tbe.TotalValue)]; 
+            for (int topBioIndex = 0; topBioIndex < planetTopBio.Count; topBioIndex++)
+            {
+                planetTopBio[topBioIndex].SetRank(topBioIndex + 1);
+            }
+            planetTopBio.Reverse();
+            this.TopBioticumSummaries.AddRange(planetTopBio);
+            // Rank descending, add to end 
+            // Reversed during finalization, most recent planet first, 1st place first
         }
 
         public void UpdateHumanityStats(Planet planet, int index)
@@ -1003,6 +1022,8 @@ namespace Reus2Surveyor
             {
                 if (!Double.IsNaN(btWeights[sp])) this.SpiritStats[sp].BtWeight = btWeights[sp];
             }
+
+            this.TopBioticumSummaries.Reverse();
         }
 
         public void CheckBioticaStatEntry(string bioHash, int planetNum)
