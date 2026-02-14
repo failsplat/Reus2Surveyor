@@ -375,7 +375,9 @@ namespace Reus2Surveyor
                 eraTable.Theme = XLTableTheme.TableStyleMedium6;
 
                 var projectWs = wb.AddWorksheet("Projects");
-                DataTable projectDataTable = ExpandToColumns(this.ProjectStats.Values, this.glossaryInstance);
+                DataTable projectDataTable = ExpandToColumns(this.ProjectStats.Values.OrderBy(
+                    pse => (ProjectStatEntry.ProjectTypeOrdering[pse.Slot], -pse.Count, -pse.ASlotP, pse.Name)),
+                    this.glossaryInstance);
                 var projectTable = projectWs.Cell("A1").InsertTable(projectDataTable, "Projects");
                 ApplyTableNumberFormats(GetColumnFormats(typeof(ProjectStatEntry), this.glossaryInstance), projectTable);
                 projectWs.SheetView.FreezeColumns(1);

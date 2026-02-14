@@ -99,6 +99,7 @@ namespace Reus2Surveyor
             {
                 CheckBioticaStatEntry(activeDef, planet.number);
                 BioticaStats[activeDef].Final += activeBioCounter[activeDef];
+                if (planet.gameSession.topBiotica.Count > 0) BioticaStats[activeDef].IncrementTop5Available(activeBioCounter[activeDef]);
                 BioDraftedOrPlacedInProfile.Add(activeDef);
                 draftedOrPlacedInSession.Add(activeDef);
             }
@@ -426,12 +427,13 @@ namespace Reus2Surveyor
                         this.LuxuryStats.Add(luxHash, lse);
                     }
 
-                    lse.Count += 1;
+                    lse.Copies += 1;
                     if (luxSlot.luxuryGood.originCityId == city.tokenIndex)
                     {
                         if (this.LuxuryStats[luxHash].LeaderCountsOri.ContainsKey(founderName))
                         {
                             this.LuxuryStats[luxHash].LeaderCountsOri[founderName] += 1;
+                            this.LuxuryStats[luxHash].ICount += 1;
                         }
 
                         if (luxSlot.luxuryGood.originalBioticumDef is not null && this.glossaryInstance.BioticumDefinitionByHash.TryGetValue(luxSlot.luxuryGood.originalBioticumDef, out BioticumDefinition luxSrcBioDef))
@@ -474,7 +476,7 @@ namespace Reus2Surveyor
                         this.LuxuryStats.Add(importHash, lse);
                     }
 
-                    lse.Count += 1;
+                    lse.Copies += 1;
                     if (lse.LeaderCounts.ContainsKey(founderName))
                     {
                         lse.LeaderCounts[founderName] += 1;
@@ -787,7 +789,7 @@ namespace Reus2Surveyor
                         string founderName = glossaryInstance.SpiritNameFromHash(buffCity.founderCharacterDef);
                         if (buffCity.tokenIndex != cannedSludgeCity)
                         {
-                            this.LuxuryStats[cannedSludgeHash].Count += 1;
+                            this.LuxuryStats[cannedSludgeHash].Copies += 1;
                             this.LuxuryStats[cannedSludgeHash].LeaderCounts[founderName] += 1;
                         }
                     }
@@ -853,7 +855,7 @@ namespace Reus2Surveyor
                 //luxuryLeaderCounts[lse.Hash] = lse.LeaderCounts;
                 lse.LeaderRatios = lse.LeaderCountsOri.ToDictionary(kv => kv.Key,
                     kv => leaderPercents.TryGetValue(kv.Key, out double leaderPerc) ?
-                    ((double)kv.Value / (double)lse.Count) / leaderPerc :
+                    ((double)kv.Value / (double)lse.Copies) / leaderPerc :
                     0
                     );
 

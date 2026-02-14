@@ -34,7 +34,9 @@ namespace Reus2Surveyor
             [XLColumn(Order = 31)][ColumnFormat("0.00%")] public double? LegacyP { get; private set; } = null;
             [XLColumn(Order = 32)] public int Final { get; set; } = 0;
             [XLColumn(Order = 33)][ColumnFormat("0.00%")] public double? FinalP { get; private set; } = null;
+            private int Top5AvailableCount { get; set; } = 0;
             [XLColumn(Order = 34)] public int Top5 { get; set; } = 0;
+            [XLColumn(Order = 35)][ColumnFormat("0.00%")] public double? PTop5 { get; private set; } = null;
 
             private List<int> MultiNumberList = [];
             [XLColumn(Order = 40)] public int? Multi { get; set; } = null;
@@ -86,6 +88,11 @@ namespace Reus2Surveyor
                 this.MultiNumberList.Add(value);
             }
 
+            public void IncrementTop5Available(int count)
+            {
+                this.Top5AvailableCount += count;
+            }
+
             public void CalculateStats(int planetCount)
             {
                 this.Draft = Math.Min(this.Avail, this.Draft);
@@ -97,6 +104,8 @@ namespace Reus2Surveyor
                 this.DraftP = SafePercent(this.Draft, this.Avail);
                 this.AvRate = SafeDivide(this.Total, this.Avail);
                 this.AvailP = SafePercent(this.Avail, planetCount);
+
+                this.PTop5 = SafePercent(this.Top5, this.Top5AvailableCount);
 
                 if (this.MultiNumberList.Count > 0)
                 {
@@ -626,9 +635,10 @@ namespace Reus2Surveyor
             [XLColumn(Order = 0)] public readonly string Name;
             [XLColumn(Order = 1)] public readonly string Type;
 
-            [XLColumn(Order = 10)] public int Count = 0;
-            [XLColumn(Order = 11)] public int Planets = 0;
-            [XLColumn(Order = 12)][ColumnFormat("0.00%")] public double PlanetP = 0;
+            [XLColumn(Order = 10)] public int Copies = 0;
+            [XLColumn(Order = 11)] public int ICount = 0;
+            [XLColumn(Order = 12)] public int Planets = 0;
+            [XLColumn(Order = 13)][ColumnFormat("0.00%")] public double PlanetP = 0;
 
             [XLColumn(Order = 20)] public readonly string Hash;
             [XLColumn(Order = 21)] public string FavSpirit;
@@ -792,6 +802,23 @@ namespace Reus2Surveyor
                 this.Count += 1;
                 if (this.LeaderCounts.ContainsKey(spiritName)) this.LeaderCounts[spiritName] += 1;
             }
+
+            public static readonly Dictionary<string, int> ProjectTypeOrdering = new()
+            {
+                { "Lv1", 01 },
+                { "Lv2", 02 },
+                { "Lv3", 03 },
+
+                { "Era1", 11 },
+                { "Era2", 12 },
+                { "Era3", 13 },
+
+                { "Temple1", 21 },
+                { "Temple2", 22 },
+                { "Temple3", 23 },
+
+                { "Special", 31 },
+            };
         }
 
         public class TopBioticumSummary
