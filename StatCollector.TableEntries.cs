@@ -22,13 +22,13 @@ namespace Reus2Surveyor
             [XLColumn(Order = 20)] public readonly string Hash;
             [XLColumn(Order = 21)] public int Total { get; set; } = 0;
             [XLColumn(Order = 22)] public int Planets { get; set; } = 0;
-            [XLColumn(Order = 23)][ColumnFormat("0.00%")] public double? DUsageP { get; private set; } = null;
-            [XLColumn(Order = 24)][ColumnFormat("0.00%")] public double? AUsageP { get; private set; } = null;
-            [XLColumn(Order = 25)] public int Draft { get; set; } = 0;
-            [XLColumn(Order = 26)][ColumnFormat("0.00%")] public double? DraftP { get; set; } = null;
-            [XLColumn(Order = 27)] public int Avail { get; set; } = 0;
-            [XLColumn(Order = 27)][ColumnFormat("0.000")] public double? AvRate { get; set; } = null;
+            [XLColumn(Order = 23)][ColumnFormat("0.00%")] public double? DraftP { get; set; } = null;
+            [XLColumn(Order = 24)][ColumnFormat("0.00%")] public double? DUsageP { get; private set; } = null;
+            [XLColumn(Order = 25)][ColumnFormat("0.00%")] public double? AUsageP { get; private set; } = null;
+            [XLColumn(Order = 26)] public int Avail { get; set; } = 0;
+            [XLColumn(Order = 27)] public int Draft { get; set; } = 0;
             [XLColumn(Order = 28)][ColumnFormat("0.00%")] public double? AvailP { get; set; } = null;
+            [XLColumn(Order = 29)][ColumnFormat("0.000")] public double? AvRate { get; set; } = null;
 
             [XLColumn(Order = 30)] public int Legacy { get; set; } = 0;
             [XLColumn(Order = 31)][ColumnFormat("0.00%")] public double? LegacyP { get; private set; } = null;
