@@ -183,6 +183,7 @@ namespace Reus2Surveyor
             {
                 planetTopBio.Add(new TopBioticumSummary(index, 0, tbe, this.glossaryInstance));
                 this.BioticaStats[tbe.bioticumType].Top5 += 1;
+                this.BioticaStats[tbe.bioticumType].AddTop5Score(tbe.totalValue);
             }
             planetTopBio = [.. planetTopBio.OrderBy(tbe => -tbe.TotalValue)]; 
             for (int topBioIndex = 0; topBioIndex < planetTopBio.Count; topBioIndex++)

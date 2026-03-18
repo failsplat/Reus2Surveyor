@@ -37,6 +37,9 @@ namespace Reus2Surveyor
             private int Top5AvailableCount { get; set; } = 0;
             [XLColumn(Order = 34)] public int Top5 { get; set; } = 0;
             [XLColumn(Order = 35)][ColumnFormat("0.00%")] public double? PTop5 { get; private set; } = null;
+            private List<double> Top5Scores { get; set; } = [];
+            [XLColumn(Order = 36)][ColumnFormat("0.00")] public double? AvTop { get; private set; } = null;
+            [XLColumn(Order = 37)][ColumnFormat("0")] public double? HiTop { get; private set; } = null;
 
             private List<int> MultiNumberList = [];
             [XLColumn(Order = 40)] public int? Multi { get; set; } = null;
@@ -93,6 +96,11 @@ namespace Reus2Surveyor
                 this.Top5AvailableCount += count;
             }
 
+            public void AddTop5Score(double score)
+            {
+                this.Top5Scores.Add(score);
+            }
+
             public void CalculateStats(int planetCount)
             {
                 this.Draft = Math.Min(this.Avail, this.Draft);
@@ -106,6 +114,12 @@ namespace Reus2Surveyor
                 this.AvailP = SafePercent(this.Avail, planetCount);
 
                 this.PTop5 = SafePercent(this.Top5, this.Top5AvailableCount);
+
+                if (this.Top5Scores.Count > 0)
+                {
+                    this.HiTop = this.Top5Scores.Max();
+                    this.AvTop = this.Top5Scores.Average();
+                }
 
                 if (this.MultiNumberList.Count > 0)
                 {
