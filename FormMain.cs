@@ -281,7 +281,7 @@ namespace Reus2Surveyor
         private async Task PlanetLoopTask()
         {
             await Parallel.ForEachAsync(this.filesToProcess,
-                async (t, JsonToken) => await ProcessPlanet(t.Key, t.Value)
+                async (t, token) => await ProcessPlanet(t.Key, t.Value)
                 );
         }
 
