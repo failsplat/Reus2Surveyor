@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Reus2Surveyor
@@ -225,6 +226,7 @@ namespace Reus2Surveyor
 
                 this.newFileDetectionLabel.Text = "";
                 this.newFileDetectionLabel.ForeColor = System.Drawing.Color.Black;
+                this.resetProfileButton.Enabled = false;
 
 
                 Dictionary<int, string> completedPlanetPaths = this.planetsInProfile.Where(kv => kv.Value.Complete.valid).Select(kv => new KeyValuePair<int, string>(kv.Key, kv.Value.Complete.path)).ToDictionary();
@@ -272,13 +274,18 @@ namespace Reus2Surveyor
         {
             this.planetList = [.. Enumerable.Repeat((Planet)null, this.planetsInProfile.Count)];
             this.planetsTotal = this.filesToProcess.Count;
-            foreach ((int index, string path) in this.filesToProcess)
-            {
-                ProcessPlanet(index, path);
-            }
+
+            this.PlanetLoopTask().Wait();
         }
 
-        public void ProcessPlanet(int index, string path)
+        private async Task PlanetLoopTask()
+        {
+            await Parallel.ForEachAsync(this.filesToProcess,
+                async (t, JsonToken) => await ProcessPlanet(t.Key, t.Value)
+                );
+        }
+
+        public async Task ProcessPlanet(int index, string path)
         {
             if (path is null)
             {
@@ -344,8 +351,7 @@ namespace Reus2Surveyor
                 this.planetGridView.Rows[index].Cells["ReadStatusCol"].Value = "Failed";
             }
 
-            if (this.planetLooperBackgroundWorker.IsBusy) this.planetLooperBackgroundWorker.ReportProgress(1);
-            else this.updateDecodeProgress();
+            this.planetLooperBackgroundWorker.ReportProgress(1);
             if (readPlanetOK)
             {
 
@@ -574,7 +580,7 @@ namespace Reus2Surveyor
             this.decodeButton.Enabled = true;
             this.writeDecodedCheckBox.Enabled = true;
             this.planetGridView.Columns["ReadOptionCol"].ReadOnly = false;
-
+            this.resetProfileButton.Enabled = true;
             this.readAllButton.Enabled = true;
             this.readNoneButton.Enabled = true;
         }
