@@ -275,12 +275,12 @@ namespace Reus2Surveyor
             this.planetList = [.. Enumerable.Repeat((Planet)null, this.planetsInProfile.Count)];
             this.planetsTotal = this.filesToProcess.Count;
 
-            Parallel.ForEach(this.filesToProcess,
-                t => ProcessPlanet(t.Key, t.Value)
+            Parallel.ForEachAsync(this.filesToProcess,
+                async (t, JsonToken) => await ProcessPlanet(t.Key, t.Value)
                 );
         }
 
-        public void ProcessPlanet(int index, string path)
+        public async Task ProcessPlanet(int index, string path)
         {
             if (path is null)
             {
@@ -346,8 +346,7 @@ namespace Reus2Surveyor
                 this.planetGridView.Rows[index].Cells["ReadStatusCol"].Value = "Failed";
             }
 
-            if (this.planetLooperBackgroundWorker.IsBusy) this.planetLooperBackgroundWorker.ReportProgress(1);
-            else this.updateDecodeProgress();
+            //this.updateDecodeProgress();
             if (readPlanetOK)
             {
 
