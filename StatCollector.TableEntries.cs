@@ -34,12 +34,14 @@ namespace Reus2Surveyor
             [XLColumn(Order = 31)][ColumnFormat("0.00%")] public double? LegacyP { get; private set; } = null;
             [XLColumn(Order = 32)] public int Final { get; set; } = 0;
             [XLColumn(Order = 33)][ColumnFormat("0.00%")] public double? FinalP { get; private set; } = null;
-            private int Top5AvailableCount { get; set; } = 0;
+            private int Top5AvailableFinalCount { get; set; } = 0;
+            private int Top5AvailableAllCount { get; set; } = 0;
             [XLColumn(Order = 34)] public int Top5 { get; set; } = 0;
-            [XLColumn(Order = 35)][ColumnFormat("0.00%")] public double? PTop5 { get; private set; } = null;
+            [XLColumn(Order = 35)][ColumnFormat("0.00%")] public double? PTopF { get; private set; } = null;
+            [XLColumn(Order = 36)][ColumnFormat("0.00%")] public double? PTopA { get; private set; } = null;
             private List<double> Top5Scores { get; set; } = [];
-            [XLColumn(Order = 36)][ColumnFormat("0.00")] public double? AvTop { get; private set; } = null;
-            [XLColumn(Order = 37)][ColumnFormat("0")] public double? HiTop { get; private set; } = null;
+            [XLColumn(Order = 37)][ColumnFormat("0.00")] public double? AvTop { get; private set; } = null;
+            [XLColumn(Order = 38)][ColumnFormat("0")] public double? HiTop { get; private set; } = null;
 
             private List<int> MultiNumberList = [];
             [XLColumn(Order = 40)] public int? Multi { get; set; } = null;
@@ -91,9 +93,10 @@ namespace Reus2Surveyor
                 this.MultiNumberList.Add(value);
             }
 
-            public void IncrementTop5Available(int count)
+            public void IncrementTop5Available(int active, int all)
             {
-                this.Top5AvailableCount += count;
+                this.Top5AvailableFinalCount += active;
+                this.Top5AvailableAllCount += all;
             }
 
             public void AddTop5Score(double score)
@@ -113,12 +116,13 @@ namespace Reus2Surveyor
                 this.AvRate = SafeDivide(this.Total, this.Avail);
                 this.AvailP = SafePercent(this.Avail, planetCount);
 
-                this.PTop5 = SafePercent(this.Top5, this.Top5AvailableCount);
-
                 if (this.Top5Scores.Count > 0)
                 {
                     this.HiTop = this.Top5Scores.Max();
                     this.AvTop = this.Top5Scores.Average();
+
+                    this.PTopF = SafePercent(this.Top5, this.Top5AvailableFinalCount);
+                    this.PTopA = SafePercent(this.Top5, this.Top5AvailableAllCount);
                 }
 
                 if (this.MultiNumberList.Count > 0)
@@ -408,7 +412,7 @@ namespace Reus2Surveyor
             [XLColumn(Order = 23)] public int HiPros = 0;
             [XLColumn(Order = 24)] public int HiPop, HiTech, HiWel = 0;
 
-            [XLColumn(Order = 30)][ColumnFormat("0.000")] public double? AvPPop, AvPTech, AvPWel = null;
+            [XLColumn(Order = 30)][ColumnFormat("0.00%")] public double? AvPPop, AvPTech, AvPWel = null;
             [XLColumn(Order = 40)][ColumnFormat("0.00%")] public double HiPPop, HiPTech, HiPWel = 0;
 
             [XLColumn(Order = 50)][ColumnFormat("0.000")] public double? AvRelPros = null;

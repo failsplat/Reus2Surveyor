@@ -99,7 +99,13 @@ namespace Reus2Surveyor
             {
                 CheckBioticaStatEntry(activeDef, planet.number);
                 BioticaStats[activeDef].Final += activeBioCounter[activeDef];
-                if (planet.gameSession.topBiotica.Count > 0) BioticaStats[activeDef].IncrementTop5Available(activeBioCounter[activeDef]);
+                if (planet.gameSession.topBiotica.Count > 0) 
+                {
+                    int activeCount = activeBioCounter[activeDef];
+                    int allCount = activeCount;
+                    if (legacyBioCounter.TryGetValue(activeDef, out int legacyCount)) allCount += legacyCount;
+                    BioticaStats[activeDef].IncrementTop5Available(activeCount, allCount);
+                }
                 BioDraftedOrPlacedInProfile.Add(activeDef);
                 draftedOrPlacedInSession.Add(activeDef);
             }
