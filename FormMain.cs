@@ -583,6 +583,8 @@ namespace Reus2Surveyor
             this.resetProfileButton.Enabled = true;
             this.readAllButton.Enabled = true;
             this.readNoneButton.Enabled = true;
+
+            this.updateDecodeProgress();
         }
 
         private void planetLooperBackgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
