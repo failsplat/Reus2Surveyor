@@ -24,4 +24,6 @@ This program outputs an Excel workbook (.xlsx) file. It has the following sheets
 11. **BioVsPSpR** - Relative usage ratios of above
 12. **Heatmaps** - Added only if the "Include Heatmaps" checkbox is selected. Heatmap ternary plots. Biotica type percentages (plant/animal/mineral), by planet spirits and within borders of leaders. Prospery composition (population/tech/wealth) by planet spirit and by leaders' cities.
 ## To Do/WIP Features
-* Misc. stat table
+* Refactoring: Static game glossaries
+* Refactoring: Expandable columns
+* Refactoring: Game object deserialization
