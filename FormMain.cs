@@ -28,8 +28,6 @@ namespace Reus2Surveyor
         private List<Planet> planetList = [];
         private int planetsTried, planetsOk, planetsTotal = 0;
 
-        public static readonly Glossaries GameGlossaries = new(Path.Combine(baseDir, "Glossaries"));
-
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string LastSpotCheckDir { get; set; } = "";
 
@@ -319,7 +317,7 @@ namespace Reus2Surveyor
                 this.planetList[index] = newPlanet;
                 readPlanetOK = true;
                 this.planetsOk++;
-                newPlanet.SetGlossaryThenLookup(GameGlossaries);
+                newPlanet.ResolveWithGlossaries();
 
                 this.UpdatePlanetGrid(index, newPlanet);
 
@@ -364,7 +362,7 @@ namespace Reus2Surveyor
 
         public void UpdatePlanetGrid(int index, Planet newPlanet)
         {
-            string spiritName = GameGlossaries.SpiritNameFromHash(newPlanet.gameSession.selectedCharacterDef);
+            string spiritName = Glossaries.SpiritNameFromHash(newPlanet.gameSession.selectedCharacterDef);
             DataGridViewRow thisRow = this.planetGridView.Rows[index];
 
             thisRow.Cells["ScoreCol"].Value = newPlanet.gameSession.turningPointPerformances.Last().scoreTotal.ToString();
@@ -382,7 +380,7 @@ namespace Reus2Surveyor
             if (TableGraphics.giantSquares.TryGetValue(newPlanet.GiantNames[2], out byte[] giant3Image)) { thisRow.Cells["Giant3Col"].Value = giant3Image; }
             else thisRow.Cells["Giant3Col"].Value = Properties.Resources.ErrorSquare;
 
-            SixLabors.ImageSharp.Image miniMap = TableGraphics.BiomePositionalToMinimap(newPlanet.BiomeSizeMap, GameGlossaries);
+            SixLabors.ImageSharp.Image miniMap = TableGraphics.BiomePositionalToMinimap(newPlanet.BiomeSizeMap);
             using MemoryStream ms = new MemoryStream();
             miniMap.SaveAsPng(ms, new SixLabors.ImageSharp.Formats.Png.PngEncoder());
             thisRow.Cells["MinimapCol"].Value = ms.ToArray();
@@ -416,7 +414,7 @@ namespace Reus2Surveyor
             DateTime exportStart = DateTime.Now;
             exportStatsButton.Enabled = false;
             int i = -1;
-            this.PlanetStatCollector = new(GameGlossaries);
+            this.PlanetStatCollector = new();
             foreach (Planet planet in this.planetList)
             {
                 i++;
@@ -484,7 +482,7 @@ namespace Reus2Surveyor
                 }
 
                 testPlanet = PlanetFileUtil.InterpretDictAsPlanet(resAsDict, path);
-                testPlanet.SetGlossaryThenLookup(GameGlossaries);
+                testPlanet.ResolveWithGlossaries();
                 planetOK = true;
 
                 StatCollector sc;
@@ -496,7 +494,7 @@ namespace Reus2Surveyor
                     Dictionary<string, int> bioticaCounter = [];
                     foreach (NatureBioticum nb in testPlanet.natureBioticumDictionary.Values)
                     {
-                        string bioName = GameGlossaries.BioticumNameFromHash(nb.definition);
+                        string bioName = Glossaries.BioticumNameFromHash(nb.definition);
                         if (bioticaCounter.ContainsKey(bioName)) bioticaCounter[bioName] += 1;
                         else bioticaCounter[bioName] = 1;
                     }
@@ -518,7 +516,7 @@ namespace Reus2Surveyor
                     Dictionary<string, int> microCounter = [];
                     foreach (PlacedMicro pm in testPlanet.PlacedMicroBySlot.Values)
                     {
-                        string microName = GameGlossaries.MicroNameFromHash(pm.definition);
+                        string microName = Glossaries.MicroNameFromHash(pm.definition);
                         if (microCounter.ContainsKey(microName)) microCounter[microName] += 1;
                         else microCounter[microName] = 1;
                     }
@@ -535,7 +533,7 @@ namespace Reus2Surveyor
                         micro123 = String.Join('\n', [micro1, micro2, micro3]); 
                     }
 
-                    sc = new(GameGlossaries);
+                    sc = new();
                     sc.ConsumePlanet(testPlanet, 0);
                     sc.FinalizeStats();
                 } // Breakpoint here

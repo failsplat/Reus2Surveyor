@@ -72,7 +72,7 @@ namespace Reus2Surveyor
             return output;
         }
 
-        public static DataTable ExpandToColumns<T>(IEnumerable<T> input, Glossaries glossaryInstance)
+        public static DataTable ExpandToColumns<T>(IEnumerable<T> input)
         {
             DataTable output = new();
 
@@ -97,7 +97,7 @@ namespace Reus2Surveyor
                 else headerName = xlColAttr.Header;
                 if (biomeAttr is not null)
                 {
-                    foreach (string biomeName in glossaryInstance.BiomeHashByName.Keys)
+                    foreach (string biomeName in Glossaries.BiomeHashByName.Keys)
                     {
                         string subheader = biomeAttr.Prefix + biomeName + biomeAttr.Suffix;
                         output.Columns.Add(subheader);
@@ -113,7 +113,7 @@ namespace Reus2Surveyor
                 }
                 else if (spiritAttr is not null)
                 {
-                    foreach (string spiritName in glossaryInstance.SpiritHashByName.Keys)
+                    foreach (string spiritName in Glossaries.SpiritHashByName.Keys)
                     {
                         string subheader = spiritAttr.Prefix + spiritName + spiritAttr.Suffix;
                         output.Columns.Add(subheader);
@@ -174,7 +174,7 @@ namespace Reus2Surveyor
                                 {
                                     fieldKeys.Add((string)de.Key);
                                 }
-                                foreach (string biomeName in glossaryInstance.BiomeHashByName.Keys)
+                                foreach (string biomeName in Glossaries.BiomeHashByName.Keys)
                                 {
                                     string subheader = biomeAttr.Prefix + biomeName + biomeAttr.Suffix;
                                     object fieldValue;
@@ -206,7 +206,7 @@ namespace Reus2Surveyor
                                 {
                                     propKeys.Add((string)de.Key);
                                 }
-                                foreach (string biomeName in glossaryInstance.BiomeHashByName.Keys)
+                                foreach (string biomeName in Glossaries.BiomeHashByName.Keys)
                                 {
                                     string subheader = biomeAttr.Prefix + biomeName + biomeAttr.Suffix;
                                     object propValue;
@@ -246,7 +246,7 @@ namespace Reus2Surveyor
                                 {
                                     fieldKeys.Add((string)de.Key);
                                 }
-                                foreach (string spiritName in glossaryInstance.SpiritHashByName.Keys)
+                                foreach (string spiritName in Glossaries.SpiritHashByName.Keys)
                                 {
                                     string subheader = spiritAttr.Prefix + spiritName + spiritAttr.Suffix;
                                     object fieldValue;
@@ -278,7 +278,7 @@ namespace Reus2Surveyor
                                 {
                                     propKeys.Add((string)de.Key);
                                 }
-                                foreach (string biomeName in glossaryInstance.BiomeHashByName.Keys)
+                                foreach (string biomeName in Glossaries.BiomeHashByName.Keys)
                                 {
                                     string subheader = biomeAttr.Prefix + biomeName + biomeAttr.Suffix;
                                     object propValue;
@@ -337,55 +337,54 @@ namespace Reus2Surveyor
             using (XLWorkbook wb = new())
             {
                 var planetSummWs = wb.AddWorksheet("Planets");
-                DataTable planetDataTable = ExpandToColumns(this.PlanetSummaries, this.glossaryInstance);
+                DataTable planetDataTable = ExpandToColumns(this.PlanetSummaries);
                 var planetTable = planetSummWs.Cell("A1").InsertTable(planetDataTable, "Planets");
                 planetTable.Theme = XLTableTheme.TableStyleMedium4;
-                ApplyTableNumberFormats(GetColumnFormats(typeof(PlanetSummaryEntry), this.glossaryInstance), planetTable);
+                ApplyTableNumberFormats(GetColumnFormats(typeof(PlanetSummaryEntry)), planetTable);
 
                 var cityWs = wb.AddWorksheet("Cities");
-                DataTable cityDataTable = ExpandToColumns(this.CitySummaries, this.glossaryInstance);
+                DataTable cityDataTable = ExpandToColumns(this.CitySummaries);
                 var cityTable = cityWs.Cell("A1").InsertTable(cityDataTable, "Cities");
                 cityTable.Theme = XLTableTheme.TableStyleLight1;
-                ApplyTableNumberFormats(GetColumnFormats(typeof(CitySummaryEntry), this.glossaryInstance), cityTable);
+                ApplyTableNumberFormats(GetColumnFormats(typeof(CitySummaryEntry)), cityTable);
 
                 var spiritWs = wb.AddWorksheet("Spirits");
-                DataTable spiritDataTable = ExpandToColumns(this.SpiritStats.Values, this.glossaryInstance);
+                DataTable spiritDataTable = ExpandToColumns(this.SpiritStats.Values);
                 var spiritTable = spiritWs.Cell("A1").InsertTable(spiritDataTable, "Spirits");
                 spiritTable.Theme = XLTableTheme.TableStyleMedium5;
-                ApplyTableNumberFormats(GetColumnFormats(typeof(SpiritStatEntry), this.glossaryInstance), spiritTable);
+                ApplyTableNumberFormats(GetColumnFormats(typeof(SpiritStatEntry)), spiritTable);
                 spiritWs.SheetView.FreezeColumns(1);
 
                 var bioWs = wb.AddWorksheet("Biotica");
-                DataTable bioticaDataTable = ExpandToColumns(this.BioticaStats.Values, this.glossaryInstance);
+                DataTable bioticaDataTable = ExpandToColumns(this.BioticaStats.Values);
                 var bioticaTable = bioWs.Cell("A1").InsertTable(bioticaDataTable, "Biotica");
                 bioticaTable.Theme = XLTableTheme.TableStyleMedium3;
-                ApplyTableNumberFormats(GetColumnFormats(typeof(BioticumStatEntry), this.glossaryInstance), bioticaTable);
+                ApplyTableNumberFormats(GetColumnFormats(typeof(BioticumStatEntry)), bioticaTable);
                 bioWs.SheetView.FreezeColumns(1);
 
                 var luxWs = wb.AddWorksheet("Luxuries");
-                DataTable luxuryDataTable = ExpandToColumns(this.LuxuryStats.Values, this.glossaryInstance);
+                DataTable luxuryDataTable = ExpandToColumns(this.LuxuryStats.Values);
                 var luxuryTable = luxWs.Cell("A1").InsertTable(luxuryDataTable, "Luxuries");
                 luxuryTable.Theme = XLTableTheme.TableStyleMedium7;
-                ApplyTableNumberFormats(GetColumnFormats(typeof(LuxuryStatEntry), this.glossaryInstance), luxuryTable);
+                ApplyTableNumberFormats(GetColumnFormats(typeof(LuxuryStatEntry)), luxuryTable);
                 luxWs.SheetView.FreezeColumns(1);
 
                 var eraWs = wb.AddWorksheet("Eras");
                 var eraTable = eraWs.Cell("A1").InsertTable(this.EraStats.Values.OrderBy(ese => (ese.Era, -ese.Count)));
-                ApplyTableNumberFormats(GetColumnFormats(typeof(EraStatEntry), this.glossaryInstance), eraTable);
+                ApplyTableNumberFormats(GetColumnFormats(typeof(EraStatEntry)), eraTable);
                 eraTable.Theme = XLTableTheme.TableStyleMedium6;
 
                 var projectWs = wb.AddWorksheet("Projects");
                 DataTable projectDataTable = ExpandToColumns(this.ProjectStats.Values.OrderBy(
-                    pse => (ProjectStatEntry.ProjectTypeOrdering[pse.Slot], -pse.Count, -pse.ASlotP, pse.Name)),
-                    this.glossaryInstance);
+                    pse => (ProjectStatEntry.ProjectTypeOrdering[pse.Slot], -pse.Count, -pse.ASlotP, pse.Name)));
                 var projectTable = projectWs.Cell("A1").InsertTable(projectDataTable, "Projects");
-                ApplyTableNumberFormats(GetColumnFormats(typeof(ProjectStatEntry), this.glossaryInstance), projectTable);
+                ApplyTableNumberFormats(GetColumnFormats(typeof(ProjectStatEntry)), projectTable);
                 projectWs.SheetView.FreezeColumns(1);
 
                 var topBioWs = wb.AddWorksheet("TopBio");
-                DataTable topBioDataTable = ExpandToColumns(this.TopBioticumSummaries, this.glossaryInstance);
+                DataTable topBioDataTable = ExpandToColumns(this.TopBioticumSummaries);
                 var topBioTable = topBioWs.Cell("A1").InsertTable(topBioDataTable, "TopBio");
-                ApplyTableNumberFormats(GetColumnFormats(typeof(TopBioticumSummary), this.glossaryInstance), topBioTable);
+                ApplyTableNumberFormats(GetColumnFormats(typeof(TopBioticumSummary)), topBioTable);
                 topBioTable.Theme = XLTableTheme.TableStyleDark11;
 
                 if (heatmaps)
@@ -415,7 +414,7 @@ namespace Reus2Surveyor
                         yPos += height;
                     }
 
-                    foreach (string spiritName in this.glossaryInstance.SpiritHashByName.Keys)
+                    foreach (string spiritName in Glossaries.SpiritHashByName.Keys)
                     {
                         List<(double p, double a, double m)> bioTypePercents = [.. this.PlanetSummaries
                             .Where(ps => ps.Spirit == spiritName)
@@ -454,7 +453,7 @@ namespace Reus2Surveyor
                         yPos += height;
                     }
 
-                    foreach (string spiritName in this.glossaryInstance.SpiritHashByName.Keys)
+                    foreach (string spiritName in Glossaries.SpiritHashByName.Keys)
                     {
                         List<(double p, double a, double m)> bioTypePercents = [..
                             this.CitySummaries
@@ -502,7 +501,7 @@ namespace Reus2Surveyor
                         yPos += height;
                     }
 
-                    foreach (string spiritName in this.glossaryInstance.SpiritHashByName.Keys)
+                    foreach (string spiritName in Glossaries.SpiritHashByName.Keys)
                     {
                         List<(double pop, double tech, double wel)> prosPercents = [..
                             this.PlanetSummaries
@@ -543,7 +542,7 @@ namespace Reus2Surveyor
                         yPos += height;
                     }
 
-                    foreach (string spiritName in this.glossaryInstance.SpiritHashByName.Keys)
+                    foreach (string spiritName in Glossaries.SpiritHashByName.Keys)
                     {
                         List<(double p, double a, double m)> prosPercents = [..
                             this.CitySummaries
@@ -618,7 +617,7 @@ namespace Reus2Surveyor
             }
         }
 
-        public static Dictionary<string, HashSet<string>> GetColumnFormats(Type T, Glossaries glossaryInstance)
+        public static Dictionary<string, HashSet<string>> GetColumnFormats(Type T)
         {
             List<MemberInfo> allMembers = [];
             allMembers.AddRange(T.GetFields());
@@ -630,7 +629,7 @@ namespace Reus2Surveyor
                 UnpackToBiomesAttribute biomeAttr = mi.GetCustomAttribute<UnpackToBiomesAttribute>();
                 if (biomeAttr is not null && biomeAttr.NumberFormat is not null)
                 {
-                    foreach (string biomeName in glossaryInstance.BiomeHashByName.Keys)
+                    foreach (string biomeName in Glossaries.BiomeHashByName.Keys)
                     {
                         string subheader = biomeAttr.Prefix + biomeName + biomeAttr.Suffix;
                         AddColumnFormat(ref formats, biomeAttr.NumberFormat, subheader);
@@ -641,7 +640,7 @@ namespace Reus2Surveyor
                 UnpackToSpiritsAttribute spiritAttr = mi.GetCustomAttribute<UnpackToSpiritsAttribute>();
                 if (spiritAttr is not null && spiritAttr.NumberFormat is not null)
                 {
-                    foreach (string spiritName in glossaryInstance.SpiritHashByName.Keys)
+                    foreach (string spiritName in Glossaries.SpiritHashByName.Keys)
                     {
                         string subheader = spiritAttr.Prefix + spiritName + spiritAttr.Suffix;
                         AddColumnFormat(ref formats, spiritAttr.NumberFormat, subheader);

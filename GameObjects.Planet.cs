@@ -49,8 +49,6 @@ namespace Reus2Surveyor
 
         public readonly List<GenericBuff> BuffList = [];
 
-        private Glossaries glossaries;
-
         //public List<int?> patchCollection;
 
         // TODO: Find a better way to find objects other than checking dictionary keys
@@ -267,24 +265,23 @@ namespace Reus2Surveyor
             }
         }
 
-        public void SetGlossaryThenLookup(Glossaries g)
+        public void ResolveWithGlossaries()
         {
-            this.glossaries = g;
             foreach (NatureBioticum b in this.natureBioticumDictionary.Values)
             {
-                b.CheckName(this.glossaries);
+                b.CheckName();
             }
 
             foreach (KeyValuePair<string, int> kv in this.LegacyBioticaCounterDefs)
             {
-                this.LegacyBioticaCounterNames[this.glossaries.BioticumNameFromHash(kv.Key)] = kv.Value;
+                this.LegacyBioticaCounterNames[Glossaries.BioticumNameFromHash(kv.Key)] = kv.Value;
             }
             foreach (KeyValuePair<string, int> kv in this.BioticaCounterDefs)
             {
-                this.BioticaCounterNames[this.glossaries.BioticumNameFromHash(kv.Key)] = kv.Value;
+                this.BioticaCounterNames[Glossaries.BioticumNameFromHash(kv.Key)] = kv.Value;
             }
 
-            List<GiantDefinition> giantDefs = [.. this.gameSession.giantRosterDefs.Select(v => glossaries.TryGiantDefinitionFromHash(v))];
+            List<GiantDefinition> giantDefs = [.. this.gameSession.giantRosterDefs.Select(v => Glossaries.TryGiantDefinitionFromHash(v))];
             giantDefs.Sort((x, y) => x.Position - y.Position);
             this.GiantNames = [.. giantDefs.Select(v => v.Name)];
 
@@ -295,7 +292,7 @@ namespace Reus2Surveyor
                 if (biome.anchorPatchId is null) continue;
                 if (biome.biomeTypeInt is not null)
                 {
-                    biome.biomeTypeName = this.glossaries.GetBiomeNameFromInt((int)biome.biomeTypeInt);
+                    biome.biomeTypeName = Glossaries.GetBiomeNameFromInt((int)biome.biomeTypeInt);
                 }
                 string biomeType = biome.biomeTypeName;
 

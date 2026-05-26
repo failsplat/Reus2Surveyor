@@ -2,53 +2,56 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 
 namespace Reus2Surveyor
 {
-    public class Glossaries
+    public static class Glossaries
     {
-        public readonly Dictionary<string, string> SpiritHashByName = [], SpiritNameByHash = [];
-        public readonly Dictionary<string, string> BiomeHashByName = [], BiomeNameByHash = [];
+        public static readonly Dictionary<string, string> SpiritHashByName = [], SpiritNameByHash = [];
+        public static readonly Dictionary<string, string> BiomeHashByName = [], BiomeNameByHash = [];
         //public readonly Dictionary<string, string> LuxuryHashByName = [], LuxuryNameByHash = [];
         //public readonly Dictionary<string, string> MicroHashByName = [], MicroNameByHash = [];
 
-        public readonly Dictionary<string, string> YieldHashByName = [], YieldNameByHash = [];
+        public static readonly Dictionary<string, string> YieldHashByName = [], YieldNameByHash = [];
 
-        public readonly Dictionary<string, BioticumDefinition> BioticumDefinitionByHash = [];
-        public readonly Dictionary<string, BioticumDefinition> BioticumDefinitionByName = [];
-        public readonly List<BioticumDefinition> BioticumDefinitionList = [];
+        public static readonly Dictionary<string, BioticumDefinition> BioticumDefinitionByHash = [];
+        public static readonly Dictionary<string, BioticumDefinition> BioticumDefinitionByName = [];
+        public static readonly List<BioticumDefinition> BioticumDefinitionList = [];
 
-        public readonly Dictionary<string, GiantDefinition> GiantDefinitionByHash = [];
-        public readonly List<GiantDefinition> GiantDefinitionList = [];
+        public static readonly Dictionary<string, GiantDefinition> GiantDefinitionByHash = [];
+        public static readonly List<GiantDefinition> GiantDefinitionList = [];
 
-        public readonly Dictionary<string, CityProjectDefinition> ProjectDefinitionByHash = [];
-        public readonly List<CityProjectDefinition> ProjectDefinitionList = [];
+        public static readonly Dictionary<string, CityProjectDefinition> ProjectDefinitionByHash = [];
+        public static readonly List<CityProjectDefinition> ProjectDefinitionList = [];
 
-        public readonly Dictionary<string, EraDefinition> EraDefinitionByHash = [];
-        public readonly List<EraDefinition> EraDefinitionList = [];
+        public static readonly Dictionary<string, EraDefinition> EraDefinitionByHash = [];
+        public static readonly List<EraDefinition> EraDefinitionList = [];
 
-        public readonly Dictionary<string, LuxuryDefinition> LuxuryDefinitionsByHash = [];
-        public readonly List<LuxuryDefinition> LuxuryDefinitionList = [];
+        public static readonly Dictionary<string, LuxuryDefinition> LuxuryDefinitionsByHash = [];
+        public static readonly List<LuxuryDefinition> LuxuryDefinitionList = [];
 
-        public readonly Dictionary<string, string> BiomeColors = [];
+        public static readonly Dictionary<string, string> BiomeColors = [];
 
-        public readonly Dictionary<string, MicroDefinition> MicroDefinitionsByHash = [];
-        public readonly List<MicroDefinition> MicroDefinitionList = [];
+        public static readonly Dictionary<string, MicroDefinition> MicroDefinitionsByHash = [];
+        public static readonly List<MicroDefinition> MicroDefinitionList = [];
 
-        public Glossaries(
-            string bioFile,
-            string giantFile,
-            string spiritFile,
-            string eraFile,
-            string projectFile,
-            string biomeFile,
-            string luxuryFile,
-            string microFile
-            )
+        public static readonly string BioFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Glossaries", "Biotica.csv");
+        public static readonly string GiantFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Glossaries", "Giants.csv");
+        public static readonly string SpiritFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Glossaries", "Spirits.csv");
+        public static readonly string EraFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Glossaries", "Eras.csv");
+        public static readonly string ProjectFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Glossaries", "Projects.csv");
+        public static readonly string BiomeFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Glossaries", "Biomes.csv");
+        public static readonly string LuxuryFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Glossaries", "Luxuries.csv");
+        public static readonly string MicroFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Glossaries", "Micros.csv");
+
+        public static readonly Dictionary<int, string> BiomeNameByInt = [];
+        public static readonly Dictionary<string, int> BiomeIntByName = [];
+
+        static Glossaries ()
         {
-
-            using (StreamReader bsr = new StreamReader(bioFile))
+            using (StreamReader bsr = new StreamReader(BioFile))
             {
                 string currentLine;
                 string headerLine = bsr.ReadLine().Trim();
@@ -60,17 +63,17 @@ namespace Reus2Surveyor
                     BioticumDefinitionList.Add(new(header, data));
                 }
             }
-            foreach (BioticumDefinition bd in this.BioticumDefinitionList)
+            foreach (BioticumDefinition bd in BioticumDefinitionList)
             {
                 if (bd.Hash is null || bd.Hash.Length == 0) continue;
                 else
                 {
-                    this.BioticumDefinitionByHash.Add(bd.Hash, bd);
-                    this.BioticumDefinitionByName.Add(bd.Name, bd);
+                    BioticumDefinitionByHash.Add(bd.Hash, bd);
+                    BioticumDefinitionByName.Add(bd.Name, bd);
                 }
             }
 
-            using (StreamReader gsr = new StreamReader(giantFile))
+            using (StreamReader gsr = new StreamReader(GiantFile))
             {
                 string currentLine;
                 string headerLine = gsr.ReadLine().Trim();
@@ -82,13 +85,13 @@ namespace Reus2Surveyor
                     GiantDefinitionList.Add(new(header, data));
                 }
             }
-            foreach (GiantDefinition gd in this.GiantDefinitionList)
+            foreach (GiantDefinition gd in GiantDefinitionList)
             {
                 if (gd.Hash is null || gd.Hash.Length == 0) continue;
-                else this.GiantDefinitionByHash.Add(gd.Hash, gd);
+                else GiantDefinitionByHash.Add(gd.Hash, gd);
             }
 
-            using (StreamReader ssr = new StreamReader(spiritFile))
+            using (StreamReader ssr = new StreamReader(SpiritFile))
             {
                 string currentLine;
                 string headerLine = ssr.ReadLine().Trim();
@@ -104,12 +107,12 @@ namespace Reus2Surveyor
                         continue;
                     }
 
-                    this.SpiritHashByName[name] = hash;
-                    this.SpiritNameByHash[hash] = name;
+                    SpiritHashByName[name] = hash;
+                    SpiritNameByHash[hash] = name;
                 }
             }
 
-            using (StreamReader biomesr = new StreamReader(biomeFile))
+            using (StreamReader biomesr = new StreamReader(BiomeFile))
             {
                 string currentLine;
                 string headerLine = biomesr.ReadLine().Trim();
@@ -127,15 +130,15 @@ namespace Reus2Surveyor
                         continue;
                     }
 
-                    this.BiomeHashByName[name] = hash;
-                    this.BiomeNameByHash[hash] = name;
-                    this.BiomeNameByInt[Int32.Parse(num)] = name;
-                    this.BiomeIntByName[name] = Int32.Parse(num);
-                    this.BiomeColors[name] = color;
+                    BiomeHashByName[name] = hash;
+                    BiomeNameByHash[hash] = name;
+                    BiomeNameByInt[Int32.Parse(num)] = name;
+                    BiomeIntByName[name] = Int32.Parse(num);
+                    BiomeColors[name] = color;
                 }
             }
 
-            using (StreamReader esr = new StreamReader(eraFile))
+            using (StreamReader esr = new StreamReader(EraFile))
             {
                 string currentLine;
                 string headerLine = esr.ReadLine().Trim();
@@ -147,13 +150,13 @@ namespace Reus2Surveyor
                     EraDefinitionList.Add(new(header, data));
                 }
             }
-            foreach (EraDefinition ed in this.EraDefinitionList)
+            foreach (EraDefinition ed in EraDefinitionList)
             {
                 if (ed.Hash is null || ed.Hash.Length == 0) continue;
-                else this.EraDefinitionByHash.Add(ed.Hash, ed);
+                else EraDefinitionByHash.Add(ed.Hash, ed);
             }
 
-            using (StreamReader psr = new StreamReader(projectFile))
+            using (StreamReader psr = new StreamReader(ProjectFile))
             {
                 string currentLine;
                 string headerLine = psr.ReadLine().Trim();
@@ -165,13 +168,13 @@ namespace Reus2Surveyor
                     ProjectDefinitionList.Add(new(header, data));
                 }
             }
-            foreach (CityProjectDefinition pd in this.ProjectDefinitionList)
+            foreach (CityProjectDefinition pd in ProjectDefinitionList)
             {
                 if (pd.Hash is null || pd.Hash.Length == 0) continue;
-                else this.ProjectDefinitionByHash.Add(pd.Hash, pd);
+                else ProjectDefinitionByHash.Add(pd.Hash, pd);
             }
 
-            using (StreamReader luxSr = new StreamReader(luxuryFile))
+            using (StreamReader luxSr = new StreamReader(LuxuryFile))
             {
                 string currentLine;
                 string headerLine = luxSr.ReadLine().Trim();
@@ -183,13 +186,13 @@ namespace Reus2Surveyor
                     LuxuryDefinitionList.Add(new(header, data));
                 }
             }
-            foreach (LuxuryDefinition pd in this.LuxuryDefinitionList)
+            foreach (LuxuryDefinition pd in LuxuryDefinitionList)
             {
                 if (pd.Hash is null || pd.Hash.Length == 0) continue;
-                else this.LuxuryDefinitionsByHash.Add(pd.Hash, pd);
+                else LuxuryDefinitionsByHash.Add(pd.Hash, pd);
             }
 
-            using (StreamReader microSr = new StreamReader(microFile))
+            using (StreamReader microSr = new StreamReader(MicroFile))
             {
                 string currentLine;
                 string headerLine = microSr.ReadLine().Trim();
@@ -201,37 +204,20 @@ namespace Reus2Surveyor
                     MicroDefinitionList.Add(new(header, data));
                 }
             }
-            foreach (MicroDefinition md in this.MicroDefinitionList)
+            foreach (MicroDefinition md in MicroDefinitionList)
             {
                 if (md.Hash is null || md.Hash.Length == 0) continue;
-                else this.MicroDefinitionsByHash.Add(md.Hash, md);
+                else MicroDefinitionsByHash.Add(md.Hash, md);
             }
         }
 
-        public Glossaries(string folderPath)
-            : this(
-                  bioFile: Path.Combine(folderPath, "Biotica.csv"),
-                  giantFile: Path.Combine(folderPath, "Giants.csv"),
-                  spiritFile: Path.Combine(folderPath, "Spirits.csv"),
-                  eraFile: Path.Combine(folderPath, "Eras.csv"),
-                  projectFile: Path.Combine(folderPath, "Projects.csv"),
-                  biomeFile: Path.Combine(folderPath, "Biomes.csv"),
-                  luxuryFile: Path.Combine(folderPath, "Luxuries.csv"),
-                  microFile: Path.Combine(folderPath, "Micros.csv")
-                  )
-        {
-        }
-
-        public Dictionary<int, string> BiomeNameByInt = [];
-        public Dictionary<string, int> BiomeIntByName = [];
-
-        public string GetBiomeNameFromInt(int id)
+        public static string GetBiomeNameFromInt(int id)
         {
             if (BiomeNameByInt.TryGetValue(id, out string name)) return name;
             else return $"UNKNOWN BIOME {id}";
         }
 
-        public string BiomeNameFromHash(string def)
+        public static string BiomeNameFromHash(string def)
         {
             if (BiomeNameByHash.TryGetValue(def, out string value))
             {
@@ -243,7 +229,7 @@ namespace Reus2Surveyor
             }
         }
 
-        public string BioticumNameFromHash(string def)
+        public static string BioticumNameFromHash(string def)
         {
             if (BioticumDefinitionByHash.TryGetValue(def, out BioticumDefinition value))
             {
@@ -252,7 +238,7 @@ namespace Reus2Surveyor
             else return def;
         }
 
-        public BioticumDefinition BioticumDefFromHash(string def)
+        public static BioticumDefinition BioticumDefFromHash(string def)
         {
             if (BioticumDefinitionByHash.TryGetValue(def, out BioticumDefinition value))
             {
@@ -261,56 +247,56 @@ namespace Reus2Surveyor
             else return null;
         }
 
-        public string SpiritNameFromHash(string hash)
+        public static string SpiritNameFromHash(string hash)
         {
-            if (this.SpiritNameByHash.TryGetValue(hash, out string value)) return value;
+            if (SpiritNameByHash.TryGetValue(hash, out string value)) return value;
             else return hash;
         }
 
-        public string EraNameFromHash(string hash)
+        public static string EraNameFromHash(string hash)
         {
-            if (this.EraDefinitionByHash.TryGetValue(hash, out EraDefinition value)) return value.Name;
+            if (EraDefinitionByHash.TryGetValue(hash, out EraDefinition value)) return value.Name;
             else return hash;
         }
 
-        public EraDefinition TryEraDefinitionFromHash(string hash)
+        public static EraDefinition TryEraDefinitionFromHash(string hash)
         {
-            if (this.EraDefinitionByHash.TryGetValue(hash, out EraDefinition value)) return value;
+            if (EraDefinitionByHash.TryGetValue(hash, out EraDefinition value)) return value;
             else return new(hash);
         }
 
-        public string GiantNameFromHash(string hash)
+        public static string GiantNameFromHash(string hash)
         {
-            if (this.GiantDefinitionByHash.TryGetValue(hash, out GiantDefinition value)) return value.Name;
+            if (GiantDefinitionByHash.TryGetValue(hash, out GiantDefinition value)) return value.Name;
             else return hash;
         }
 
-        public GiantDefinition TryGiantDefinitionFromHash(string hash)
+        public static GiantDefinition TryGiantDefinitionFromHash(string hash)
         {
-            if (this.GiantDefinitionByHash.TryGetValue(hash, out GiantDefinition value)) return value;
+            if (GiantDefinitionByHash.TryGetValue(hash, out GiantDefinition value)) return value;
             else return new(hash);
         }
 
-        public CityProjectDefinition TrProjectDefinitionFromHash(string hash)
+        public static CityProjectDefinition TrProjectDefinitionFromHash(string hash)
         {
-            if (this.ProjectDefinitionByHash.TryGetValue(hash, out CityProjectDefinition value)) return value;
+            if (ProjectDefinitionByHash.TryGetValue(hash, out CityProjectDefinition value)) return value;
             else return new(hash);
         }
-        public CityProjectDefinition TrProjectDefinitionFromHash(string hash, string name)
+        public static CityProjectDefinition TrProjectDefinitionFromHash(string hash, string name)
         {
-            if (this.ProjectDefinitionByHash.TryGetValue(hash, out CityProjectDefinition value)) return value;
+            if (ProjectDefinitionByHash.TryGetValue(hash, out CityProjectDefinition value)) return value;
             else return new(hash, name);
         }
 
-        public LuxuryDefinition TryLuxuryDefinitionFromHash(string hash)
+        public static LuxuryDefinition TryLuxuryDefinitionFromHash(string hash)
         {
-            if (this.LuxuryDefinitionsByHash.TryGetValue(hash, out LuxuryDefinition value)) return value;
+            if (LuxuryDefinitionsByHash.TryGetValue(hash, out LuxuryDefinition value)) return value;
             else return new(hash);
         }
 
-        public string MicroNameFromHash(string hash)
+        public static string MicroNameFromHash(string hash)
         {
-            if (this.MicroDefinitionsByHash.TryGetValue(hash, out MicroDefinition value)) return value.Name;
+            if (MicroDefinitionsByHash.TryGetValue(hash, out MicroDefinition value)) return value.Name;
             else return hash;
         }
 
@@ -532,9 +518,9 @@ namespace Reus2Surveyor
             }
         }
 
-        public string GetBiomeColor(string biomeName)
+        public static string GetBiomeColor(string biomeName)
         {
-            if (this.BiomeColors.TryGetValue(biomeName, out string hex))
+            if (BiomeColors.TryGetValue(biomeName, out string hex))
             {
                 return hex;
             }
