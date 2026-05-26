@@ -88,9 +88,9 @@ namespace Reus2Surveyor
         }
         // TODO: (Maybe) check that the aspect slot(s) have placed micros
 
-        public void CheckName(Glossaries g)
+        public void CheckName()
         {
-            this.BioticumName = g.BioticumNameFromHash(this.definition);
+            this.BioticumName = Glossaries.BioticumNameFromHash(this.definition);
         }
 
         //public bool IsActive() { return this.bioticumId is null ? false : this.bioticumId > 0; }
