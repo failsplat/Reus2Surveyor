@@ -14,7 +14,6 @@ namespace Reus2Surveyor
 {
     public partial class StatCollector
     {
-        private Glossaries glossaryInstance;
         public OrderedDictionary<string, BioticumStatEntry> BioticaStats { get; private set; } = []; // keyed to definition hash
         public List<PlanetSummaryEntry> PlanetSummaries { get; private set; } = [];
         public List<CitySummaryEntry> CitySummaries { get; private set; } = [];
@@ -46,796 +45,795 @@ namespace Reus2Surveyor
 
         public List<TopBioticumSummary> TopBioticumSummaries { get; private set; } = [];
 
-        public StatCollector(Glossaries g)
+        public StatCollector()
         {
-            this.glossaryInstance = g;
         }
 
         public void ConsumePlanet(Planet planet, int index)
         {
             if (planet is null) return;
-            //this.UpdateBioticaStats(planet, index);
-            //this.UpdateHumanityStats(planet, index);
-            //this.CountBioticaVsSpirit(planet, index, glossaryInstance.SpiritNameFromHash(planet.gameSession.selectedCharacterDef));
+            this.UpdateBioticaStats(planet, index);
+            this.UpdateHumanityStats(planet, index);
+            this.CountBioticaVsSpirit(planet, index, Glossaries.SpiritNameFromHash(planet.gameSession.selectedCharacterDef));
             this.planetCount++;
         }
 
-        //public void UpdateBioticaStats(Planet planet, int index)
-        //{
-        //    if (planet is null) return;
-
-        //    Dictionary<string, int> activeBioCounter = [];
-        //    Dictionary<string, int> legacyBioCounter = [];
-        //    //Dictionary<(string,string), int> bioPropertyDict = [];
-
-        //    foreach (KeyValuePair<string, int> legKv in planet.LegacyBioticaCounterDefs)
-        //    {
-        //        IncrementCounter(legacyBioCounter, legKv.Key, legKv.Value);
-        //    }
-        //    foreach (NatureBioticum nb in planet.natureBioticumDictionary.Values)
-        //    {
-        //        IncrementCounter(activeBioCounter, nb.definition, 1);
-        //    }
-
-        //    Dictionary<string, int> completeBioCounter = [];
-        //    foreach (KeyValuePair<string, int> kv in activeBioCounter)
-        //    {
-        //        IncrementCounter(completeBioCounter, kv.Key, kv.Value);
-        //    }
-        //    foreach (KeyValuePair<string, int> kv in legacyBioCounter)
-        //    {
-        //        IncrementCounter(completeBioCounter, kv.Key, kv.Value);
-        //    }
-
-        //    HashSet<string> draftedOrPlacedInSession = [];
-        //    // Count if drafted
-        //    foreach (string draftDef in planet.MasteredBioticaDefSet)
-        //    {
-        //        BioDraftedOrPlacedInProfile.Add(draftDef);
-        //        draftedOrPlacedInSession.Add(draftDef);
-        //    }
-
-        //    // Make entries for active then archived then complete
-        //    foreach (string activeDef in activeBioCounter.Keys)
-        //    {
-        //        CheckBioticaStatEntry(activeDef, planet.number);
-        //        BioticaStats[activeDef].Final += activeBioCounter[activeDef];
-        //        if (planet.gameSession.topBiotica.Count > 0) 
-        //        {
-        //            int activeCount = activeBioCounter[activeDef];
-        //            int allCount = activeCount;
-        //            if (legacyBioCounter.TryGetValue(activeDef, out int legacyCount)) allCount += legacyCount;
-        //            BioticaStats[activeDef].IncrementTop5Available(activeCount, allCount);
-        //        }
-        //        BioDraftedOrPlacedInProfile.Add(activeDef);
-        //        draftedOrPlacedInSession.Add(activeDef);
-        //    }
-        //    foreach (string legacyDef in legacyBioCounter.Keys)
-        //    {
-        //        CheckBioticaStatEntry(legacyDef, planet.number);
-        //        BioticaStats[legacyDef].Legacy += legacyBioCounter[legacyDef];
-        //        BioDraftedOrPlacedInProfile.Add(legacyDef);
-        //        draftedOrPlacedInSession.Add(legacyDef);
-        //    }
-
-        //    // Count all biotica that are available in available biomes
-        //    // Only increment if it has been drafted or placed in this planet or previous planets
-        //    // (Could be not unavailable by level or DLC)
-        //    HashSet<string> biomeMatchingBiotica = [];
-        //    foreach (string giantHash in planet.gameSession.giantRosterDefs)
-        //    {
-        //        Glossaries.GiantDefinition gd = this.glossaryInstance.TryGiantDefinitionFromHash(giantHash);
-        //        if (gd.Biome1 is null || gd.Biome2 is null) continue; // Unknown giant, don't calculate biome-matching biotica
-        //        foreach (Glossaries.BioticumDefinition bd in this.glossaryInstance.BioticumDefinitionList)
-        //        {
-        //            bool b1match = bd.IsBiomeAllowed(gd.Biome1);
-        //            bool b2match = bd.IsBiomeAllowed(gd.Biome2);
-        //            if (b1match || b2match)
-        //            {
-        //                biomeMatchingBiotica.Add(bd.Hash);
-        //                if (bd.Starter)
-        //                {
-        //                    BioDraftedOrPlacedInProfile.Add(bd.Hash);
-        //                    draftedOrPlacedInSession.Add(bd.Hash);
-        //                }
-        //            }
-        //        }
-        //    }
-
-        //    foreach (string draftDef in draftedOrPlacedInSession)
-        //    {
-        //        CheckBioticaStatEntry(draftDef, planet.number);
-        //        BioticaStats[draftDef].Draft += 1;
-        //    }
-
-        //    foreach (string cDef in completeBioCounter.Keys)
-        //    {
-        //        // CheckBioticaStatEntry(cDef, planet.number);
-        //        BioticaStats[cDef].Planets += 1;
-        //        BioticaStats[cDef].Total += completeBioCounter[cDef];
-        //        BioticaStats[cDef].PLast = planet.number;
-        //        if (completeBioCounter[cDef] > 1) BioticaStats[cDef].AddMultiValue(completeBioCounter[cDef]);
-        //    }
-
-        //    HashSet<string> missedDraft = [.. draftedOrPlacedInSession.Except(biomeMatchingBiotica)];
-        //    HashSet<string> availBiotica = [.. biomeMatchingBiotica.Intersect(BioDraftedOrPlacedInProfile)];
-
-        //    // Special case: The Farmer's Frontier Farm special biotica
-        //    // Marked with -1 in all land biomes
-        //    bool farmBioOk = glossaryInstance.BioticumDefinitionByName.TryGetValue("Frontier Farm", out BioticumDefinition farmBioDef);
-        //    bool aqFarmBioOk = glossaryInstance.BioticumDefinitionByName.TryGetValue("Aquatic Frontier Farm", out BioticumDefinition aqFarmBioDef);
-
-        //    if (glossaryInstance.SpiritNameFromHash(planet.gameSession.selectedCharacterDef) == "Farmer" && farmBioOk)
-        //    {
-        //        availBiotica.Add(farmBioDef.Hash);
-        //        availBiotica.Add(aqFarmBioDef.Hash);
-        //    } 
-        //    else if (farmBioOk)
-        //    {
-        //        availBiotica.Remove(farmBioDef.Hash);
-        //        availBiotica.Remove(aqFarmBioDef.Hash);
-        //    }
-
-        //    foreach (string availDef in availBiotica)
-        //    {
-        //        if (BioDraftedOrPlacedInProfile.Contains(availDef))
-        //        {
-        //            BioticaStats[availDef].Avail += 1;
-        //        }
-        //    }
-
-
-        //    List<TopBioticumSummary> planetTopBio = [];
-        //    foreach (GameSession.TopBioticaEntry tbe in planet.gameSession.topBiotica)
-        //    {
-        //        planetTopBio.Add(new TopBioticumSummary(index, 0, tbe, this.glossaryInstance));
-        //        this.BioticaStats[tbe.bioticumType].Top5 += 1;
-        //        this.BioticaStats[tbe.bioticumType].AddTop5Score(tbe.totalValue);
-        //    }
-        //    planetTopBio = [.. planetTopBio.OrderBy(tbe => -tbe.TotalValue)]; 
-        //    for (int topBioIndex = 0; topBioIndex < planetTopBio.Count; topBioIndex++)
-        //    {
-        //        planetTopBio[topBioIndex].SetRank(topBioIndex + 1);
-        //    }
-        //    planetTopBio.Reverse();
-        //    this.TopBioticumSummaries.AddRange(planetTopBio);
-        //    // Rank descending, add to end 
-        //    // Reversed during finalization, most recent planet first, 1st place first
-        //}
-
-        //public void UpdateHumanityStats(Planet planet, int index)
-        //{
-        //    // Planet Summary
-        //    PlanetSummaryEntry planetEntry = new(planet);
-        //    if (planet.gameSession.turningPointPerformances.Count > 0)
-        //    {
-        //        planetEntry.Score = (int)planet.gameSession.turningPointPerformances.Last().scoreTotal;
-
-        //        foreach (GameSession.TurningPointPerformance tpp in planet.gameSession.turningPointPerformances)
-        //        {
-        //            Glossaries.EraDefinition eraDef = glossaryInstance.TryEraDefinitionFromHash(tpp.turningPointDef);
-        //            if (!this.EraStats.TryGetValue(eraDef.Hash, out EraStatEntry ese))
-        //            {
-        //                this.EraStats[eraDef.Hash] = new(eraDef);
-        //            }
-        //            ese = this.EraStats[eraDef.Hash];
-        //            ese.Count += 1;
-        //            ese.eraScores.Add((int)tpp.scoreTotal);
-
-        //            switch (tpp.starRating)
-        //            {
-        //                case 3:
-        //                    ese.Star3 += 1;
-        //                    continue;
-        //                case 2:
-        //                    ese.Star2 += 1;
-        //                    continue;
-        //                case 1:
-        //                    ese.Star1 += 1;
-        //                    continue;
-        //                case 0:
-        //                    ese.Star0 += 1;
-        //                    continue;
-        //            }
-        //        }
-        //    }
-
-        //    planetEntry.Giant1 = planet.GiantNames[0];
-        //    planetEntry.Giant2 = planet.GiantNames[1];
-        //    planetEntry.Giant3 = planet.GiantNames[2];
-
-        //    planetEntry.Spirit = glossaryInstance.SpiritNameFromHash(planet.gameSession.selectedCharacterDef);
-
-        //    List<int> cityProsList = [];
-        //    List<int> cityPopList = [];
-        //    List<int> cityTechList = [];
-        //    List<int> cityWelList = [];
-
-        //    HashSet<string> luxuriesPresent = [];
-
-        //    planetEntry.Cities = planet.cityDictionary.Count;
-
-        //    int cityIndex = 0; // Starts at 1, increments at beginning of loop
-        //    foreach (City city in planet.cityDictionary.Values)
-        //    {
-        //        cityIndex += 1;
-
-        //        planetEntry.Prjs += city.CityProjectController.projects.Count;
-        //        planetEntry.Invent += city.CityLuxuryController.luxurySlots.Where(ls => ls.luxuryGoodId is not null).Count();
-        //        planetEntry.Trades += city.CityLuxuryController.importAgreementIds.Count();
-
-        //        if (city.CivSummary is not null)
-        //        {
-        //            cityProsList.Add((int)city.CivSummary.prosperity);
-        //            cityPopList.Add((int)city.CivSummary.population);
-        //            cityTechList.Add((int)city.CivSummary.innovation);
-        //            cityWelList.Add((int)city.CivSummary.wealth);
-        //        }
-
-        //        string founderName = glossaryInstance.SpiritNameFromHash(city.founderCharacterDef);
-        //        typeof(PlanetSummaryEntry).GetField("Char" + cityIndex.ToString()).SetValue(planetEntry, founderName);
-        //    }
-
-        //    planetEntry.PrjAv = SafeDivide(planetEntry.Prjs, planetEntry.Cities);
-        //    planetEntry.InventAv = SafeDivide(planetEntry.Invent, planetEntry.Cities);
-        //    planetEntry.TradeAv = SafeDivide(planetEntry.Trades, planetEntry.Cities);
-
-        //    planetEntry.Pros = cityProsList.Sum();
-        //    planetEntry.ProsMdn = Statistics.Median([.. cityProsList]);
-        //    planetEntry.AvPros = Statistics.Mean([.. cityProsList]);
-        //    planetEntry.Gini = GiniCoeff(cityProsList);
-        //    planetEntry.HiPros = cityProsList.Count > 0 ? cityProsList.Max() : 0;
-
-        //    planetEntry.Pop = cityPopList.Sum();
-        //    planetEntry.Tech = cityTechList.Sum();
-        //    planetEntry.Wel = cityWelList.Sum();
-
-        //    // // % of total Prosperity (including bonus prosperity from luxuries, requests, etc.)
-        //    //planetEntry.PPop = SafeDivide(planetEntry.Pop, planetEntry.Pros);
-        //    //planetEntry.PTech = SafeDivide(planetEntry.Tech, planetEntry.Pros);
-        //    //planetEntry.PWel = SafeDivide(planetEntry.Wel, planetEntry.Pros);
-
-        //    planetEntry.PPop = SafePercent(planetEntry.Pop, planetEntry.Pop + planetEntry.Tech + planetEntry.Wel);
-        //    planetEntry.PTech = SafePercent(planetEntry.Tech, planetEntry.Pop + planetEntry.Tech + planetEntry.Wel);
-        //    planetEntry.PWel = SafePercent(planetEntry.Wel, planetEntry.Pop + planetEntry.Tech + planetEntry.Wel);
-
-        //    planetEntry.HiPop = cityPopList.Count > 0 ? cityPopList.Max() : 0;
-        //    planetEntry.HiTech = cityTechList.Count > 0 ? cityTechList.Max() : 0;
-        //    planetEntry.HiWel = cityWelList.Count > 0 ? cityWelList.Max() : 0;
-
-        //    planetEntry.MdnPop = Statistics.Median([.. cityPopList]);
-        //    planetEntry.AvPop = Statistics.Mean([.. cityPopList]);
-        //    planetEntry.MdnTech = Statistics.Median([.. cityTechList]);
-        //    planetEntry.AvTech = Statistics.Mean([.. cityTechList]);
-        //    planetEntry.MdnWel = Statistics.Median([.. cityWelList]);
-        //    planetEntry.AvWel = Statistics.Mean([.. cityWelList]);
-
-        //    if (planet.gameSession.turningPointPerformances.Count >= 1)
-        //    {
-        //        planetEntry.Era1Name = glossaryInstance.EraNameFromHash(planet.gameSession.turningPointPerformances[0].turningPointDef);
-        //        planetEntry.Era1Score = planet.gameSession.turningPointPerformances[0].scoreTotal;
-        //        planetEntry.Era1Star = planet.gameSession.turningPointPerformances[0].starRating;
-        //    }
-
-        //    if (planet.gameSession.turningPointPerformances.Count >= 2)
-        //    {
-        //        planetEntry.Era2Name = glossaryInstance.EraNameFromHash(planet.gameSession.turningPointPerformances[1].turningPointDef);
-        //        planetEntry.Era2Score = planet.gameSession.turningPointPerformances[1].scoreTotal;
-        //        planetEntry.Era2Star = planet.gameSession.turningPointPerformances[1].starRating;
-        //    }
-
-        //    if (planet.gameSession.turningPointPerformances.Count >= 3)
-        //    {
-        //        planetEntry.Era3Name = glossaryInstance.EraNameFromHash(planet.gameSession.turningPointPerformances[2].turningPointDef);
-        //        planetEntry.Era3Score = planet.gameSession.turningPointPerformances[2].scoreTotal;
-        //        planetEntry.Era3Star = planet.gameSession.turningPointPerformances[2].starRating;
-        //    }
-
-        //    planetEntry.SzT = planet.totalSize;
-        //    planetEntry.SzWld = planet.wildSize;
-
-        //    List<Biome> activeBiomes = [.. planet.biomeDictionary.Values.ToList().Where(b => b.anchorPatchId is not null)];
-        //    planetEntry.Biomes = activeBiomes.Count;
-        //    planetEntry.CBiomes = planet.gameSession.coolBiomes;
-
-        //    List<string> bioticaHashList = [.. planet.natureBioticumDictionary.Values.ToList().Select(v => v.definition)];
-        //    List<BioticumDefinition> bioticaDefList = [..bioticaHashList
-        //        .Select(v => glossaryInstance.BioticumDefFromHash(v))
-        //        .Where(v => v is not null)];
-
-        //    HashSet<BioticumDefinition> uniqueBioticaDefs = bioticaDefList.ToHashSet();
-
-        //    planetEntry.Biotica = bioticaHashList.Count;
-        //    planetEntry.UqBiotica = uniqueBioticaDefs.Count;
-        //    planetEntry.Plants = bioticaDefList.Where(v => v.Type == "Plant").Count();
-        //    planetEntry.UqPlants = uniqueBioticaDefs.Where(v => v.Type == "Plant").Count();
-        //    planetEntry.Animals = bioticaDefList.Where(v => v.Type == "Animal").Count();
-        //    planetEntry.UqAnimals = uniqueBioticaDefs.Where(v => v.Type == "Animal").Count();
-        //    planetEntry.Minerals = bioticaDefList.Where(v => v.Type == "Mineral").Count();
-        //    planetEntry.UqMinerals = uniqueBioticaDefs.Where(v => v.Type == "Mineral").Count();
-
-        //    planetEntry.Apex = bioticaDefList.Where(v => v.Apex).Count();
-        //    foreach (BioticumSlot slot in planet.slotDictionary.Values)
-        //    {
-        //        if (slot.bioticumId is null) continue;
-        //        if (slot.isInvasiveSlot ?? false) planetEntry.InvasiveSpots += 1;
-        //        if (planet.natureBioticumDictionary.ContainsKey((int)slot.bioticumId))
-        //        {
-        //            planetEntry.FilledSlots += 1;
-        //            if (slot.slotLevel is not null) planetEntry.IncrementSlotTotalLevel((int)slot.slotLevel);
-        //        }
-        //    }
-
-        //    Dictionary<int, Patch> wildPatches = planet.patchDictionary.Where(kv => kv.Value.IsWildPatch()).ToDictionary();
-        //    int wildSlots = wildPatches.SelectMany(kv => kv.Value.GetActiveSlotIndices()).Count();
-        //    planetEntry.FillP = SafePercent(planetEntry.FilledSlots, wildSlots);
-
-        //    planetEntry.Creeks = wildPatches.Where(kv => kv.Value.specialNaturalFeature == (int)Glossaries.SpecialNaturalFeatures.Creek).Count();
-        //    planetEntry.Anomalies = wildPatches.Where(kv => kv.Value.specialNaturalFeature == (int)Glossaries.SpecialNaturalFeatures.Anomaly).Count();
-        //    planetEntry.Sanctuaries = wildPatches.Where(kv => kv.Value.specialNaturalFeature == (int)Glossaries.SpecialNaturalFeatures.Sanctuary).Count();
-        //    planetEntry.MountainSlots = wildPatches.Where(kv => kv.Value.mountainPart > 0).Count();
-
-        //    foreach ((string biomeName, double percent) in planet.BiomePercentages)
-        //    {
-        //        planetEntry.biomePercents[biomeName] = percent;
-        //    }
-
-        //    this.PlanetSummaries.Add(planetEntry);
-
-        //    // City Summary and Spirit Stats
-        //    List<CitySummaryEntry> thisPlanetCitySummaries = [];
-        //    List<City> citiesInOrder = [.. planet.cityDictionary.ToList().OrderBy(kv => kv.Key).Select(kv => kv.Value)];
-        //    Dictionary<int, City> citiesByLuxuryBuffHandler = [];
-        //    int? cannedSludgeCity = null;
-        //    string cannedSludgeHash = null;
-        //    int cityN = 0;
-        //    Dictionary<string, HashSet<string>> cityBioBySpiritName = [];
-        //    foreach (City city in citiesInOrder)
-        //    {
-        //        cityN++;
-        //        CitySummaryEntry cityEntry = new(index, cityN, city.fancyName);
-
-        //        string founderName = glossaryInstance.SpiritNameFromHash(city.founderCharacterDef);
-
-        //        cityEntry.Char = founderName;
-        //        cityEntry.Level = city.currentVisualStage is not null ? city.currentVisualStage + 1 : null;
-
-        //        cityEntry.Pros = (int)city.CivSummary.prosperity;
-        //        cityEntry.Pop = (int)city.CivSummary.population;
-        //        cityEntry.Tech = (int)city.CivSummary.innovation;
-        //        cityEntry.Wel = (int)city.CivSummary.wealth;
-
-        //        cityEntry.FoundBiome = glossaryInstance.BiomeNameFromHash(city.settledBiomeDef);
-        //        cityEntry.CurrBiome = glossaryInstance.BiomeNameFromHash(city.currentBiomeDef);
-
-        //        cityEntry.PPop = SafePercent(cityEntry.Pop, cityEntry.Pop + cityEntry.Tech + cityEntry.Wel);
-        //        cityEntry.PTech = SafePercent(cityEntry.Tech, cityEntry.Pop + cityEntry.Tech + cityEntry.Wel);
-        //        cityEntry.PWel = SafePercent(cityEntry.Wel, cityEntry.Pop + cityEntry.Tech + cityEntry.Wel);
-
-        //        cityEntry.RelPros = cityEntry.Pros / planetEntry.ProsMdn;
-        //        cityEntry.RelPop = cityEntry.Pop / planetEntry.MdnPop;
-        //        cityEntry.RelTech = cityEntry.Tech / planetEntry.MdnTech;
-        //        cityEntry.RelWel = cityEntry.Wel / planetEntry.MdnWel;
-
-        //        cityEntry.Invent = city.CityLuxuryController.luxurySlots.Where(ls => ls.luxuryGoodId is not null).Count();
-        //        cityEntry.Trades = city.CityLuxuryController.importAgreementIds.Count();
-        //        cityEntry.TerrPatches = city.PatchesInTerritory.Where(p => p.IsWildPatch()).Count();
-
-        //        foreach (City.LuxuryController.LuxurySlot luxSlot in city.CityLuxuryController.luxurySlots)
-        //        {
-        //            if (luxSlot.luxuryGood is null) continue;
-        //            string luxHash = luxSlot.luxuryGood.definition;
-        //            this.inventionDefinitions.Add(luxHash);
-
-        //            LuxuryDefinition luxDef = this.glossaryInstance.TryLuxuryDefinitionFromHash(luxHash);
-        //            if (!this.LuxuryStats.TryGetValue(luxHash, out LuxuryStatEntry lse))
-        //            {
-        //                LuxuryStatEntry newEntry = new(luxDef, this.glossaryInstance);
-        //                lse = newEntry;
-        //                this.LuxuryStats.Add(luxHash, lse);
-        //            }
-
-        //            lse.Copies += 1;
-        //            if (luxSlot.luxuryGood.originCityId == city.tokenIndex)
-        //            {
-        //                if (this.LuxuryStats[luxHash].LeaderCountsOri.ContainsKey(founderName))
-        //                {
-        //                    this.LuxuryStats[luxHash].LeaderCountsOri[founderName] += 1;
-        //                    this.LuxuryStats[luxHash].ICount += 1;
-        //                }
-
-        //                if (luxSlot.luxuryGood.originalBioticumDef is not null && this.glossaryInstance.BioticumDefinitionByHash.TryGetValue(luxSlot.luxuryGood.originalBioticumDef, out BioticumDefinition luxSrcBioDef))
-        //                {
-        //                    if (this.LuxuryStats[luxHash].BioticaSourceCounts.ContainsKey(luxSrcBioDef.Name)) this.LuxuryStats[luxHash].BioticaSourceCounts[luxSrcBioDef.Name] += 1;
-        //                    else this.LuxuryStats[luxHash].BioticaSourceCounts[luxSrcBioDef.Name] = 1;
-        //                }
-        //            }
-        //            if (lse.LeaderCounts.ContainsKey(founderName))
-        //            {
-        //                lse.LeaderCounts[founderName] += 1;
-        //            }
-        //            luxuriesPresent.Add(luxHash);
-
-        //            if (luxDef.Name == "Canned Sludge")
-        //            {
-        //                cannedSludgeCity = city.tokenIndex;
-        //                cannedSludgeHash = luxHash;
-        //            }
-
-        //            string inspiringBio = luxSlot.luxuryGood.originalBioticumDef;
-        //            if (inspiringBio is not null)
-        //            {
-        //                CheckBioticaStatEntry(inspiringBio, index);
-        //                this.BioticaStats[inspiringBio].Inventions += 1;
-        //            }
-        //        }
-        //        citiesByLuxuryBuffHandler[(int)city.CityLuxuryController.luxuryBuffControllerId] = city;
-        //        foreach (City.LuxuryController.LuxurySlot tradeSlot in city.CityLuxuryController.tradeSlots)
-        //        {
-        //            if (tradeSlot == null) continue;
-        //            if (tradeSlot.luxuryGood == null) continue; // Empty trade slot
-        //            string importHash = tradeSlot.luxuryGood.definition;
-        //            LuxuryDefinition importDef = this.glossaryInstance.TryLuxuryDefinitionFromHash(importHash);
-
-        //            if (!this.LuxuryStats.TryGetValue(importHash, out LuxuryStatEntry lse))
-        //            {
-        //                LuxuryStatEntry newEntry = new(importDef, this.glossaryInstance);
-        //                lse = newEntry;
-        //                this.LuxuryStats.Add(importHash, lse);
-        //            }
-
-        //            lse.Copies += 1;
-        //            if (lse.LeaderCounts.ContainsKey(founderName))
-        //            {
-        //                lse.LeaderCounts[founderName] += 1;
-        //            }
-        //        }
-
-        //        cityEntry.TPLead = city.initiatedTurningPointsDefs.Count;
-        //        foreach (string cityStartedEras in city.initiatedTurningPointsDefs)
-        //        {
-        //            EraDefinition thisEra = this.glossaryInstance.TryEraDefinitionFromHash(cityStartedEras);
-        //            if (thisEra.Era == 0) continue;
-        //            string eraName = thisEra.Name;
-        //            switch (thisEra.Era)
-        //            {
-        //                case 1:
-        //                    cityEntry.TP1 = eraName;
-        //                    break;
-        //                case 2:
-        //                    cityEntry.TP2 = eraName;
-        //                    break;
-        //                case 3:
-        //                    cityEntry.TP3 = eraName;
-        //                    break;
-        //                default:
-        //                    break;
-        //            }
-        //        }
-
-        //        int slotCount = 0;
-        //        foreach (Patch wildPatch in city.PatchesInTerritory.Where(p => p.IsWildPatch()))
-        //        {
-        //            foreach (int slotIndex in wildPatch.GetActiveSlotIndices())
-        //            {
-        //                BioticumSlot slot = planet.slotDictionary[slotIndex];
-        //                slotCount += 1;
-        //                if (slot.bioticumId is not null) cityEntry.FilledSlots += 1;
-        //            }
-        //        }
-        //        cityEntry.FillP = SafePercent(cityEntry.FilledSlots, slotCount);
-
-        //        cityEntry.Biotica = city.BioticaInTerritory.Count;
-        //        List<int> bioticaLevels = []; // Ending levels, active bio only
-        //        HashSet<string> bioticaInCity = []; // All bio hashes
-
-        //        // Active biotica only!
-        //        foreach (NatureBioticum nb in city.BioticaInTerritory)
-        //        {
-        //            if (glossaryInstance.BioticumDefinitionByHash.TryGetValue(nb.definition, out BioticumDefinition thisBio))
-        //            {
-        //                bioticaLevels.Add(thisBio.Tier);
-        //                bioticaInCity.Add(thisBio.Hash);
-        //                switch (thisBio.Type)
-        //                {
-        //                    case "Plant":
-        //                        cityEntry.Plants += 1;
-        //                        break;
-        //                    case "Animal":
-        //                        cityEntry.Animals += 1;
-        //                        break;
-        //                    case "Mineral":
-        //                        cityEntry.Minerals += 1;
-        //                        break;
-        //                }
-        //                if (thisBio.Apex) cityEntry.Apex += 1;
-        //            }
-        //        }
-
-        //        foreach (Patch patch in city.PatchesInTerritory)
-        //        {
-        //            foreach (int slotIndex in patch.GetActiveSlotIndices())
-        //            {
-        //                BioticumSlot slot = planet.slotDictionary[slotIndex];
-        //                foreach (string abd in slot.archivedBioticaDefs)
-        //                {
-        //                    BioticumDefinition thisLegBio = this.glossaryInstance.BioticumDefFromHash(abd);
-        //                    if (thisLegBio is null) continue;
-        //                    bioticaInCity.Add(thisLegBio.Hash);
-        //                    switch (thisLegBio.Type)
-        //                    {
-        //                        case "Plant":
-        //                            cityEntry.Plants += 1;
-        //                            break;
-        //                        case "Animal":
-        //                            cityEntry.Animals += 1;
-        //                            break;
-        //                        case "Mineral":
-        //                            cityEntry.Minerals += 1;
-        //                            break;
-        //                    }
-        //                    if (thisLegBio.Apex) cityEntry.Apex += 1;
-        //                    cityEntry.Biotica += 1;
-        //                }
-        //            }
-
-        //            if (this.glossaryInstance.BiomeNameByHash.TryGetValue(patch.biomeDefinition, out string patchBiome))
-        //            {
-        //                cityEntry.IncrementPatchBiomeCounter(patchBiome);
-        //            }
-        //        }
-        //        cityEntry.CalculateBiomePercentages(city.PatchesInTerritory.Count());
-
-        //        cityEntry.AvFBioLv = bioticaLevels.Count > 0 ? bioticaLevels.Average() : 0;
-        //        cityEntry.PPlant = SafePercent(cityEntry.Plants, cityEntry.Biotica);
-        //        cityEntry.PAnimal = SafePercent(cityEntry.Animals, cityEntry.Biotica);
-        //        cityEntry.PMineral = SafePercent(cityEntry.Minerals, cityEntry.Biotica);
-        //        cityEntry.ApexP = SafePercent(cityEntry.Apex, cityEntry.Biotica);
-
-        //        /*foreach (string bdic in bioticaInCity)
-        //        {
-        //            BioticumDefinition cityBioDef = this.glossaryInstance.BioticumDefFromHash(bdic);
-        //            if (cityBioDef is null) continue;
-        //            switch (cityBioDef.Type)
-        //            {
-        //                case "Plant":
-        //                    cityEntry.UqPlant += 1;
-        //                    break;
-        //                case "Animal":
-        //                    cityEntry.UqAnimal += 1;
-        //                    break;
-        //                case "Mineral":
-        //                    cityEntry.UqMineral += 1;
-        //                    break;
-        //            }
-        //            if (cityBioDef.Apex) cityEntry.UqApex += 1;
-        //        }*/
-
-        //        cityBioBySpiritName[founderName] = bioticaInCity;
-
-        //        foreach (City.ProjectController.CityProject project in city.CityProjectController.projects)
-        //        {
-        //            cityEntry.Buildings += 1;
-        //            if (glossaryInstance.ProjectDefinitionByHash.ContainsKey(project.definition))
-        //            {
-        //                CityProjectDefinition projectDef = this.glossaryInstance.TrProjectDefinitionFromHash(project.definition);
-        //                if (!ProjectStats.TryGetValue(projectDef.Hash, out ProjectStatEntry pse))
-        //                {
-        //                    pse = new(projectDef, this.glossaryInstance);
-        //                    this.ProjectStats[projectDef.Hash] = pse;
-        //                }
-
-        //                pse.IncrementCounts(founderName);
-
-        //                if (!this.ProjectSlotCount.ContainsKey(projectDef.Slot)) this.ProjectSlotCount[projectDef.Slot] = 0;
-        //                this.ProjectSlotCount[projectDef.Slot] += 1;
-
-        //                switch (projectDef.Slot)
-        //                {
-        //                    case "Era1":
-        //                        cityEntry.Era1B = projectDef.DisplayName;
-        //                        break;
-        //                    case "Era2":
-        //                        cityEntry.Era2B = projectDef.DisplayName;
-        //                        break;
-        //                    case "Era3":
-        //                        cityEntry.Era3B = projectDef.DisplayName;
-        //                        break;
-        //                    case "Lv1":
-        //                        cityEntry.Lv1B = projectDef.DisplayName;
-        //                        break;
-        //                    case "Lv2":
-        //                        cityEntry.Lv2B = projectDef.DisplayName;
-        //                        break;
-        //                    case "Lv3":
-        //                        cityEntry.Lv3B = projectDef.DisplayName;
-        //                        break;
-        //                    case "Temple1":
-        //                        cityEntry.Temple1 = projectDef.DisplayName;
-        //                        break;
-        //                    case "Temple2":
-        //                        cityEntry.Temple2 = projectDef.DisplayName;
-        //                        break;
-        //                    case "Temple3":
-        //                        cityEntry.Temple3 = projectDef.DisplayName;
-        //                        break;
-        //                    case "Special":
-        //                        cityEntry.SpecialProject = projectDef.DisplayName;
-        //                        break;
-        //                    default:
-        //                        Trace.TraceError($"Unknown project/project slot: {projectDef.DisplayName}");
-        //                        break;
-        //                }
-        //            }
-        //            else
-        //            {
-        //                CityProjectDefinition projectDef = this.glossaryInstance.TrProjectDefinitionFromHash(project.definition, project.name);
-        //                if (!ProjectStats.TryGetValue(projectDef.Hash, out ProjectStatEntry pse))
-        //                {
-        //                    pse = new(projectDef, this.glossaryInstance);
-        //                    this.ProjectStats[projectDef.Hash] = pse;
-        //                }
-
-        //                pse.IncrementCounts(founderName);
-        //            }
-        //        }
-
-        //        thisPlanetCitySummaries.Add(cityEntry);
-        //    }
-        //    thisPlanetCitySummaries.OrderBy(x => x.CityN);
-
-        //    List<int> cityRanks = [..thisPlanetCitySummaries
-        //        .Select(cs => cs.Pros)
-        //        .Select((x, i) => new KeyValuePair<int, int>(x, i))
-        //        .OrderBy(xi => -xi.Key)
-        //        .Select(xi => xi.Value)];
-
-        //    for (int i = 0; i < cityRanks.Count; i++)
-        //    {
-        //        int c = cityRanks[i];
-        //        thisPlanetCitySummaries[c].Rank = i + 1;
-        //        thisPlanetCitySummaries[c].Upset = thisPlanetCitySummaries[c].CityN - thisPlanetCitySummaries[c].Rank;
-        //    }
-
-        //    foreach (CitySummaryEntry ce in thisPlanetCitySummaries)
-        //    {
-        //        string founderName = ce.Char;
-        //        if (!this.SpiritStats.TryGetValue(founderName, out SpiritStatEntry se))
-        //        {
-        //            se = new(founderName, this.glossaryInstance);
-        //            this.SpiritStats[founderName] = se;
-        //        }
-
-        //        se.Count += 1;
-        //        if (ce.CityN == 1)
-        //        {
-        //            se.Prime += 1;
-        //            if (planet.gameSession.turningPointPerformances.Count > 0)
-        //            {
-        //                se.IncrementPlanetScoreTotalAsPrimary((int)planet.gameSession.turningPointPerformances.Last().scoreTotal);
-        //                se.IncrementPlanetProsAverageAsPrimary(Statistics.Mean([.. cityProsList]));
-        //                se.HiPrScore = Math.Max(se.HiPrScore, (int)planet.gameSession.turningPointPerformances.Last().scoreTotal);
-        //            }
-        //        }
-        //        if (planet.gameSession.turningPointPerformances.Count > 0) se.IncrementPlanetScoreTotal((int)planet.gameSession.turningPointPerformances.Last().scoreTotal);
-
-        //        se.IncrementProsperityTotals(ce.Pros, ce.Pop, ce.Tech, ce.Wel);
-        //        se.IncrementProsperityPercentTotals((double)ce.PPop, (double)ce.PTech, (double)ce.PWel);
-        //        se.IncrementProsperityRelTotals((double)ce.RelPros, (double)ce.RelPop, (double)ce.RelTech, (double)ce.RelWel);
-
-        //        se.HiPros = Math.Max(se.HiPros, ce.Pros);
-        //        se.HiPop = Math.Max(se.HiPop, ce.Pop);
-        //        se.HiTech = Math.Max(se.HiTech, ce.Tech);
-        //        se.HiWel = Math.Max(se.HiWel, ce.Wel);
-
-        //        se.HiPPop = Math.Max(se.HiPPop, (double)ce.PPop);
-        //        se.HiPTech = Math.Max(se.HiPTech, (double)ce.PTech);
-        //        se.HiPWel = Math.Max(se.HiPWel, (double)ce.PWel);
-
-        //        se.HiRelPros = Math.Max(se.HiRelPros, (double)ce.RelPros);
-        //        se.HiRelPop = Math.Max(se.HiRelPop, (double)ce.RelPop);
-        //        se.HiRelTech = Math.Max(se.HiRelTech, (double)ce.RelTech);
-        //        se.HiRelWel = Math.Max(se.HiRelWel, (double)ce.RelWel);
-
-        //        se.Invent += ce.Invent;
-        //        se.Trades += ce.Trades;
-
-        //        int upset = (int)ce.Upset;
-        //        se.IncrementUpsetTotal(upset, (int)ce.CityN == 1, (int)ce.Rank == 1);
-        //        if (upset > 0) se.PosUpset += 1;
-        //        if (upset < 0) se.NegUpset += 1;
-
-        //        se.Plants += ce.Plants;
-        //        se.Animals += ce.Animals;
-        //        se.Minerals += ce.Minerals;
-
-        //        //se.IncrementBioticaPercentTotals((double)ce.PPlant, (double)ce.PAnimal, (double)ce.PMineral, (double)ce.ApexP);
-        //        //se.IncrementBioticaPercentTotals((double)ce.ApexP);
-        //        se.Apex += ce.Apex;
-
-        //        se.AddBioUsed(cityBioBySpiritName[founderName]);
-        //    }
-
-        //    foreach (City city in planet.cityDictionary.Values)
-        //    {
-        //        Dictionary<string, int> biomePatchesInCity = [];
-        //        string founderName = glossaryInstance.SpiritNameFromHash(city.founderCharacterDef);
-        //        foreach (Patch patch in city.PatchesInTerritory)
-        //        {
-        //            if (!patch.IsWildPatch()) continue;
-        //            string patchBiome = glossaryInstance.BiomeNameFromHash(patch.biomeDefinition);
-        //            if (!biomePatchesInCity.ContainsKey(patchBiome)) biomePatchesInCity[patchBiome] = 0;
-        //            biomePatchesInCity[patchBiome] += 1;
-        //        }
-        //        this.SpiritStats[founderName].IncrementBiomeUsage(biomePatchesInCity);
-
-        //        List<int> bioticaLevels = [];
-        //        // Active biotica only!
-        //        foreach (NatureBioticum nb in city.BioticaInTerritory)
-        //        {
-        //            if (glossaryInstance.BioticumDefinitionByHash.ContainsKey(nb.definition))
-        //            {
-        //                BioticumDefinition thisBio = glossaryInstance.BioticumDefinitionByHash[nb.definition];
-        //                bioticaLevels.Add(thisBio.Tier);
-        //            }
-        //        }
-        //        this.SpiritStats[founderName].IncrementBioticaLevelTotal(bioticaLevels);
-        //    }
-
-        //    this.CitySummaries.AddRange(thisPlanetCitySummaries);
-
-        //    // Generic buff checking
-        //    foreach (GenericBuff buff in planet.BuffList)
-        //    {
-        //        // for spading/debug
-        //        this.genericBuffNamesByDef.TryAdd(buff.definition, buff.name);
-
-        //        if (buff.name == "Canned Sludge")
-        //        {
-        //            if (citiesByLuxuryBuffHandler.TryGetValue((int)buff.owner, out City buffCity))
-        //            {
-        //                string founderName = glossaryInstance.SpiritNameFromHash(buffCity.founderCharacterDef);
-        //                if (buffCity.tokenIndex != cannedSludgeCity)
-        //                {
-        //                    this.LuxuryStats[cannedSludgeHash].Copies += 1;
-        //                    this.LuxuryStats[cannedSludgeHash].LeaderCounts[founderName] += 1;
-        //                }
-        //            }
-        //        }
-        //    }
-        //    foreach (string luxHash in luxuriesPresent)
-        //    {
-        //        this.LuxuryStats[luxHash].Planets += 1;
-        //    }
-        //}
-
-        //public void CountBioticaVsSpirit(Planet planet, int index, string primarySpirit)
-        //{
-        //    foreach (City city in planet.cityDictionary.Values)
-        //    {
-        //        string spirit = glossaryInstance.SpiritNameFromHash(city.founderCharacterDef);
-        //        foreach (NatureBioticum nb in city.BioticaInTerritory)
-        //        {
-        //            if (glossaryInstance.BioticumDefinitionByHash.ContainsKey(nb.definition))
-        //            {
-        //                string activeBioName = glossaryInstance.BioticumNameFromHash(nb.definition);
-        //                this.IncrementSpiritVsBioticaCounters(activeBioName, spirit, primarySpirit);
-        //            }
-        //        }
-        //        foreach (int slotIndex in city.ListSlotIndicesInTerritory())
-        //        {
-        //            BioticumSlot slot = planet.slotDictionary[slotIndex];
-        //            foreach (string legacyDef in slot.archivedBioticaDefs)
-        //            {
-        //                if (glossaryInstance.BioticumDefinitionByHash.ContainsKey(legacyDef))
-        //                {
-        //                    string legacyBioName = glossaryInstance.BioticumNameFromHash(legacyDef);
-        //                    this.IncrementSpiritVsBioticaCounters(legacyBioName, spirit, primarySpirit);
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
+        public void UpdateBioticaStats(Planet planet, int index)
+        {
+            if (planet is null) return;
+
+            Dictionary<string, int> activeBioCounter = [];
+            Dictionary<string, int> legacyBioCounter = [];
+            //Dictionary<(string,string), int> bioPropertyDict = [];
+
+            foreach (KeyValuePair<string, int> legKv in planet.LegacyBioticaCounterDefs)
+            {
+                IncrementCounter(legacyBioCounter, legKv.Key, legKv.Value);
+            }
+            foreach (NatureBioticum nb in planet.natureBioticumDictionary.Values)
+            {
+                IncrementCounter(activeBioCounter, nb.definition, 1);
+            }
+
+            Dictionary<string, int> completeBioCounter = [];
+            foreach (KeyValuePair<string, int> kv in activeBioCounter)
+            {
+                IncrementCounter(completeBioCounter, kv.Key, kv.Value);
+            }
+            foreach (KeyValuePair<string, int> kv in legacyBioCounter)
+            {
+                IncrementCounter(completeBioCounter, kv.Key, kv.Value);
+            }
+
+            HashSet<string> draftedOrPlacedInSession = [];
+            // Count if drafted
+            foreach (string draftDef in planet.MasteredBioticaDefSet)
+            {
+                BioDraftedOrPlacedInProfile.Add(draftDef);
+                draftedOrPlacedInSession.Add(draftDef);
+            }
+
+            // Make entries for active then archived then complete
+            foreach (string activeDef in activeBioCounter.Keys)
+            {
+                CheckBioticaStatEntry(activeDef, planet.number);
+                BioticaStats[activeDef].Final += activeBioCounter[activeDef];
+                if (planet.gameSession.topBiotica.Count > 0) 
+                {
+                    int activeCount = activeBioCounter[activeDef];
+                    int allCount = activeCount;
+                    if (legacyBioCounter.TryGetValue(activeDef, out int legacyCount)) allCount += legacyCount;
+                    BioticaStats[activeDef].IncrementTop5Available(activeCount, allCount);
+                }
+                BioDraftedOrPlacedInProfile.Add(activeDef);
+                draftedOrPlacedInSession.Add(activeDef);
+            }
+            foreach (string legacyDef in legacyBioCounter.Keys)
+            {
+                CheckBioticaStatEntry(legacyDef, planet.number);
+                BioticaStats[legacyDef].Legacy += legacyBioCounter[legacyDef];
+                BioDraftedOrPlacedInProfile.Add(legacyDef);
+                draftedOrPlacedInSession.Add(legacyDef);
+            }
+
+            // Count all biotica that are available in available biomes
+            // Only increment if it has been drafted or placed in this planet or previous planets
+            // (Could be not unavailable by level or DLC)
+            HashSet<string> biomeMatchingBiotica = [];
+            foreach (string giantHash in planet.gameSession.giantRosterDefs)
+            {
+                Glossaries.GiantDefinition gd = Glossaries.TryGiantDefinitionFromHash(giantHash);
+                if (gd.Biome1 is null || gd.Biome2 is null) continue; // Unknown giant, don't calculate biome-matching biotica
+                foreach (Glossaries.BioticumDefinition bd in Glossaries.BioticumDefinitionList)
+                {
+                    bool b1match = bd.IsBiomeAllowed(gd.Biome1);
+                    bool b2match = bd.IsBiomeAllowed(gd.Biome2);
+                    if (b1match || b2match)
+                    {
+                        biomeMatchingBiotica.Add(bd.Hash);
+                        if (bd.Starter)
+                        {
+                            BioDraftedOrPlacedInProfile.Add(bd.Hash);
+                            draftedOrPlacedInSession.Add(bd.Hash);
+                        }
+                    }
+                }
+            }
+
+            foreach (string draftDef in draftedOrPlacedInSession)
+            {
+                CheckBioticaStatEntry(draftDef, planet.number);
+                BioticaStats[draftDef].Draft += 1;
+            }
+
+            foreach (string cDef in completeBioCounter.Keys)
+            {
+                // CheckBioticaStatEntry(cDef, planet.number);
+                BioticaStats[cDef].Planets += 1;
+                BioticaStats[cDef].Total += completeBioCounter[cDef];
+                BioticaStats[cDef].PLast = planet.number;
+                if (completeBioCounter[cDef] > 1) BioticaStats[cDef].AddMultiValue(completeBioCounter[cDef]);
+            }
+
+            HashSet<string> missedDraft = [.. draftedOrPlacedInSession.Except(biomeMatchingBiotica)];
+            HashSet<string> availBiotica = [.. biomeMatchingBiotica.Intersect(BioDraftedOrPlacedInProfile)];
+
+            // Special case: The Farmer's Frontier Farm special biotica
+            // Marked with -1 in all land biomes
+            bool farmBioOk = Glossaries.BioticumDefinitionByName.TryGetValue("Frontier Farm", out BioticumDefinition farmBioDef);
+            bool aqFarmBioOk = Glossaries.BioticumDefinitionByName.TryGetValue("Aquatic Frontier Farm", out BioticumDefinition aqFarmBioDef);
+
+            if (Glossaries.SpiritNameFromHash(planet.gameSession.selectedCharacterDef) == "Farmer" && farmBioOk)
+            {
+                availBiotica.Add(farmBioDef.Hash);
+                availBiotica.Add(aqFarmBioDef.Hash);
+            } 
+            else if (farmBioOk)
+            {
+                availBiotica.Remove(farmBioDef.Hash);
+                availBiotica.Remove(aqFarmBioDef.Hash);
+            }
+
+            foreach (string availDef in availBiotica)
+            {
+                if (BioDraftedOrPlacedInProfile.Contains(availDef))
+                {
+                    BioticaStats[availDef].Avail += 1;
+                }
+            }
+
+
+            List<TopBioticumSummary> planetTopBio = [];
+            foreach (GameSession.TopBioticaEntry tbe in planet.gameSession.topBiotica)
+            {
+                planetTopBio.Add(new TopBioticumSummary(index, 0, tbe));
+                this.BioticaStats[tbe.bioticumType].Top5 += 1;
+                this.BioticaStats[tbe.bioticumType].AddTop5Score(tbe.totalValue);
+            }
+            planetTopBio = [.. planetTopBio.OrderBy(tbe => -tbe.TotalValue)]; 
+            for (int topBioIndex = 0; topBioIndex < planetTopBio.Count; topBioIndex++)
+            {
+                planetTopBio[topBioIndex].SetRank(topBioIndex + 1);
+            }
+            planetTopBio.Reverse();
+            this.TopBioticumSummaries.AddRange(planetTopBio);
+            // Rank descending, add to end 
+            // Reversed during finalization, most recent planet first, 1st place first
+        }
+
+        public void UpdateHumanityStats(Planet planet, int index)
+        {
+            // Planet Summary
+            PlanetSummaryEntry planetEntry = new(planet);
+            if (planet.gameSession.turningPointPerformances.Count > 0)
+            {
+                planetEntry.Score = (int)planet.gameSession.turningPointPerformances.Last().scoreTotal;
+
+                foreach (GameSession.TurningPointPerformance tpp in planet.gameSession.turningPointPerformances)
+                {
+                    Glossaries.EraDefinition eraDef = Glossaries.TryEraDefinitionFromHash(tpp.turningPointDef);
+                    if (!this.EraStats.TryGetValue(eraDef.Hash, out EraStatEntry ese))
+                    {
+                        this.EraStats[eraDef.Hash] = new(eraDef);
+                    }
+                    ese = this.EraStats[eraDef.Hash];
+                    ese.Count += 1;
+                    ese.eraScores.Add((int)tpp.scoreTotal);
+
+                    switch (tpp.starRating)
+                    {
+                        case 3:
+                            ese.Star3 += 1;
+                            continue;
+                        case 2:
+                            ese.Star2 += 1;
+                            continue;
+                        case 1:
+                            ese.Star1 += 1;
+                            continue;
+                        case 0:
+                            ese.Star0 += 1;
+                            continue;
+                    }
+                }
+            }
+
+            planetEntry.Giant1 = planet.GiantNames[0];
+            planetEntry.Giant2 = planet.GiantNames[1];
+            planetEntry.Giant3 = planet.GiantNames[2];
+
+            planetEntry.Spirit = Glossaries.SpiritNameFromHash(planet.gameSession.selectedCharacterDef);
+
+            List<int> cityProsList = [];
+            List<int> cityPopList = [];
+            List<int> cityTechList = [];
+            List<int> cityWelList = [];
+
+            HashSet<string> luxuriesPresent = [];
+
+            planetEntry.Cities = planet.cityDictionary.Count;
+
+            int cityIndex = 0; // Starts at 1, increments at beginning of loop
+            foreach (City city in planet.cityDictionary.Values)
+            {
+                cityIndex += 1;
+
+                planetEntry.Prjs += city.CityProjectController.projects.Count;
+                planetEntry.Invent += city.CityLuxuryController.luxurySlots.Where(ls => ls.luxuryGoodId is not null).Count();
+                planetEntry.Trades += city.CityLuxuryController.importAgreementIds.Count();
+
+                if (city.CivSummary is not null)
+                {
+                    cityProsList.Add((int)city.CivSummary.prosperity);
+                    cityPopList.Add((int)city.CivSummary.population);
+                    cityTechList.Add((int)city.CivSummary.innovation);
+                    cityWelList.Add((int)city.CivSummary.wealth);
+                }
+
+                string founderName = Glossaries.SpiritNameFromHash(city.founderCharacterDef);
+                typeof(PlanetSummaryEntry).GetField("Char" + cityIndex.ToString()).SetValue(planetEntry, founderName);
+            }
+
+            planetEntry.PrjAv = SafeDivide(planetEntry.Prjs, planetEntry.Cities);
+            planetEntry.InventAv = SafeDivide(planetEntry.Invent, planetEntry.Cities);
+            planetEntry.TradeAv = SafeDivide(planetEntry.Trades, planetEntry.Cities);
+
+            planetEntry.Pros = cityProsList.Sum();
+            planetEntry.ProsMdn = Statistics.Median([.. cityProsList]);
+            planetEntry.AvPros = Statistics.Mean([.. cityProsList]);
+            planetEntry.Gini = GiniCoeff(cityProsList);
+            planetEntry.HiPros = cityProsList.Count > 0 ? cityProsList.Max() : 0;
+
+            planetEntry.Pop = cityPopList.Sum();
+            planetEntry.Tech = cityTechList.Sum();
+            planetEntry.Wel = cityWelList.Sum();
+
+            // // % of total Prosperity (including bonus prosperity from luxuries, requests, etc.)
+            //planetEntry.PPop = SafeDivide(planetEntry.Pop, planetEntry.Pros);
+            //planetEntry.PTech = SafeDivide(planetEntry.Tech, planetEntry.Pros);
+            //planetEntry.PWel = SafeDivide(planetEntry.Wel, planetEntry.Pros);
+
+            planetEntry.PPop = SafePercent(planetEntry.Pop, planetEntry.Pop + planetEntry.Tech + planetEntry.Wel);
+            planetEntry.PTech = SafePercent(planetEntry.Tech, planetEntry.Pop + planetEntry.Tech + planetEntry.Wel);
+            planetEntry.PWel = SafePercent(planetEntry.Wel, planetEntry.Pop + planetEntry.Tech + planetEntry.Wel);
+
+            planetEntry.HiPop = cityPopList.Count > 0 ? cityPopList.Max() : 0;
+            planetEntry.HiTech = cityTechList.Count > 0 ? cityTechList.Max() : 0;
+            planetEntry.HiWel = cityWelList.Count > 0 ? cityWelList.Max() : 0;
+
+            planetEntry.MdnPop = Statistics.Median([.. cityPopList]);
+            planetEntry.AvPop = Statistics.Mean([.. cityPopList]);
+            planetEntry.MdnTech = Statistics.Median([.. cityTechList]);
+            planetEntry.AvTech = Statistics.Mean([.. cityTechList]);
+            planetEntry.MdnWel = Statistics.Median([.. cityWelList]);
+            planetEntry.AvWel = Statistics.Mean([.. cityWelList]);
+
+            if (planet.gameSession.turningPointPerformances.Count >= 1)
+            {
+                planetEntry.Era1Name = Glossaries.EraNameFromHash(planet.gameSession.turningPointPerformances[0].turningPointDef);
+                planetEntry.Era1Score = planet.gameSession.turningPointPerformances[0].scoreTotal;
+                planetEntry.Era1Star = planet.gameSession.turningPointPerformances[0].starRating;
+            }
+
+            if (planet.gameSession.turningPointPerformances.Count >= 2)
+            {
+                planetEntry.Era2Name = Glossaries.EraNameFromHash(planet.gameSession.turningPointPerformances[1].turningPointDef);
+                planetEntry.Era2Score = planet.gameSession.turningPointPerformances[1].scoreTotal;
+                planetEntry.Era2Star = planet.gameSession.turningPointPerformances[1].starRating;
+            }
+
+            if (planet.gameSession.turningPointPerformances.Count >= 3)
+            {
+                planetEntry.Era3Name = Glossaries.EraNameFromHash(planet.gameSession.turningPointPerformances[2].turningPointDef);
+                planetEntry.Era3Score = planet.gameSession.turningPointPerformances[2].scoreTotal;
+                planetEntry.Era3Star = planet.gameSession.turningPointPerformances[2].starRating;
+            }
+
+            planetEntry.SzT = planet.totalSize;
+            planetEntry.SzWld = planet.wildSize;
+
+            List<Biome> activeBiomes = [.. planet.biomeDictionary.Values.ToList().Where(b => b.anchorPatchId is not null)];
+            planetEntry.Biomes = activeBiomes.Count;
+            planetEntry.CBiomes = planet.gameSession.coolBiomes;
+
+            List<string> bioticaHashList = [.. planet.natureBioticumDictionary.Values.ToList().Select(v => v.definition)];
+            List<BioticumDefinition> bioticaDefList = [..bioticaHashList
+                .Select(v => Glossaries.BioticumDefFromHash(v))
+                .Where(v => v is not null)];
+
+            HashSet<BioticumDefinition> uniqueBioticaDefs = bioticaDefList.ToHashSet();
+
+            planetEntry.Biotica = bioticaHashList.Count;
+            planetEntry.UqBiotica = uniqueBioticaDefs.Count;
+            planetEntry.Plants = bioticaDefList.Where(v => v.Type == "Plant").Count();
+            planetEntry.UqPlants = uniqueBioticaDefs.Where(v => v.Type == "Plant").Count();
+            planetEntry.Animals = bioticaDefList.Where(v => v.Type == "Animal").Count();
+            planetEntry.UqAnimals = uniqueBioticaDefs.Where(v => v.Type == "Animal").Count();
+            planetEntry.Minerals = bioticaDefList.Where(v => v.Type == "Mineral").Count();
+            planetEntry.UqMinerals = uniqueBioticaDefs.Where(v => v.Type == "Mineral").Count();
+
+            planetEntry.Apex = bioticaDefList.Where(v => v.Apex).Count();
+            foreach (BioticumSlot slot in planet.slotDictionary.Values)
+            {
+                if (slot.bioticumId is null) continue;
+                if (slot.isInvasiveSlot ?? false) planetEntry.InvasiveSpots += 1;
+                if (planet.natureBioticumDictionary.ContainsKey((int)slot.bioticumId))
+                {
+                    planetEntry.FilledSlots += 1;
+                    if (slot.slotLevel is not null) planetEntry.IncrementSlotTotalLevel((int)slot.slotLevel);
+                }
+            }
+
+            Dictionary<int, Patch> wildPatches = planet.patchDictionary.Where(kv => kv.Value.IsWildPatch()).ToDictionary();
+            int wildSlots = wildPatches.SelectMany(kv => kv.Value.GetActiveSlotIndices()).Count();
+            planetEntry.FillP = SafePercent(planetEntry.FilledSlots, wildSlots);
+
+            planetEntry.Creeks = wildPatches.Where(kv => kv.Value.specialNaturalFeature == (int)Glossaries.SpecialNaturalFeatures.Creek).Count();
+            planetEntry.Anomalies = wildPatches.Where(kv => kv.Value.specialNaturalFeature == (int)Glossaries.SpecialNaturalFeatures.Anomaly).Count();
+            planetEntry.Sanctuaries = wildPatches.Where(kv => kv.Value.specialNaturalFeature == (int)Glossaries.SpecialNaturalFeatures.Sanctuary).Count();
+            planetEntry.MountainSlots = wildPatches.Where(kv => kv.Value.mountainPart > 0).Count();
+
+            foreach ((string biomeName, double percent) in planet.BiomePercentages)
+            {
+                planetEntry.biomePercents[biomeName] = percent;
+            }
+
+            this.PlanetSummaries.Add(planetEntry);
+
+            // City Summary and Spirit Stats
+            List<CitySummaryEntry> thisPlanetCitySummaries = [];
+            List<City> citiesInOrder = [.. planet.cityDictionary.ToList().OrderBy(kv => kv.Key).Select(kv => kv.Value)];
+            Dictionary<int, City> citiesByLuxuryBuffHandler = [];
+            int? cannedSludgeCity = null;
+            string cannedSludgeHash = null;
+            int cityN = 0;
+            Dictionary<string, HashSet<string>> cityBioBySpiritName = [];
+            foreach (City city in citiesInOrder)
+            {
+                cityN++;
+                CitySummaryEntry cityEntry = new(index, cityN, city.fancyName);
+
+                string founderName = Glossaries.SpiritNameFromHash(city.founderCharacterDef);
+
+                cityEntry.Char = founderName;
+                cityEntry.Level = city.currentVisualStage is not null ? city.currentVisualStage + 1 : null;
+
+                cityEntry.Pros = (int)city.CivSummary.prosperity;
+                cityEntry.Pop = (int)city.CivSummary.population;
+                cityEntry.Tech = (int)city.CivSummary.innovation;
+                cityEntry.Wel = (int)city.CivSummary.wealth;
+
+                cityEntry.FoundBiome = Glossaries.BiomeNameFromHash(city.settledBiomeDef);
+                cityEntry.CurrBiome = Glossaries.BiomeNameFromHash(city.currentBiomeDef);
+
+                cityEntry.PPop = SafePercent(cityEntry.Pop, cityEntry.Pop + cityEntry.Tech + cityEntry.Wel);
+                cityEntry.PTech = SafePercent(cityEntry.Tech, cityEntry.Pop + cityEntry.Tech + cityEntry.Wel);
+                cityEntry.PWel = SafePercent(cityEntry.Wel, cityEntry.Pop + cityEntry.Tech + cityEntry.Wel);
+
+                cityEntry.RelPros = cityEntry.Pros / planetEntry.ProsMdn;
+                cityEntry.RelPop = cityEntry.Pop / planetEntry.MdnPop;
+                cityEntry.RelTech = cityEntry.Tech / planetEntry.MdnTech;
+                cityEntry.RelWel = cityEntry.Wel / planetEntry.MdnWel;
+
+                cityEntry.Invent = city.CityLuxuryController.luxurySlots.Where(ls => ls.luxuryGoodId is not null).Count();
+                cityEntry.Trades = city.CityLuxuryController.importAgreementIds.Count();
+                cityEntry.TerrPatches = city.PatchesInTerritory.Where(p => p.IsWildPatch()).Count();
+
+                foreach (City.LuxuryController.LuxurySlot luxSlot in city.CityLuxuryController.luxurySlots)
+                {
+                    if (luxSlot.luxuryGood is null) continue;
+                    string luxHash = luxSlot.luxuryGood.definition;
+                    this.inventionDefinitions.Add(luxHash);
+
+                    LuxuryDefinition luxDef = Glossaries.TryLuxuryDefinitionFromHash(luxHash);
+                    if (!this.LuxuryStats.TryGetValue(luxHash, out LuxuryStatEntry lse))
+                    {
+                        LuxuryStatEntry newEntry = new(luxDef);
+                        lse = newEntry;
+                        this.LuxuryStats.Add(luxHash, lse);
+                    }
+
+                    lse.Copies += 1;
+                    if (luxSlot.luxuryGood.originCityId == city.tokenIndex)
+                    {
+                        if (this.LuxuryStats[luxHash].LeaderCountsOri.ContainsKey(founderName))
+                        {
+                            this.LuxuryStats[luxHash].LeaderCountsOri[founderName] += 1;
+                            this.LuxuryStats[luxHash].ICount += 1;
+                        }
+
+                        if (luxSlot.luxuryGood.originalBioticumDef is not null && Glossaries.BioticumDefinitionByHash.TryGetValue(luxSlot.luxuryGood.originalBioticumDef, out BioticumDefinition luxSrcBioDef))
+                        {
+                            if (this.LuxuryStats[luxHash].BioticaSourceCounts.ContainsKey(luxSrcBioDef.Name)) this.LuxuryStats[luxHash].BioticaSourceCounts[luxSrcBioDef.Name] += 1;
+                            else this.LuxuryStats[luxHash].BioticaSourceCounts[luxSrcBioDef.Name] = 1;
+                        }
+                    }
+                    if (lse.LeaderCounts.ContainsKey(founderName))
+                    {
+                        lse.LeaderCounts[founderName] += 1;
+                    }
+                    luxuriesPresent.Add(luxHash);
+
+                    if (luxDef.Name == "Canned Sludge")
+                    {
+                        cannedSludgeCity = city.tokenIndex;
+                        cannedSludgeHash = luxHash;
+                    }
+
+                    string inspiringBio = luxSlot.luxuryGood.originalBioticumDef;
+                    if (inspiringBio is not null)
+                    {
+                        CheckBioticaStatEntry(inspiringBio, index);
+                        this.BioticaStats[inspiringBio].Inventions += 1;
+                    }
+                }
+                citiesByLuxuryBuffHandler[(int)city.CityLuxuryController.luxuryBuffControllerId] = city;
+                foreach (City.LuxuryController.LuxurySlot tradeSlot in city.CityLuxuryController.tradeSlots)
+                {
+                    if (tradeSlot == null) continue;
+                    if (tradeSlot.luxuryGood == null) continue; // Empty trade slot
+                    string importHash = tradeSlot.luxuryGood.definition;
+                    LuxuryDefinition importDef = Glossaries.TryLuxuryDefinitionFromHash(importHash);
+
+                    if (!this.LuxuryStats.TryGetValue(importHash, out LuxuryStatEntry lse))
+                    {
+                        LuxuryStatEntry newEntry = new(importDef);
+                        lse = newEntry;
+                        this.LuxuryStats.Add(importHash, lse);
+                    }
+
+                    lse.Copies += 1;
+                    if (lse.LeaderCounts.ContainsKey(founderName))
+                    {
+                        lse.LeaderCounts[founderName] += 1;
+                    }
+                }
+
+                cityEntry.TPLead = city.initiatedTurningPointsDefs.Count;
+                foreach (string cityStartedEras in city.initiatedTurningPointsDefs)
+                {
+                    EraDefinition thisEra = Glossaries.TryEraDefinitionFromHash(cityStartedEras);
+                    if (thisEra.Era == 0) continue;
+                    string eraName = thisEra.Name;
+                    switch (thisEra.Era)
+                    {
+                        case 1:
+                            cityEntry.TP1 = eraName;
+                            break;
+                        case 2:
+                            cityEntry.TP2 = eraName;
+                            break;
+                        case 3:
+                            cityEntry.TP3 = eraName;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                int slotCount = 0;
+                foreach (Patch wildPatch in city.PatchesInTerritory.Where(p => p.IsWildPatch()))
+                {
+                    foreach (int slotIndex in wildPatch.GetActiveSlotIndices())
+                    {
+                        BioticumSlot slot = planet.slotDictionary[slotIndex];
+                        slotCount += 1;
+                        if (slot.bioticumId is not null) cityEntry.FilledSlots += 1;
+                    }
+                }
+                cityEntry.FillP = SafePercent(cityEntry.FilledSlots, slotCount);
+
+                cityEntry.Biotica = city.BioticaInTerritory.Count;
+                List<int> bioticaLevels = []; // Ending levels, active bio only
+                HashSet<string> bioticaInCity = []; // All bio hashes
+
+                // Active biotica only!
+                foreach (NatureBioticum nb in city.BioticaInTerritory)
+                {
+                    if (Glossaries.BioticumDefinitionByHash.TryGetValue(nb.definition, out BioticumDefinition thisBio))
+                    {
+                        bioticaLevels.Add(thisBio.Tier);
+                        bioticaInCity.Add(thisBio.Hash);
+                        switch (thisBio.Type)
+                        {
+                            case "Plant":
+                                cityEntry.Plants += 1;
+                                break;
+                            case "Animal":
+                                cityEntry.Animals += 1;
+                                break;
+                            case "Mineral":
+                                cityEntry.Minerals += 1;
+                                break;
+                        }
+                        if (thisBio.Apex) cityEntry.Apex += 1;
+                    }
+                }
+
+                foreach (Patch patch in city.PatchesInTerritory)
+                {
+                    foreach (int slotIndex in patch.GetActiveSlotIndices())
+                    {
+                        BioticumSlot slot = planet.slotDictionary[slotIndex];
+                        foreach (string abd in slot.archivedBioticaDefs)
+                        {
+                            BioticumDefinition thisLegBio = Glossaries.BioticumDefFromHash(abd);
+                            if (thisLegBio is null) continue;
+                            bioticaInCity.Add(thisLegBio.Hash);
+                            switch (thisLegBio.Type)
+                            {
+                                case "Plant":
+                                    cityEntry.Plants += 1;
+                                    break;
+                                case "Animal":
+                                    cityEntry.Animals += 1;
+                                    break;
+                                case "Mineral":
+                                    cityEntry.Minerals += 1;
+                                    break;
+                            }
+                            if (thisLegBio.Apex) cityEntry.Apex += 1;
+                            cityEntry.Biotica += 1;
+                        }
+                    }
+
+                    if (Glossaries.BiomeNameByHash.TryGetValue(patch.biomeDefinition, out string patchBiome))
+                    {
+                        cityEntry.IncrementPatchBiomeCounter(patchBiome);
+                    }
+                }
+                cityEntry.CalculateBiomePercentages(city.PatchesInTerritory.Count());
+
+                cityEntry.AvFBioLv = bioticaLevels.Count > 0 ? bioticaLevels.Average() : 0;
+                cityEntry.PPlant = SafePercent(cityEntry.Plants, cityEntry.Biotica);
+                cityEntry.PAnimal = SafePercent(cityEntry.Animals, cityEntry.Biotica);
+                cityEntry.PMineral = SafePercent(cityEntry.Minerals, cityEntry.Biotica);
+                cityEntry.ApexP = SafePercent(cityEntry.Apex, cityEntry.Biotica);
+
+                /*foreach (string bdic in bioticaInCity)
+                {
+                    BioticumDefinition cityBioDef = Glossaries.BioticumDefFromHash(bdic);
+                    if (cityBioDef is null) continue;
+                    switch (cityBioDef.Type)
+                    {
+                        case "Plant":
+                            cityEntry.UqPlant += 1;
+                            break;
+                        case "Animal":
+                            cityEntry.UqAnimal += 1;
+                            break;
+                        case "Mineral":
+                            cityEntry.UqMineral += 1;
+                            break;
+                    }
+                    if (cityBioDef.Apex) cityEntry.UqApex += 1;
+                }*/
+
+                cityBioBySpiritName[founderName] = bioticaInCity;
+
+                foreach (City.ProjectController.CityProject project in city.CityProjectController.projects)
+                {
+                    cityEntry.Buildings += 1;
+                    if (Glossaries.ProjectDefinitionByHash.ContainsKey(project.definition))
+                    {
+                        CityProjectDefinition projectDef = Glossaries.TrProjectDefinitionFromHash(project.definition);
+                        if (!ProjectStats.TryGetValue(projectDef.Hash, out ProjectStatEntry pse))
+                        {
+                            pse = new(projectDef);
+                            this.ProjectStats[projectDef.Hash] = pse;
+                        }
+
+                        pse.IncrementCounts(founderName);
+
+                        if (!this.ProjectSlotCount.ContainsKey(projectDef.Slot)) this.ProjectSlotCount[projectDef.Slot] = 0;
+                        this.ProjectSlotCount[projectDef.Slot] += 1;
+
+                        switch (projectDef.Slot)
+                        {
+                            case "Era1":
+                                cityEntry.Era1B = projectDef.DisplayName;
+                                break;
+                            case "Era2":
+                                cityEntry.Era2B = projectDef.DisplayName;
+                                break;
+                            case "Era3":
+                                cityEntry.Era3B = projectDef.DisplayName;
+                                break;
+                            case "Lv1":
+                                cityEntry.Lv1B = projectDef.DisplayName;
+                                break;
+                            case "Lv2":
+                                cityEntry.Lv2B = projectDef.DisplayName;
+                                break;
+                            case "Lv3":
+                                cityEntry.Lv3B = projectDef.DisplayName;
+                                break;
+                            case "Temple1":
+                                cityEntry.Temple1 = projectDef.DisplayName;
+                                break;
+                            case "Temple2":
+                                cityEntry.Temple2 = projectDef.DisplayName;
+                                break;
+                            case "Temple3":
+                                cityEntry.Temple3 = projectDef.DisplayName;
+                                break;
+                            case "Special":
+                                cityEntry.SpecialProject = projectDef.DisplayName;
+                                break;
+                            default:
+                                Trace.TraceError($"Unknown project/project slot: {projectDef.DisplayName}");
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        CityProjectDefinition projectDef = Glossaries.TrProjectDefinitionFromHash(project.definition, project.name);
+                        if (!ProjectStats.TryGetValue(projectDef.Hash, out ProjectStatEntry pse))
+                        {
+                            pse = new(projectDef);
+                            this.ProjectStats[projectDef.Hash] = pse;
+                        }
+
+                        pse.IncrementCounts(founderName);
+                    }
+                }
+
+                thisPlanetCitySummaries.Add(cityEntry);
+            }
+            thisPlanetCitySummaries.OrderBy(x => x.CityN);
+
+            List<int> cityRanks = [..thisPlanetCitySummaries
+                .Select(cs => cs.Pros)
+                .Select((x, i) => new KeyValuePair<int, int>(x, i))
+                .OrderBy(xi => -xi.Key)
+                .Select(xi => xi.Value)];
+
+            for (int i = 0; i < cityRanks.Count; i++)
+            {
+                int c = cityRanks[i];
+                thisPlanetCitySummaries[c].Rank = i + 1;
+                thisPlanetCitySummaries[c].Upset = thisPlanetCitySummaries[c].CityN - thisPlanetCitySummaries[c].Rank;
+            }
+
+            foreach (CitySummaryEntry ce in thisPlanetCitySummaries)
+            {
+                string founderName = ce.Char;
+                if (!this.SpiritStats.TryGetValue(founderName, out SpiritStatEntry se))
+                {
+                    se = new(founderName);
+                    this.SpiritStats[founderName] = se;
+                }
+
+                se.Count += 1;
+                if (ce.CityN == 1)
+                {
+                    se.Prime += 1;
+                    if (planet.gameSession.turningPointPerformances.Count > 0)
+                    {
+                        se.IncrementPlanetScoreTotalAsPrimary((int)planet.gameSession.turningPointPerformances.Last().scoreTotal);
+                        se.IncrementPlanetProsAverageAsPrimary(Statistics.Mean([.. cityProsList]));
+                        se.HiPrScore = Math.Max(se.HiPrScore, (int)planet.gameSession.turningPointPerformances.Last().scoreTotal);
+                    }
+                }
+                if (planet.gameSession.turningPointPerformances.Count > 0) se.IncrementPlanetScoreTotal((int)planet.gameSession.turningPointPerformances.Last().scoreTotal);
+
+                se.IncrementProsperityTotals(ce.Pros, ce.Pop, ce.Tech, ce.Wel);
+                se.IncrementProsperityPercentTotals((double)ce.PPop, (double)ce.PTech, (double)ce.PWel);
+                se.IncrementProsperityRelTotals((double)ce.RelPros, (double)ce.RelPop, (double)ce.RelTech, (double)ce.RelWel);
+
+                se.HiPros = Math.Max(se.HiPros, ce.Pros);
+                se.HiPop = Math.Max(se.HiPop, ce.Pop);
+                se.HiTech = Math.Max(se.HiTech, ce.Tech);
+                se.HiWel = Math.Max(se.HiWel, ce.Wel);
+
+                se.HiPPop = Math.Max(se.HiPPop, (double)ce.PPop);
+                se.HiPTech = Math.Max(se.HiPTech, (double)ce.PTech);
+                se.HiPWel = Math.Max(se.HiPWel, (double)ce.PWel);
+
+                se.HiRelPros = Math.Max(se.HiRelPros, (double)ce.RelPros);
+                se.HiRelPop = Math.Max(se.HiRelPop, (double)ce.RelPop);
+                se.HiRelTech = Math.Max(se.HiRelTech, (double)ce.RelTech);
+                se.HiRelWel = Math.Max(se.HiRelWel, (double)ce.RelWel);
+
+                se.Invent += ce.Invent;
+                se.Trades += ce.Trades;
+
+                int upset = (int)ce.Upset;
+                se.IncrementUpsetTotal(upset, (int)ce.CityN == 1, (int)ce.Rank == 1);
+                if (upset > 0) se.PosUpset += 1;
+                if (upset < 0) se.NegUpset += 1;
+
+                se.Plants += ce.Plants;
+                se.Animals += ce.Animals;
+                se.Minerals += ce.Minerals;
+
+                //se.IncrementBioticaPercentTotals((double)ce.PPlant, (double)ce.PAnimal, (double)ce.PMineral, (double)ce.ApexP);
+                //se.IncrementBioticaPercentTotals((double)ce.ApexP);
+                se.Apex += ce.Apex;
+
+                se.AddBioUsed(cityBioBySpiritName[founderName]);
+            }
+
+            foreach (City city in planet.cityDictionary.Values)
+            {
+                Dictionary<string, int> biomePatchesInCity = [];
+                string founderName = Glossaries.SpiritNameFromHash(city.founderCharacterDef);
+                foreach (Patch patch in city.PatchesInTerritory)
+                {
+                    if (!patch.IsWildPatch()) continue;
+                    string patchBiome = Glossaries.BiomeNameFromHash(patch.biomeDefinition);
+                    if (!biomePatchesInCity.ContainsKey(patchBiome)) biomePatchesInCity[patchBiome] = 0;
+                    biomePatchesInCity[patchBiome] += 1;
+                }
+                this.SpiritStats[founderName].IncrementBiomeUsage(biomePatchesInCity);
+
+                List<int> bioticaLevels = [];
+                // Active biotica only!
+                foreach (NatureBioticum nb in city.BioticaInTerritory)
+                {
+                    if (Glossaries.BioticumDefinitionByHash.ContainsKey(nb.definition))
+                    {
+                        BioticumDefinition thisBio = Glossaries.BioticumDefinitionByHash[nb.definition];
+                        bioticaLevels.Add(thisBio.Tier);
+                    }
+                }
+                this.SpiritStats[founderName].IncrementBioticaLevelTotal(bioticaLevels);
+            }
+
+            this.CitySummaries.AddRange(thisPlanetCitySummaries);
+
+            // Generic buff checking
+            foreach (GenericBuff buff in planet.BuffList)
+            {
+                // for spading/debug
+                this.genericBuffNamesByDef.TryAdd(buff.definition, buff.name);
+
+                if (buff.name == "Canned Sludge")
+                {
+                    if (citiesByLuxuryBuffHandler.TryGetValue((int)buff.owner, out City buffCity))
+                    {
+                        string founderName = Glossaries.SpiritNameFromHash(buffCity.founderCharacterDef);
+                        if (buffCity.tokenIndex != cannedSludgeCity)
+                        {
+                            this.LuxuryStats[cannedSludgeHash].Copies += 1;
+                            this.LuxuryStats[cannedSludgeHash].LeaderCounts[founderName] += 1;
+                        }
+                    }
+                }
+            }
+            foreach (string luxHash in luxuriesPresent)
+            {
+                this.LuxuryStats[luxHash].Planets += 1;
+            }
+        }
+
+        public void CountBioticaVsSpirit(Planet planet, int index, string primarySpirit)
+        {
+            foreach (City city in planet.cityDictionary.Values)
+            {
+                string spirit = Glossaries.SpiritNameFromHash(city.founderCharacterDef);
+                foreach (NatureBioticum nb in city.BioticaInTerritory)
+                {
+                    if (Glossaries.BioticumDefinitionByHash.ContainsKey(nb.definition))
+                    {
+                        string activeBioName = Glossaries.BioticumNameFromHash(nb.definition);
+                        this.IncrementSpiritVsBioticaCounters(activeBioName, spirit, primarySpirit);
+                    }
+                }
+                foreach (int slotIndex in city.ListSlotIndicesInTerritory())
+                {
+                    BioticumSlot slot = planet.slotDictionary[slotIndex];
+                    foreach (string legacyDef in slot.archivedBioticaDefs)
+                    {
+                        if (Glossaries.BioticumDefinitionByHash.ContainsKey(legacyDef))
+                        {
+                            string legacyBioName = Glossaries.BioticumNameFromHash(legacyDef);
+                            this.IncrementSpiritVsBioticaCounters(legacyBioName, spirit, primarySpirit);
+                        }
+                    }
+                }
+            }
+        }
 
         public void FinalizeStats()
         {
@@ -849,7 +847,7 @@ namespace Reus2Surveyor
             }
             foreach (SpiritStatEntry sse in this.SpiritStats.Values)
             {
-                sse.CalculateStats(this.planetCount, this.glossaryInstance);
+                sse.CalculateStats(this.planetCount);
             }
             this.BioticumVsSpiritRatios = NestedCounterToNestedRatioDictionary(this.BioticumVsSpiritCounter);
             this.BioticumVsPrSpiritRatios = NestedCounterToNestedRatioDictionary(this.BioticumVsPrSpiritCounter);
@@ -873,7 +871,7 @@ namespace Reus2Surveyor
                 Dictionary<string, double> srcBioRatios = [];
                 foreach (string srcBioName in lse.BioticaSourceCounts.Keys)
                 {
-                    if (this.glossaryInstance.BioticumDefinitionByName.TryGetValue(srcBioName, out BioticumDefinition srcBioDef))
+                    if (Glossaries.BioticumDefinitionByName.TryGetValue(srcBioName, out BioticumDefinition srcBioDef))
                     {
                         srcBioRatios[srcBioName] = (double)this.BioticaStats[srcBioDef.Hash].Total / lse.BioticaSourceCounts[srcBioName];
                     }
@@ -889,7 +887,7 @@ namespace Reus2Surveyor
 
             foreach ((string bioticumName, Dictionary<string, double> ratios) in this.BioticumVsSpiritRatios)
             {
-                if (this.glossaryInstance.BioticumDefinitionByName.TryGetValue(bioticumName, out Glossaries.BioticumDefinition bioDef))
+                if (Glossaries.BioticumDefinitionByName.TryGetValue(bioticumName, out Glossaries.BioticumDefinition bioDef))
                 {
                     this.BioticaStats[bioDef.Hash].FavSpirit = ratios.MaxBy(kv => kv.Value).Key;
                     this.BioticaStats[bioDef.Hash].FavRatio = ratios.MaxBy(kv => kv.Value).Value;
@@ -911,11 +909,11 @@ namespace Reus2Surveyor
             }
 
             // Preparing counters to gather project slot usage
-            List<string> distinctProjectSlots = [..this.glossaryInstance.ProjectDefinitionList
+            List<string> distinctProjectSlots = [..Glossaries.ProjectDefinitionList
                 .Select(d => d.Slot).Distinct()];
             Dictionary<string, int> projectSlotCounter = distinctProjectSlots.ToDictionary(k => k, k => 0);
             Dictionary<(string, string), int> projectSlotCountByLeader = [];
-            foreach (string leaderName in this.glossaryInstance.SpiritHashByName.Keys)
+            foreach (string leaderName in Glossaries.SpiritHashByName.Keys)
             {
                 foreach (string projectSlot in distinctProjectSlots)
                 {
@@ -943,9 +941,9 @@ namespace Reus2Surveyor
 
             // Count overtakes
             Dictionary<(string, string), int> btSpiritMatchups = [];
-            foreach (string spiritName1 in this.glossaryInstance.SpiritHashByName.Keys)
+            foreach (string spiritName1 in Glossaries.SpiritHashByName.Keys)
             {
-                foreach (string spiritName2 in this.glossaryInstance.SpiritHashByName.Keys)
+                foreach (string spiritName2 in Glossaries.SpiritHashByName.Keys)
                 {
                     if (spiritName1 != spiritName2)
                     {
@@ -1040,8 +1038,8 @@ namespace Reus2Surveyor
         {
             if (!BioticaStats.ContainsKey(bioHash))
             {
-                if (this.glossaryInstance.BioticumDefFromHash(bioHash) is null) this.BioticaStats[bioHash] = new BioticumStatEntry(bioHash, planetNum);
-                else this.BioticaStats[bioHash] = new BioticumStatEntry(this.glossaryInstance.BioticumDefFromHash(bioHash), planetNum);
+                if (Glossaries.BioticumDefFromHash(bioHash) is null) this.BioticaStats[bioHash] = new BioticumStatEntry(bioHash, planetNum);
+                else this.BioticaStats[bioHash] = new BioticumStatEntry(Glossaries.BioticumDefFromHash(bioHash), planetNum);
             }
 
         }

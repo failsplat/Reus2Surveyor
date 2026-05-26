@@ -82,7 +82,7 @@ namespace Reus2Surveyor
         }
 
         public static Image BiomePositionalToMinimap(
-            Dictionary<int, (string biomeTypeName, double percentSize)> biomeInfo, Glossaries glossInstance, int width = 125, int height = 24
+            Dictionary<int, (string biomeTypeName, double percentSize)> biomeInfo, int width = 125, int height = 24
             )
         {
             Dictionary<int, (string biomeTypeName, int px)> biomeStripes = PositionalDictToWholeNumber(biomeInfo, width);
@@ -98,7 +98,7 @@ namespace Reus2Surveyor
                 int stripeWidth = biomeStripes[anchorPatch].px;
 
                 Rectangle biomeBar = new Rectangle(leftPos, 0, stripeWidth, height);
-                Brush fillBrush = new SolidBrush(Color.ParseHex(glossInstance.GetBiomeColor(biomeName)));
+                Brush fillBrush = new SolidBrush(Color.ParseHex(Glossaries.GetBiomeColor(biomeName)));
                 image.Mutate(x => x.Fill(fillBrush, biomeBar));
 
                 leftPos += stripeWidth;
