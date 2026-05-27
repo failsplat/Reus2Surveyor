@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Attributes;
+using Reus2Surveyor.GameObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -247,39 +248,41 @@ namespace Reus2Surveyor
             [XLColumn(Order = 170), UnpackToBiomes(defaultValue: (double)0, suffix: "P", numberFormat: "0.00%")]
             public Dictionary<string, double> biomePercents = [];
 
-            public PlanetSummaryEntry(Planet planet)
-            {
-                this.N = planet.number;
-                this.Name = planet.name;
-                this.Ser = planet.epochMinutes;
-                this.TS = DateTime.UnixEpoch.AddMinutes(this.Ser);
-                this.TS = this.TS.ToLocalTime();
+            // STUN
 
-                this.DiffValue = (int)planet.gameSession.sessionDifficulty;
-                if (DifficultyNames.TryGetValue(this.DiffValue, out string diffName))
-                {
-                    this.Difficulty = diffName;
-                }
-                else
-                {
-                    this.Difficulty = null;
-                }
+            //public PlanetSummaryEntry(Planet planet)
+            //{
+            //    this.N = planet.number;
+            //    this.Name = planet.name;
+            //    this.Ser = planet.epochMinutes;
+            //    this.TS = DateTime.UnixEpoch.AddMinutes(this.Ser);
+            //    this.TS = this.TS.ToLocalTime();
 
-                this.ChIndex = planet.gameSession.challengeIndex > 0 ? planet.gameSession.challengeIndex : null;
-                if (this.ChIndex is not null)
-                {
-                    this.ChTS = DateTime.UnixEpoch.AddSeconds((int)planet.gameSession.challengeTimestamp);
-                    this.ChTS = ((DateTime)this.ChTS).ToLocalTime();
-                    if (TimedChallengeTypes.TryGetValue((int)planet.gameSession.timedChallengeType, out string challengeType))
-                    {
-                        this.ChType = challengeType;
-                    }
-                    else
-                    {
-                        this.ChType = planet.gameSession.timedChallengeType.ToString();
-                    }
-                }
-            }
+            //    this.DiffValue = (int)planet.gameSession.sessionDifficulty;
+            //    if (DifficultyNames.TryGetValue(this.DiffValue, out string diffName))
+            //    {
+            //        this.Difficulty = diffName;
+            //    }
+            //    else
+            //    {
+            //        this.Difficulty = null;
+            //    }
+
+            //    this.ChIndex = planet.gameSession.challengeIndex > 0 ? planet.gameSession.challengeIndex : null;
+            //    if (this.ChIndex is not null)
+            //    {
+            //        this.ChTS = DateTime.UnixEpoch.AddSeconds((int)planet.gameSession.challengeTimestamp);
+            //        this.ChTS = ((DateTime)this.ChTS).ToLocalTime();
+            //        if (TimedChallengeTypes.TryGetValue((int)planet.gameSession.timedChallengeType, out string challengeType))
+            //        {
+            //            this.ChType = challengeType;
+            //        }
+            //        else
+            //        {
+            //            this.ChType = planet.gameSession.timedChallengeType.ToString();
+            //        }
+            //    }
+            //}
 
             public void IncrementSlotTotalLevel(int value)
             {
@@ -858,28 +861,30 @@ namespace Reus2Surveyor
             [XLColumn(Order = 25)] public string? Micro5;
             [XLColumn(Order = 26)] public string? Micro6;
 
-            public TopBioticumSummary(int planet, int rank, GameSession.TopBioticaEntry tbe, Glossaries gloss)
-            {
-                this.Planet = planet;
-                this.Rank = rank;
+            // STUN
 
-                this.Name = tbe.bioticumType is not null ? gloss.BioticumNameFromHash(tbe.bioticumType) : null;
-                this.TotalValue = tbe.totalValue;
-                this.Food = tbe.food;
-                this.Valuebles = tbe.valuables;
-                this.Curio = tbe.curio;
-                this.Mystery = tbe.mystery;
+            //public TopBioticumSummary(int planet, int rank, GameSession.TopBioticaEntry tbe, Glossaries gloss)
+            //{
+            //    this.Planet = planet;
+            //    this.Rank = rank;
 
-                int microIndex = -1;
-                foreach (string microDef in tbe.aspects)
-                {
-                    microIndex++;
-                    if (microIndex >= 6) break; // Max 6 micros per bioticum
+            //    this.Name = tbe.bioticumType is not null ? gloss.BioticumNameFromHash(tbe.bioticumType) : null;
+            //    this.TotalValue = tbe.totalValue;
+            //    this.Food = tbe.food;
+            //    this.Valuebles = tbe.valuables;
+            //    this.Curio = tbe.curio;
+            //    this.Mystery = tbe.mystery;
 
-                    string thisMicro = gloss.MicroNameFromHash(microDef);
-                    typeof(TopBioticumSummary).GetField("Micro" + (microIndex+1).ToString()).SetValue(this, thisMicro);
-                }
-            }
+            //    int microIndex = -1;
+            //    foreach (string microDef in tbe.aspects)
+            //    {
+            //        microIndex++;
+            //        if (microIndex >= 6) break; // Max 6 micros per bioticum
+
+            //        string thisMicro = gloss.MicroNameFromHash(microDef);
+            //        typeof(TopBioticumSummary).GetField("Micro" + (microIndex+1).ToString()).SetValue(this, thisMicro);
+            //    }
+            //}
 
             public void SetRank(int rank) { this.Rank = rank; }
         }
