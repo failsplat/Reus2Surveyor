@@ -41,7 +41,7 @@ namespace Reus2Surveyor.GameObjects
         public string name { get; init; }
         public Parent parent { get; init; }
 
-        // Non-serialized
+        //
 
         public bool IsWild { get => this.projectSlots.itemData.Count == 0; }
 

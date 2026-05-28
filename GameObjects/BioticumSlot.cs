@@ -36,7 +36,7 @@ namespace Reus2Surveyor.GameObjects
             // don't care about the other parts
         }
 
-        // Not serialized
+        // 
         public int? BioticumIndex { get => this.bioticum.id; }
 
         // Link upwards to Patch

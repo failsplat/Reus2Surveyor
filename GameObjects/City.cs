@@ -64,6 +64,13 @@ namespace Reus2Surveyor.GameObjects
         public bool isReptilian { get; init; }
         [JsonProperty(Required = Required.Always)] public string name { get; init; } // e.g. "City #1"
         [JsonProperty(Required = Required.Always)] public Parent parent { get; init; }
+
+        //
+        public CityControllers.ProjectController? CityProjectController { get; private set; }
+        public void AttachProjectController(CityControllers.ProjectController? projectController)
+        {
+            this.CityProjectController = projectController;
+        }
     }
 
     public class NomadHeritage

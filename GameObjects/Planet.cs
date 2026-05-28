@@ -10,6 +10,8 @@ namespace Reus2Surveyor.GameObjects
     // Instead, it is assembled by reading SaveRoot.referenceTokens 
     public class Planet
     {
+        public List<JToken> Tokens;
+
         // Indexed based on order in referenceTokens
         // Top-level objects (identified from _type or name)
         public Dictionary<int, BioticumSlot> BioticumSlots = [];
@@ -25,7 +27,7 @@ namespace Reus2Surveyor.GameObjects
 
         // "Hidden" objects - can't identified by _type/name, located by reference from other object
         // Alternately this could be done by try-catching the deserialization or other way of matching the schema
-        public Dictionary<int, CityObjects.Project> CityProjects = [];
+        public Dictionary<int, CityObjects.Project> CityProjects = []; // Members in here are accessed from City
 
         // Collections by gameplay-relevant indices
         public List<City> CitiesInOrder { get => [.. this.Cities.Values.OrderBy(city => city.cityIndex)]; }
@@ -33,10 +35,11 @@ namespace Reus2Surveyor.GameObjects
         public Planet(SaveRoot sr, string path)
         {
             int i = -1;
+            this.Tokens = sr.referenceTokens;
 
             // Casting JO to game objects
             // Top-level objects (identified from _type or name)
-            foreach (JToken jo in sr.referenceTokens) 
+            foreach (JToken jo in this.Tokens) 
             {
                 i++;
                 Dummy dummy = jo.ToObject<Dummy>();
@@ -85,7 +88,14 @@ namespace Reus2Surveyor.GameObjects
 
             // Second-pass items (located by token index number)
 
-            
+            foreach (CityControllers.ProjectController proc in this.CityProjectControllers.Values)
+            {
+                Dictionary<int, CityObjects.Project> foundProjects = proc.FindProjects(this.Tokens);
+                foreach ((int projectId, CityObjects.Project project) in foundProjects) 
+                {
+                    this.CityProjects[projectId] = project;
+                }
+            }
 
             // Filtering out irrelevant objects
             // CitySlots
@@ -96,6 +106,8 @@ namespace Reus2Surveyor.GameObjects
             this.ActiveBiotica = this.AllBiotica.Where(kv => !futureSlots.Contains((int)kv.Value.parent.id)).ToDictionary();
 
             // Cross-referencing and collation
+
+            // Geography
             // Call method on parent object to put child objects in its properties
             // Parent object calls method on child object to put itself in its properties
             foreach (Patch patch in this.Patches.Values)
@@ -110,6 +122,13 @@ namespace Reus2Surveyor.GameObjects
             foreach (Biome b in this.Biomes.Values)
             {
                 b.BuildPatchInfo(this.PlanetPatchMap, this.Patches);
+            }
+
+            // City
+            // There are accessed per-city, so linking only is useful in one direction
+            foreach (CityControllers.ProjectController proc in this.CityProjectControllers.Values)
+            {
+                this.Cities[(int)proc.parent.id].AttachProjectController(proc);
             }
 
             List<BioticumSlot> orphanSlots = [.. this.BioticumSlots.Values.Where(slot => slot.Patch is null && slot.locationOnPatch.value != 3)];

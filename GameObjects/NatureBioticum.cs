@@ -25,7 +25,7 @@ namespace Reus2Surveyor.GameObjects
         public string name { get; init; }
         [JsonProperty(Required = Required.Always)] public Parent parent { get; init; }
 
-        // Not serialized
+        //
         public string? Defininition { get => this.definition.value; }
         public List<string> EvolvedDefinitions { get => [..this.evolvedBiotica.itemData
                 .Where(i => i.value is not null)
