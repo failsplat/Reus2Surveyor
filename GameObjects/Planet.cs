@@ -25,6 +25,7 @@ namespace Reus2Surveyor.GameObjects
         public Dictionary<int, ProjectController> CityProjectControllers = [];
         public Dictionary<int, ResourceController> CityResourceControllers = [];
         public Dictionary<int, LuxuryController> CityLuxuryControllers = [];
+        public Dictionary<int, BorderController> CityBorderControllers = [];
         public Dictionary<int, CityObjects.LuxuryGood> LuxuryGoods = [];
 
         public PatchMap<int> PlanetPatchMap;
@@ -84,6 +85,10 @@ namespace Reus2Surveyor.GameObjects
                     case "LuxuryGood":
                         CityObjects.LuxuryGood lg = jo.ToObject<CityObjects.LuxuryGood>();
                         this.LuxuryGoods.Add(i, lg);
+                        continue;
+                    case "CityBorderController":
+                        BorderController borderController = jo.ToObject<BorderController>();
+                        this.CityBorderControllers.Add(i, borderController);
                         continue;
                     default:
                         break;
@@ -153,6 +158,7 @@ namespace Reus2Surveyor.GameObjects
                 city.AttachProjectController(this.CityProjectControllers[city.projectController.id]);
                 city.AttachResourceController(this.CityResourceControllers[city.resourceController.id]);
                 city.AttachLuxuryController(this.CityLuxuryControllers[city.luxuryController.id]);
+                city.AttachBorderController(this.CityBorderControllers[city.borderController.id]);
                 city.CityLuxuryController.AttachLuxuryGoods(this.LuxuryGoods);
             }
             foreach (CityObjects.LuxuryGood lg in this.LuxuryGoods.Values)

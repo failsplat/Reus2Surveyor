@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using static Reus2Surveyor.GameObjects.CityObjects;
 
 namespace Reus2Surveyor.GameObjects
@@ -62,6 +63,16 @@ namespace Reus2Surveyor.GameObjects
                     tradeSlot.AttachLuxuryGood(goodDict[(int)tradeSlot.luxuryGood.id]);
                 }
             }
+        }
+
+        public class BorderController
+        {
+            [JsonProperty(Required = Required.Always)] public Id<int> leftBorder { get; init; }
+            [JsonProperty(Required = Required.Always)] public Id<int> rightBorder { get; init; }
+            public Value<int> leftBorderBiomeType { get; init; }
+            public Value<int> rightBorderBiomeType { get; init; }
+            [JsonProperty(Required = Required.Always)] public string name { get; init; }
+            [JsonProperty(Required = Required.Always)] public Parent parent { get; init; }
         }
     }
 }

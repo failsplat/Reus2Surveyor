@@ -79,6 +79,12 @@ namespace Reus2Surveyor.GameObjects
         {
             this.CityLuxuryController = luxuryController;
         }
+        public BorderController? CityBorderController { get; private set; }
+        public void AttachBorderController(BorderController? borderController)
+        {
+            this.CityBorderController = borderController;
+        }
+
     }
 
     public class NomadHeritage
