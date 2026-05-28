@@ -31,5 +31,14 @@ namespace Reus2Surveyor.GameObjects
                 return output;
             }
         }
+
+        public class ResourceController
+        {
+            public Id<int> gatherPoint { get; init; }
+            [JsonProperty(Required = Required.Always)] public int prosperity { get; init; }
+            public int highestProsperityReached { get; init; }
+            [JsonProperty(Required = Required.Always)] public string name { get; init; }
+            [JsonProperty(Required = Required.Always)] public Parent parent { get; init; }
+        }
     }
 }

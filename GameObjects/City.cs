@@ -71,6 +71,12 @@ namespace Reus2Surveyor.GameObjects
         {
             this.CityProjectController = projectController;
         }
+
+        public CityControllers.ResourceController? CityResourceController { get; private set; }
+        public void AttachResourceController(CityControllers.ResourceController? resourceController)
+        {
+            this.CityResourceController = resourceController;
+        }
     }
 
     public class NomadHeritage

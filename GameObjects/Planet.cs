@@ -22,6 +22,7 @@ namespace Reus2Surveyor.GameObjects
 
         public Dictionary<int, City> Cities = [];
         public Dictionary<int, CityControllers.ProjectController> CityProjectControllers = [];
+        public Dictionary<int, CityControllers.ResourceController> CityResourceControllers = [];
 
         public PatchMap<int> PlanetPatchMap;
 
@@ -42,11 +43,9 @@ namespace Reus2Surveyor.GameObjects
             foreach (JToken jo in this.Tokens) 
             {
                 i++;
-
                 Dummy dummy = jo.ToObject<Dummy>();
 
                 if (dummy is null) continue;
-                
                 switch (dummy.name)
                 {
                     case (null):
@@ -70,6 +69,10 @@ namespace Reus2Surveyor.GameObjects
                     case "PatchCollection":
                         PatchCollection patchCollection = jo.ToObject<PatchCollection>();
                         this.PlanetPatchMap = new(patchCollection.IdList);
+                        continue;
+                    case "CityResourceController":
+                        CityControllers.ResourceController resCon = jo.ToObject<CityControllers.ResourceController>();
+                        this.CityResourceControllers.Add(i, resCon);
                         continue;
                     default:
                         break;
@@ -136,6 +139,10 @@ namespace Reus2Surveyor.GameObjects
             {
                 this.Cities[(int)proc.parent.id].AttachProjectController(proc);
             }
+            foreach (CityControllers.ResourceController resCon in this.CityResourceControllers.Values)
+            {
+                this.Cities[(int)resCon.parent.id].AttachResourceController(resCon);
+            } 
 
             List<BioticumSlot> orphanSlots = [.. this.BioticumSlots.Values.Where(slot => slot.Patch is null && slot.locationOnPatch.value != 3)];
             List<NatureBioticum> orphanBio = [.. this.ActiveBiotica.Values.Where(bio => bio.Slot is null)];
