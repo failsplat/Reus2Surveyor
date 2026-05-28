@@ -42,47 +42,53 @@ namespace Reus2Surveyor.GameObjects
             foreach (JToken jo in this.Tokens) 
             {
                 i++;
+
                 Dummy dummy = jo.ToObject<Dummy>();
-                if (dummy.name?.StartsWith("BioticumSlot") ?? false)
+
+                if (dummy is null) continue;
+                
+                switch (dummy.name)
                 {
-                    BioticumSlot slot = jo.ToObject<BioticumSlot>();
-                    this.BioticumSlots.Add(i, slot);
-                    continue;
+                    case (null):
+                        break;
+                    case { } when dummy.name.StartsWith("BioticumSlot"):
+                        BioticumSlot slot = jo.ToObject<BioticumSlot>();
+                        this.BioticumSlots.Add(i, slot);
+                        continue;
+                    case { } when dummy.name.StartsWith("City #"):
+                        City city = jo.ToObject<City>();
+                        this.Cities.Add(i, city);
+                        continue;
+                    case "BiomeModelData":
+                        Biome biome = jo.ToObject<Biome>();
+                        this.Biomes.Add(i, biome);
+                        continue;
+                    case "ProjectController":
+                        CityControllers.ProjectController projectController = jo.ToObject<CityControllers.ProjectController>();
+                        this.CityProjectControllers.Add(i, projectController);
+                        continue;
+                    case "PatchCollection":
+                        PatchCollection patchCollection = jo.ToObject<PatchCollection>();
+                        this.PlanetPatchMap = new(patchCollection.IdList);
+                        continue;
+                    default:
+                        break;
                 }
-                if (dummy._type == "Patch")
+
+                switch (dummy._type)
                 {
-                    Patch patch = jo.ToObject<Patch>();
-                    this.Patches.Add(i, patch);
-                    continue;
-                }
-                if (dummy.name == "BiomeModelData")
-                {
-                    Biome biome = jo.ToObject<Biome>();
-                    this.Biomes.Add(i, biome);
-                    continue;
-                }
-                if (dummy._type == "NatureBioticum")
-                {
-                    NatureBioticum bio = jo.ToObject<NatureBioticum>();
-                    this.AllBiotica.Add(i, bio);
-                    continue;
-                }
-                if (dummy.name?.StartsWith("City #") ?? false)
-                {
-                    City city = jo.ToObject<City>();
-                    this.Cities.Add(i, city);
-                    continue;
-                }
-                if (dummy.name == "ProjectController")
-                {
-                    CityControllers.ProjectController pc = jo.ToObject<CityControllers.ProjectController>();
-                    this.CityProjectControllers.Add(i, pc);
-                    continue;
-                }
-                if (dummy.name == "PatchCollection")
-                {
-                    PatchCollection pc = jo.ToObject<PatchCollection>();
-                    this.PlanetPatchMap = new(pc.IdList);
+                    case (null):
+                        break;
+                    case "Patch":
+                        Patch patch = jo.ToObject<Patch>();
+                        this.Patches.Add(i, patch);
+                        continue;
+                    case "NatureBioticum":
+                        NatureBioticum bio = jo.ToObject<NatureBioticum>();
+                        this.AllBiotica.Add(i, bio);
+                        continue;
+                    default:
+                        break;
                 }
             }
 
