@@ -12,7 +12,7 @@ namespace Reus2Surveyor.GameObjects
         [JsonProperty(Required = Required.Always)] public Id<int?> bioticum { get; init; }
         public Id<int> futureSlot { get; init; }
         [JsonProperty(Required = Required.Always)] public Id<int> patch { get; init; }
-        [JsonProperty(Required = Required.Always)] public Value<int> locationOnPatch { get; init; }
+        [JsonProperty(Required = Required.Always)] public Value<int> locationOnPatch { get; init; } // 0 = Foreground, 1 = Background, 2 = Mountain 
         public bool areBonusesDiscovered { get; init; }
         public bool isAvailable { get; init; }
         public bool hasPermanentBooster { get; init; }
@@ -34,6 +34,42 @@ namespace Reus2Surveyor.GameObjects
         {
             public Value<string> bioticum { get; init; }
             // don't care about the other parts
+        }
+
+        // Not serialized
+        public int? BioticumIndex { get => this.bioticum.id; }
+
+        // Link upwards to Patch
+        public Patch? Patch { get; private set; }
+        public void LinkPatch(Patch patch)
+        {
+            this.Patch = patch;
+        }
+
+        // Link downwards to Bioticum
+        public NatureBioticum? ActiveBioticum { get; private set; } = null;
+        public void FindBiotica(Dictionary<int, NatureBioticum> bioDict)
+        {
+            if (this.BioticumIndex is not null)
+            {
+                if (this.locationOnPatch.value > 2) 
+                {
+                    // This is a CityCustom patch, no actual bioticum
+                    return;
+                }
+
+                if (this.Patch is null)
+                {
+                    throw new InvalidOperationException("Slot must be linked to Patch before linking to Biotica");
+                }
+                
+                if (this.Patch.IsWild)
+                {
+                    NatureBioticum bio = bioDict[(int)this.BioticumIndex];
+                    this.ActiveBioticum = bio;
+                    bio.LinkSlot(this);
+                }
+            }
         }
     }
 }

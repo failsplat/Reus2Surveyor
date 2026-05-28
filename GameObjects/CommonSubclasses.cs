@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 
 namespace Reus2Surveyor.GameObjects
 {
+    [DebuggerDisplay("id: {id.ToString()}")]
     public class Id<T>
     {
         public T? id { get; init; }
     }
 
+    [DebuggerDisplay("value: {value.ToString()}")]
     public class Value<T>
     {
         public T? value { get; init; }
@@ -21,6 +19,7 @@ namespace Reus2Surveyor.GameObjects
         public T itemData { get; init; }
     }
 
+    [DebuggerDisplay("parent: {id.ToString()}")]
     public class Parent
     {
         public int? id { get; init; }

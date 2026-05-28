@@ -40,5 +40,58 @@ namespace Reus2Surveyor.GameObjects
         //public object ruinedCityMemory { get; init; }
         public string name { get; init; }
         public Parent parent { get; init; }
+
+        // Non-serialized
+
+        public bool IsWild { get => this.projectSlots.itemData.Count == 0; }
+
+        // Link down to slot
+        public bool SlotsSet { get; private set; } = false;
+        public int? ForegroundSlotId { get => foregroundSlot.id; }
+        public int? BackgroundSlotId { get => backgroundSlot.id; }
+        public int? MountainSlotId { get => mountainSlot.id; }
+        public BioticumSlot? ForegroundSlot { get; private set; }
+        public BioticumSlot? BackgroundSlot { get; private set; }
+        public BioticumSlot? MountainSlot { get; private set; }
+
+        public List<BioticumSlot> SlotsInPatch
+        {
+            get 
+            { 
+                if (!this.SlotsSet)
+                {
+                    throw new InvalidOperationException("SlotsInPatch called before slots were linked!");
+                }
+
+                List<BioticumSlot> slots = [];
+                if (this.ForegroundSlot is not null) slots.Add(this.ForegroundSlot);
+                if (this.BackgroundSlot is not null) slots.Add(this.BackgroundSlot);
+                if (this.MountainSlot is not null) slots.Add(this.MountainSlot);
+                return slots;
+            }
+        }
+
+        public void FindSlots(Dictionary<int, BioticumSlot> slotDict)
+        {
+            if (this.ForegroundSlotId is not null)
+            {
+                BioticumSlot foreSlot = slotDict[(int)this.ForegroundSlotId];
+                this.ForegroundSlot = foreSlot;
+                foreSlot.LinkPatch(this);
+            }
+            if (this.BackgroundSlotId is not null)
+            {
+                BioticumSlot backSlot = slotDict[(int)this.BackgroundSlotId];
+                this.BackgroundSlot = backSlot;
+                backSlot.LinkPatch(this);
+            }
+            if (this.MountainSlotId is not null) 
+            {
+                BioticumSlot mountainSlot = slotDict[(int)this.MountainSlotId];
+                this.MountainSlot = mountainSlot;
+                mountainSlot.LinkPatch(this);
+            }
+            this.SlotsSet = true;
+        }
     }
 }

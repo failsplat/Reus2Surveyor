@@ -15,12 +15,15 @@ namespace Reus2Surveyor.GameObjects
         public Dictionary<int, BioticumSlot> BioticumSlots = [];
         public Dictionary<int, Patch> Patches = [];
         public Dictionary<int, Biome> Biomes = [];
-        public Dictionary<int, NatureBioticum> ActiveBiotica = [];
+        public Dictionary<int, NatureBioticum> AllBiotica = [];
+        public Dictionary<int, NatureBioticum> ActiveBiotica; // Filled out on cross-referencing
 
         public Dictionary<int, City> Cities = [];
         public Dictionary<int, CityControllers.ProjectController> CityProjectControllers = [];
 
-        // 
+        // "Hidden" objects - can't identified by _type/name, located by reference from other object
+        // Alternately this could be done by try-catching the deserialization or other way of matching the schema
+        public Dictionary<int, CityObjects.Project> CityProjects = [];
 
         // Collections by gameplay-relevant indices
         public List<City> CitiesInOrder { get => [.. this.Cities.Values.OrderBy(city => city.cityIndex)]; }
@@ -56,7 +59,7 @@ namespace Reus2Surveyor.GameObjects
                 if (dummy._type == "NatureBioticum")
                 {
                     NatureBioticum bio = jo.ToObject<NatureBioticum>();
-                    this.ActiveBiotica.Add(i, bio);
+                    this.AllBiotica.Add(i, bio);
                     continue;
                 }
                 if (dummy.name?.StartsWith("City #") ?? false)
@@ -76,6 +79,29 @@ namespace Reus2Surveyor.GameObjects
             // Second-pass items (located by token index number)
 
             // Cross-referencing and collation
+            // Call method on parent object to put child objects in its properties
+            // Parent object calls method on child object to put itself in its properties
+
+            // Filtering out irrelevant objects
+            
+            // CitySlots
+            HashSet<int> citySlots = [.. this.BioticumSlots.Where(kv => kv.Value.locationOnPatch.value == 3).Select(kv => kv.Key)];
+            foreach (int cs in citySlots) this.BioticumSlots.Remove(cs);
+
+            HashSet<int> futureSlots = [.. this.BioticumSlots.Values.Select(s => s.futureSlot.id)];
+            this.ActiveBiotica = this.AllBiotica.Where(kv => !futureSlots.Contains((int)kv.Value.parent.id)).ToDictionary();
+
+            foreach (Patch patch in this.Patches.Values)
+            {
+                patch.FindSlots(this.BioticumSlots);
+            }
+            foreach (BioticumSlot slot in this.BioticumSlots.Values)
+            {
+                slot.FindBiotica(this.AllBiotica);
+            }
+
+            List<BioticumSlot> orphanSlots = [.. this.BioticumSlots.Values.Where(slot => slot.Patch is null && slot.locationOnPatch.value != 3)];
+            List<NatureBioticum> orphanBio = [.. this.ActiveBiotica.Values.Where(bio => bio.Slot is null)];
         }
     }
 }

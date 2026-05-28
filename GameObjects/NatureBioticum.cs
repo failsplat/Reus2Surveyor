@@ -24,5 +24,18 @@ namespace Reus2Surveyor.GameObjects
         public Id<int?> riverBonus { get; init; }
         public string name { get; init; }
         [JsonProperty(Required = Required.Always)] public Parent parent { get; init; }
+
+        // Not serialized
+        public string? Defininition { get => this.definition.value; }
+        public List<string> EvolvedDefinitions { get => [..this.evolvedBiotica.itemData
+                .Where(i => i.value is not null)
+                .Select(i => (string)i.value)]; }
+
+        // Link upwards to Slot
+        public BioticumSlot? Slot { get; private set; }
+        public void LinkSlot(BioticumSlot slot)
+        {
+            this.Slot = slot;
+        }
     }
 }
