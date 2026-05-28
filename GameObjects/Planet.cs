@@ -3,7 +3,7 @@ using DocumentFormat.OpenXml.Office.Drawing;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime;
+using static Reus2Surveyor.GameObjects.CityControllers;
 
 namespace Reus2Surveyor.GameObjects
 {
@@ -22,8 +22,10 @@ namespace Reus2Surveyor.GameObjects
         public Dictionary<int, NatureBioticum> ActiveBiotica; // Filled out on cross-referencing
 
         public Dictionary<int, City> Cities = [];
-        public Dictionary<int, CityControllers.ProjectController> CityProjectControllers = [];
-        public Dictionary<int, CityControllers.ResourceController> CityResourceControllers = [];
+        public Dictionary<int, ProjectController> CityProjectControllers = [];
+        public Dictionary<int, ResourceController> CityResourceControllers = [];
+        public Dictionary<int, LuxuryController> CityLuxuryControllers = [];
+        public Dictionary<int, CityObjects.LuxuryGood> LuxuryGoods = [];
 
         public PatchMap<int> PlanetPatchMap;
 
@@ -64,7 +66,7 @@ namespace Reus2Surveyor.GameObjects
                         this.Biomes.Add(i, biome);
                         continue;
                     case "ProjectController":
-                        CityControllers.ProjectController projectController = jo.ToObject<CityControllers.ProjectController>();
+                        ProjectController projectController = jo.ToObject<ProjectController>();
                         this.CityProjectControllers.Add(i, projectController);
                         continue;
                     case "PatchCollection":
@@ -72,8 +74,16 @@ namespace Reus2Surveyor.GameObjects
                         this.PlanetPatchMap = new(patchCollection.IdList);
                         continue;
                     case "CityResourceController":
-                        CityControllers.ResourceController resCon = jo.ToObject<CityControllers.ResourceController>();
+                        ResourceController resCon = jo.ToObject<ResourceController>();
                         this.CityResourceControllers.Add(i, resCon);
+                        continue;
+                    case "LuxuryController":
+                        LuxuryController luxCon = jo.ToObject<LuxuryController>();
+                        this.CityLuxuryControllers.Add(i, luxCon);
+                        continue;
+                    case "LuxuryGood":
+                        CityObjects.LuxuryGood lg = jo.ToObject<CityObjects.LuxuryGood>();
+                        this.LuxuryGoods.Add(i, lg);
                         continue;
                     default:
                         break;
@@ -98,7 +108,7 @@ namespace Reus2Surveyor.GameObjects
 
             // Second-pass items (located by token index number)
 
-            foreach (CityControllers.ProjectController proc in this.CityProjectControllers.Values)
+            foreach (ProjectController proc in this.CityProjectControllers.Values)
             {
                 Dictionary<int, CityObjects.Project> foundProjects = proc.FindProjects(this.Tokens);
                 foreach ((int projectId, CityObjects.Project project) in foundProjects) 
@@ -137,11 +147,20 @@ namespace Reus2Surveyor.GameObjects
             // City
             // There are accessed per-city, so linking only is useful in one direction
 
-            foreach (City city in this.Cities.Values)
+            foreach (City city in this.CitiesInOrder)
             {
                 // Makes sure that the controllers exist for each city
                 city.AttachProjectController(this.CityProjectControllers[city.projectController.id]);
                 city.AttachResourceController(this.CityResourceControllers[city.resourceController.id]);
+                city.AttachLuxuryController(this.CityLuxuryControllers[city.luxuryController.id]);
+                city.CityLuxuryController.AttachLuxuryGoods(this.LuxuryGoods);
+            }
+            foreach (CityObjects.LuxuryGood lg in this.LuxuryGoods.Values)
+            {
+                if (lg.originCity.id is not null)
+                {
+                    lg.AttachOriginCity(this.Cities[(int)lg.originCity.id]);
+                }
             }
 
             List<BioticumSlot> orphanSlots = [.. this.BioticumSlots.Values.Where(slot => slot.Patch is null && slot.locationOnPatch.value != 3)];
