@@ -9,26 +9,26 @@ namespace Reus2Surveyor.GameObjects
 {
     public class BioticumSlot
     {
-        [JsonProperty(Required = Required.Always)] public Id<int?> bioticum { get; set; }
-        public Id<int> futureSlot { get; set; }
-        [JsonProperty(Required = Required.Always)] public Id<int> patch { get; set; }
-        [JsonProperty(Required = Required.Always)] public Value<int> locationOnPatch { get; set; }
-        public bool areBonusesDiscovered { get; set; }
-        public bool isAvailable { get; set; }
-        public bool hasPermanentBooster { get; set; }
-        public bool hasMountainDiscount { get; set; }
-        [JsonProperty(Required = Required.Always)] public ValueList<string> slotbonusDefinitions { get; set; }
-        public double lastPayedEonPrice { get; set; }
-        public bool pendingAspect { get; set; }
-        public Value<int> citySlotCategory { get; set; }
-        [JsonProperty(Required = Required.Always)] public int slotLevel { get; set; }
-        public int fireLevel { get; set; }
-        [JsonProperty(Required = Required.Always)] public ValueList<ArchivedBioticum> archivedBiotica { get; set; }
-        public bool hasBioDiscount { get; set; }
-        public bool isInvasiveSlot { get; set; }
-        public int? fireSize { get; set; }
-        [JsonProperty(Required = Required.Always)] public string name { get; set; }
-        [JsonProperty(Required = Required.Always)] public Id<int?> parent { get; set; }
+        [JsonProperty(Required = Required.Always)] public Id<int?> bioticum { get; init; }
+        public Id<int> futureSlot { get; init; }
+        [JsonProperty(Required = Required.Always)] public Id<int> patch { get; init; }
+        [JsonProperty(Required = Required.Always)] public Value<int> locationOnPatch { get; init; }
+        public bool areBonusesDiscovered { get; init; }
+        public bool isAvailable { get; init; }
+        public bool hasPermanentBooster { get; init; }
+        public bool hasMountainDiscount { get; init; }
+        [JsonProperty(Required = Required.Always)] public ValueItemDataList<string> slotbonusDefinitions { get; init; }
+        public double lastPayedEonPrice { get; init; }
+        public bool pendingAspect { get; init; }
+        public Value<int> citySlotCategory { get; init; }
+        [JsonProperty(Required = Required.Always)] public int slotLevel { get; init; }
+        public int fireLevel { get; init; }
+        [JsonProperty(Required = Required.Always)] public ValueItemDataList<ArchivedBioticum> archivedBiotica { get; init; }
+        public bool hasBioDiscount { get; init; }
+        public bool isInvasiveSlot { get; init; }
+        public int? fireSize { get; init; }
+        [JsonProperty(Required = Required.Always)] public string name { get; init; }
+        [JsonProperty(Required = Required.Always)] public Parent parent { get; init; }
 
         public class ArchivedBioticum
         {
