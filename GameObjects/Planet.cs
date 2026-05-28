@@ -1,6 +1,7 @@
 ﻿using DocumentFormat.OpenXml.Office.Drawing;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime;
 
 namespace Reus2Surveyor.GameObjects
@@ -9,16 +10,27 @@ namespace Reus2Surveyor.GameObjects
     // Instead, it is assembled by reading SaveRoot.referenceTokens 
     public class Planet
     {
+        // Indexed based on order in referenceTokens
+        // Top-level objects (identified from _type or name)
         public Dictionary<int, BioticumSlot> BioticumSlots = [];
         public Dictionary<int, Patch> Patches = [];
         public Dictionary<int, Biome> Biomes = [];
         public Dictionary<int, NatureBioticum> ActiveBiotica = [];
+
+        public Dictionary<int, City> Cities = [];
+        public Dictionary<int, CityControllers.ProjectController> CityProjectControllers = [];
+
+        // 
+
+        // Collections by gameplay-relevant indices
+        public List<City> CitiesInOrder { get => [.. this.Cities.Values.OrderBy(city => city.cityIndex)]; }
 
         public Planet(SaveRoot sr, string path)
         {
             int i = -1;
 
             // Casting JO to game objects
+            // Top-level objects (identified from _type or name)
             foreach (JToken jo in sr.referenceTokens) 
             {
                 i++;
@@ -47,7 +59,21 @@ namespace Reus2Surveyor.GameObjects
                     this.ActiveBiotica.Add(i, bio);
                     continue;
                 }
+                if (dummy.name?.StartsWith("City #") ?? false)
+                {
+                    City city = jo.ToObject<City>();
+                    this.Cities.Add(i, city);
+                    continue;
+                }
+                if (dummy.name == "ProjectController")
+                {
+                    CityControllers.ProjectController pc = jo.ToObject<CityControllers.ProjectController>();
+                    this.CityProjectControllers.Add(i, pc);
+                    continue;
+                }
             }
+
+            // Second-pass items (located by token index number)
 
             // Cross-referencing and collation
         }
