@@ -17,13 +17,13 @@ namespace Reus2Surveyor.GameObjects
         public bool isAvailable { get; init; }
         public bool hasPermanentBooster { get; init; }
         public bool hasMountainDiscount { get; init; }
-        [JsonProperty(Required = Required.Always)] public ValueItemDataList<string> slotbonusDefinitions { get; init; }
+        [JsonProperty(Required = Required.Always)] public ItemData<List<Value<string>>> slotbonusDefinitions { get; init; }
         public double lastPayedEonPrice { get; init; }
         public bool pendingAspect { get; init; }
         public Value<int> citySlotCategory { get; init; }
         [JsonProperty(Required = Required.Always)] public int slotLevel { get; init; }
         public int fireLevel { get; init; }
-        [JsonProperty(Required = Required.Always)] public ValueItemDataList<ArchivedBioticum> archivedBiotica { get; init; }
+        [JsonProperty(Required = Required.Always)] public ItemData<List<ArchivedBioticum>> archivedBiotica { get; init; }
         public bool hasBioDiscount { get; init; }
         public bool isInvasiveSlot { get; init; }
         public int? fireSize { get; init; }

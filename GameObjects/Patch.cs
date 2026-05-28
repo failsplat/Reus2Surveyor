@@ -12,7 +12,7 @@ namespace Reus2Surveyor.GameObjects
         [JsonProperty(Required = Required.Always)] public Id<int> foregroundSlot { get; init; }
         [JsonProperty(Required = Required.Always)] public Id<int> backgroundSlot { get; init; }
         [JsonProperty(Required = Required.Always)] public Id<int> mountainSlot { get; init; }
-        [JsonProperty(Required = Required.Always)] public IdItemDataList<int> projectSlots { get; init; }
+        [JsonProperty(Required = Required.Always)] public ItemData<List<Id<int>>> projectSlots { get; init; }
         //public Aspectloots aspectLoots { get; init; }
         [JsonProperty(Required = Required.Always)] public string _type { get; init; }
         public Id<int> planet { get; init; }

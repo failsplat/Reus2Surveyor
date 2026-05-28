@@ -16,18 +16,18 @@ namespace Reus2Surveyor.GameObjects
         public T? value { get; init; }
     }
 
-    public class ValueItemDataList<T>
+    public class ItemData<T>
     {
-        public List<Value<T>> itemData { get; init; } = [];
-    }
-
-    public class IdItemDataList<T>
-    {
-        public List<Id<T>> itemData { get; init; } = [];
+        public T itemData { get; init; }
     }
 
     public class Parent
     {
         public int? id { get; init; }
+    }
+
+    public class Items<T>
+    {
+        public T items { get; init; }
     }
 }
