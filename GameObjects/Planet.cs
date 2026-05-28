@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml.Office.Drawing;
+﻿using DocumentFormat.OpenXml.Drawing;
+using DocumentFormat.OpenXml.Office.Drawing;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
@@ -135,14 +136,13 @@ namespace Reus2Surveyor.GameObjects
 
             // City
             // There are accessed per-city, so linking only is useful in one direction
-            foreach (CityControllers.ProjectController proc in this.CityProjectControllers.Values)
+
+            foreach (City city in this.Cities.Values)
             {
-                this.Cities[(int)proc.parent.id].AttachProjectController(proc);
+                // Makes sure that the controllers exist for each city
+                city.AttachProjectController(this.CityProjectControllers[city.projectController.id]);
+                city.AttachResourceController(this.CityResourceControllers[city.resourceController.id]);
             }
-            foreach (CityControllers.ResourceController resCon in this.CityResourceControllers.Values)
-            {
-                this.Cities[(int)resCon.parent.id].AttachResourceController(resCon);
-            } 
 
             List<BioticumSlot> orphanSlots = [.. this.BioticumSlots.Values.Where(slot => slot.Patch is null && slot.locationOnPatch.value != 3)];
             List<NatureBioticum> orphanBio = [.. this.ActiveBiotica.Values.Where(bio => bio.Slot is null)];
