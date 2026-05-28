@@ -3,12 +3,11 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using static Reus2Surveyor.GameObjects.CityObjects;
 
 namespace Reus2Surveyor.GameObjects
 {
-    public class CityControllers
+    public static class CityControllers
     {
         public class ProjectController
         {
@@ -39,6 +38,30 @@ namespace Reus2Surveyor.GameObjects
             public int highestProsperityReached { get; init; }
             [JsonProperty(Required = Required.Always)] public string name { get; init; }
             [JsonProperty(Required = Required.Always)] public Parent parent { get; init; }
+        }
+
+        public class LuxuryController
+        {
+            [JsonProperty(Required = Required.Always)] public ItemData<List<Id<int>>> manufacturedLuxuryGoods { get; init; }
+            [JsonProperty(Required = Required.Always)] public ItemData<List<Id<int>>> importAgreements { get; init; }
+            [JsonProperty(Required = Required.Always)] public ItemData<List<Value<LuxurySlot>>> luxurySlots { get; init; }
+            [JsonProperty(Required = Required.Always)] public ItemData<List<Value<LuxurySlot>>> tradeSlots { get; init; }
+            [JsonProperty(Required = Required.Always)] public ItemData<List<Value<int>>> emblemsObtained { get; init; }
+            [JsonProperty(Required = Required.Always)] public string name { get; init; }
+            public Parent parent { get; init; }
+
+            public void AttachLuxuryGoods(Dictionary<int, LuxuryGood> goodDict)
+            {
+                foreach (LuxurySlot luxSlot in this.luxurySlots.itemData.Select(i => i.value).Where(s => s.luxuryGood.id is not null)) 
+                {
+                    luxSlot.AttachLuxuryGood(goodDict[(int)luxSlot.luxuryGood.id]);
+                }
+
+                foreach (LuxurySlot tradeSlot in this.tradeSlots.itemData.Select(i => i.value).Where(s => s.luxuryGood.id is not null))
+                {
+                    tradeSlot.AttachLuxuryGood(goodDict[(int)tradeSlot.luxuryGood.id]);
+                }
+            }
         }
     }
 }

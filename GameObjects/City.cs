@@ -1,9 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using static Reus2Surveyor.GameObjects.CityControllers;
 
 namespace Reus2Surveyor.GameObjects
 {
@@ -66,16 +64,20 @@ namespace Reus2Surveyor.GameObjects
         [JsonProperty(Required = Required.Always)] public Parent parent { get; init; }
 
         //
-        public CityControllers.ProjectController? CityProjectController { get; private set; }
-        public void AttachProjectController(CityControllers.ProjectController? projectController)
+        public ProjectController? CityProjectController { get; private set; }
+        public void AttachProjectController(ProjectController? projectController)
         {
             this.CityProjectController = projectController;
         }
-
-        public CityControllers.ResourceController? CityResourceController { get; private set; }
-        public void AttachResourceController(CityControllers.ResourceController? resourceController)
+        public ResourceController? CityResourceController { get; private set; }
+        public void AttachResourceController(ResourceController? resourceController)
         {
             this.CityResourceController = resourceController;
+        }
+        public LuxuryController? CityLuxuryController { get; private set; }
+        public void AttachLuxuryController(LuxuryController? luxuryController)
+        {
+            this.CityLuxuryController = luxuryController;
         }
     }
 
