@@ -21,6 +21,8 @@ namespace Reus2Surveyor.GameObjects
         public Dictionary<int, City> Cities = [];
         public Dictionary<int, CityControllers.ProjectController> CityProjectControllers = [];
 
+        public PatchMap<int> PlanetPatchMap;
+
         // "Hidden" objects - can't identified by _type/name, located by reference from other object
         // Alternately this could be done by try-catching the deserialization or other way of matching the schema
         public Dictionary<int, CityObjects.Project> CityProjects = [];
@@ -74,23 +76,28 @@ namespace Reus2Surveyor.GameObjects
                     this.CityProjectControllers.Add(i, pc);
                     continue;
                 }
+                if (dummy.name == "PatchCollection")
+                {
+                    PatchCollection pc = jo.ToObject<PatchCollection>();
+                    this.PlanetPatchMap = new(pc.IdList);
+                }
             }
 
             // Second-pass items (located by token index number)
 
-            // Cross-referencing and collation
-            // Call method on parent object to put child objects in its properties
-            // Parent object calls method on child object to put itself in its properties
+            
 
             // Filtering out irrelevant objects
-            
             // CitySlots
             HashSet<int> citySlots = [.. this.BioticumSlots.Where(kv => kv.Value.locationOnPatch.value == 3).Select(kv => kv.Key)];
             foreach (int cs in citySlots) this.BioticumSlots.Remove(cs);
-
+            // Biotica on future slots
             HashSet<int> futureSlots = [.. this.BioticumSlots.Values.Select(s => s.futureSlot.id)];
             this.ActiveBiotica = this.AllBiotica.Where(kv => !futureSlots.Contains((int)kv.Value.parent.id)).ToDictionary();
 
+            // Cross-referencing and collation
+            // Call method on parent object to put child objects in its properties
+            // Parent object calls method on child object to put itself in its properties
             foreach (Patch patch in this.Patches.Values)
             {
                 patch.FindSlots(this.BioticumSlots);
@@ -98,6 +105,11 @@ namespace Reus2Surveyor.GameObjects
             foreach (BioticumSlot slot in this.BioticumSlots.Values)
             {
                 slot.FindBiotica(this.AllBiotica);
+            }
+            // Put patches in biome from PatchMap and dictionary of patches
+            foreach (Biome b in this.Biomes.Values)
+            {
+                b.BuildPatchInfo(this.PlanetPatchMap, this.Patches);
             }
 
             List<BioticumSlot> orphanSlots = [.. this.BioticumSlots.Values.Where(slot => slot.Patch is null && slot.locationOnPatch.value != 3)];
