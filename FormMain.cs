@@ -29,8 +29,6 @@ namespace Reus2Surveyor
         private List<Planet> planetList = [];
         private int planetsTried, planetsOk, planetsTotal = 0;
 
-        public static readonly Glossaries GameGlossaries = new(Path.Combine(baseDir, "Glossaries"));
-
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string LastSpotCheckDir { get; set; } = "";
 
@@ -300,7 +298,7 @@ namespace Reus2Surveyor
             bool readPlanetOK = false;
 
             // TESTING
-            Planet p = PlanetFileUtil.ReadPlanetFromFile(path);
+            Planet p = PlanetFileUtil.ReadPlanetFromFile(path, index);
             this.planetsTried++;
             return;
 
@@ -430,7 +428,7 @@ namespace Reus2Surveyor
             DateTime exportStart = DateTime.Now;
             exportStatsButton.Enabled = false;
             int i = -1;
-            this.PlanetStatCollector = new(GameGlossaries);
+            this.PlanetStatCollector = new();
             foreach (Planet planet in this.planetList)
             {
                 i++;
@@ -496,7 +494,7 @@ namespace Reus2Surveyor
                     File.WriteAllText(dst, outputText);
                 }
 
-                testPlanet = PlanetFileUtil.ReadPlanetFromFile(path);
+                testPlanet = PlanetFileUtil.ReadPlanetFromFile(path, -1);
                 planetOK = true;
 
                 StatCollector sc;

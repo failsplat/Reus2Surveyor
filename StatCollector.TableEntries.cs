@@ -477,10 +477,10 @@ namespace Reus2Surveyor
             [UnpackToBiomes(defaultValue: (double)0, suffix: "P", numberFormat: "0.00%")]
             public Dictionary<string, double?> biomeSizePercents = [];
 
-            public SpiritStatEntry(string spiritName, Glossaries glosInstance)
+            public SpiritStatEntry(string spiritName)
             {
                 this.Name = spiritName;
-                this.InitializeBiomeCounters(glosInstance);
+                this.InitializeBiomeCounters();
             }
 
             public void IncrementProsperityTotals(int pros, int pop, int tech, int wel)
@@ -541,9 +541,9 @@ namespace Reus2Surveyor
                 }
             }
 
-            public void InitializeBiomeCounters(Glossaries g)
+            public void InitializeBiomeCounters()
             {
-                foreach (string bn in g.BiomeHashByName.Keys)
+                foreach (string bn in Glossaries.BiomeHashByName.Keys)
                 {
                     this.biomeUsageCounts[bn] = 0;
                     this.biomeSizes[bn] = 0;
@@ -579,7 +579,7 @@ namespace Reus2Surveyor
                 this.totalPlanetCityProsAverage += avpros;
             }
 
-            public void CalculateStats(int planetCount, Glossaries glossaryInstance)
+            public void CalculateStats(int planetCount)
             {
                 this.P = SafePercent(this.Count, planetCount);
                 this.PrimeP = SafePercent(this.Prime, this.Count);
@@ -632,7 +632,7 @@ namespace Reus2Surveyor
 
                 foreach (string bdic in bioUsed)
                 {
-                    BioticumDefinition cityBioDef = glossaryInstance.BioticumDefFromHash(bdic);
+                    BioticumDefinition cityBioDef = Glossaries.BioticumDefFromHash(bdic);
                     if (cityBioDef is null) continue;
                     switch (cityBioDef.Type)
                     {
@@ -680,17 +680,17 @@ namespace Reus2Surveyor
             [UnpackToSpirits(defaultValue: (int)0)]
             public Dictionary<string, int> LeaderCounts = [];
 
-            public LuxuryStatEntry(Glossaries.LuxuryDefinition luxDef, Glossaries gloss)
+            public LuxuryStatEntry(Glossaries.LuxuryDefinition luxDef)
             {
                 this.Name = luxDef.Name;
                 this.Type = luxDef.Type;
                 this.Hash = luxDef.Hash;
-                this.InitializeLeaderSubtables(gloss);
+                this.InitializeLeaderSubtables();
             }
 
-            public void InitializeLeaderSubtables(Glossaries gloss)
+            public void InitializeLeaderSubtables()
             {
-                foreach (string leaderName in gloss.SpiritHashByName.Keys)
+                foreach (string leaderName in Glossaries.SpiritHashByName.Keys)
                 {
                     LeaderCounts[leaderName] = 0;
                     LeaderCountsOri[leaderName] = 0;
@@ -769,18 +769,18 @@ namespace Reus2Surveyor
             [UnpackToSpirits(defaultValue: (double)0, prefix: "P", numberFormat: "0.00%", nullOnZeroOrBlank: true)]
             public Dictionary<string, double?> LeaderPickRates = [];
 
-            public ProjectStatEntry(Glossaries.CityProjectDefinition projectDef, Glossaries gloss)
+            public ProjectStatEntry(Glossaries.CityProjectDefinition projectDef)
             {
                 this.Name = projectDef.DisplayName;
                 this.Slot = projectDef.Slot;
                 this.Hash = projectDef.Hash;
                 this.InName = projectDef.InternalName;
-                this.InitializeLeaderSubtables(gloss);
+                this.InitializeLeaderSubtables();
             }
 
-            public void InitializeLeaderSubtables(Glossaries gloss)
+            public void InitializeLeaderSubtables()
             {
-                foreach (string leaderName in gloss.SpiritHashByName.Keys)
+                foreach (string leaderName in Glossaries.SpiritHashByName.Keys)
                 {
                     LeaderCounts[leaderName] = 0;
                     LeaderPickRates[leaderName] = 0;
