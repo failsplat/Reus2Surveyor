@@ -29,4 +29,10 @@ namespace Reus2Surveyor.GameObjects
     {
         public T items { get; init; }
     }
+
+    public class N2ItemValue<T1, T2>
+    {
+        public Value<T1> Item1;
+        public Value<T2> Item2;
+    }
 }

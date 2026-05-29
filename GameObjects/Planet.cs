@@ -13,6 +13,7 @@ namespace Reus2Surveyor.GameObjects
     {
         public List<JToken> Tokens;
 
+        public GameSession GameSession;
         // Indexed based on order in referenceTokens
         // Top-level objects (identified from _type or name)
         public Dictionary<int, BioticumSlot> BioticumSlots = [];
@@ -90,6 +91,9 @@ namespace Reus2Surveyor.GameObjects
                         BorderController borderController = jo.ToObject<BorderController>();
                         this.CityBorderControllers.Add(i, borderController);
                         continue;
+                    case "Session":
+                        this.GameSession = jo.ToObject<GameSession>();
+                        continue;
                     default:
                         break;
                 }
@@ -160,6 +164,7 @@ namespace Reus2Surveyor.GameObjects
                 city.AttachLuxuryController(this.CityLuxuryControllers[city.luxuryController.id]);
                 city.AttachBorderController(this.CityBorderControllers[city.borderController.id]);
                 city.CityLuxuryController.AttachLuxuryGoods(this.LuxuryGoods);
+                city.AttachCivSummary(this.GameSession.CivSummaries[city.cityIndex]);
             }
             foreach (CityObjects.LuxuryGood lg in this.LuxuryGoods.Values)
             {

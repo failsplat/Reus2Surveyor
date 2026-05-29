@@ -84,7 +84,11 @@ namespace Reus2Surveyor.GameObjects
         {
             this.CityBorderController = borderController;
         }
-
+        public CivSummary? CivSummary { get; private set; }
+        public void AttachCivSummary(CivSummary? civSummary)
+        {
+            this.CivSummary = civSummary;
+        }
     }
 
     public class NomadHeritage
