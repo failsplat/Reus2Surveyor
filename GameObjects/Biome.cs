@@ -16,11 +16,12 @@ namespace Reus2Surveyor.GameObjects
         public string nameSuffix { get; init; }
         public bool isPolluted { get; init; }
         public bool nameOnlySuffixContainsTheme { get; init; }
-        [JsonProperty(Required = Required.Always)] public Value<int> biomeType { get; init; }
+        [JsonProperty(Required = Required.Always)] public Value<int> biomeType { get; init; } // This is an integer, NOT a definition!
         //public string name { get; init; }
         [JsonProperty(Required = Required.Always)] public Parent parent { get; init; }
 
         //
+        public int? AnchorPatch { get => this.anchorPatch.id; }
         public List<Patch> PatchesInBiome { get; private set; } = [];
         public List<Patch> WildPatchesInBiome { get; private set; } = [];
         public string? BiomeTypeDef { get; private set; } = null;
@@ -36,7 +37,7 @@ namespace Reus2Surveyor.GameObjects
             int anchorId = (int)this.anchorPatch.id;
             int anchorPosition = patchMap.IndexOf(anchorId);
             Patch anchorPatchObj = patches[anchorId];
-            this.BiomeTypeDef = anchorPatchObj.biomeDefinition.value;
+            this.BiomeTypeDef = anchorPatchObj.BiomeDefinition;
 
             List<int?> leftPatches = [];
             List<int?> rightPatches = [];
@@ -45,7 +46,7 @@ namespace Reus2Surveyor.GameObjects
             {
                 int leftPatchIndex = (int)patchMap[(patchMap.Count + (leftMapPosition % patchMap.Count)) % patchMap.Count];
                 if (!patches.ContainsKey(leftPatchIndex)) break;
-                string leftPatchBiomeDef = patches[leftPatchIndex].biomeDefinition.value;
+                string leftPatchBiomeDef = patches[leftPatchIndex].BiomeDefinition;
                 if (leftPatchBiomeDef == this.BiomeTypeDef) leftPatches.Insert(0, leftPatchIndex);
                 else break;
             }
@@ -53,7 +54,7 @@ namespace Reus2Surveyor.GameObjects
             {
                 int rightPatchIndex = (int)patchMap[rightMapPosition % patchMap.Count];
                 if (!patches.ContainsKey(rightPatchIndex)) break;
-                string rightPatchBiomeDef = patches[rightPatchIndex].biomeDefinition.value;
+                string rightPatchBiomeDef = patches[rightPatchIndex].BiomeDefinition;
                 if (rightPatchBiomeDef == this.BiomeTypeDef) rightPatches.Add(rightPatchIndex);
                 else break;
             }

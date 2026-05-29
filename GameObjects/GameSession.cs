@@ -20,25 +20,23 @@ namespace Reus2Surveyor.GameObjects
         //
         public List<TurningPointPerformance> EraPerformance 
         { 
-            get
-            {
-                return [.. this.sessionSummary.scoreCard.turningPointPerformances.itemData.Select(v => v.value)];
-            }
+            get => [.. this.sessionSummary.scoreCard.turningPointPerformances.itemData.Select(v => v.value)];
         }
-
         public List<CivSummary> CivSummaries
         {
-            get
-            {
-                return [.. this.sessionSummary.humanitySummary2.civs.itemData.Select(v => v.value)];
-            }
+            get => [.. this.sessionSummary.humanitySummary2.civs.itemData.Select(v => v.value)];
         }
         public HashSet<string> EncounteredDefinitions
         {
-            get
-            {
-                return [.. this.encounteredDefinitions.itemData.Select(v => v.value)];
-            }
+            get => [.. this.encounteredDefinitions.itemData.Select(v => v.value)];
+        }
+        public string SelectedCharacter
+        {
+            get => this.startParameters.selectedCharacter.value;
+        }
+        public List<string> SelectedGiantDefinitions
+        {
+            get => [.. this.startParameters.giantRoster.itemData.Select(v => (v.value.Item1.value, v.value.Item2.value)).OrderBy(t => t.Item1).Select(t => t.Item2)];
         }
     }
 
@@ -127,6 +125,8 @@ namespace Reus2Surveyor.GameObjects
 
     public class GiantRoster
     {
+        // Item1 position
+        // Item2 definition
         public List<Value<N2ItemValue<int, string>>> itemData { get; init; }
     }
 

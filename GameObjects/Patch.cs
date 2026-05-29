@@ -16,7 +16,7 @@ namespace Reus2Surveyor.GameObjects
         //public Aspectloots aspectLoots { get; init; }
         [JsonProperty(Required = Required.Always)] public string _type { get; init; }
         public Id<int> planet { get; init; }
-        [JsonProperty(Required = Required.Always)] public Value<string> biomeDefinition { get; init; }
+        public Value<string>? biomeDefinition { get; init; }
         //public bool isBeingClaimed { get; init; }
         //public Value<int> patchVariation { get; init; }
         //public Value<int> currentBackdropMode { get; init; }
@@ -53,6 +53,7 @@ namespace Reus2Surveyor.GameObjects
         public BioticumSlot? ForegroundSlot { get; private set; }
         public BioticumSlot? BackgroundSlot { get; private set; }
         public BioticumSlot? MountainSlot { get; private set; }
+        public string? BiomeDefinition { get => this.biomeDefinition?.value; }
 
         public List<BioticumSlot> SlotsInPatch
         {

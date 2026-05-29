@@ -227,7 +227,6 @@ namespace Reus2Surveyor
                 this.newFileDetectionLabel.ForeColor = System.Drawing.Color.Black;
                 this.resetProfileButton.Enabled = false;
 
-
                 Dictionary<int, string> completedPlanetPaths = this.planetsInProfile.Where(kv => kv.Value.Complete.valid).Select(kv => new KeyValuePair<int, string>(kv.Key, kv.Value.Complete.path)).ToDictionary();
 
                 List<int> readOptionOff = [];
@@ -297,69 +296,67 @@ namespace Reus2Surveyor
             pathParts.Reverse();
             bool readPlanetOK = false;
 
-            // TESTING
-            Planet p = PlanetFileUtil.ReadPlanetFromFile(path, index);
-            this.planetsTried++;
-            return;
+            Planet newPlanet = null;
+            string planetName = null;
+            Dictionary<string, object> resAsDict = null;
 
-            // STUN
+            try
+            {
+                SaveRoot sr = PlanetFileUtil.ReadFileSaveRoot(path);
+                newPlanet = new(sr, path, index);
+            }
+            catch
+            {
+                this.planetsTried++;
+                this.planetLooperBackgroundWorker.ReportProgress(1);
+                this.planetGridView.Rows[index].Cells["ReadStatusCol"].Value = "Failed";
+                return;
+            }
 
-            //Planet newPlanet = null;
-            //string planetName = null;
-            //Dictionary<string, object> resAsDict = null;
-            //try
-            //{
-            //    resAsDict = PlanetFileUtil.ReadDictFromFile(path);
-            //    planetName = PlanetFileUtil.PlanetNameFromSaveFilePath(path);
-            //    newPlanet = PlanetFileUtil.InterpretDictAsPlanet(resAsDict, path);
+            try 
+            {
+                this.planetsTried++;
+                if (newPlanet is not null)
+                {
+                    this.planetList[index] = newPlanet;
+                    readPlanetOK = true;
+                    this.planetsOk++;
 
-            //    SaveRoot sr = PlanetFileUtil.ReadSaveFileRoot(path);
+                    this.UpdatePlanetGrid(index, newPlanet);
 
-            //    newPlanet.number = index;
-            //}
-            //catch (Exception e)
-            //{
-            //    newPlanet = null;
-            //    Program.TracePlanetException(e, pathParts[1] + Path.DirectorySeparatorChar + pathParts[0]);
-            //}
-
-            //this.planetsTried++;
-            //if (newPlanet is not null)
-            //{
-            //    this.planetList[index] = newPlanet;
-            //    readPlanetOK = true;
-            //    this.planetsOk++;
-            //    newPlanet.SetGlossaryThenLookup(GameGlossaries);
-
-            //    this.UpdatePlanetGrid(index, newPlanet);
-
-            //    // Write decoded file
-            //    if (this.WriteDecodedSetting)
-            //    {
-            //        string dst = Path.Combine(decodedDir, pathParts[1] + "." + pathParts[0] + ".json");
-            //        string outputText;
-            //        if (!File.Exists(dst))
-            //        {
-            //            outputText = JsonConvert.SerializeObject(resAsDict, Formatting.Indented);
-            //            File.WriteAllText(dst, outputText);
-            //        }
-            //        else
-            //        {
-            //            DateTime dstLastWrite = File.GetLastWriteTimeUtc(dst);
-            //            DateTime srcLastWrite = File.GetLastWriteTimeUtc(path);
-            //            if (srcLastWrite > dstLastWrite)
-            //            {
-            //                outputText = JsonConvert.SerializeObject(resAsDict, Formatting.Indented);
-            //                File.WriteAllText(dst, outputText);
-            //            }
-            //        }
-            //    }
-            //}
-            //else
-            //{
-            //    this.planetList[index] = newPlanet;
-            //    this.planetGridView.Rows[index].Cells["ReadStatusCol"].Value = "Failed";
-            //}
+                    // Write decoded file
+                    if (this.WriteDecodedSetting)
+                    {
+                        string dst = Path.Combine(decodedDir, pathParts[1] + "." + pathParts[0] + ".json");
+                        string outputText;
+                        if (!File.Exists(dst))
+                        {
+                            outputText = JsonConvert.SerializeObject(resAsDict, Formatting.Indented);
+                            File.WriteAllText(dst, outputText);
+                        }
+                        else
+                        {
+                            DateTime dstLastWrite = File.GetLastWriteTimeUtc(dst);
+                            DateTime srcLastWrite = File.GetLastWriteTimeUtc(path);
+                            if (srcLastWrite > dstLastWrite)
+                            {
+                                outputText = JsonConvert.SerializeObject(resAsDict, Formatting.Indented);
+                                File.WriteAllText(dst, outputText);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    this.planetList[index] = newPlanet;
+                    this.planetGridView.Rows[index].Cells["ReadStatusCol"].Value = "Failed";
+                }
+            }
+            catch
+            {
+                throw;
+            }
+            
 
             this.planetLooperBackgroundWorker.ReportProgress(1);
             if (readPlanetOK)
@@ -370,34 +367,34 @@ namespace Reus2Surveyor
             {
                 Trace.TraceError("Failed to read planet file: " + pathParts[1] + "/" + pathParts[0]);
             }
+            return;
         }
 
         public void UpdatePlanetGrid(int index, Planet newPlanet)
         {
-            // STUN
+            string spiritName = Glossaries.SpiritNameFromHash(newPlanet.GameSession.SelectedCharacter);
+            DataGridViewRow thisRow = this.planetGridView.Rows[index];
 
-            //string spiritName = GameGlossaries.SpiritNameFromHash(newPlanet.gameSession.selectedCharacterDef);
-            //DataGridViewRow thisRow = this.planetGridView.Rows[index];
+            thisRow.Cells["ScoreCol"].Value = newPlanet.GameSession.EraPerformance.Last().TotalScore.ToString();
+            thisRow.Cells["SpiritCol"].Value = spiritName;
+            thisRow.Cells["ReadStatusCol"].Value = "OK";
 
-            //thisRow.Cells["ScoreCol"].Value = newPlanet.gameSession.turningPointPerformances.Last().scoreTotal.ToString();
-            //thisRow.Cells["SpiritCol"].Value = spiritName;
-            //thisRow.Cells["ReadStatusCol"].Value = "OK";
+            if (TableGraphics.spiritSquares.TryGetValue(spiritName, out byte[] spiritImage)) { thisRow.Cells["SpiritIconCol"].Value = spiritImage; }
+            else thisRow.Cells["SpiritIconCol"].Value = Properties.Resources.ErrorSquare;
 
-            //if (TableGraphics.spiritSquares.TryGetValue(spiritName, out byte[] spiritImage)) { thisRow.Cells["SpiritIconCol"].Value = spiritImage; }
-            //else thisRow.Cells["SpiritIconCol"].Value = Properties.Resources.ErrorSquare;
+            List<string> giantNames = [.. newPlanet.GameSession.SelectedGiantDefinitions.Select(d => Glossaries.GiantNameFromHash(d))];
 
+            if (TableGraphics.giantSquares.TryGetValue(giantNames[0], out byte[] giant1Image)) { thisRow.Cells["Giant1Col"].Value = giant1Image; }
+            else thisRow.Cells["Giant1Col"].Value = Properties.Resources.ErrorSquare;
+            if (TableGraphics.giantSquares.TryGetValue(giantNames[1], out byte[] giant2Image)) { thisRow.Cells["Giant2Col"].Value = giant2Image; }
+            else thisRow.Cells["Giant2Col"].Value = Properties.Resources.ErrorSquare;
+            if (TableGraphics.giantSquares.TryGetValue(giantNames[2], out byte[] giant3Image)) { thisRow.Cells["Giant3Col"].Value = giant3Image; }
+            else thisRow.Cells["Giant3Col"].Value = Properties.Resources.ErrorSquare;
 
-            //if (TableGraphics.giantSquares.TryGetValue(newPlanet.GiantNames[0], out byte[] giant1Image)) { thisRow.Cells["Giant1Col"].Value = giant1Image; }
-            //else thisRow.Cells["Giant1Col"].Value = Properties.Resources.ErrorSquare;
-            //if (TableGraphics.giantSquares.TryGetValue(newPlanet.GiantNames[1], out byte[] giant2Image)) { thisRow.Cells["Giant2Col"].Value = giant2Image; }
-            //else thisRow.Cells["Giant2Col"].Value = Properties.Resources.ErrorSquare;
-            //if (TableGraphics.giantSquares.TryGetValue(newPlanet.GiantNames[2], out byte[] giant3Image)) { thisRow.Cells["Giant3Col"].Value = giant3Image; }
-            //else thisRow.Cells["Giant3Col"].Value = Properties.Resources.ErrorSquare;
-
-            //SixLabors.ImageSharp.Image miniMap = TableGraphics.BiomePositionalToMinimap(newPlanet.BiomeSizeMap, GameGlossaries);
-            //using MemoryStream ms = new MemoryStream();
-            //miniMap.SaveAsPng(ms, new SixLabors.ImageSharp.Formats.Png.PngEncoder());
-            //thisRow.Cells["MinimapCol"].Value = ms.ToArray();
+            SixLabors.ImageSharp.Image miniMap = TableGraphics.BiomePositionalToMinimap(newPlanet.BiomeSizeMap);
+            using MemoryStream ms = new MemoryStream();
+            miniMap.SaveAsPng(ms, new SixLabors.ImageSharp.Formats.Png.PngEncoder());
+            thisRow.Cells["MinimapCol"].Value = ms.ToArray();
         }
 
         private void updateDecodeProgress()
@@ -636,7 +633,7 @@ namespace Reus2Surveyor
 
         private void debugMenuButton_Click(object sender, EventArgs e)
         {
-            this.debugPanel.Visible = !this.debugPanel.Visible;
+            this.DebugPanel.Visible = !this.DebugPanel.Visible;
         }
 
         private void resetProfileButton_Click(object sender, EventArgs e)
@@ -695,6 +692,22 @@ namespace Reus2Surveyor
             imRyb.SaveAsPng("testRybShader.png");
 
             //Image imDegen = tp.DrawStandardPlot(Color.White, degenShader, title: "a");
+        }
+
+        private void SequentialReadAllTestButton_Click(object sender, EventArgs e)
+        {
+            this.ResetPlanetList();
+            Dictionary<int, string> completedPlanetPaths = this.planetsInProfile
+                .Where(kv => kv.Value.Complete.valid).Select(kv => new KeyValuePair<int, string>(kv.Key, kv.Value.Complete.path)).ToDictionary();
+            this.filesToProcess = completedPlanetPaths;
+            foreach ((int index, string path) in completedPlanetPaths)
+            {
+                SaveRoot sr = PlanetFileUtil.ReadFileSaveRoot(path);
+                Planet testPlanet = new(sr, path, index);
+                this.TestingCounterLabel.Text = index.ToString();
+                if (index % 10 == 0) this.TestingCounterLabel.Refresh();
+            }
+            
         }
     }
 }

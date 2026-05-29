@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Drawing;
-using DocumentFormat.OpenXml.Office.Drawing;
+﻿using static System.IO.Path;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,41 +10,59 @@ namespace Reus2Surveyor.GameObjects
     // Instead, it is assembled by reading SaveRoot.referenceTokens 
     public class Planet
     {
-        public List<JToken> Tokens;
+        public readonly string Name;
+        public readonly long EpochMinutes;
+        public readonly int Number;
+        public readonly string Path;
+        public readonly string DebugPath;
 
-        public GameSession GameSession;
+        //public readonly List<JToken> Tokens; // Memory hog?
+
+        public readonly GameSession GameSession;
         // Indexed based on order in referenceTokens
         // Top-level objects (identified from _type or name)
-        public Dictionary<int, BioticumSlot> BioticumSlots = [];
-        public Dictionary<int, Patch> Patches = [];
-        public Dictionary<int, Biome> Biomes = [];
-        public Dictionary<int, NatureBioticum> AllBiotica = [];
-        public Dictionary<int, NatureBioticum> ActiveBiotica; // Filled out on cross-referencing
+        public readonly Dictionary<int, BioticumSlot> BioticumSlots = [];
+        public readonly Dictionary<int, Patch> Patches = [];
+        public readonly Dictionary<int, Biome> Biomes = [];
+        public readonly Dictionary<int, NatureBioticum> AllBiotica = [];
+        public readonly Dictionary<int, NatureBioticum> ActiveBiotica; // Filled out on cross-referencing
 
-        public Dictionary<int, City> Cities = [];
-        public Dictionary<int, ProjectController> CityProjectControllers = [];
-        public Dictionary<int, ResourceController> CityResourceControllers = [];
-        public Dictionary<int, LuxuryController> CityLuxuryControllers = [];
-        public Dictionary<int, BorderController> CityBorderControllers = [];
-        public Dictionary<int, CityObjects.LuxuryGood> LuxuryGoods = [];
+        public readonly Dictionary<int, City> Cities = [];
+        public readonly Dictionary<int, ProjectController> CityProjectControllers = [];
+        public readonly Dictionary<int, ResourceController> CityResourceControllers = [];
+        public readonly Dictionary<int, LuxuryController> CityLuxuryControllers = [];
+        public readonly Dictionary<int, BorderController> CityBorderControllers = [];
+        public readonly Dictionary<int, CityObjects.LuxuryGood> LuxuryGoods = [];
 
-        public PatchMap<int> PlanetPatchMap;
+        public readonly PatchMap<int> PlanetPatchMap;
 
         // "Hidden" objects - can't identified by _type/name, located by reference from other object
         // Alternately this could be done by try-catching the deserialization or other way of matching the schema
-        public Dictionary<int, CityObjects.Project> CityProjects = []; // Members in here are accessed from City
+        public readonly Dictionary<int, CityObjects.Project> CityProjects = []; // Members in here are accessed from City
 
         // Collections by gameplay-relevant indices
-        public List<City> CitiesInOrder { get => [.. this.Cities.Values.OrderBy(city => city.cityIndex)]; }
+        public List<City> CitiesInOrder { get; init; }
+        public Dictionary<string, int> BioticaDefCounter { get; init; } = [];
+        public Dictionary<string, int> BioticaNameCounter { get; init; } = [];
+        public int TotalSize { get; init; }
+        public Dictionary<int, (string biomeTypeName, double percentSize)> BiomeSizeMap { get; init; }
 
-        public Planet(SaveRoot sr, string path)
+        public Planet(SaveRoot sr, string path, int number)
         {
+            this.Name = PlanetFileUtil.PlanetNameFromSaveFilePath(path);
+            this.EpochMinutes = PlanetFileUtil.EpochMinutesFromSaveFilePath(path);
+            this.Number = number;
+            this.Path = path;
+            List<string> pathParts = [.. this.Path.Split(System.IO.Path.DirectorySeparatorChar)];
+            pathParts.Reverse();
+            this.DebugPath = pathParts[1] + System.IO.Path.DirectorySeparatorChar + pathParts[0];
+
             int i = -1;
-            this.Tokens = sr.referenceTokens;
+            //this.Tokens = sr.referenceTokens;
 
             // Casting JO to game objects
             // Top-level objects (identified from _type or name)
-            foreach (JToken jo in this.Tokens) 
+            foreach (JToken jo in sr.referenceTokens) 
             {
                 i++;
                 Dummy dummy = jo.ToObject<Dummy>();
@@ -61,6 +78,7 @@ namespace Reus2Surveyor.GameObjects
                         continue;
                     case { } when dummy.name.StartsWith("City #"):
                         City city = jo.ToObject<City>();
+                        city.TokenIndex = i;
                         this.Cities.Add(i, city);
                         continue;
                     case "BiomeModelData":
@@ -119,7 +137,7 @@ namespace Reus2Surveyor.GameObjects
 
             foreach (ProjectController proc in this.CityProjectControllers.Values)
             {
-                Dictionary<int, CityObjects.Project> foundProjects = proc.FindProjects(this.Tokens);
+                Dictionary<int, CityObjects.Project> foundProjects = proc.FindProjects(sr.referenceTokens);
                 foreach ((int projectId, CityObjects.Project project) in foundProjects) 
                 {
                     this.CityProjects[projectId] = project;
@@ -135,6 +153,22 @@ namespace Reus2Surveyor.GameObjects
             this.ActiveBiotica = this.AllBiotica.Where(kv => !futureSlots.Contains((int)kv.Value.parent.id)).ToDictionary();
 
             // Cross-referencing and collation
+            this.CitiesInOrder = [.. this.Cities.Values.OrderBy(city => city.cityIndex)];
+            foreach (string? bioDef in this.ActiveBiotica.Values.Select(nb => nb.Definition))
+            {
+                if (bioDef is null) continue;
+                string bioName = Glossaries.BioticumNameFromHash(bioDef);
+                if (this.BioticaDefCounter.ContainsKey(bioDef)) 
+                {
+                    this.BioticaDefCounter[bioDef] += 1;
+                    this.BioticaNameCounter[bioName] += 1;
+                }
+                else
+                {
+                    this.BioticaDefCounter[bioDef] = 1;
+                    this.BioticaNameCounter[bioName] = 1;
+                }
+            }
 
             // Geography
             // Call method on parent object to put child objects in its properties
@@ -152,10 +186,15 @@ namespace Reus2Surveyor.GameObjects
             {
                 b.BuildPatchInfo(this.PlanetPatchMap, this.Patches);
             }
+            // Order-dependant
+            this.TotalSize = this.Biomes.Values.Select(b => b.TotalSize).Sum();
+            this.BiomeSizeMap = this.Biomes.Values.Where(b => b.AnchorPatch is not null && b.BiomeTypeDef is not null)
+                .ToDictionary(b => (int)b.AnchorPatch, b => (Glossaries.BiomeNameFromHash(b.BiomeTypeDef), (double)b.TotalSize / (double)this.TotalSize));
 
             // City
             // There are accessed per-city, so linking only is useful in one direction
 
+            int ci = 0;
             foreach (City city in this.CitiesInOrder)
             {
                 // Makes sure that the controllers exist for each city
@@ -164,7 +203,8 @@ namespace Reus2Surveyor.GameObjects
                 city.AttachLuxuryController(this.CityLuxuryControllers[city.luxuryController.id]);
                 city.AttachBorderController(this.CityBorderControllers[city.borderController.id]);
                 city.CityLuxuryController.AttachLuxuryGoods(this.LuxuryGoods);
-                city.AttachCivSummary(this.GameSession.CivSummaries[city.cityIndex]);
+                city.AttachCivSummary(this.GameSession.CivSummaries[ci]);
+                ci++;
             }
             foreach (CityObjects.LuxuryGood lg in this.LuxuryGoods.Values)
             {

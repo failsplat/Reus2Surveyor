@@ -30,9 +30,9 @@ namespace Reus2Surveyor.GameObjects
         public Value<string> definition { get; init; }
         public double foundedOn { get; init; }
         [JsonProperty(Required = Required.Always)] public string fancyName { get; init; }
-        [JsonProperty(Required = Required.Always)] public int cityIndex { get; init; }
-        public Id<int> leftNeighbour { get; init; }
-        public Id<int> rightNeighbour { get; init; }
+        public int? cityIndex { get; private set; } // Not present in earlier versions. If not present, use TokenIndex
+        public Id<int?> leftNeighbour { get; init; }
+        public Id<int?> rightNeighbour { get; init; }
         [JsonProperty(Required = Required.Always)] public Value<string> biomeOrigin { get; init; }
         //public Value<string> currentCityEra { get; init; }
         //public Value<string> activatedMiniPower { get; init; }
@@ -64,6 +64,17 @@ namespace Reus2Surveyor.GameObjects
         [JsonProperty(Required = Required.Always)] public Parent parent { get; init; }
 
         //
+        public int TokenIndex;
+        public int CityOrder
+        {
+            // Uses cityIndex if available, falls back on TokenIndex
+            get
+            {
+                if (this.cityIndex is not null) return (int)this.cityIndex;
+                else return this.TokenIndex;
+            }
+        }
+
         public ProjectController? CityProjectController { get; private set; }
         public void AttachProjectController(ProjectController? projectController)
         {

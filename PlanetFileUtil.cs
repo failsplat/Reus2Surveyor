@@ -31,10 +31,10 @@ namespace Reus2Surveyor
             return JsonConvert.DeserializeObject<SaveRoot>(res);
         }
 
-        public static Planet ReadPlanetFromFile(string path)
+        public static Planet ReadPlanetFromFile(string path, int number)
         {
             SaveRoot sr = ReadFileSaveRoot(path);
-            Planet newPlanet = new(sr, path);
+            Planet newPlanet = new(sr, path, number);
             return newPlanet;
         }
 
