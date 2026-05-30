@@ -9,9 +9,9 @@ namespace Reus2Surveyor
 {
     public class PlanetFileUtil
     {
-        public static string DecompressEncodedFile(string src)
+        public static string DecompressEncodedFile(string srcpath)
         {
-            FileStream rawFileStream = File.Open(src, FileMode.Open);
+            FileStream rawFileStream = File.Open(srcpath, FileMode.Open);
             rawFileStream.Seek(3, SeekOrigin.Begin); // Skip past v1
             GZipStream decompressor = new(rawFileStream, CompressionMode.Decompress);
 
@@ -23,19 +23,6 @@ namespace Reus2Surveyor
             rawFileStream.Dispose();
             decompressor.Dispose();
             return s;
-        }
-
-        public static SaveRoot ReadFileSaveRoot(string path)
-        {
-            string res = PlanetFileUtil.DecompressEncodedFile(path);
-            return JsonConvert.DeserializeObject<SaveRoot>(res);
-        }
-
-        public static Planet ReadPlanetFromFile(string path, int number)
-        {
-            SaveRoot sr = ReadFileSaveRoot(path);
-            Planet newPlanet = new(sr, path, number);
-            return newPlanet;
         }
 
         public static string PlanetNameFromSaveFilePath(string path)

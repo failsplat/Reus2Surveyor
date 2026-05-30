@@ -296,16 +296,16 @@ namespace Reus2Surveyor
 
             List<string> pathParts = [.. path.Split(Path.DirectorySeparatorChar)];
             pathParts.Reverse();
-            bool readPlanetOK = false;
 
             Planet newPlanet = null;
             string planetName = null;
-            Dictionary<string, object> resAsDict = null;
+
+            string decompressed = PlanetFileUtil.DecompressEncodedFile(path);
 
             this.planetsTried++;
             try
             {
-                SaveRoot sr = PlanetFileUtil.ReadFileSaveRoot(path);
+                SaveRoot sr = JsonConvert.DeserializeObject<SaveRoot>(decompressed);
                 newPlanet = new(sr, path, index);
                 this.planetList[index] = newPlanet;
             }
@@ -322,7 +322,7 @@ namespace Reus2Surveyor
                 if (newPlanet is not null)
                 {
                     this.planetList[index] = newPlanet;
-                    readPlanetOK = true;
+                    //readPlanetOK = true;
                     this.planetsOk++;
 
                     this.UpdatePlanetGrid(index, newPlanet);
@@ -331,11 +331,10 @@ namespace Reus2Surveyor
                     if (this.WriteDecodedSetting)
                     {
                         string dst = Path.Combine(decodedDir, pathParts[1] + "." + pathParts[0] + ".json");
-                        string outputText;
                         if (!File.Exists(dst))
                         {
-                            outputText = JsonConvert.SerializeObject(resAsDict, Formatting.Indented);
-                            File.WriteAllText(dst, outputText);
+                            string prettyPrint = DictHelper.CleanupDeserialize(decompressed);
+                            File.WriteAllText(dst, prettyPrint);
                         }
                         else
                         {
@@ -343,8 +342,8 @@ namespace Reus2Surveyor
                             DateTime srcLastWrite = File.GetLastWriteTimeUtc(path);
                             if (srcLastWrite > dstLastWrite)
                             {
-                                outputText = JsonConvert.SerializeObject(resAsDict, Formatting.Indented);
-                                File.WriteAllText(dst, outputText);
+                                string prettyPrint = DictHelper.CleanupDeserialize(decompressed);
+                                File.WriteAllText(dst, prettyPrint);
                             }
                         }
                     }
@@ -505,7 +504,10 @@ namespace Reus2Surveyor
                     File.WriteAllText(dst, outputText);
                 }
 
-                testPlanet = PlanetFileUtil.ReadPlanetFromFile(path, -1);
+                string decompressed = PlanetFileUtil.DecompressEncodedFile(path);
+                string cleanprint = DictHelper.CleanupDeserialize(decompressed);
+                SaveRoot sr = JsonConvert.DeserializeObject<SaveRoot>(decompressed);
+                testPlanet = new(sr, path, -1);
                 planetOK = true;
 
                 StatCollector testSc;
@@ -717,7 +719,8 @@ namespace Reus2Surveyor
 
             foreach ((int index, string path) in completedPlanetPaths)
             {
-                SaveRoot sr = PlanetFileUtil.ReadFileSaveRoot(path);
+                string decompressed = PlanetFileUtil.DecompressEncodedFile(path);
+                SaveRoot sr = JsonConvert.DeserializeObject<SaveRoot>(decompressed);
                 Planet testPlanet = new(sr, path, index);
                 this.TestingCounterLabel.Text = index.ToString();
                 if (index % 10 == 0) this.TestingCounterLabel.Refresh();
