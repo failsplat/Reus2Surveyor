@@ -4,6 +4,7 @@ using Newtonsoft.Json.Bson;
 using Reus2Surveyor.GameObjects;
 using SixLabors.ImageSharp;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -27,7 +28,7 @@ namespace Reus2Surveyor
         public bool profileDirOK = false;
 
         private List<Planet> planetList = [];
-        private int planetsTried, planetsOk, planetsTotal, planetsFailed = 0;
+        private int planetsTried, planetsOk, planetsToProcess, planetsFailed, planetsSkipped = 0;
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string LastSpotCheckDir { get; set; } = "";
@@ -113,8 +114,9 @@ namespace Reus2Surveyor
         public void ResetPlanetList()
         {
             this.planetList.Clear();
+            this.planetsForGridUpdate.Clear();
             this.planetsOk = 0;
-            this.planetsTotal = 0;
+            this.planetsToProcess = 0;
             this.planetsTried = 0;
             this.planetsFailed = 0;
             this.InitialPlanetListLockouts();
@@ -272,7 +274,7 @@ namespace Reus2Surveyor
         private void LoopThroughPlanetSaves()
         {
             this.planetList = [.. Enumerable.Repeat((Planet)null, this.planetsInProfile.Count)];
-            this.planetsTotal = this.filesToProcess.Count;
+            this.planetsToProcess = this.filesToProcess.Count;
 
             this.PlanetLoopTask().Wait();
         }
@@ -325,7 +327,7 @@ namespace Reus2Surveyor
                     readPlanetOK = true;
                     this.planetsOk++;
 
-                    this.UpdatePlanetGrid(index, newPlanet);
+                    this.AddPlanetIndexToGridUpdate(index);
 
                     // Write decoded file
                     if (this.WriteDecodedSetting)
@@ -369,19 +371,35 @@ namespace Reus2Surveyor
             return;
         }
 
-        public void UpdatePlanetGrid(int index, Planet newPlanet)
+        private ConcurrentBag<int> planetsForGridUpdate = [];
+        public void AddPlanetIndexToGridUpdate(int index)
         {
-            string spiritName = Glossaries.SpiritNameFromHash(newPlanet.GameSession.StartParameters.SelectedCharacter);
+            this.planetsForGridUpdate.Add(index);
+            if (this.planetsForGridUpdate.Count >= 16) this.UpdatePlanetGrid();
+        }
+
+        public void UpdatePlanetGrid()
+        {
+            while (this.planetsForGridUpdate.TryTake(out int index))
+            {
+                this.UpdatePlanetGridRow(index);
+            }
+        }
+
+        public void UpdatePlanetGridRow(int index)
+        {
+            Planet planet = this.planetList[index];
+            string spiritName = Glossaries.SpiritNameFromHash(planet.GameSession.StartParameters.SelectedCharacter);
             DataGridViewRow thisRow = this.planetGridView.Rows[index];
 
-            thisRow.Cells["ScoreCol"].Value = newPlanet.GameSession.EraPerformances.Last().TotalScore.ToString();
+            thisRow.Cells["ScoreCol"].Value = planet.GameSession.EraPerformances.Last().TotalScore.ToString();
             thisRow.Cells["SpiritCol"].Value = spiritName;
             thisRow.Cells["ReadStatusCol"].Value = "OK";
 
             if (TableGraphics.spiritSquares.TryGetValue(spiritName, out byte[] spiritImage)) { thisRow.Cells["SpiritIconCol"].Value = spiritImage; }
             else thisRow.Cells["SpiritIconCol"].Value = Properties.Resources.ErrorSquare;
 
-            List<string> giantNames = [.. newPlanet.GameSession.StartParameters.SelectedGiantDefinitions.Select(d => Glossaries.GiantNameFromHash(d))];
+            List<string> giantNames = [.. planet.GameSession.StartParameters.SelectedGiantDefinitions.Select(d => Glossaries.GiantNameFromHash(d))];
 
             if (TableGraphics.giantSquares.TryGetValue(giantNames[0], out byte[] giant1Image)) { thisRow.Cells["Giant1Col"].Value = giant1Image; }
             else thisRow.Cells["Giant1Col"].Value = Properties.Resources.ErrorSquare;
@@ -390,7 +408,7 @@ namespace Reus2Surveyor
             if (TableGraphics.giantSquares.TryGetValue(giantNames[2], out byte[] giant3Image)) { thisRow.Cells["Giant3Col"].Value = giant3Image; }
             else thisRow.Cells["Giant3Col"].Value = Properties.Resources.ErrorSquare;
 
-            SixLabors.ImageSharp.Image miniMap = TableGraphics.BiomePositionalToMinimap(newPlanet.BiomeSizeMap);
+            SixLabors.ImageSharp.Image miniMap = TableGraphics.BiomePositionalToMinimap(planet.BiomeSizeMap);
             using MemoryStream ms = new MemoryStream();
             miniMap.SaveAsPng(ms, new SixLabors.ImageSharp.Formats.Png.PngEncoder());
             thisRow.Cells["MinimapCol"].Value = ms.ToArray();
@@ -411,13 +429,16 @@ namespace Reus2Surveyor
 
         private void updateDecodeProgress()
         {
-            this.decodeProgressLabel.Text = String.Format("Planets ({0}/{1}), {2} OK", this.planetsTried, this.planetsTotal, this.planetsOk) + 
-                (this.planetsFailed > 0 ? $" {this.planetsFailed} FAILED" : "");
+            this.decodeProgressLabel.Text = String.Format("Planets ({0}/{1}), {2} OK", this.planetsTried, this.planetsToProcess, this.planetsOk) 
+                + (this.planetsFailed > 0 ? $" {this.planetsFailed} FAILED" : "")
+                + (this.planetsSkipped > 0 ? $" {this.planetsSkipped} SKIPPED" : "");
             if (this.planetsFailed > 0) this.decodeProgressLabel.ForeColor = System.Drawing.Color.Red;
             this.decodeProgressLabel.Refresh();
 
-            if (this.planetsTried < this.planetsTotal) this.decodeProgressBar.Value = this.planetsTried;
-            else if (this.planetsTotal == 0)
+            int planetsTotal = this.planetsOk + this.planetsFailed + this.planetsSkipped;
+
+            if (planetsTotal < this.planetsToProcess) this.decodeProgressBar.Value = planetsTotal;
+            else if (this.planetsToProcess == 0)
             {
                 this.decodeProgressBar.Value = 0;
                 this.decodeProgressLabel.ForeColor = System.Drawing.Color.Black;
@@ -606,6 +627,7 @@ namespace Reus2Surveyor
             this.readNoneButton.Enabled = true;
 
             this.updateDecodeProgress();
+            this.UpdatePlanetGrid();
         }
 
         private void planetLooperBackgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)

@@ -29,7 +29,7 @@ namespace Reus2Surveyor
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
             findProfileButton = new System.Windows.Forms.Button();
             profileFolderTextBox = new System.Windows.Forms.TextBox();
@@ -153,8 +153,8 @@ namespace Reus2Surveyor
             planetGridView.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             planetGridView.Name = "planetGridView";
             planetGridView.RowHeadersWidth = 51;
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
-            planetGridView.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
+            planetGridView.RowsDefaultCellStyle = dataGridViewCellStyle1;
             planetGridView.RowTemplate.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             planetGridView.ShowEditingIcon = false;
             planetGridView.Size = new System.Drawing.Size(955, 417);
