@@ -90,7 +90,7 @@ namespace Reus2Surveyor
             if (Path.GetFileName(value).StartsWith("profile_"))
             {
                 this.ProfileDir = value;
-                this.profileFolderTextBox.Text = this.ProfileDir;
+                this.profileFolderTextBox.Text = this.ProfileDir.Replace(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "%USERPROFILE%");
                 this.profileFolderTextBox.BackColor = this.profileFolderTextBox.BackColor;
                 this.profileFolderTextBox.ForeColor = System.Drawing.Color.Green;
                 this.profileDirOK = true;
@@ -102,7 +102,7 @@ namespace Reus2Surveyor
             else
             {
                 this.ProfileDir = value;
-                this.profileFolderTextBox.Text = this.ProfileDir;
+                this.profileFolderTextBox.Text = this.ProfileDir.Replace(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "%USERPROFILE%");
                 this.profileFolderTextBox.BackColor = this.profileFolderTextBox.BackColor;
                 this.profileFolderTextBox.ForeColor = System.Drawing.Color.Red;
                 this.profileDirOK = false;
