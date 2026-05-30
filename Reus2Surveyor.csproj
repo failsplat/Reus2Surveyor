@@ -11,6 +11,7 @@
     <ApplicationIcon>Icons\icon.ico</ApplicationIcon>
 	<ForceDesignerDPIUnaware>true</ForceDesignerDPIUnaware>
 	<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+	<Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Reus2Surveyor.GameObjects;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -24,26 +25,16 @@ namespace Reus2Surveyor
             return s;
         }
 
-        public static Dictionary<string, object> ReadDictFromFile(string path)
+        public static SaveRoot ReadFileSaveRoot(string path)
         {
             string res = PlanetFileUtil.DecompressEncodedFile(path);
-            var resAsObj = JsonConvert.DeserializeObject(res);
-            Dictionary<string, object> resAsDict = DictHelper.ObjectToDictionary(resAsObj);
-            return resAsDict;
+            return JsonConvert.DeserializeObject<SaveRoot>(res);
         }
 
-        public static Planet InterpretDictAsPlanet(Dictionary<string, object> resAsDict, string planetPath)
+        public static Planet ReadPlanetFromFile(string path, int number)
         {
-            List<object> refTokens = (List<object>)resAsDict["referenceTokens"];
-            Planet newPlanet = new(refTokens, planetPath);
-            return newPlanet;
-        }
-
-        public static Planet ReadPlanetFromFile(string path)
-        {
-            Dictionary<string, object> resAsDict = PlanetFileUtil.ReadDictFromFile(path);
-            string planetName = PlanetNameFromSaveFilePath(path);
-            Planet newPlanet = InterpretDictAsPlanet(resAsDict, path);
+            SaveRoot sr = ReadFileSaveRoot(path);
+            Planet newPlanet = new(sr, path, number);
             return newPlanet;
         }
 

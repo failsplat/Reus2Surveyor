@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Attributes;
+using Reus2Surveyor.GameObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -151,7 +152,7 @@ namespace Reus2Surveyor
         {
             [XLColumn(Order = 0)] public readonly int N;
             [XLColumn(Order = 1)] public readonly string Name;
-            [XLColumn(Order = 2)] public readonly int Ser;
+            [XLColumn(Order = 2)] public readonly long Ser;
             [XLColumn(Order = 3)] public readonly DateTime TS;
 
             private readonly int DiffValue;
@@ -249,13 +250,13 @@ namespace Reus2Surveyor
 
             public PlanetSummaryEntry(Planet planet)
             {
-                this.N = planet.number;
-                this.Name = planet.name;
-                this.Ser = planet.epochMinutes;
+                this.N = planet.Number;
+                this.Name = planet.Name;
+                this.Ser = planet.EpochMinutes;
                 this.TS = DateTime.UnixEpoch.AddMinutes(this.Ser);
                 this.TS = this.TS.ToLocalTime();
 
-                this.DiffValue = (int)planet.gameSession.sessionDifficulty;
+                this.DiffValue = planet.GameSession.StartParameters.Difficulty;
                 if (DifficultyNames.TryGetValue(this.DiffValue, out string diffName))
                 {
                     this.Difficulty = diffName;
@@ -265,18 +266,18 @@ namespace Reus2Surveyor
                     this.Difficulty = null;
                 }
 
-                this.ChIndex = planet.gameSession.challengeIndex > 0 ? planet.gameSession.challengeIndex : null;
+                this.ChIndex = planet.GameSession.ChallengeInfo.challengeIndex > 0 ? planet.GameSession.ChallengeInfo.challengeIndex : null;
                 if (this.ChIndex is not null)
                 {
-                    this.ChTS = DateTime.UnixEpoch.AddSeconds((int)planet.gameSession.challengeTimestamp);
+                    this.ChTS = DateTime.UnixEpoch.AddSeconds(planet.GameSession.ChallengeInfo.challengeDate);
                     this.ChTS = ((DateTime)this.ChTS).ToLocalTime();
-                    if (TimedChallengeTypes.TryGetValue((int)planet.gameSession.timedChallengeType, out string challengeType))
+                    if (TimedChallengeTypes.TryGetValue(planet.GameSession.ChallengeInfo.ChallengeType, out string challengeType))
                     {
                         this.ChType = challengeType;
                     }
                     else
                     {
-                        this.ChType = planet.gameSession.timedChallengeType.ToString();
+                        this.ChType = planet.GameSession.ChallengeInfo.ChallengeType.ToString();
                     }
                 }
             }
@@ -858,26 +859,26 @@ namespace Reus2Surveyor
             [XLColumn(Order = 25)] public string? Micro5;
             [XLColumn(Order = 26)] public string? Micro6;
 
-            public TopBioticumSummary(int planet, int rank, GameSession.TopBioticaEntry tbe)
+            public TopBioticumSummary(int planet, int rank, SessionSummary.TopBioticumSummary tbe)
             {
                 this.Planet = planet;
                 this.Rank = rank;
 
-                this.Name = tbe.bioticumType is not null ? Glossaries.BioticumNameFromHash(tbe.bioticumType) : null;
-                this.TotalValue = tbe.totalValue;
+                this.Name = tbe.bioticumType is not null ? Glossaries.BioticumNameFromHash(tbe.BioticumType) : null;
+                this.TotalValue = tbe.TotalValue;
                 this.Food = tbe.food;
                 this.Valuebles = tbe.valuables;
                 this.Curio = tbe.curio;
                 this.Mystery = tbe.mystery;
 
                 int microIndex = -1;
-                foreach (string microDef in tbe.aspects)
+                foreach (string microDef in tbe.Aspects)
                 {
                     microIndex++;
                     if (microIndex >= 6) break; // Max 6 micros per bioticum
 
                     string thisMicro = Glossaries.MicroNameFromHash(microDef);
-                    typeof(TopBioticumSummary).GetField("Micro" + (microIndex+1).ToString()).SetValue(this, thisMicro);
+                    typeof(TopBioticumSummary).GetField("Micro" + (microIndex + 1).ToString()).SetValue(this, thisMicro);
                 }
             }
 
