@@ -49,6 +49,7 @@ namespace Reus2Surveyor.GameObjects
             [JsonProperty(Required = Required.Always)] public ItemData<List<Value<LuxurySlot>>> tradeSlots { get; init; }
             [JsonProperty(Required = Required.Always)] public ItemData<List<Value<int>>> emblemsObtained { get; init; }
             [JsonProperty(Required = Required.Always)] public string name { get; init; }
+            public Id<int> luxuryBuffs { get; init; }
             public Parent parent { get; init; }
 
             public void AttachLuxuryGoods(Dictionary<int, LuxuryGood> goodDict)
@@ -63,6 +64,9 @@ namespace Reus2Surveyor.GameObjects
                     tradeSlot.AttachLuxuryGood(goodDict[(int)tradeSlot.luxuryGood.id]);
                 }
             }
+
+            public List<LuxuryGood> LuxuryGoodsLocal { get => [.. this.luxurySlots.itemData.Where(i => i.value.LuxuryGood is not null).Select(i => i.value.LuxuryGood)]; }
+            public List<LuxuryGood> LuxuryGoodsTrade { get => [.. this.tradeSlots.itemData.Where(i => i.value.LuxuryGood is not null).Select(i => i.value.LuxuryGood)]; }
         }
 
         public class BorderController
@@ -73,6 +77,9 @@ namespace Reus2Surveyor.GameObjects
             public Value<int> rightBorderBiomeType { get; init; }
             [JsonProperty(Required = Required.Always)] public string name { get; init; }
             [JsonProperty(Required = Required.Always)] public Parent parent { get; init; }
+
+            public int LeftBorderId { get => this.leftBorder.id; }
+            public int RightBorderId { get => this.rightBorder.id; }
         }
     }
 }

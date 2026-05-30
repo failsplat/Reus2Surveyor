@@ -19,6 +19,7 @@ namespace Reus2Surveyor.GameObjects
         //public readonly List<JToken> Tokens; // Memory hog?
 
         public readonly GameSession GameSession;
+        public readonly GameplayController GameplayController;
         // Indexed based on order in referenceTokens
         // Top-level objects (identified from _type or name)
         public readonly Dictionary<int, BioticumSlot> BioticumSlots = [];
@@ -33,6 +34,7 @@ namespace Reus2Surveyor.GameObjects
         public readonly Dictionary<int, LuxuryController> CityLuxuryControllers = [];
         public readonly Dictionary<int, BorderController> CityBorderControllers = [];
         public readonly Dictionary<int, CityObjects.LuxuryGood> LuxuryGoods = [];
+        public readonly Dictionary<int, GenericBuff> GenericBuffs = [];
 
         public readonly PatchMap<int> PlanetPatchMap;
 
@@ -42,9 +44,11 @@ namespace Reus2Surveyor.GameObjects
 
         // Collections by gameplay-relevant indices
         public List<City> CitiesInOrder { get; init; }
-        public Dictionary<string, int> BioticaDefCounter { get; init; } = [];
-        public Dictionary<string, int> BioticaNameCounter { get; init; } = [];
+        public Dictionary<string, int> ActiveBioticaDefCounter { get; init; } = [];
+        public Dictionary<string, int> ActiveBioticaNameCounter { get; init; } = [];
+        public Dictionary<string, int> LegacyBioticaDefCounter { get; init; } = [];
         public int TotalSize { get; init; }
+        public int WildSize { get; init; }
         public Dictionary<int, (string biomeTypeName, double percentSize)> BiomeSizeMap { get; init; }
 
         public Planet(SaveRoot sr, string path, int number)
@@ -112,6 +116,9 @@ namespace Reus2Surveyor.GameObjects
                     case "Session":
                         this.GameSession = jo.ToObject<GameSession>();
                         continue;
+                    case "GameplayController":
+                        this.GameplayController = jo.ToObject<GameplayController>();
+                        continue;
                     default:
                         break;
                 }
@@ -127,6 +134,10 @@ namespace Reus2Surveyor.GameObjects
                     case "NatureBioticum":
                         NatureBioticum bio = jo.ToObject<NatureBioticum>();
                         this.AllBiotica.Add(i, bio);
+                        continue;
+                    case "GenericBuff":
+                        GenericBuff genBuff = jo.ToObject<GenericBuff>();
+                        this.GenericBuffs.Add(i, genBuff);
                         continue;
                     default:
                         break;
@@ -152,21 +163,22 @@ namespace Reus2Surveyor.GameObjects
             HashSet<int> futureSlots = [.. this.BioticumSlots.Values.Select(s => s.futureSlot.id)];
             this.ActiveBiotica = this.AllBiotica.Where(kv => !futureSlots.Contains((int)kv.Value.parent.id)).ToDictionary();
 
-            // Cross-referencing and collation
+
+            // Count active biotica
             this.CitiesInOrder = [.. this.Cities.Values.OrderBy(city => city.cityIndex)];
             foreach (string? bioDef in this.ActiveBiotica.Values.Select(nb => nb.Definition))
             {
                 if (bioDef is null) continue;
                 string bioName = Glossaries.BioticumNameFromHash(bioDef);
-                if (this.BioticaDefCounter.ContainsKey(bioDef)) 
+                if (this.ActiveBioticaDefCounter.ContainsKey(bioDef)) 
                 {
-                    this.BioticaDefCounter[bioDef] += 1;
-                    this.BioticaNameCounter[bioName] += 1;
+                    this.ActiveBioticaDefCounter[bioDef] += 1;
+                    this.ActiveBioticaNameCounter[bioName] += 1;
                 }
                 else
                 {
-                    this.BioticaDefCounter[bioDef] = 1;
-                    this.BioticaNameCounter[bioName] = 1;
+                    this.ActiveBioticaDefCounter[bioDef] = 1;
+                    this.ActiveBioticaNameCounter[bioName] = 1;
                 }
             }
 
@@ -175,11 +187,22 @@ namespace Reus2Surveyor.GameObjects
             // Parent object calls method on child object to put itself in its properties
             foreach (Patch patch in this.Patches.Values)
             {
-                patch.FindSlots(this.BioticumSlots);
+                patch.AttachSlots(this.BioticumSlots);
             }
             foreach (BioticumSlot slot in this.BioticumSlots.Values)
             {
                 slot.FindBiotica(this.AllBiotica);
+                foreach (string archivedDef in slot.ArchivedBioticaDefs)
+                {
+                    if (this.LegacyBioticaDefCounter.ContainsKey(archivedDef))
+                    {
+                        this.LegacyBioticaDefCounter[archivedDef] += 1;
+                    }
+                    else
+                    {
+                        this.LegacyBioticaDefCounter[archivedDef] = 1;
+                    }
+                }
             }
             // Put patches in biome from PatchMap and dictionary of patches
             foreach (Biome b in this.Biomes.Values)
@@ -187,7 +210,8 @@ namespace Reus2Surveyor.GameObjects
                 b.BuildPatchInfo(this.PlanetPatchMap, this.Patches);
             }
             // Order-dependant
-            this.TotalSize = this.Biomes.Values.Select(b => b.TotalSize).Sum();
+            this.TotalSize = this.Patches.Count;
+            this.WildSize = this.Patches.Values.Where(p => p.IsWild).Count();
             this.BiomeSizeMap = this.Biomes.Values.Where(b => b.AnchorPatch is not null && b.BiomeTypeDef is not null)
                 .ToDictionary(b => (int)b.AnchorPatch, b => (Glossaries.BiomeNameFromHash(b.BiomeTypeDef), (double)b.TotalSize / (double)this.TotalSize));
 
@@ -202,8 +226,9 @@ namespace Reus2Surveyor.GameObjects
                 city.AttachResourceController(this.CityResourceControllers[city.resourceController.id]);
                 city.AttachLuxuryController(this.CityLuxuryControllers[city.luxuryController.id]);
                 city.AttachBorderController(this.CityBorderControllers[city.borderController.id]);
-                city.CityLuxuryController.AttachLuxuryGoods(this.LuxuryGoods);
+                city.AttachLuxuryGoods(this.LuxuryGoods);
                 city.AttachCivSummary(this.GameSession.CivSummaries[ci]);
+                city.BuildTerritoryInformation(this.PlanetPatchMap, this.Patches, this.ActiveBiotica);
                 ci++;
             }
             foreach (CityObjects.LuxuryGood lg in this.LuxuryGoods.Values)
@@ -213,6 +238,8 @@ namespace Reus2Surveyor.GameObjects
                     lg.AttachOriginCity(this.Cities[(int)lg.originCity.id]);
                 }
             }
+
+
 
             List<BioticumSlot> orphanSlots = [.. this.BioticumSlots.Values.Where(slot => slot.Patch is null && slot.locationOnPatch.value != 3)];
             List<NatureBioticum> orphanBio = [.. this.ActiveBiotica.Values.Where(bio => bio.Slot is null)];

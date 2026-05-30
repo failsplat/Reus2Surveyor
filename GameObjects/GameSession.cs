@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Reus2Surveyor.GameObjects
 {
+    // Avoid direct access to the deser fields deep than this
     public class GameSession
     {
         public RootRandom rootRandom { get; init; }
@@ -18,7 +19,7 @@ namespace Reus2Surveyor.GameObjects
         public SessionSummary sessionSummary { get; init; }
 
         //
-        public List<TurningPointPerformance> EraPerformance 
+        public List<TurningPointPerformance> EraPerformances 
         { 
             get => [.. this.sessionSummary.scoreCard.turningPointPerformances.itemData.Select(v => v.value)];
         }
@@ -30,14 +31,13 @@ namespace Reus2Surveyor.GameObjects
         {
             get => [.. this.encounteredDefinitions.itemData.Select(v => v.value)];
         }
-        public string SelectedCharacter
+        public List<SessionSummary.TopBioticumSummary> TopBioticaSummaries
         {
-            get => this.startParameters.selectedCharacter.value;
+            get => this.sessionSummary.topBiotica is not null ? [.. this.sessionSummary.topBiotica.itemData.Select(i => i.value)] : [];
         }
-        public List<string> SelectedGiantDefinitions
-        {
-            get => [.. this.startParameters.giantRoster.itemData.Select(v => (v.value.Item1.value, v.value.Item2.value)).OrderBy(t => t.Item1).Select(t => t.Item2)];
-        }
+        public StartParameters StartParameters { get => this.startParameters; }
+        public int CoolBiomeCount { get => this.sessionSummary.coolBiomes; }
+        public StartParameters.ChallengeID ChallengeInfo { get => this.startParameters.challengeID; }
     }
 
     public class StartParameters
@@ -70,6 +70,17 @@ namespace Reus2Surveyor.GameObjects
             public int challengeIndex { get; init; }
             public Value<int> timedChallengeType { get; init; }
             public long challengeDate { get; init; }
+            public int ChallengeType { get => this.timedChallengeType.value; }
+        }
+
+        public int Difficulty { get => this.sessionDifficulty.value; }
+        public string SelectedCharacter
+        {
+            get => this.selectedCharacter.value;
+        }
+        public List<string> SelectedGiantDefinitions
+        {
+            get => [.. this.giantRoster.itemData.Select(v => (v.value.Item1.value, v.value.Item2.value)).OrderBy(t => t.Item1).Select(t => t.Item2)];
         }
     }
 
@@ -113,6 +124,10 @@ namespace Reus2Surveyor.GameObjects
             public double curio { get; init; }
             public double mystery { get; init; }
             public ItemData<List<Value<string>>> aspects { get; init; }
+
+            public string BioticumType { get => this.bioticumType.value; }
+            public double TotalValue { get => this.food + this.valuables + this.curio + (this.mystery * 5); }
+            public List<string> Aspects { get => [..this.aspects.itemData.Select(a => a.value)]; }
         }
     }
 
@@ -154,6 +169,8 @@ namespace Reus2Surveyor.GameObjects
                 return total;
             }
         }
+
+        public string Definition { get => this.turningPoint.value; }
 
     }
 

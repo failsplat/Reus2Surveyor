@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using static Reus2Surveyor.GameObjects.CityControllers;
 
 namespace Reus2Surveyor.GameObjects
@@ -43,7 +44,7 @@ namespace Reus2Surveyor.GameObjects
         [JsonProperty(Required = Required.Always)] public ItemData<List<Value<string>>> initiatedTurningPoints { get; init; }
         public Items<ItemData<List<Value<string>>>> bioticumPool { get; init; }
         public NomadHeritage nomadHeritage { get; init; }
-        //public Position position { get; init; }
+        public CityPosition position { get; init; }
         public CityRandom cityRandom { get; init; }
         public int currentVisualStage { get; init; }
         public int cityIconIndex { get; init; }
@@ -75,47 +76,95 @@ namespace Reus2Surveyor.GameObjects
             }
         }
 
-        public ProjectController? CityProjectController { get; private set; }
+        private ProjectController? CityProjectController { get; set; }
         public void AttachProjectController(ProjectController? projectController)
         {
             this.CityProjectController = projectController;
         }
-        public ResourceController? CityResourceController { get; private set; }
+        private ResourceController? CityResourceController { get; set; }
         public void AttachResourceController(ResourceController? resourceController)
         {
             this.CityResourceController = resourceController;
         }
-        public LuxuryController? CityLuxuryController { get; private set; }
+        private LuxuryController? CityLuxuryController { get; set; }
         public void AttachLuxuryController(LuxuryController? luxuryController)
         {
             this.CityLuxuryController = luxuryController;
         }
-        public BorderController? CityBorderController { get; private set; }
+        public void AttachLuxuryGoods(Dictionary<int, CityObjects.LuxuryGood> goodDict)
+        {
+            this.CityLuxuryController.AttachLuxuryGoods(goodDict);
+        }
+        private BorderController? CityBorderController { get; set; }
         public void AttachBorderController(BorderController? borderController)
         {
             this.CityBorderController = borderController;
         }
-        public CivSummary? CivSummary { get; private set; }
+        public CivSummary? CivSummary { get; set; }
         public void AttachCivSummary(CivSummary? civSummary)
         {
             this.CivSummary = civSummary;
         }
-    }
 
-    public class NomadHeritage
-    {
-        public Value<string> settledBiome { get; init; }
-        public Value<string> character { get; init; }
-        public Value<string> pendingRequest { get; init; }
-        public ItemData<List<Value<string>>> selectedTraits { get; init; }
-        public Id<int> harmonyController { get; init; }
-        public int emblemIndex { get; init; }
-    }
+        public List<CityObjects.Project> Projects { get => this.CityProjectController.Projects; }
+        public List<CityObjects.LuxurySlot> LuxurySlots { get => [.. this.CityLuxuryController.luxurySlots.itemData.Select(i => i.value)]; }
+        public List<CityObjects.LuxurySlot> TradeSlots { get => [.. this.CityLuxuryController.tradeSlots.itemData.Select(i => i.value)]; }
+        public List<CityObjects.LuxuryGood> LuxuryGoods { get => this.CityLuxuryController.LuxuryGoodsLocal; }
+        public List<CityObjects.LuxuryGood> TradeGoods { get => this.CityLuxuryController.LuxuryGoodsTrade; }
+        public string FoundingCharacterDef { get => this.nomadHeritage.character.value; }
+        public string SettledBiome { get => this.nomadHeritage.settledBiome.value; }
+        public int LuxuryBuffControllerId { get => this.CityLuxuryController.luxuryBuffs.id; }
+        public List<string> InitiatedTurningPoints { get => [..this.initiatedTurningPoints.itemData.Select(i => i.value)]; }
 
-    public class CityRandom
-    {
-        public int seedState { get; init; }
-        public float pulls { get; init; }
-        public int baseSeedState { get; init; }
+        public class NomadHeritage
+        {
+            public Value<string> settledBiome { get; init; }
+            public Value<string> character { get; init; }
+            public Value<string> pendingRequest { get; init; }
+            public ItemData<List<Value<string>>> selectedTraits { get; init; }
+            public Id<int> harmonyController { get; init; }
+            public int emblemIndex { get; init; }
+        }
+
+        public class CityRandom
+        {
+            public int seedState { get; init; }
+            public float pulls { get; init; }
+            public int baseSeedState { get; init; }
+        }
+
+        public List<int> PatchIdsInTerritory { get; private set; } = [];
+        public List<Patch> PatchesInTerritory { get; private set; } = [];
+        public string CurrentBiomeDefinition { get; private set; } = "NOT SET";
+        public List<NatureBioticum> BioticaInTerritory { get; private set; } = [];
+        public int CityPatch { get => this.position.patch.id; }
+        public void BuildTerritoryInformation(PatchMap<int> patchMap, Dictionary<int, Patch> patches, Dictionary<int, NatureBioticum> bioticaActive)
+        {
+            this.PatchIdsInTerritory = patchMap.PatchIndexSlice(this.CityBorderController.LeftBorderId, this.CityBorderController.RightBorderId);
+            this.PatchesInTerritory = [.. this.PatchIdsInTerritory.Select(i => patches[i])];
+            this.CurrentBiomeDefinition = patches[this.CityPatch].BiomeDefinition;
+
+            foreach (Patch patch in this.PatchesInTerritory)
+            {
+                foreach (BioticumSlot slot in patch.SlotsInPatch)
+                {
+                    if (slot.BioticumIndex is not null)
+                    {
+                        this.BioticaInTerritory.Add(bioticaActive[(int)slot.BioticumIndex]);
+                    }
+                }
+            }
+        }
+
+        public class CityPosition
+        {
+            public Id<int> patch { get; init; }
+            public double positionX { get; init; }
+            public double positionY { get; init; }
+            public Value<int> attachment { get; init; }
+            public bool detectWaterLimit { get; init; }
+            public bool dynamicWaterMode { get; init; }
+            public int visualPatchIndex { get; init; }
+        }
     }
 }

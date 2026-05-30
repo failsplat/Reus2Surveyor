@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace Reus2Surveyor.GameObjects
@@ -23,7 +21,7 @@ namespace Reus2Surveyor.GameObjects
         public Value<int> citySlotCategory { get; init; }
         [JsonProperty(Required = Required.Always)] public int slotLevel { get; init; }
         public int fireLevel { get; init; }
-        [JsonProperty(Required = Required.Always)] public ItemData<List<ArchivedBioticum>> archivedBiotica { get; init; }
+        [JsonProperty(Required = Required.Always)] public ItemData<List<Value<ArchivedBioticum>>> archivedBiotica { get; init; }
         public bool hasBioDiscount { get; init; }
         public bool isInvasiveSlot { get; init; }
         public int? fireSize { get; init; }
@@ -71,5 +69,8 @@ namespace Reus2Surveyor.GameObjects
                 }
             }
         }
+
+        public List<ArchivedBioticum> ArchivedBiotica { get => [..this.archivedBiotica.itemData.Select(i => i.value)]; }
+        public List<string> ArchivedBioticaDefs { get => [..this.ArchivedBiotica.Select(a => a.bioticum.value)]; }
     }
 }

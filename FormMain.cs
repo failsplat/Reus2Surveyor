@@ -372,17 +372,17 @@ namespace Reus2Surveyor
 
         public void UpdatePlanetGrid(int index, Planet newPlanet)
         {
-            string spiritName = Glossaries.SpiritNameFromHash(newPlanet.GameSession.SelectedCharacter);
+            string spiritName = Glossaries.SpiritNameFromHash(newPlanet.GameSession.StartParameters.SelectedCharacter);
             DataGridViewRow thisRow = this.planetGridView.Rows[index];
 
-            thisRow.Cells["ScoreCol"].Value = newPlanet.GameSession.EraPerformance.Last().TotalScore.ToString();
+            thisRow.Cells["ScoreCol"].Value = newPlanet.GameSession.EraPerformances.Last().TotalScore.ToString();
             thisRow.Cells["SpiritCol"].Value = spiritName;
             thisRow.Cells["ReadStatusCol"].Value = "OK";
 
             if (TableGraphics.spiritSquares.TryGetValue(spiritName, out byte[] spiritImage)) { thisRow.Cells["SpiritIconCol"].Value = spiritImage; }
             else thisRow.Cells["SpiritIconCol"].Value = Properties.Resources.ErrorSquare;
 
-            List<string> giantNames = [.. newPlanet.GameSession.SelectedGiantDefinitions.Select(d => Glossaries.GiantNameFromHash(d))];
+            List<string> giantNames = [.. newPlanet.GameSession.StartParameters.SelectedGiantDefinitions.Select(d => Glossaries.GiantNameFromHash(d))];
 
             if (TableGraphics.giantSquares.TryGetValue(giantNames[0], out byte[] giant1Image)) { thisRow.Cells["Giant1Col"].Value = giant1Image; }
             else thisRow.Cells["Giant1Col"].Value = Properties.Resources.ErrorSquare;
@@ -494,60 +494,58 @@ namespace Reus2Surveyor
                 testPlanet = PlanetFileUtil.ReadPlanetFromFile(path, -1);
                 planetOK = true;
 
-                StatCollector sc;
+                StatCollector testSc;
 
-                // STUN
+                if (planetOK)
+                {
+                    // Counting biotica
+                    // For getting definition hashes for biotica
+                    Dictionary<string, int> bioticaCounter = [];
+                    foreach (NatureBioticum nb in testPlanet.ActiveBiotica.Values)
+                    {
+                        string bioName = Glossaries.BioticumNameFromHash(nb.Definition);
+                        if (bioticaCounter.ContainsKey(bioName)) bioticaCounter[bioName] += 1;
+                        else bioticaCounter[bioName] = 1;
+                    }
+                    List<string> singleBiotica = [.. bioticaCounter.Where(kv => kv.Value == 1).Select(kv => kv.Key)];
+                    List<string> dualBiotica = [.. bioticaCounter.Where(kv => kv.Value == 2).Select(kv => kv.Key)];
+                    List<string> tripleBiotica = [.. bioticaCounter.Where(kv => kv.Value == 3).Select(kv => kv.Key)];
+                    string bio1, bio2, bio3;
+                    bio1 = singleBiotica.Count == 1 ? singleBiotica[0] : null;
+                    bio2 = dualBiotica.Count == 1 ? dualBiotica[0] : null;
+                    bio3 = tripleBiotica.Count == 1 ? tripleBiotica[0] : null;
+                    string bio123;
+                    if (bio1 is not null && bio2 is not null && bio3 is not null)
+                    {
+                        bio123 = String.Join('\n', [bio1, bio2, bio3]);
+                    }
 
-                //if (planetOK)
-                //{
-                //    // Counting biotica
-                //    // For getting definition hashes for biotica
-                //    Dictionary<string, int> bioticaCounter = [];
-                //    foreach (NatureBioticum nb in testPlanet.natureBioticumDictionary.Values)
-                //    {
-                //        string bioName = GameGlossaries.BioticumNameFromHash(nb.definition);
-                //        if (bioticaCounter.ContainsKey(bioName)) bioticaCounter[bioName] += 1;
-                //        else bioticaCounter[bioName] = 1;
-                //    }
-                //    List<string> singleBiotica = [.. bioticaCounter.Where(kv => kv.Value == 1).Select(kv => kv.Key)];
-                //    List<string> dualBiotica = [.. bioticaCounter.Where(kv => kv.Value == 2).Select(kv => kv.Key)];
-                //    List<string> tripleBiotica = [.. bioticaCounter.Where(kv => kv.Value == 3).Select(kv => kv.Key)];
-                //    string bio1, bio2, bio3;
-                //    bio1 = singleBiotica.Count == 1 ? singleBiotica[0] : null;
-                //    bio2 = dualBiotica.Count == 1 ? dualBiotica[0] : null;
-                //    bio3 = tripleBiotica.Count == 1 ? tripleBiotica[0] : null;
-                //    string bio123;
-                //    if (bio1 is not null && bio2 is not null && bio3 is not null)
-                //    {
-                //        bio123 = String.Join('\n', [bio1, bio2, bio3]);
-                //    }
+                    // Counting micros
+                    // For getting definition hashes for micros
+                    //Dictionary<string, int> microCounter = [];
+                    //foreach (PlacedMicro pm in testPlanet.PlacedMicroBySlot.Values)
+                    //{
+                    //    string microName = GameGlossaries.MicroNameFromHash(pm.definition);
+                    //    if (microCounter.ContainsKey(microName)) microCounter[microName] += 1;
+                    //    else microCounter[microName] = 1;
+                    //}
+                    //List<string> singleMicro = [.. microCounter.Where(kv => kv.Value == 1).Select(kv => kv.Key)];
+                    //List<string> dualMicro = [.. microCounter.Where(kv => kv.Value == 2).Select(kv => kv.Key)];
+                    //List<string> tripleMicro = [.. microCounter.Where(kv => kv.Value == 3).Select(kv => kv.Key)];
+                    //string micro1, micro2, micro3;
+                    //micro1 = singleMicro.Count == 1 ? singleMicro[0] : null;
+                    //micro2 = dualMicro.Count == 1 ? dualMicro[0] : null;
+                    //micro3 = tripleMicro.Count == 1 ? tripleMicro[0] : null;
+                    //string micro123;
+                    //if (micro1 is not null && micro2 is not null && micro3 is not null)
+                    //{
+                    //    micro123 = String.Join('\n', [micro1, micro2, micro3]);
+                    //}
 
-                //    // Counting micros
-                //    // For getting definition hashes for micros
-                //    Dictionary<string, int> microCounter = [];
-                //    foreach (PlacedMicro pm in testPlanet.PlacedMicroBySlot.Values)
-                //    {
-                //        string microName = GameGlossaries.MicroNameFromHash(pm.definition);
-                //        if (microCounter.ContainsKey(microName)) microCounter[microName] += 1;
-                //        else microCounter[microName] = 1;
-                //    }
-                //    List<string> singleMicro = [.. microCounter.Where(kv => kv.Value == 1).Select(kv => kv.Key)];
-                //    List<string> dualMicro = [.. microCounter.Where(kv => kv.Value == 2).Select(kv => kv.Key)];
-                //    List<string> tripleMicro = [.. microCounter.Where(kv => kv.Value == 3).Select(kv => kv.Key)];
-                //    string micro1, micro2, micro3;
-                //    micro1 = singleMicro.Count == 1 ? singleMicro[0] : null;
-                //    micro2 = dualMicro.Count == 1 ? dualMicro[0] : null;
-                //    micro3 = tripleMicro.Count == 1 ? tripleMicro[0] : null;
-                //    string micro123;
-                //    if (micro1 is not null && micro2 is not null && micro3 is not null) 
-                //    { 
-                //        micro123 = String.Join('\n', [micro1, micro2, micro3]); 
-                //    }
-
-                //    sc = new(GameGlossaries);
-                //    sc.ConsumePlanet(testPlanet, 0);
-                //    sc.FinalizeStats();
-                //} // Breakpoint here
+                    testSc = new();
+                    testSc.ConsumePlanet(testPlanet, 0);
+                    testSc.FinalizeStats();
+                } // Breakpoint here
             }
         }
 
@@ -700,12 +698,17 @@ namespace Reus2Surveyor
             Dictionary<int, string> completedPlanetPaths = this.planetsInProfile
                 .Where(kv => kv.Value.Complete.valid).Select(kv => new KeyValuePair<int, string>(kv.Key, kv.Value.Complete.path)).ToDictionary();
             this.filesToProcess = completedPlanetPaths;
+
+            StatCollector testSc = new StatCollector();
+
             foreach ((int index, string path) in completedPlanetPaths)
             {
                 SaveRoot sr = PlanetFileUtil.ReadFileSaveRoot(path);
                 Planet testPlanet = new(sr, path, index);
                 this.TestingCounterLabel.Text = index.ToString();
                 if (index % 10 == 0) this.TestingCounterLabel.Refresh();
+
+                testSc.ConsumePlanet(testPlanet, index);
             }
             
         }

@@ -15,6 +15,8 @@ namespace Reus2Surveyor.GameObjects
             [JsonProperty(Required = Required.Always)] public Value<string> definition { get; init; }
             [JsonProperty(Required = Required.Always)] public string name { get; init; }
             [JsonProperty(Required = Required.Always)] public Parent parent { get; init; }
+
+            public string Definition { get => this.definition.value; }
         }
 
         // This one is part of the city structure, not in separate reference token
@@ -27,7 +29,8 @@ namespace Reus2Surveyor.GameObjects
             public bool? isFree { get; init; }
             public bool? isStolen { get; init; }
 
-            public LuxuryGood LuxuryGood { get; private set; } 
+            public int? LuxuryGoodId { get => this.luxuryGood.id; }
+            public LuxuryGood? LuxuryGood { get; private set; } 
             public void AttachLuxuryGood(LuxuryGood luxuryGood)
             {
                 this.LuxuryGood = luxuryGood;
@@ -42,11 +45,14 @@ namespace Reus2Surveyor.GameObjects
             [JsonProperty(Required = Required.Always)] public string name { get; init; }
             [JsonProperty(Required = Required.Always)] public Parent parent { get; init; }
 
+            public int? OriginCityId { get => this.originCity.id; }
             public City? OriginCity { get; private set; }
             public void AttachOriginCity(City? city)
             {
                 this.OriginCity = city;
             }
+            public string Definition { get => this.definition.value; }
+            public string? BioDefinition { get => this.originalBioticum?.value; }
         }
     }
 }
