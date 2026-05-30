@@ -10,37 +10,37 @@ namespace Reus2Surveyor.GameObjects
     // Instead, it is assembled by reading SaveRoot.referenceTokens 
     public class Planet
     {
-        public readonly string Name;
-        public readonly long EpochMinutes;
-        public readonly int Number;
-        public readonly string Path;
-        public readonly string DebugPath;
+        public string Name { get; init; }
+        public long EpochMinutes { get; init; }
+        public int Number { get; init; }
+        public string Path { get; init; }
+        public string DebugPath { get; init; }
 
         //public readonly List<JToken> Tokens; // Memory hog?
 
-        public readonly GameSession GameSession;
-        public readonly GameplayController GameplayController;
+        public GameSession GameSession { get; init; }
+        public GameplayController GameplayController { get; init; }
         // Indexed based on order in referenceTokens
         // Top-level objects (identified from _type or name)
-        public readonly Dictionary<int, BioticumSlot> BioticumSlots = [];
-        public readonly Dictionary<int, Patch> Patches = [];
-        public readonly Dictionary<int, Biome> Biomes = [];
-        public readonly Dictionary<int, NatureBioticum> AllBiotica = [];
-        public readonly Dictionary<int, NatureBioticum> ActiveBiotica; // Filled out on cross-referencing
+        public Dictionary<int, BioticumSlot> BioticumSlots { get; init; } = [];
+        public Dictionary<int, Patch> Patches { get; init; } = [];
+        public Dictionary<int, Biome> Biomes { get; init; } = [];
+        public Dictionary<int, NatureBioticum> AllBiotica { get; init; } = [];
+        public Dictionary<int, NatureBioticum> ActiveBiotica { get; init; } // Filled out on cross-referencing
 
-        public readonly Dictionary<int, City> Cities = [];
-        public readonly Dictionary<int, ProjectController> CityProjectControllers = [];
-        public readonly Dictionary<int, ResourceController> CityResourceControllers = [];
-        public readonly Dictionary<int, LuxuryController> CityLuxuryControllers = [];
-        public readonly Dictionary<int, BorderController> CityBorderControllers = [];
-        public readonly Dictionary<int, CityObjects.LuxuryGood> LuxuryGoods = [];
-        public readonly Dictionary<int, GenericBuff> GenericBuffs = [];
+        public Dictionary<int, City> Cities { get; init; } = [];
+        public Dictionary<int, ProjectController> CityProjectControllers { get; init; } = [];
+        public Dictionary<int, ResourceController> CityResourceControllers { get; init; } = [];
+        public Dictionary<int, LuxuryController> CityLuxuryControllers { get; init; } = [];
+        public Dictionary<int, BorderController> CityBorderControllers { get; init; } = [];
+        public Dictionary<int, CityObjects.LuxuryGood> LuxuryGoods { get; init; } = [];
+        public Dictionary<int, GenericBuff> GenericBuffs { get; init; } = [];
 
-        public readonly PatchMap<int> PlanetPatchMap;
+        public PatchMap<int> PlanetPatchMap { get; init; }
 
         // "Hidden" objects - can't identified by _type/name, located by reference from other object
         // Alternately this could be done by try-catching the deserialization or other way of matching the schema
-        public readonly Dictionary<int, CityObjects.Project> CityProjects = []; // Members in here are accessed from City
+        public Dictionary<int, CityObjects.Project> CityProjects { get; init; } = []; // Members in here are accessed from City
 
         // Collections by gameplay-relevant indices
         public List<City> CitiesInOrder { get; init; }
@@ -157,7 +157,7 @@ namespace Reus2Surveyor.GameObjects
 
             // Filtering out irrelevant objects
             // CitySlots
-            HashSet<int> citySlots = [.. this.BioticumSlots.Where(kv => kv.Value.locationOnPatch.value == 3).Select(kv => kv.Key)];
+            HashSet<int> citySlots = [.. this.BioticumSlots.Where(kv => kv.Value.LocationOnPatch == 3).Select(kv => kv.Key)];
             foreach (int cs in citySlots) this.BioticumSlots.Remove(cs);
             // Biotica on future slots
             HashSet<int> futureSlots = [.. this.BioticumSlots.Values.Select(s => s.futureSlot.id)];
@@ -233,15 +233,15 @@ namespace Reus2Surveyor.GameObjects
             }
             foreach (CityObjects.LuxuryGood lg in this.LuxuryGoods.Values)
             {
-                if (lg.originCity.id is not null)
+                if (lg.OriginCityId is not null)
                 {
-                    lg.AttachOriginCity(this.Cities[(int)lg.originCity.id]);
+                    lg.AttachOriginCity(this.Cities[(int)lg.OriginCityId]);
                 }
             }
 
 
 
-            List<BioticumSlot> orphanSlots = [.. this.BioticumSlots.Values.Where(slot => slot.Patch is null && slot.locationOnPatch.value != 3)];
+            List<BioticumSlot> orphanSlots = [.. this.BioticumSlots.Values.Where(slot => slot.Patch is null && slot.LocationOnPatch != 3)];
             List<NatureBioticum> orphanBio = [.. this.ActiveBiotica.Values.Where(bio => bio.Slot is null)];
         }
     }

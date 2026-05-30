@@ -21,11 +21,11 @@ namespace Reus2Surveyor.GameObjects
         //
         public List<TurningPointPerformance> EraPerformances 
         { 
-            get => [.. this.sessionSummary.scoreCard.turningPointPerformances.itemData.Select(v => v.value)];
+            get => this.sessionSummary.TurningPointPerformances;
         }
         public List<CivSummary> CivSummaries
         {
-            get => [.. this.sessionSummary.humanitySummary2.civs.itemData.Select(v => v.value)];
+            get => this.sessionSummary.CivSummaries;
         }
         public HashSet<string> EncounteredDefinitions
         {
@@ -33,11 +33,11 @@ namespace Reus2Surveyor.GameObjects
         }
         public List<SessionSummary.TopBioticumSummary> TopBioticaSummaries
         {
-            get => this.sessionSummary.topBiotica is not null ? [.. this.sessionSummary.topBiotica.itemData.Select(i => i.value)] : [];
+            get => this.sessionSummary.TopBioticumSummaries;
         }
         public StartParameters StartParameters { get => this.startParameters; }
         public int CoolBiomeCount { get => this.sessionSummary.coolBiomes; }
-        public StartParameters.ChallengeID ChallengeInfo { get => this.startParameters.challengeID; }
+        public StartParameters.ChallengeID ChallengeInfo { get => this.StartParameters.challengeID; }
     }
 
     public class StartParameters
@@ -82,6 +82,8 @@ namespace Reus2Surveyor.GameObjects
         {
             get => [.. this.giantRoster.itemData.Select(v => (v.value.Item1.value, v.value.Item2.value)).OrderBy(t => t.Item1).Select(t => t.Item2)];
         }
+
+        public ChallengeID ChallengeInfo { get => this.challengeID; }
     }
 
     public class SessionSummary
@@ -93,6 +95,10 @@ namespace Reus2Surveyor.GameObjects
         public int coolBiomes { get; init; }
         public HumanitySummary humanitySummary2 { get; init; }
         public ItemData<List<Value<TopBioticumSummary>>> topBiotica { get; init; }
+
+        public List<TurningPointPerformance> TurningPointPerformances { get => [..this.scoreCard.turningPointPerformances.itemData.Select(i => i.value)]; }
+        public List<CivSummary> CivSummaries { get => this.humanitySummary2.CivSummaries; }
+        public List<TopBioticumSummary> TopBioticumSummaries { get => [..this.topBiotica.itemData.Select(i => i.value)]; }
 
         public class ScoreCard
         {
@@ -107,13 +113,14 @@ namespace Reus2Surveyor.GameObjects
         public class EraSummary
         {
             public double score { get; init; }
-            public Value<int> era;
-            public Value<int> rank;
+            public Value<int> era { get; init; }
+            public Value<int> rank { get; init; }
         }
 
         public class HumanitySummary
         {
             public ItemData<List<Value<CivSummary>>> civs { get; init; }
+            public List<CivSummary> CivSummaries { get => [..this.civs.itemData.Select(i => i.value)]; }
         }
 
         public class TopBioticumSummary

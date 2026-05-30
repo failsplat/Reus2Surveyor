@@ -72,5 +72,7 @@ namespace Reus2Surveyor.GameObjects
 
         public List<ArchivedBioticum> ArchivedBiotica { get => [..this.archivedBiotica.itemData.Select(i => i.value)]; }
         public List<string> ArchivedBioticaDefs { get => [..this.ArchivedBiotica.Select(a => a.bioticum.value)]; }
+
+        public int LocationOnPatch { get => this.locationOnPatch.value; }
     }
 }

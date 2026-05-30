@@ -54,14 +54,14 @@ namespace Reus2Surveyor.GameObjects
 
             public void AttachLuxuryGoods(Dictionary<int, LuxuryGood> goodDict)
             {
-                foreach (LuxurySlot luxSlot in this.luxurySlots.itemData.Select(i => i.value).Where(s => s.luxuryGood.id is not null)) 
+                foreach (LuxurySlot luxSlot in this.luxurySlots.itemData.Select(i => i.value).Where(s => s.LuxuryGoodId is not null)) 
                 {
-                    luxSlot.AttachLuxuryGood(goodDict[(int)luxSlot.luxuryGood.id]);
+                    luxSlot.AttachLuxuryGood(goodDict[(int)luxSlot.LuxuryGoodId]);
                 }
 
-                foreach (LuxurySlot tradeSlot in this.tradeSlots.itemData.Select(i => i.value).Where(s => s.luxuryGood.id is not null))
+                foreach (LuxurySlot tradeSlot in this.tradeSlots.itemData.Select(i => i.value).Where(s => s.LuxuryGoodId is not null))
                 {
-                    tradeSlot.AttachLuxuryGood(goodDict[(int)tradeSlot.luxuryGood.id]);
+                    tradeSlot.AttachLuxuryGood(goodDict[(int)tradeSlot.LuxuryGoodId]);
                 }
             }
 
