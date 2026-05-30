@@ -94,11 +94,11 @@ namespace Reus2Surveyor.GameObjects
         public bool advanced { get; init; }
         public int coolBiomes { get; init; }
         public HumanitySummary humanitySummary2 { get; init; }
-        public ItemData<List<Value<TopBioticumSummary>>> topBiotica { get; init; }
+        public ItemData<List<Value<TopBioticumSummary>>>? topBiotica { get; init; }
 
         public List<TurningPointPerformance> TurningPointPerformances { get => [..this.scoreCard.turningPointPerformances.itemData.Select(i => i.value)]; }
         public List<CivSummary> CivSummaries { get => this.humanitySummary2.CivSummaries; }
-        public List<TopBioticumSummary> TopBioticumSummaries { get => [..this.topBiotica.itemData.Select(i => i.value)]; }
+        public List<TopBioticumSummary> TopBioticumSummaries { get => [..this.topBiotica?.itemData.Select(i => i.value) ?? []]; }
 
         public class ScoreCard
         {
