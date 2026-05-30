@@ -27,7 +27,7 @@ namespace Reus2Surveyor
         public bool profileDirOK = false;
 
         private List<Planet> planetList = [];
-        private int planetsTried, planetsOk, planetsTotal = 0;
+        private int planetsTried, planetsOk, planetsTotal, planetsFailed = 0;
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string LastSpotCheckDir { get; set; } = "";
@@ -116,6 +116,7 @@ namespace Reus2Surveyor
             this.planetsOk = 0;
             this.planetsTotal = 0;
             this.planetsTried = 0;
+            this.planetsFailed = 0;
             this.InitialPlanetListLockouts();
         }
 
@@ -289,6 +290,7 @@ namespace Reus2Surveyor
             {
                 // TODO: Update the table for a skipped file
                 this.planetsTried++;
+                this.planetsSkipped++;
                 return;
             }
 
@@ -300,22 +302,23 @@ namespace Reus2Surveyor
             string planetName = null;
             Dictionary<string, object> resAsDict = null;
 
+            this.planetsTried++;
             try
             {
                 SaveRoot sr = PlanetFileUtil.ReadFileSaveRoot(path);
                 newPlanet = new(sr, path, index);
+                this.planetList[index] = newPlanet;
             }
             catch
             {
-                this.planetsTried++;
+                this.planetsFailed++;
                 this.planetLooperBackgroundWorker.ReportProgress(1);
-                this.planetGridView.Rows[index].Cells["ReadStatusCol"].Value = "Failed";
+                this.MarkErrorPlanetGrid(index);
                 return;
             }
 
             try 
             {
-                this.planetsTried++;
                 if (newPlanet is not null)
                 {
                     this.planetList[index] = newPlanet;
@@ -348,25 +351,21 @@ namespace Reus2Surveyor
                 }
                 else
                 {
-                    this.planetList[index] = newPlanet;
-                    this.planetGridView.Rows[index].Cells["ReadStatusCol"].Value = "Failed";
+                    this.planetsFailed++;
+                    this.planetLooperBackgroundWorker.ReportProgress(1);
+                    this.MarkErrorPlanetGrid(index);
+                    return;
                 }
             }
             catch
             {
-                throw;
+                this.planetsFailed++;
+                this.planetLooperBackgroundWorker.ReportProgress(1);
+                this.MarkErrorPlanetGrid(index);
+                return;
             }
             
-
             this.planetLooperBackgroundWorker.ReportProgress(1);
-            if (readPlanetOK)
-            {
-
-            }
-            else
-            {
-                Trace.TraceError("Failed to read planet file: " + pathParts[1] + "/" + pathParts[0]);
-            }
             return;
         }
 
@@ -397,9 +396,24 @@ namespace Reus2Surveyor
             thisRow.Cells["MinimapCol"].Value = ms.ToArray();
         }
 
+        public void MarkErrorPlanetGrid(int index)
+        {
+            DataGridViewRow thisRow = this.planetGridView.Rows[index];
+            thisRow.Cells["ScoreCol"].Value = 0;
+            thisRow.Cells["SpiritCol"].Value = "ERROR";
+            thisRow.Cells["ReadStatusCol"].Value = "FAILED";
+
+            thisRow.Cells["SpiritIconCol"].Value = Properties.Resources.ErrorSquare;
+            thisRow.Cells["Giant1Col"].Value = Properties.Resources.ErrorSquare;
+            thisRow.Cells["Giant2Col"].Value = Properties.Resources.ErrorSquare;
+            thisRow.Cells["Giant3Col"].Value = Properties.Resources.ErrorSquare;
+        }
+
         private void updateDecodeProgress()
         {
-            this.decodeProgressLabel.Text = String.Format("Planets ({0}/{1}), {2} OK", this.planetsTried, this.planetsTotal, this.planetsOk);
+            this.decodeProgressLabel.Text = String.Format("Planets ({0}/{1}), {2} OK", this.planetsTried, this.planetsTotal, this.planetsOk) + 
+                (this.planetsFailed > 0 ? $" {this.planetsFailed} FAILED" : "");
+            if (this.planetsFailed > 0) this.decodeProgressLabel.ForeColor = System.Drawing.Color.Red;
             this.decodeProgressLabel.Refresh();
 
             if (this.planetsTried < this.planetsTotal) this.decodeProgressBar.Value = this.planetsTried;
