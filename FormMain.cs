@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -291,8 +292,8 @@ namespace Reus2Surveyor
         {
             if (path is null)
             {
-                this.planetsTried++;
-                this.planetsSkipped++;
+                Interlocked.Increment(ref this.planetsTried);
+                Interlocked.Increment(ref this.planetsSkipped);
                 return;
             }
 
@@ -304,17 +305,17 @@ namespace Reus2Surveyor
 
             string decompressed = PlanetFileUtil.DecompressEncodedFile(path);
 
-            this.planetsTried++;
+            Interlocked.Increment(ref this.planetsTried);
             try
             {
                 SaveRoot sr = JsonConvert.DeserializeObject<SaveRoot>(decompressed);
                 newPlanet = new(sr, path, index);
                 this.planetList[index] = newPlanet;
-                this.planetsOk++;
+                Interlocked.Increment(ref this.planetsOk);
             }
             catch
             {
-                this.planetsFailed++;
+                Interlocked.Increment(ref this.planetsFailed);
                 this.planetLooperBackgroundWorker.ReportProgress(1);
                 this.MarkErrorPlanetGrid(index);
                 return;
@@ -353,7 +354,7 @@ namespace Reus2Surveyor
             }
             else
             {
-                this.planetsFailed++;
+                Interlocked.Increment(ref this.planetsFailed);
                 this.planetLooperBackgroundWorker.ReportProgress(1);
                 this.MarkErrorPlanetGrid(index);
                 return;
