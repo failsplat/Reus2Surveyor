@@ -238,12 +238,13 @@ namespace Reus2Surveyor
                     r.Cells["SpiritCol"].Value = null;
                     r.Cells["ScoreCol"].Value = null;
                     r.Cells["ReadStatusCol"].Value = null;
-
+                    r.Cells["ReadStatusCol"].Style.ForeColor = System.Drawing.Color.Black;
                     r.Cells["SpiritIconCol"].Value = null;
                     r.Cells["Giant1Col"].Value = null;
                     r.Cells["Giant2Col"].Value = null;
                     r.Cells["Giant3Col"].Value = null;
                     r.Cells["MinimapCol"].Value = null;
+                    
 
                     bool? readOption = r.Cells["ReadOptionCol"].Value is null ? null : (bool)r.Cells["ReadOptionCol"].Value;
                     if (readOption is null || !(bool)readOption)
@@ -290,7 +291,6 @@ namespace Reus2Surveyor
         {
             if (path is null)
             {
-                // TODO: Update the table for a skipped file
                 this.planetsTried++;
                 this.planetsSkipped++;
                 return;
@@ -310,6 +310,7 @@ namespace Reus2Surveyor
                 SaveRoot sr = JsonConvert.DeserializeObject<SaveRoot>(decompressed);
                 newPlanet = new(sr, path, index);
                 this.planetList[index] = newPlanet;
+                this.planetsOk++;
             }
             catch
             {
@@ -319,55 +320,44 @@ namespace Reus2Surveyor
                 return;
             }
 
-            try 
+            if (newPlanet is not null)
             {
-                if (newPlanet is not null)
+                this.planetList[index] = newPlanet;
+                //readPlanetOK = true;
+
+                this.AddPlanetIndexToGridUpdate(index);
+
+                // Write decoded file
+                if (this.WriteDecodedSetting)
                 {
-                    this.planetList[index] = newPlanet;
-                    //readPlanetOK = true;
-                    this.planetsOk++;
-
-                    this.AddPlanetIndexToGridUpdate(index);
-
-                    // Write decoded file
-                    if (this.WriteDecodedSetting)
+                    string dst = Path.Combine(decodedDir, pathParts[1] + "." + pathParts[0] + ".json");
+                    if (!File.Exists(dst))
                     {
-                        string dst = Path.Combine(decodedDir, pathParts[1] + "." + pathParts[0] + ".json");
-                        if (!File.Exists(dst))
+                        string prettyPrint = DictHelper.CleanupDeserialize(decompressed);
+                        File.WriteAllText(dst, prettyPrint);
+                    }
+                    else
+                    {
+                        DateTime dstLastWrite = File.GetLastWriteTimeUtc(dst);
+                        DateTime srcLastWrite = File.GetLastWriteTimeUtc(path);
+                        if (srcLastWrite > dstLastWrite)
                         {
                             string prettyPrint = DictHelper.CleanupDeserialize(decompressed);
                             File.WriteAllText(dst, prettyPrint);
                         }
-                        else
-                        {
-                            DateTime dstLastWrite = File.GetLastWriteTimeUtc(dst);
-                            DateTime srcLastWrite = File.GetLastWriteTimeUtc(path);
-                            if (srcLastWrite > dstLastWrite)
-                            {
-                                string prettyPrint = DictHelper.CleanupDeserialize(decompressed);
-                                File.WriteAllText(dst, prettyPrint);
-                            }
-                        }
                     }
                 }
-                else
-                {
-                    this.planetsFailed++;
-                    this.planetLooperBackgroundWorker.ReportProgress(1);
-                    this.MarkErrorPlanetGrid(index);
-                    return;
-                }
+
+                this.planetLooperBackgroundWorker.ReportProgress(1);
+                return;
             }
-            catch
+            else
             {
                 this.planetsFailed++;
                 this.planetLooperBackgroundWorker.ReportProgress(1);
                 this.MarkErrorPlanetGrid(index);
                 return;
-            }
-            
-            this.planetLooperBackgroundWorker.ReportProgress(1);
-            return;
+            } 
         }
 
         private ConcurrentBag<int> planetsForGridUpdate = [];
@@ -394,6 +384,7 @@ namespace Reus2Surveyor
             thisRow.Cells["ScoreCol"].Value = planet.GameSession.EraPerformances.Last().TotalScore.ToString();
             thisRow.Cells["SpiritCol"].Value = spiritName;
             thisRow.Cells["ReadStatusCol"].Value = "OK";
+            thisRow.Cells["ReadStatusCol"].Style.ForeColor = System.Drawing.Color.Black;
 
             if (TableGraphics.spiritSquares.TryGetValue(spiritName, out byte[] spiritImage)) { thisRow.Cells["SpiritIconCol"].Value = spiritImage; }
             else thisRow.Cells["SpiritIconCol"].Value = Properties.Resources.ErrorSquare;
@@ -419,6 +410,7 @@ namespace Reus2Surveyor
             thisRow.Cells["ScoreCol"].Value = 0;
             thisRow.Cells["SpiritCol"].Value = "ERROR";
             thisRow.Cells["ReadStatusCol"].Value = "FAILED";
+            thisRow.Cells["ReadStatusCol"].Style.ForeColor = System.Drawing.Color.Red;
 
             thisRow.Cells["SpiritIconCol"].Value = Properties.Resources.ErrorSquare;
             thisRow.Cells["Giant1Col"].Value = Properties.Resources.ErrorSquare;
@@ -449,8 +441,6 @@ namespace Reus2Surveyor
                 double decodeSeconds = (DateTime.Now - this.decodeStartTime).TotalSeconds;
                 this.decodeProgressLabel.Text += $" ({decodeSeconds:N2} s)";
                 this.decodeProgressLabel.ForeColor = System.Drawing.Color.Green;
-
-                this.CheckPreviouslyDecoded();
             }
         }
 
@@ -630,6 +620,7 @@ namespace Reus2Surveyor
 
             this.updateDecodeProgress();
             this.UpdatePlanetGrid();
+            this.CheckPreviouslyDecoded();
         }
 
         private void planetLooperBackgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
