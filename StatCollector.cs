@@ -1,5 +1,4 @@
-﻿using ClosedXML.Excel;
-using MathNet.Numerics.Statistics;
+﻿using MathNet.Numerics.Statistics;
 using Reus2Surveyor.GameObjects;
 using SixLabors.ImageSharp;
 using System;
@@ -7,7 +6,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using static Reus2Surveyor.Glossaries;
 
 namespace Reus2Surveyor
@@ -341,23 +339,60 @@ namespace Reus2Surveyor
             planetEntry.Biomes = activeBiomes.Count;
             planetEntry.CBiomes = planet.GameSession.CoolBiomeCount;
 
-            List<string> bioticaHashList = [.. planet.ActiveBiotica.Values.ToList().Select(v => v.Definition)];
-            List<BioticumDefinition> bioticaDefList = [..bioticaHashList
-                .Select(v => Glossaries.BioticumDefFromHash(v))
-                .Where(v => v is not null)];
+            foreach ((string bioHash, int count) in planet.ActiveBioticaDefCounter)
+            {
+                BioticumDefinition bd = Glossaries.BioticumDefFromHash(bioHash);
+                if (bd.Apex) planetEntry.Apex += count;
+                switch (bd.Type)
+                {
+                    case "Plant":
+                        planetEntry.Plants += count;
+                        continue;
+                    case "Animal":
+                        planetEntry.Animals += count;
+                        continue;
+                    case "Mineral":
+                        planetEntry.Minerals += count;
+                        continue;
+                }
+            }
+            foreach ((string bioHash, int count) in planet.LegacyBioticaDefCounter)
+            {
+                BioticumDefinition bd = Glossaries.BioticumDefFromHash(bioHash);
+                if (bd.Apex) planetEntry.Apex += count;
+                switch (bd.Type)
+                {
+                    case "Plant":
+                        planetEntry.Plants += count;
+                        continue;
+                    case "Animal":
+                        planetEntry.Animals += count;
+                        continue;
+                    case "Mineral":
+                        planetEntry.Minerals += count;
+                        continue;
+                }
+            }
+            HashSet<string> uqBioHashes = [.. planet.ActiveBioticaDefCounter.Keys, .. planet.LegacyBioticaDefCounter.Keys];
+            foreach (string bioHash in uqBioHashes)
+            {
+                BioticumDefinition bd = Glossaries.BioticumDefFromHash(bioHash);
+                switch (bd.Type)
+                {
+                    case "Plant":
+                        planetEntry.UqPlants += 1;
+                        continue;
+                    case "Animal":
+                        planetEntry.UqAnimals += 1;
+                        continue;
+                    case "Mineral":
+                        planetEntry.UqMinerals += 1;
+                        continue;
+                }
+            }
 
-            HashSet<BioticumDefinition> uniqueBioticaDefs = bioticaDefList.ToHashSet();
-
-            planetEntry.Biotica = bioticaHashList.Count;
-            planetEntry.UqBiotica = uniqueBioticaDefs.Count;
-            planetEntry.Plants = bioticaDefList.Where(v => v.Type == "Plant").Count();
-            planetEntry.UqPlants = uniqueBioticaDefs.Where(v => v.Type == "Plant").Count();
-            planetEntry.Animals = bioticaDefList.Where(v => v.Type == "Animal").Count();
-            planetEntry.UqAnimals = uniqueBioticaDefs.Where(v => v.Type == "Animal").Count();
-            planetEntry.Minerals = bioticaDefList.Where(v => v.Type == "Mineral").Count();
-            planetEntry.UqMinerals = uniqueBioticaDefs.Where(v => v.Type == "Mineral").Count();
-
-            planetEntry.Apex = bioticaDefList.Where(v => v.Apex).Count();
+            planetEntry.Biotica = planet.ActiveBioticaDefCounter.Values.Sum() + planet.LegacyBioticaDefCounter.Values.Sum();
+            planetEntry.UqBiotica = uqBioHashes.Count;
             foreach (BioticumSlot slot in planet.BioticumSlots.Values)
             {
                 if (slot.ActiveBioticum is null) continue;

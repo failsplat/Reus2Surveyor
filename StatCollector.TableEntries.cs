@@ -226,15 +226,15 @@ namespace Reus2Surveyor
             [XLColumn(Order = 132)] public int Animals = 0;
             [XLColumn(Order = 133)] public int Minerals = 0;
 
-            [XLColumn(Order = 140)] public int UqBiotica;
-            [XLColumn(Order = 141)] public int UqPlants;
-            [XLColumn(Order = 142)] public int UqAnimals;
-            [XLColumn(Order = 143)] public int UqMinerals;
+            [XLColumn(Order = 140)] public int UqBiotica = 0;
+            [XLColumn(Order = 141)] public int UqPlants = 0;
+            [XLColumn(Order = 142)] public int UqAnimals = 0;
+            [XLColumn(Order = 143)] public int UqMinerals = 0;
             [XLColumn(Order = 144)][ColumnFormat("0.00%")] public double? PPlant;
             [XLColumn(Order = 144)][ColumnFormat("0.00%")] public double? PAnimal;
             [XLColumn(Order = 144)][ColumnFormat("0.00%")] public double? PMineral;
 
-            [XLColumn(Order = 150)] public int Apex;
+            [XLColumn(Order = 150)] public int Apex = 0;
             [XLColumn(Order = 151)] private int OccupiedSlotTotalLevel = 0;
             [XLColumn(Order = 152)][ColumnFormat("0.00%")] public double? ApexP;
             [XLColumn(Order = 153)][ColumnFormat("0.000")] public double? AvFBioLv;
