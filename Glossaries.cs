@@ -448,12 +448,14 @@ namespace Reus2Surveyor
                 this.Hash = hash;
                 this.DisplayName = hash;
                 this.InternalName = hash;
+                this.Slot = "Unknown";
             }
             public CityProjectDefinition(string hash, string name)
             {
                 this.Hash = hash;
                 this.DisplayName = name;
                 this.InternalName = name;
+                this.Slot = "Unknown";
             }
         }
 

@@ -824,6 +824,8 @@ namespace Reus2Surveyor
 
             public static readonly Dictionary<string, int> ProjectTypeOrdering = new()
             {
+                {"Unknown", -1 },
+
                 { "Lv1", 01 },
                 { "Lv2", 02 },
                 { "Lv3", 03 },

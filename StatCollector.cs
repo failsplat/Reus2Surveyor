@@ -183,6 +183,7 @@ namespace Reus2Surveyor
             foreach (SessionSummary.TopBioticumSummary tbe in planet.GameSession.TopBioticaSummaries)
             {
                 planetTopBio.Add(new TopBioticumSummary(index, 0, tbe));
+                if (!this.BioticaStats.ContainsKey(tbe.BioticumType)) continue;
                 this.BioticaStats[tbe.BioticumType].Top5 += 1;
                 this.BioticaStats[tbe.BioticumType].AddTop5Score(tbe.TotalValue);
             }
@@ -976,6 +977,7 @@ namespace Reus2Surveyor
             {
                 if (pse.Slot is not null) 
                 {
+                    if (!projectSlotCounter.ContainsKey(pse.Slot)) continue;
                     projectSlotCounter[pse.Slot] += pse.Count;
                     foreach (string leader in pse.LeaderCounts.Keys)
                     {
@@ -1013,7 +1015,8 @@ namespace Reus2Surveyor
                     {
                         CitySummaryEntry cityA = citiesInOrder[cnA];
                         CitySummaryEntry cityB = citiesInOrder[cnB];
-
+                        (string, string) matchupKey = (cityA.Char, cityB.Char);
+                        if (!btSpiritMatchups.ContainsKey(matchupKey)) continue;
                         if ((cityA.CityN > cityB.CityN) && (cityA.Rank < cityB.Rank)) 
                         {
                             btSpiritMatchups[(cityA.Char, cityB.Char)] += 1;
