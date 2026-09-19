@@ -342,6 +342,7 @@ namespace Reus2Surveyor
             foreach ((string bioHash, int count) in planet.ActiveBioticaDefCounter)
             {
                 BioticumDefinition bd = Glossaries.BioticumDefFromHash(bioHash);
+                if (bd is null) continue;
                 if (bd.Apex) planetEntry.Apex += count;
                 switch (bd.Type)
                 {
@@ -359,6 +360,7 @@ namespace Reus2Surveyor
             foreach ((string bioHash, int count) in planet.LegacyBioticaDefCounter)
             {
                 BioticumDefinition bd = Glossaries.BioticumDefFromHash(bioHash);
+                if (bd is null) continue;
                 if (bd.Apex) planetEntry.Apex += count;
                 switch (bd.Type)
                 {
@@ -377,6 +379,7 @@ namespace Reus2Surveyor
             foreach (string bioHash in uqBioHashes)
             {
                 BioticumDefinition bd = Glossaries.BioticumDefFromHash(bioHash);
+                if (bd is null) continue;
                 switch (bd.Type)
                 {
                     case "Plant":
