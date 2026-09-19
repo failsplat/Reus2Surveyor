@@ -498,7 +498,7 @@ namespace Reus2Surveyor
             {
                 string path = openFile.FileName;
                 Planet testPlanet = null;
-                Dictionary<string, object> resAsDict = null;
+                //Dictionary<string, object> resAsDict = null;
                 bool planetOK = false;
                 string planetName = null;
 
@@ -509,18 +509,18 @@ namespace Reus2Surveyor
                 List<string> pathParts = [.. path.Split(Path.DirectorySeparatorChar)];
                 pathParts.Reverse();
 
-                if (this.SpotCheckWriteSetting)
-                {
-                    string dst = Path.Combine(decodedDir, pathParts[1] + "." + pathParts[0] + ".json");
-                    string outputText = JsonConvert.SerializeObject(resAsDict, Formatting.Indented);
-                    File.WriteAllText(dst, outputText);
-                }
-
                 string decompressed = PlanetFileUtil.DecompressEncodedFile(path);
                 string cleanprint = DictHelper.CleanupDeserialize(decompressed);
                 SaveRoot sr = JsonConvert.DeserializeObject<SaveRoot>(decompressed);
                 testPlanet = new(sr, path, -1);
                 planetOK = true;
+
+                if (this.SpotCheckWriteSetting)
+                {
+                    string dst = Path.Combine(decodedDir, pathParts[1] + "." + pathParts[0] + ".json");
+                    //string outputText = JsonConvert.SerializeObject(cleanprint, Formatting.Indented);
+                    File.WriteAllText(dst, cleanprint);
+                }
 
                 StatCollector testSc;
 
